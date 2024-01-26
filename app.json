@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "brisen-client",
-    "slug": "brisen-client",
-    "version": "1.0.0",
+    "name": "Brisen",
+    "slug": "brisen",
+    "version": "0.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "no.kallerud",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
