@@ -1,7 +1,6 @@
 import { StyleSheet, ActivityIndicator } from 'react-native';
 
 import { Text, View } from '@/components/Themed';
-import { supabase } from '@/lib/supabase';
 import { Card } from '@/types/Card';
 import React from 'react';
 
@@ -19,7 +18,7 @@ export default function TabOneScreen() {
 	return (
 		<View style={styles.container}>
 			{cards.map((card) => (
-				<Text key={card.id.string}>{card.content}</Text>
+				<Text key={card.id.string} style={styles.title}>{card.content}</Text>
 			))}
 		</View>
 	);
@@ -30,10 +29,17 @@ const styles = StyleSheet.create({
 		flex: 1,
 		alignItems: 'center',
 		justifyContent: 'center',
+		padding: 16
 	},
 	title: {
-		fontSize: 20,
+		flex: 1,
+		fontSize: 32,
 		fontWeight: 'bold',
+		textAlign: 'center',
+		backgroundColor: 'red',
+		padding: 16,
+		borderRadius: 16,
+		margin: 16
 	},
 	separator: {
 		marginVertical: 30,
