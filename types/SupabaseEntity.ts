@@ -3,40 +3,31 @@ import { UUID } from "./uuid"
 
 type Identifier = UUID | string
 
-interface SupabaseObject {
-    id: Identifier
+export class SupabaseEntity {
+    protected static readonly tableName: string
+    protected static readonly primaryKey: string = "id"
+    protected readonly data: any
 
-    fetchAll<T extends SupabaseObject>(): Promise<T[]>
-    fetch(id: Identifier): Promise<SupabaseObject>
-    fromSupabase<T extends SupabaseObject>(data: any): T
-    toSupabase(): any
-}
-
-
-abstract class SupabaseEntity {
-    static readonly tableName: string = ""
-    static readonly primaryKey: string = "id"
-    readonly id: Identifier
-    
-    constructor(
-        id: Identifier
-    ) {
-        this.id = id
+    protected constructor(data: any) {
+        this.data = data;
     }
 
-    private static async fetchAll<T extends SupabaseEntity>(): Promise<T[]> {
-        throw new Error("Method not implemented.")
+    get id(): Identifier { return this.data[SupabaseEntity.primaryKey]; }
+
+    static async fetchAll<T extends SupabaseEntity>(): Promise<T[]> {
+        const { data, error } = await supabase.from(this.tableName).select();
+        if (error) throw error;
+        return data.map((d: any) => new this(d) as T);
     }
 
-    private static async fetch(id: Identifier): Promise<SupabaseEntity> {
-        return this.fromSupabase(await supabase.from(this.tableName).select().eq(this.primaryKey, id).single())
-    }
-
-    private static fromSupabase<T extends SupabaseEntity>(data: any): T {
-        throw new Error("Method not implemented.")
-    }
-
-    private static toSupabase(entity: SupabaseEntity) {
-        throw new Error("Method not implemented.")
+    static async fetch<T extends SupabaseEntity>(id: Identifier): Promise<T | null> {
+        const { data, error } = await supabase
+            .from(this.tableName)
+            .select()
+            .eq(this.primaryKey, id)
+            .single();
+        if (error) throw error;
+        if (!data) return null;
+        return new this(data) as T;
     }
 }

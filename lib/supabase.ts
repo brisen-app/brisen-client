@@ -4,8 +4,8 @@ import { createClient } from '@supabase/supabase-js';
 import { Database } from '@/types/supabase';
 
 
-const supabaseUrl = process.env.EXPO_PUBLIC_SB_URL!;
-const supabaseAnonKey = process.env.EXPO_PUBLIC_SB_ANON!;
+const supabaseUrl = process.env.EXPO_PUBLIC_SB_URL!
+const supabaseAnonKey = process.env.EXPO_PUBLIC_SB_ANON!
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     auth: {
