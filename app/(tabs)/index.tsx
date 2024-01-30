@@ -1,8 +1,9 @@
-import { StyleSheet, ActivityIndicator } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import { Text, View } from '@/components/Themed';
 import { Card } from '@/types/Card';
 import React from 'react';
+import { ActivityIndicator } from '@/components/ActivityIndicator';
 
 export default function TabOneScreen() {
 	const [cards, setCards] = React.useState<Card[] | null>(null)
@@ -13,15 +14,21 @@ export default function TabOneScreen() {
 		})
 	}, [])
 
-	if (cards === null) return <ActivityIndicator />
-
 	return (
 		<View style={styles.container}>
-			{cards.map((card) => (
-				<Text key={card.id.string} style={styles.title}>{card.content}</Text>
-			))}
+			<ActivityIndicator/>
 		</View>
-	);
+	)
+
+	// if (cards === null) return <ActivityIndicator />
+
+	// return (
+	// 	<View style={styles.container}>
+	// 		{cards.map((card) => (
+	// 			<Text key={card.id.string} style={styles.title}>{card.content}</Text>
+	// 		))}
+	// 	</View>
+	// );
 }
 
 const styles = StyleSheet.create({
@@ -29,7 +36,6 @@ const styles = StyleSheet.create({
 		flex: 1,
 		alignItems: 'center',
 		justifyContent: 'center',
-		padding: 16
 	},
 	title: {
 		flex: 1,
