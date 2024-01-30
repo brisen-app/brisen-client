@@ -6,35 +6,30 @@ import { supabase } from '@/lib/supabase';
 import React from 'react';
 
 async function getCards() {
-  const { data, error } = await supabase
+  const { data: cards, error } = await supabase
     .from('cards')
     .select('*')
   if (error) console.log('error', error)
-  console.log('data', data)
-  return data as Map<string, any>[]
+  return cards ?? []
 }
 
 export default function TabOneScreen() {
-  const [cards, setCards] = React.useState<Map<string, any>[]>([])
-  const [loading, setLoading] = React.useState(true)
+  const [cards, setCards] = React.useState<any[] | null>(null)
 
   React.useEffect(() => {
     getCards().then((cards) => {
       setCards(cards)
-      setLoading(false)
     })
   }, [])
 
-  if (loading) return <ActivityIndicator />
+  if (cards === null) return <ActivityIndicator />
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-
       {cards.map((card) => (
-        <Text key={card.get("header")}>{card.get("header")}</Text>
-      ))}
+        <Text key={card.id}>{card.title}</Text>
+      ))  
+      }
     </View>
   );
 }
