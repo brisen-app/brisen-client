@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native';
 
 import { Text, View } from '@/components/Themed';
+import { LargeTitle } from '@/components/TextStyles';
 import { Card } from '@/types/Card';
 import React from 'react';
 import { ActivityIndicator } from '@/components/ActivityIndicator';
@@ -14,21 +15,19 @@ export default function TabOneScreen() {
 		})
 	}, [])
 
-	return (
+	if (cards === null) return (
 		<View style={styles.container}>
 			<ActivityIndicator/>
 		</View>
 	)
 
-	// if (cards === null) return <ActivityIndicator />
-
-	// return (
-	// 	<View style={styles.container}>
-	// 		{cards.map((card) => (
-	// 			<Text key={card.id.string} style={styles.title}>{card.content}</Text>
-	// 		))}
-	// 	</View>
-	// );
+	return (
+		<View style={styles.container}>
+			{cards.map((card) => (
+				<Text key={card.id.string} style={styles.title}>{card.content}</Text>
+			))}
+		</View>
+	);
 }
 
 const styles = StyleSheet.create({
@@ -38,14 +37,14 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 	},
 	title: {
-		flex: 1,
 		fontSize: 32,
 		fontWeight: 'bold',
 		textAlign: 'center',
 		backgroundColor: 'red',
 		padding: 16,
 		borderRadius: 16,
-		margin: 16
+		margin: 16,
+		overflow: 'hidden'
 	},
 	separator: {
 		marginVertical: 30,
