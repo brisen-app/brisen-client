@@ -1,13 +1,15 @@
+import React from 'react';
 import { StyleSheet } from 'react-native';
-
 import { Text, View } from '@/components/Themed';
 import { LargeTitle } from '@/components/TextStyles';
 import { Card } from '@/types/Card';
-import React from 'react';
+import GameCard from '@/components/GameCard';
 import { ActivityIndicator } from '@/components/ActivityIndicator';
+
 
 export default function TabOneScreen() {
 	const [cards, setCards] = React.useState<Card[] | null>(null)
+	const [index, setIndex] = React.useState(0)
 
 	React.useEffect(() => {
 		Card.fetchAll().then((cards) => {
@@ -15,19 +17,17 @@ export default function TabOneScreen() {
 		})
 	}, [])
 
+	const onPress = () => {
+		setIndex((index + 1) % cards!.length)
+	}
+
 	if (cards === null) return (
 		<View style={styles.container}>
 			<ActivityIndicator/>
 		</View>
 	)
 
-	return (
-		<View style={styles.container}>
-			{cards.map((card) => (
-				<Text key={card.id.string} style={styles.title}>{card.content}</Text>
-			))}
-		</View>
-	);
+	return <GameCard card={cards[index]} onPress={onPress} />
 }
 
 const styles = StyleSheet.create({
@@ -35,20 +35,5 @@ const styles = StyleSheet.create({
 		flex: 1,
 		alignItems: 'center',
 		justifyContent: 'center',
-	},
-	title: {
-		fontSize: 32,
-		fontWeight: 'bold',
-		textAlign: 'center',
-		backgroundColor: 'red',
-		padding: 16,
-		borderRadius: 16,
-		margin: 16,
-		overflow: 'hidden'
-	},
-	separator: {
-		marginVertical: 30,
-		height: 1,
-		width: '80%',
-	},
+	}
 });
