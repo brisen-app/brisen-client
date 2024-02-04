@@ -1,14 +1,8 @@
 import { supabase } from '@/lib/supabase';
+import { NotFoundError } from './Errors';
 import UUID from "./uuid"
 
 type Identifier = UUID | string
-
-export class NotFoundError extends Error {
-    constructor(message: string) {
-        super(message);
-        this.name = "NotFoundError";
-    }
-}
 
 /**
  * Represents a base class for entities that interact with Supabase.
@@ -19,7 +13,7 @@ export default class SupabaseEntity {
     protected readonly data: any
 
     constructor(data: any) {
-        this.data = data;
+        this.data = data
     }
     
     get id(): Identifier { return this.data[SupabaseEntity.primaryKey]; }
@@ -40,17 +34,17 @@ export default class SupabaseEntity {
      * Fetches a single instance of the entity from the database based on the provided identifier.
      * 
      * @param id - The identifier of the entity to fetch.
-     * @returns A promise that resolves to the fetched instance of the entity, or null if not found.
+     * @returns A promise that resolves to the fetched instance of the entity.
      * @throws {NotFoundError} If the entity with the provided identifier is not found.
      */
-    static async fetch<T extends typeof SupabaseEntity>(this: T, id: Identifier): Promise<InstanceType<T> | null> {
+    static async fetch<T extends typeof SupabaseEntity>(this: T, id: Identifier): Promise<InstanceType<T>> {
         const { data, error } = await supabase
             .from(this.tableName)
             .select()
             .eq(this.primaryKey, id)
             .single();
+        if (!data) throw new NotFoundError(`'${id}' not found in ${this.tableName}`);
         if (error) throw error
-        if (!data) throw new NotFoundError(`${id} not found in ${this.tableName}`);
         return new this(data) as InstanceType<T>;
     }
 }
