@@ -25,8 +25,8 @@ export default class Localization extends SupabaseEntity {
             .from(this.tableName)
             .select(`${this.primaryKey}, value`)
             .eq('language', language.id);
-        if (error) throw error;
         if (!data || data.length === 0) throw new Error(`No data found in ${this.tableName}`);
+        if (error) throw error;
         return data.map((d: any) => new this(d) as InstanceType<T>);
     }
 

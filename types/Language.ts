@@ -15,6 +15,6 @@ export default class Language extends SupabaseEntity {
         
         const languages = await this.fetchAll();
 
-        return languages.find(l => l.id === deviceLanguageCode) ?? languages[0];
+        return languages.find(lang => lang.id === deviceLanguageCode) ?? languages[0];
     }
 }

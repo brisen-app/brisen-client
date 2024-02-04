@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { NotFoundError } from './Errors';
-import UUID from "./uuid"
+import UUID from "./uuid";
 
 type Identifier = UUID | string
 
@@ -22,11 +22,12 @@ export default class SupabaseEntity {
      * Fetches all instances of the entity from the database.
      * @returns A promise that resolves to an array of instances of the entity.
      * @throws {NotFoundError} If no data is found in the table.
+     * @throws {PostgrestError} If an error occurs while fetching the data.
      */
     static async fetchAll<T extends typeof SupabaseEntity>(this: T): Promise<InstanceType<T>[]> {
         const { data, error } = await supabase.from(this.tableName).select();
-        if (error) throw error;
-        if (!data || data.length === 0) throw new NotFoundError(`No data found in ${this.tableName}`);
+        if (!data || data.length === 0) throw new NotFoundError(`No data found in '${this.tableName}'`);
+        if (error) throw (error);
         return data.map((d: any) => new this(d) as InstanceType<T>);
     }
 
@@ -43,7 +44,7 @@ export default class SupabaseEntity {
             .select()
             .eq(this.primaryKey, id)
             .single();
-        if (!data) throw new NotFoundError(`'${id}' not found in ${this.tableName}`);
+        if (!data) throw new NotFoundError(`Object with '${this.primaryKey} == ${id}' not found in '${this.tableName}'`);
         if (error) throw error
         return new this(data) as InstanceType<T>;
     }
