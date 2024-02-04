@@ -4,35 +4,34 @@ import { Text } from '@/components/Themed';
 import Card from '@/types/Card';
 import Colors from '@/constants/Colors';
 import Category from '@/types/Category';
+import { useQuery } from '@tanstack/react-query';
+import Localization from '@/types/Localization';
 
 export default function GameCard(props: Readonly<{ card: Card | null, onPress?: () => void }>) {
-    const [category, setCategory] = React.useState<Category | null>(null);
-    const [categoryTitle, setCategoryTitle] = React.useState<string | null>(null);
+    const { data: category, isLoading: loadingCategory } = useQuery({
+        queryKey: ["fetch", props.card?.category],
+        queryFn: async () => {
+            return await props.card?.fetchCategory()
+        }
+    })
 
-    React.useEffect(() => {
-        setCategoryTitle(null);
-        props.card?.category.then((category) => {
-            setCategory(category);
-            category?.title.then((title) => {
-                setCategoryTitle(title);
-            }).catch((reason) => {
-                console.error("Failed to fetch category title", reason.message);
-                setCategoryTitle(reason.message);
-            })
-        }).catch((reason) => {
-            console.error("Failed to fetch category", reason.message);
-            setCategory(null);
-        })
-    }, [props.card])
+    const { data: categoryTitle, isLoading: loadingTitle } = useQuery({
+        queryKey: ["fetch", category?.id ?? "null", "title"],
+        queryFn: async () => {
+            return await category?.fetchTitle()
+        },
+        enabled: !!category
+    })
 
     if (!props.card) return <Text>Error: No card provided</Text>;
 
     return (
         <Pressable style={styles.container} onPress={props.onPress}>
             <View style={styles.view}>
-                {(category && categoryTitle) ?
-                    <Text style={styles.title}>{`${category?.icon ?? "-"} ${categoryTitle}`}</Text> :
-                    <ActivityIndicator />
+                {(loadingCategory || loadingTitle) ?
+                    <ActivityIndicator /> :
+                    category ? <Text style={styles.title}>{`${category?.icon} ${categoryTitle}`}</Text> :
+                    null
                 }
                 <Text style={styles.text}>{props.card.content}</Text>
             </View>
