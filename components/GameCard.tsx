@@ -1,30 +1,29 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Pressable } from 'react-native';
 import { Text } from '@/components/Themed';
 import { Card } from '@/types/Card';
-import { BlurView } from 'expo-blur';
+import Colors from '@/constants/Colors';
 
 export default function GameCard(props: Readonly<{ card: Card, onPress?: () => void }>) {
     return (
-        <TouchableOpacity style={styles.container} onPress={props.onPress} activeOpacity={1}>
-            <BlurView intensity={100} tint='dark' style={styles.blurView}>
+        <Pressable style={styles.container} onPress={props.onPress}>
+            <View style={styles.view}>
                 <Text style={styles.text}>{props.card.content}</Text>
-            </BlurView>
-        </TouchableOpacity>
+            </View>
+        </Pressable>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: 'red',
         borderRadius: 32,
+        backgroundColor: Colors.accentColor,
         margin: 16,
         overflow: 'hidden',
     },
-    blurView: {
+    view: {
         flex: 1,
-        // alignItems: 'center',
         justifyContent: 'center',
         padding: 32,
     },

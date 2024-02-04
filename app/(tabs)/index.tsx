@@ -1,7 +1,6 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { Text, View } from '@/components/Themed';
-import { LargeTitle } from '@/components/TextStyles';
+import { View } from '@/components/Themed';
 import { Card } from '@/types/Card';
 import GameCard from '@/components/GameCard';
 import { ActivityIndicator } from '@/components/ActivityIndicator';
