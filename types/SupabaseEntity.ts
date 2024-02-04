@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { UUID } from "./uuid"
+import UUID from "./uuid"
 
 type Identifier = UUID | string
 
@@ -13,7 +13,7 @@ export class NotFoundError extends Error {
 /**
  * Represents a base class for entities that interact with Supabase.
  */
-export class SupabaseEntity {
+export default class SupabaseEntity {
     protected static readonly tableName: string
     protected static readonly primaryKey: string = "id"
     protected readonly data: any
