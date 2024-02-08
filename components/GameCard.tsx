@@ -7,16 +7,17 @@ import Category from '@/types/Category';
 import { useQuery } from '@tanstack/react-query';
 import Localization from '@/types/Localization';
 
-export default function GameCard(props: Readonly<{ card: Card | null, onPress?: () => void }>) {
+export default function GameCard(props: Readonly<{ card: Card, onPress?: () => void }>) {
     const { data: category, isLoading: loadingCategory } = useQuery({
-        queryKey: ["fetch", props.card?.category],
+        queryKey: ["fetch", props.card.category],
         queryFn: async () => {
             return await props.card?.fetchCategory()
-        }
+        },
+        enabled: !!props.card?.category
     })
 
     const { data: categoryTitle, isLoading: loadingTitle } = useQuery({
-        queryKey: ["fetch", category?.id ?? "null", "title"],
+        queryKey: ["fetch", Localization.tableName, `${category?.id}_title`],
         queryFn: async () => {
             return await category?.fetchTitle()
         },
