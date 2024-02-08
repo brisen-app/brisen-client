@@ -7,6 +7,8 @@ import { useEffect } from 'react';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { Platform } from 'react-native';
 
 export {
 	// Catch any errors thrown by the Layout component.
@@ -65,6 +67,7 @@ function RootLayoutNav() {
 					<Stack.Screen name="modal" options={{ presentation: 'modal' }} />
 				</Stack>
 			</ThemeProvider>
+			{Platform.OS === 'web' && <ReactQueryDevtools initialIsOpen={true}/>}
 		</QueryClientProvider>
 	);
 }
