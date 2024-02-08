@@ -55,8 +55,9 @@ function RootLayoutNav() {
 				staleTime: Infinity,
 				refetchOnWindowFocus: false,
 				retry: false,
+				gcTime: Infinity,
 			},
-		},
+		}
 	});
 
 	return (
@@ -67,7 +68,7 @@ function RootLayoutNav() {
 					<Stack.Screen name="modal" options={{ presentation: 'modal' }} />
 				</Stack>
 			</ThemeProvider>
-			{Platform.OS === 'web' && <ReactQueryDevtools initialIsOpen={true}/>}
+			{Platform.OS === 'web' && <ReactQueryDevtools initialIsOpen={true} />}
 		</QueryClientProvider>
 	);
 }
