@@ -8,7 +8,7 @@ type Identifier = UUID | string
  * Represents a base class for entities that interact with Supabase.
  */
 export default class SupabaseEntity {
-    protected static readonly tableName: string
+    static readonly tableName: string
     protected static readonly primaryKey: string = "id"
     protected readonly data: any
 

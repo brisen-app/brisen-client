@@ -2,7 +2,7 @@ import SupabaseEntity from "./SupabaseEntity";
 import { NativeModules, Platform } from 'react-native';
 
 export default class Language extends SupabaseEntity {
-    protected static readonly tableName: string = "languages"
+    static readonly tableName: string = "languages"
 
     get id() { return super.id as string }
     get icon() { return this.data.icon as string }

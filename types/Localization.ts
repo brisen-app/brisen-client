@@ -4,7 +4,7 @@ import Language from "./Language";
 import { NotFoundError } from "./Errors";
 
 export default class Localization extends SupabaseEntity {
-    protected static readonly tableName: string = "localizations"
+    static readonly tableName: string = "localizations"
     protected static readonly primaryKey: string = "key"
 
     get id() { return super.id as string }
