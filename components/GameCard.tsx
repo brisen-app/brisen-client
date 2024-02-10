@@ -2,10 +2,9 @@ import React from 'react';
 import { StyleSheet, View, Pressable, ActivityIndicator } from 'react-native';
 import { Text } from '@/components/Themed';
 import Card from '@/types/Card';
-import Colors from '@/constants/Colors';
-import Category from '@/types/Category';
 import { useQuery } from '@tanstack/react-query';
 import Localization from '@/types/Localization';
+import ColorTheme from '@/types/ColorTheme';
 
 export default function GameCard(props: Readonly<{ card: Card, onPress?: () => void }>) {
     const { data: category, isLoading: loadingCategory } = useQuery({
@@ -24,17 +23,18 @@ export default function GameCard(props: Readonly<{ card: Card, onPress?: () => v
         enabled: !!category
     })
 
-    if (!props.card) return <Text>Error: No card provided</Text>;
-
     return (
-        <Pressable style={styles.container} onPress={props.onPress}>
+        <Pressable style={{
+            ...styles.container,
+            backgroundColor: category?.color?.string ?? ColorTheme.accent
+        }} onPress={props.onPress}>
             <View style={styles.view}>
                 {(loadingCategory || loadingTitle) ?
-                    <ActivityIndicator /> :
-                    category ? <Text style={styles.title}>{`${category?.icon} ${categoryTitle}`}</Text> :
+                    <ActivityIndicator color={ColorTheme.text}/> :
+                    category ? <Text style={[styles.text, styles.title]}>{`${category?.icon} ${categoryTitle}`}</Text> :
                     null
                 }
-                <Text style={styles.text}>{props.card.content}</Text>
+                <Text style={[styles.text, styles.content]}>{props.card.content}</Text>
             </View>
         </Pressable>
     );
@@ -44,9 +44,10 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         borderRadius: 32,
-        backgroundColor: Colors.accentColor,
         margin: 16,
         overflow: 'hidden',
+        borderColor: ColorTheme.border,
+        borderWidth: 1,
     },
     view: {
         flex: 1,
@@ -54,22 +55,19 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 32,
     },
+    text: {
+        userSelect: 'none',
+        textShadowColor: ColorTheme.textShadow,
+        textShadowRadius: 1,
+        textShadowOffset: { width: 0, height: 1 },
+        textAlign: 'center'
+    },
     title : {
         fontSize: 32,
         fontWeight: '900',
-        textAlign: 'center',
-        userSelect: 'none',
-        textShadowColor: 'rgba(0, 0, 0, 0.25)',
-        textShadowRadius: 1,
-        textShadowOffset: { width: 0, height: 1 },
     },
-    text: {
+    content: {
         fontSize: 24,
         fontWeight: '900',
-        textAlign: 'center',
-        userSelect: 'none',
-        textShadowColor: 'rgba(0, 0, 0, 0.25)',
-        textShadowRadius: 1,
-        textShadowOffset: { width: 0, height: 1 },
     }
 });
