@@ -38,6 +38,6 @@ export default abstract class ColorTheme {
     }
 
     static get border() {
-        return Color.white.alpha(0.25).string;
+        return Color.white.alpha(0.2).string;
     }
 }

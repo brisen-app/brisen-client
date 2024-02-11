@@ -1,10 +1,10 @@
 import React from 'react';
-import { StyleSheet, View, Pressable, ActivityIndicator } from 'react-native';
-import { Text } from '@/components/Themed';
+import { Text, StyleSheet, View, Pressable, ActivityIndicator } from 'react-native';
 import Card from '@/types/Card';
 import { useQuery } from '@tanstack/react-query';
 import Localization from '@/types/Localization';
 import ColorTheme from '@/types/ColorTheme';
+import Color from '@/types/Color';
 
 export default function GameCard(props: Readonly<{ card: Card, onPress?: () => void }>) {
     const { data: category, isLoading: loadingCategory } = useQuery({
@@ -23,6 +23,10 @@ export default function GameCard(props: Readonly<{ card: Card, onPress?: () => v
         enabled: !!category
     })
 
+    if (loadingCategory || loadingTitle) return <ActivityIndicator color={ColorTheme.text}/>
+    
+    const contentColor = (category?.color?.luminance ?? 0) > 0.7 ? Color.black.string : Color.white.string
+
     return (
         <Pressable style={{
             ...styles.container,
@@ -34,7 +38,9 @@ export default function GameCard(props: Readonly<{ card: Card, onPress?: () => v
                     category ? <Text style={[styles.text, styles.title]}>{`${category?.icon} ${categoryTitle}`}</Text> :
                     null
                 }
-                <Text style={[styles.text, styles.content]}>{props.card.content}</Text>
+                <Text style={{...styles.text, ...styles.content, color: contentColor }}>
+                    {props.card.content}
+                </Text>
             </View>
         </Pressable>
     );
