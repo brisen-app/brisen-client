@@ -5,6 +5,7 @@ export default class Color {
 
     private readonly hex: string // #rrggbb
     private readonly a: number // 0-1
+    get luminance() { return Color.calculateRelativeLuminance(this.hex) } // 0-1
     get string() { return `${this.hex}${Color.numberToHex(this.a * 255)}` }
 
     static readonly white = Color.hex("#fff")
@@ -38,6 +39,22 @@ export default class Color {
     alpha(a: number): Color {
         if (a < 0 || a > 1) throw new TypeError(`Invalid alpha: '${a}'`)
         return new Color(`${this.hex}${Color.numberToHex(Math.round(a * 255))}`)
+    }
+
+    private static calculateRelativeLuminance(hexColor: string): number {
+        // Convert hex to RGB
+        const r = this.hexToNumber(hexColor.slice(1, 3)) / 255;
+        const g = this.hexToNumber(hexColor.slice(3, 5)) / 255;
+        const b = this.hexToNumber(hexColor.slice(5, 7)) / 255;
+
+        // Calculate RsRGB, GsRGB, and BsRGB
+        const RsRGB = r <= 0.03928 ? r / 12.92 : Math.pow((r + 0.055) / 1.055, 2.4);
+        const GsRGB = g <= 0.03928 ? g / 12.92 : Math.pow((g + 0.055) / 1.055, 2.4);
+        const BsRGB = b <= 0.03928 ? b / 12.92 : Math.pow((b + 0.055) / 1.055, 2.4);
+
+        // Calculate relative luminance
+        const L = 0.2126 * RsRGB + 0.7152 * GsRGB + 0.0722 * BsRGB;
+        return L;
     }
     
     static hex(hex: string): Color {
