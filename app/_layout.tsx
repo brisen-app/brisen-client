@@ -8,7 +8,8 @@ import { useEffect } from 'react';
 import { useColorScheme } from '@/components/useColorScheme';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { Platform } from 'react-native';
+import { Platform, View } from 'react-native';
+import HomeScreen from './home';
 
 export {
 	// Catch any errors thrown by the Layout component.
@@ -63,12 +64,11 @@ function RootLayoutNav() {
 	return (
 		<QueryClientProvider client={queryClient}>
 			<ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-				<Stack>
-					<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-					<Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-				</Stack>
+				<View style={{ flex: 1, backgroundColor: "black" }}>
+					<HomeScreen />
+				</View>
+				{Platform.OS === 'web' && <ReactQueryDevtools initialIsOpen={true} />}
 			</ThemeProvider>
-			{Platform.OS === 'web' && <ReactQueryDevtools initialIsOpen={true} />}
 		</QueryClientProvider>
 	);
 }

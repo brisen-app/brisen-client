@@ -1,13 +1,11 @@
 import React from 'react';
-import { FlatList, StyleSheet } from 'react-native';
-import { View } from '@/components/Themed';
-import Card from '@/types/Card';
+import { FlatList } from 'react-native';import Card from '@/types/Card';
 import GameCard from '@/components/GameCard';
 import { ActivityIndicator } from '@/components/ActivityIndicator';
 import { useQuery } from '@tanstack/react-query';
 
 
-export default function TabOneScreen() {
+export default function HomeScreen() {
 	const { data: cards, isLoading } = useQuery({
 		queryKey: ["fetchCards"],
 		queryFn: async () => {
@@ -22,15 +20,7 @@ export default function TabOneScreen() {
 		showsVerticalScrollIndicator={false}
 		data={cards}
 		renderItem={({ item, index }) => <GameCard card={item} />}
-		removeClippedSubviews={true}
-		maxToRenderPerBatch={1}
+		removeClippedSubviews
+		initialNumToRender={1}
 	/>
 }
-
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		alignItems: 'center',
-		justifyContent: 'center',
-	}
-});
