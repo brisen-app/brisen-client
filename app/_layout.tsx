@@ -9,7 +9,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Platform, View } from 'react-native';
-import HomeScreen from './home';
+import GameView from './game_view';
 
 export {
 	// Catch any errors thrown by the Layout component.
@@ -24,7 +24,7 @@ export const unstable_settings = {
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+export default function App() {
 	const [loaded, error] = useFonts({
 		SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
 		...FontAwesome.font,
@@ -45,10 +45,10 @@ export default function RootLayout() {
 		return null;
 	}
 
-	return <RootLayoutNav />;
+	return <SubApp />;
 }
 
-function RootLayoutNav() {
+function SubApp() {
 	const colorScheme = useColorScheme();
 	const queryClient = new QueryClient({
 		defaultOptions: {
@@ -65,7 +65,7 @@ function RootLayoutNav() {
 		<QueryClientProvider client={queryClient}>
 			<ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
 				<View style={{ flex: 1, backgroundColor: "black" }}>
-					<HomeScreen />
+					<GameView />
 				</View>
 				{Platform.OS === 'web' && <ReactQueryDevtools initialIsOpen={true} />}
 			</ThemeProvider>
