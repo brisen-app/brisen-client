@@ -41,12 +41,14 @@ export default function GameCard(props: Readonly<{ card: Card, onPress?: () => v
     return (
         <Pressable style={{
             ...styles.container,
-            paddingBottom: insets.bottom,
-            paddingTop: insets.top
+            paddingBottom: insets.bottom + 64 + 8,
+            paddingTop: insets.top,
+            paddingLeft: insets.left,
+            paddingRight: insets.right,
         }} onPress={props.onPress}>
             <View style={{
                 ...styles.view,
-                backgroundColor: category?.color?.string ?? "orange"
+                backgroundColor: category?.color?.value ?? "orange"
             }}>
                 {category ?
                     <Text style={[styles.text, styles.title]}>
@@ -72,19 +74,19 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         //maxHeight: 1080,
-        borderRadius: 48,
+        borderRadius: 32,
         padding: 32,
-        marginBottom: "10%",
-        borderColor: Color.white.alpha(0.1).string,
+        //marginBottom: "10%",
+        borderColor: Color.white.alpha(0.1).value,
         borderWidth: 1,
     },
     text: {
         userSelect: 'none',
-        textShadowColor: Color.black.alpha(0.5).string,
+        textShadowColor: Color.black.alpha(0.5).value,
         textShadowRadius: 1,
         textShadowOffset: { width: 0, height: 1 },
         textAlign: 'center',
-        color: Color.white.string,
+        color: Color.white.value,
     },
     title: {
         fontSize: 32,

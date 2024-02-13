@@ -6,7 +6,7 @@ export default class Color {
     private readonly hex: string // #rrggbb
     private readonly a: number // 0-1
     get luminance() { return Color.calculateRelativeLuminance(this.hex) } // 0-1
-    get string() { return `${this.hex}${Color.numberToHex(this.a * 255)}` }
+    get value() { return `${this.hex}${Color.numberToHex(this.a * 255)}` }
 
     static readonly white = Color.hex("#fff")
     static readonly black = Color.hex("#000")
@@ -16,12 +16,12 @@ export default class Color {
         if (!Color.hexPattern.test(string)) throw new TypeError(`Invalid hex pattern: '${string}'`)
         switch (string.length) {
             case 4:
-                this.hex = `#${string[1]}${string[1]}${string[2]}${string[2]}${string[3]}${string[3]}`
+                this.hex = Color.shortHexToLong(string)
                 this.a = 1
                 break
             case 5:
-                this.hex = `#${string[1]}${string[1]}${string[2]}${string[2]}${string[3]}${string[3]}`
-                this.a = Color.hexToNumber(string[4]) / 255
+                this.hex = Color.shortHexToLong(string)
+                this.a = Color.hexToNumber(string.slice(-1)) / 255
                 break
             case 7:
                 this.hex = string
@@ -29,7 +29,7 @@ export default class Color {
                 break
             case 9:
                 this.hex = string.slice(0, 7)
-                this.a = Color.hexToNumber(string.slice(7)) / 255
+                this.a = Color.hexToNumber(string.slice(-2)) / 255
                 break
             default:
                 throw new TypeError(`Invalid hex length: '${string}'`)
@@ -56,7 +56,7 @@ export default class Color {
         const L = 0.2126 * RsRGB + 0.7152 * GsRGB + 0.0722 * BsRGB;
         return L;
     }
-    
+
     static hex(hex: string): Color {
         return new Color(hex)
     }

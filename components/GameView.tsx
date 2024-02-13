@@ -1,5 +1,6 @@
 import React from 'react';
-import { ActivityIndicator, FlatList, View } from 'react-native'; import Card from '@/types/Card';
+import { ActivityIndicator, FlatList, View } from 'react-native';
+import Card from '@/types/Card';
 import GameCard from '@/components/GameCard';
 import { useQuery } from '@tanstack/react-query';
 
