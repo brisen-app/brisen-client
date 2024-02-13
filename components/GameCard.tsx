@@ -4,7 +4,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Card from '@/types/Card';
 import { useQuery } from '@tanstack/react-query';
 import Localization from '@/types/Localization';
-import ColorTheme from '@/types/ColorTheme';
 import Color from '@/types/Color';
 import { BlurView } from 'expo-blur';
 
@@ -35,15 +34,19 @@ export default function GameCard(props: Readonly<{ card: Card, onPress?: () => v
 
     if (loadingCategory || loadingTitle) return (
         <BlurView style={[styles.container, styles.view]}>
-            <ActivityIndicator color={ColorTheme.accent} size={"large"} />
+            <ActivityIndicator color={"white"} size={"large"} />
         </BlurView>
     )
 
     return (
-        <Pressable style={{ ...styles.container, paddingBottom: insets.bottom, paddingTop: insets.top }} onPress={props.onPress}>
+        <Pressable style={{
+            ...styles.container,
+            paddingBottom: insets.bottom,
+            paddingTop: insets.top
+        }} onPress={props.onPress}>
             <View style={{
                 ...styles.view,
-                backgroundColor: category?.color?.string ?? ColorTheme.accent
+                backgroundColor: category?.color?.string ?? "orange"
             }}>
                 {category ?
                     <Text style={[styles.text, styles.title]}>
@@ -71,12 +74,13 @@ const styles = StyleSheet.create({
         //maxHeight: 1080,
         borderRadius: 48,
         padding: 32,
-        borderColor: ColorTheme.border,
+        marginBottom: "10%",
+        borderColor: Color.white.alpha(0.1).string,
         borderWidth: 1,
     },
     text: {
         userSelect: 'none',
-        textShadowColor: ColorTheme.textShadow,
+        textShadowColor: Color.black.alpha(0.5).string,
         textShadowRadius: 1,
         textShadowOffset: { width: 0, height: 1 },
         textAlign: 'center',
