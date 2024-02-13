@@ -1,7 +1,7 @@
 import React from 'react';
 import { ActivityIndicator, FlatList, View } from 'react-native';
 import Card from '@/types/Card';
-import GameCard from '@/components/GameCard';
+import CardView from '@/components/CardView';
 import { useQuery } from '@tanstack/react-query';
 
 
@@ -21,8 +21,9 @@ export default function GameView() {
 
 	return <FlatList
 		pagingEnabled
+		initialNumToRender={1}
 		showsVerticalScrollIndicator={false}
 		data={cards}
-		renderItem={({ item, index }) => <GameCard card={item} />}
+		renderItem={({ item, index }) => <CardView card={item} />}
 	/>
 }
