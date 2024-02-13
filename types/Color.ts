@@ -6,7 +6,7 @@ export default class Color {
     private readonly hex: string // #rrggbb
     private readonly a: number // 0-1
     get luminance() { return Color.calculateRelativeLuminance(this.hex) } // 0-1
-    get value() { return `${this.hex}${Color.numberToHex(this.a * 255)}` }
+    get string() { return `${this.hex}${Color.numberToHex(this.a * 255)}` }
 
     static readonly white = Color.hex("#fff")
     static readonly black = Color.hex("#000")

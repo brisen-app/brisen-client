@@ -1,11 +1,13 @@
 import React from 'react';
-import { Text, StyleSheet, View, Pressable, ActivityIndicator, Dimensions } from 'react-native';
+import { StyleSheet, View, Pressable, ActivityIndicator, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Card from '@/types/Card';
 import { useQuery } from '@tanstack/react-query';
-import Localization from '@/types/Localization';
 import Color from '@/types/Color';
 import { BlurView } from 'expo-blur';
+import { LocalizedText } from './LocalizedText';
+import { Text } from './Themed';
+import Category from '@/types/Category';
 
 export default function GameCard(props: Readonly<{ card: Card, onPress?: () => void }>) {
     let insets = useSafeAreaInsets()
@@ -17,22 +19,14 @@ export default function GameCard(props: Readonly<{ card: Card, onPress?: () => v
     }
 
     const { data: category, isLoading: loadingCategory } = useQuery({
-        queryKey: ["fetch", props.card.category],
+        queryKey: props.card.category ? [Category.tableName, props.card.category] : [],
         queryFn: async () => {
-            return await props.card?.fetchCategory()
+            return await Category.fetch(props.card.category!)
         },
         enabled: !!props.card?.category
     })
 
-    const { data: categoryTitle, isLoading: loadingTitle } = useQuery({
-        queryKey: ["fetch", Localization.tableName, `${category?.id}_title`],
-        queryFn: async () => {
-            return await category?.fetchTitle()
-        },
-        enabled: !!category
-    })
-
-    if (loadingCategory || loadingTitle) return (
+    if (loadingCategory) return (
         <BlurView style={[styles.container, styles.view]}>
             <ActivityIndicator color={"white"} size={"large"} />
         </BlurView>
@@ -48,12 +42,18 @@ export default function GameCard(props: Readonly<{ card: Card, onPress?: () => v
         }} onPress={props.onPress}>
             <View style={{
                 ...styles.view,
-                backgroundColor: category?.color?.value ?? "orange"
+                backgroundColor: category?.color?.string ?? "orange"
             }}>
                 {category ?
-                    <Text style={[styles.text, styles.title]}>
-                        {`${category?.icon} ${categoryTitle}`}
-                    </Text> : null}
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Text style={[styles.text, styles.title, { marginRight: 4 }]}>{category?.icon}</Text>
+                        <LocalizedText
+                            localeKey={`${category?.id}_title`}
+                            placeHolerStyle={{ width: '50%', height: 32 }}
+                            style={[styles.text, styles.title]}
+                        />
+                    </View> :
+                    null}
                 <Text style={[styles.text, styles.content]}>
                     {props.card.content}
                 </Text>
@@ -77,16 +77,16 @@ const styles = StyleSheet.create({
         borderRadius: 32,
         padding: 32,
         //marginBottom: "10%",
-        borderColor: Color.white.alpha(0.1).value,
+        borderColor: Color.white.alpha(0.1).string,
         borderWidth: 1,
     },
     text: {
         userSelect: 'none',
-        textShadowColor: Color.black.alpha(0.5).value,
+        textShadowColor: Color.black.alpha(0.5).string,
         textShadowRadius: 1,
         textShadowOffset: { width: 0, height: 1 },
         textAlign: 'center',
-        color: Color.white.value,
+        color: Color.white.string,
     },
     title: {
         fontSize: 32,

@@ -7,7 +7,7 @@ export default class Localization extends SupabaseEntity {
     static readonly tableName: string = "localizations"
     protected static readonly primaryKey: string = "key"
 
-    get id() { return super.id as string }
+    get id() { return this.data[Localization.primaryKey] as string }
     get value() { return this.data.value as string }
 
     constructor(data: any) {
@@ -15,23 +15,22 @@ export default class Localization extends SupabaseEntity {
         super(data);
     }
 
-    static async get(key: string) {
-        return (await this.fetch(key)).value;
+    static async get(key: string, language: Language = Language.getCurrent()) {
+        return (await this.fetchWithLang(key, language)).value;
     }
 
-    static async fetchAll<T extends typeof SupabaseEntity>(this: T): Promise<InstanceType<T>[]> {
-        const language = await Language.getDeviceLanguage();
+    static async fetchAllWithLang(language: Language): Promise<Localization[]> {
+        console.debug(`Fetching all '${this.tableName}'`);
         const { data, error } = await supabase
             .from(this.tableName)
-            .select(`${this.primaryKey}, value`)
+            .select()
             .eq('language', language.id);
         if (!data || data.length === 0) throw new Error(`No data found in ${this.tableName}`);
         if (error) throw error;
-        return data.map((d: any) => new this(d) as InstanceType<T>);
+        return data.map((d: any) => new this(d));
     }
 
-    static async fetch<T extends typeof SupabaseEntity>(this: T, id: string): Promise<InstanceType<T>> {
-        const language = await Language.getDeviceLanguage();
+    static async fetchWithLang(id: string, language: Language): Promise<Localization> {
         const { data, error } = await supabase
             .from(this.tableName)
             .select()
@@ -40,6 +39,6 @@ export default class Localization extends SupabaseEntity {
             .single();
         if (!data) throw new NotFoundError(`'${id}' in lang '${language.title}' not found in '${this.tableName}'`);
         if (error) throw error
-        return new this(data) as InstanceType<T>;
+        return new this(data);
     }
 }

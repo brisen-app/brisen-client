@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 
 export default function GameView() {
 	const { data: cards, isLoading } = useQuery({
-		queryKey: ["fetch", Card.tableName, "all"],
+		queryKey: [Card.tableName],
 		queryFn: async () => {
 			return await Card.fetchAll()
 		}
