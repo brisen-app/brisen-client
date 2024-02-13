@@ -28,6 +28,9 @@ export default function HomeView() {
 
     const backdrop = useCallback(
         (props: any) => <BottomSheetBackdrop
+            opacity={0.9}
+            appearsOnIndex={2}
+            disappearsOnIndex={0}
             pressBehavior={'collapse'}
             {...props} />,
         []
@@ -42,7 +45,7 @@ export default function HomeView() {
                 snapPoints={snapPoints}
                 onChange={handleSheetChanges}
                 backdropComponent={backdrop}
-                backgroundStyle={styles.contentContainer}
+                backgroundStyle={[styles.contentContainer, { backgroundColor: isLightMode ? Color.white.alpha(0.9).string : Color.black.alpha(0.1).string }]}
                 backgroundComponent={containerView}
                 handleIndicatorStyle={{
                     backgroundColor: isLightMode ?
@@ -61,8 +64,7 @@ export default function HomeView() {
 const styles = StyleSheet.create({
     contentContainer: {
         borderRadius: 16,
-        overflow: 'hidden',
-        backgroundColor: Color.white.alpha(0.2).string,
+        overflow: 'hidden'
     },
     shadow: {
         shadowColor: 'black',
