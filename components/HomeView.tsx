@@ -41,7 +41,7 @@ export default function HomeView() {
             <GameView />
             <BottomSheet
                 ref={bottomSheetRef}
-                index={0}
+                index={2}
                 snapPoints={snapPoints}
                 onChange={handleSheetChanges}
                 backdropComponent={backdrop}

@@ -49,7 +49,7 @@ export default function GameCard(props: Readonly<{ card: Card, onPress?: () => v
                         <Text style={[styles.text, styles.title, { marginRight: 4 }]}>{category?.icon}</Text>
                         <LocalizedText
                             localeKey={`${category?.id}_title`}
-                            placeHolerStyle={{ width: '50%', height: 32 }}
+                            placeHolderStyle={{ width: '50%', height: 32 }}
                             style={[styles.text, styles.title]}
                         />
                     </View> :

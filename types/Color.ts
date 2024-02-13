@@ -12,6 +12,10 @@ export default class Color {
     static readonly black = Color.hex("#000")
     static readonly transparent = Color.white.alpha(0)
 
+    public toString() {
+        return this.string
+    }
+
     protected constructor(string: string) {
         if (!Color.hexPattern.test(string)) throw new TypeError(`Invalid hex pattern: '${string}'`)
         switch (string.length) {

@@ -8,7 +8,7 @@ import Language from '@/types/Language';
 type LocalizationProps = {
     localeKey: string;
     forcePlaceholder?: boolean;
-    placeHolerStyle: {
+    placeHolderStyle: {
         borderRadius?: AnimatableNumericValue;
         width?: DimensionValue;
         height: DimensionValue;
@@ -20,7 +20,7 @@ export type LocalizedTextProps = LocalizationProps & TextProps;
 export function LocalizedText(props: LocalizedTextProps) {
     const isLightMode = useColorScheme() === 'light';
     const language = Language.getCurrent();
-    const { localeKey, placeHolerStyle,forcePlaceholder, ...otherProps } = props;
+    const { localeKey, placeHolderStyle: placeHolerStyle, forcePlaceholder, ...otherProps } = props;
 
     const { data: localization, isLoading } = useQuery({
         queryKey: [Localization.tableName, language.id, localeKey],
@@ -33,8 +33,9 @@ export function LocalizedText(props: LocalizedTextProps) {
         flexGrow: placeHolerStyle?.width === null ? 1 : 0,
         height: placeHolerStyle?.height ?? 16,
         width: placeHolerStyle?.width ?? 'auto',
-        backgroundColor: (isLightMode ? Color.black : Color.white).alpha(0.25).string,
+        backgroundColor: (isLightMode ? Color.black : Color.white).alpha(0.2).string,
         borderRadius: placeHolerStyle.borderRadius ?? 4,
+        margin: 2,
     }} />
 
     return <Text {...otherProps} >{localization?.value ?? localeKey}</Text>;
