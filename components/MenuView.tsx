@@ -100,7 +100,7 @@ export default function MenuView() {
 
     return (
         <View style={{ overflow: 'visible', paddingHorizontal: Sizes.normal }}>
-            <Text style={{ fontSize: Sizes.large, fontWeight: 'bold', marginBottom: Sizes.tiny }}>Packs</Text>
+            <Text style={ styles.title }>Packs</Text>
             <FlatList
                 style={{ flexGrow: 0, overflow: 'visible' }}
                 showsHorizontalScrollIndicator={false}
@@ -108,9 +108,9 @@ export default function MenuView() {
                 scrollEnabled={enableScroll}
                 snapToInterval={itemWidth + 8}
                 decelerationRate={0}
+                keyExtractor={(item, index) => item.map(p => p.id).join('') }
                 data={partition(packs ?? [], itemsPerRow)}
                 renderItem={({ item }) => <PagingGridView items={item} style={{ width: itemWidth }}/>}
-                ItemSeparatorComponent={() => <View style={{ width: Sizes.small }} />}
             />
         </View>
     )
@@ -118,16 +118,16 @@ export default function MenuView() {
 
 const styles = StyleSheet.create({
     title: {
-        fontSize: 28,
+        fontSize: Sizes.medium,
         fontWeight: 'bold',
+        marginBottom: Sizes.tiny
     }
 });
 
 function partition<T>(items: T[], size: number): T[][] {
-    var p: T[][] = [];
-    for (var i = 0; i < items.length; i += size) {
+    let p: T[][] = [];
+    for (let i = 0; i < items.length; i += size) {
         p.push(items.slice(i, i + size));
     }
-    console.log(p);
     return p;
 }
