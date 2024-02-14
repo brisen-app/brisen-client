@@ -69,6 +69,11 @@ export default class Color {
         return new Color(`#${Color.numberToHex(r)}${Color.numberToHex(g)}${Color.numberToHex(b)}`)
     }
 
+    static brightness(brightness: number): Color {
+        if (brightness < 0 || brightness > 1) throw new TypeError(`Invalid brightness: '${brightness}'`)
+        return new Color(`#${Color.numberToHex(Math.round(brightness * 255))}${Color.numberToHex(Math.round(brightness * 255))}${Color.numberToHex(Math.round(brightness * 255))}`)
+    }
+
     private static numberToHex(i: number): string {
         if (i < 0 || i > 255) throw new TypeError(`Invalid color value: '${i}'`)
         return i.toString(16).padStart(2, "0")

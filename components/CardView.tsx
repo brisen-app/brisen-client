@@ -77,8 +77,8 @@ const styles = StyleSheet.create({
         borderRadius: 32,
         padding: 32,
         //marginBottom: "10%",
-        borderColor: Color.white.alpha(0.1).string,
-        borderWidth: 1,
+        borderColor: Color.white.alpha(0.2).string,
+        borderWidth: StyleSheet.hairlineWidth,
     },
     text: {
         userSelect: 'none',

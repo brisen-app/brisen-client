@@ -1,23 +1,20 @@
-const accentColor = '#f3a000';
-const tintColorLight = '#2f95dc';
-const tintColorDark = '#fff';
+import Color from "@/types/Color";
+
+const accentColor = Color.hex('#f3a000');
 
 export default {
   light: {
     accentColor: accentColor,
-    text: '#000',
-    background: '#fff',
-    tint: tintColorLight,
-    tabIconDefault: '#ccc',
-    tabIconSelected: tintColorLight,
+    text: Color.black,
+    secondaryText: Color.brightness(0.5),
+    background: Color.white,
+    stroke: Color.brightness(0.9),
   },
   dark: {
     accentColor: accentColor,
-    text: '#fff',
-    background: '#000',
-    tint: tintColorDark,
-    tabIconDefault: '#ccc',
-    tabIconSelected: tintColorDark,
-  },
-  accentColor: accentColor,
+    text: Color.white,
+    secondaryText: Color.brightness(0.5),
+    background: Color.black,
+    stroke: Color.brightness(0.1),
+  }
 };

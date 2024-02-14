@@ -1,33 +1,49 @@
-import { ActivityIndicator, DimensionValue, StyleSheet, TouchableOpacity, useColorScheme, View } from "react-native";
+import { ActivityIndicator, Button, DimensionValue, Pressable, StyleSheet, TouchableOpacity, useColorScheme, View } from "react-native";
 import { Text } from "./Themed";
 import Pack from "@/types/Pack";
 import { useQuery } from "@tanstack/react-query";
 import { FlatList } from "react-native-gesture-handler";
 import { LocalizedText } from "./LocalizedText";
 import Color from "@/types/Color";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import Colors from "@/constants/Colors";
 
 function PackListView(props: Readonly<{ pack: Pack, onPress?: () => void }>) {
-    const isLightMode = useColorScheme() === 'light';
-    const height: DimensionValue = 94;
+    const colorScheme = useColorScheme() ?? 'dark';
+    const height: DimensionValue = 75;
     const { pack, onPress } = props;
 
-    const color = (isLightMode ? Color.black : Color.white).alpha(0.1).string;
-
     return (
-        <TouchableOpacity style={{ padding: 8, height: height }}>
-            <View style={{ flex: 1, flexDirection: 'row' }} >
-                <View style={{ aspectRatio: 1, backgroundColor: color, alignItems: 'center', justifyContent: 'center', borderRadius: 16, borderColor: color, borderWidth: 0.5, }}>
+        <Pressable style={{
+                height: height,
+                // borderRadius: 16,
+                backgroundColor: Colors[colorScheme].background.string
+            }}>
+            <View style={{ flex: 1, flexDirection: 'row', margin: 8 }} >
+                <View style={{
+                    aspectRatio: 1,
+                    backgroundColor: Colors[colorScheme].text.alpha(0.5).string,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    // borderRadius: 32,
+                    // borderColor: Colors[colorScheme].stroke.string,
+                    // borderWidth: StyleSheet.hairlineWidth
+                }}>
                     <Text style={{ fontSize: height / 2 }}>{pack.icon}</Text>
                 </View>
-                <View style={{ flex: 1, marginLeft: 8, justifyContent: 'center' }}>
-                    <LocalizedText localeKey={`${props.pack.id}_title`} placeHolderStyle={{ height: 20, width: 64 }} style={{ fontSize: 20, fontWeight: '900' }} />
-                    <LocalizedText localeKey={`${props.pack.id}_desc`} placeHolderStyle={{ height: 36 }} style={{ opacity: 0.5 }} />
+                <View style={{
+                    flex: 1,
+                    marginHorizontal: 8,
+                    justifyContent: 'center',
+                }}>
+                    <LocalizedText localeKey={`${props.pack.id}_title`} placeHolderStyle={{ height: 20, width: 64 }} style={{ fontSize: 16, fontWeight: '900', color: Colors[colorScheme].text.string }} />
+                    <LocalizedText localeKey={`${props.pack.id}_desc`} placeHolderStyle={{ height: 36 }} numberOfLines={2} style={{ color: Colors[colorScheme].secondaryText.string }} />
                 </View>
                 <View style={{ justifyContent: 'center' }}>
-                    <Text style={{ fontSize: 24, fontWeight: '900' }}>0</Text>
+                    <Ionicons name="arrow-forward" size={24} color="white" />
                 </View>
             </View>
-        </TouchableOpacity>
+        </Pressable>
     )
 }
 
@@ -41,13 +57,12 @@ export default function MenuView() {
 
     return (
         <View style={{ paddingHorizontal: 16, overflow: 'visible' }}>
-            <Text style={styles.title}>Players</Text>
-            <Text style={styles.title}>Packs</Text>
             <FlatList
                 style={{ flexGrow: 0, overflow: 'visible' }}
                 // horizontal
                 data={packs}
                 renderItem={({ item }) => <PackListView pack={item} />}
+                ItemSeparatorComponent={() => <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: Color.white.alpha(0.2).string, marginVertical: 8 }} />}
             />
         </View>
     )
@@ -55,7 +70,7 @@ export default function MenuView() {
 
 const styles = StyleSheet.create({
     title: {
-        fontSize: 16,
-        fontWeight: '800',
+        fontSize: 28,
+        fontWeight: 'bold',
     }
 });
