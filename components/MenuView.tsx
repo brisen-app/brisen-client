@@ -21,10 +21,10 @@ function PagingGridView(props: TextProps) {
         <View {...otherProps} >
             {
                 props.items.map((pack, index) => (
-                    <>
+                    <React.Fragment key={pack.id}>
                         <PackListView pack={pack} />
                         {(index < items.length - 1) && <View style={{ height: 8 }} />}
-                    </>
+                    </React.Fragment>
                 ))
             }
         </View>
@@ -70,19 +70,7 @@ function PackListView(props: Readonly<{ pack: Pack }>) {
                 margin: 8
             }} >
                 <View style={{
-                    aspectRatio: 1,
-                    backgroundColor: Colors[colorScheme].packIconBackground,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: Sizes.normal,
-                    borderColor: Colors[colorScheme].stroke,
-                    borderWidth: Sizes.thin
-                }}>
-                    <Text style={{ fontSize: height / 2 }}>{pack.icon}</Text>
-                </View>
-                <View style={{
                     flex: 1,
-                    marginHorizontal: Sizes.small,
                     justifyContent: 'center',
                 }}>
                     <LocalizedText localeKey={`${props.pack.id}_title`}
@@ -130,8 +118,8 @@ export default function MenuView() {
                 scrollEnabled={enableScroll}
                 snapToInterval={itemWidth + 8}
                 decelerationRate={0}
-                keyExtractor={(item, index) => item.map(p => p.id).join('')}
                 data={partition(packs ?? [], itemsPerRow)}
+                keyExtractor={(item) => item.map(p => p.id).join('')}
                 renderItem={({ item }) => <PagingGridView items={item} style={{ width: itemWidth }} />}
             />
         </View>

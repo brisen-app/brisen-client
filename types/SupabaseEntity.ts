@@ -9,14 +9,13 @@ type Identifier = UUID | string
  */
 export default class SupabaseEntity {
     static readonly tableName: string
-    protected static readonly primaryKey: string = "id"
     protected readonly data: any
     
     constructor(data: any) {
         this.data = data
     }
 
-    get id(): Identifier { return this.data[SupabaseEntity.primaryKey]; }
+    get id(): Identifier { return this.data.id; }
 
     public toString() {
         return JSON.stringify(this.data);
@@ -28,11 +27,12 @@ export default class SupabaseEntity {
      * @throws {NotFoundError} If no data is found in the table.
      * @throws {PostgrestError} If an error occurs while fetching the data.
      */
-    static async fetchAll<T extends typeof SupabaseEntity>(this: T): Promise<InstanceType<T>[]> {
-        console.debug(`Fetching all '${this.tableName}'`);
-        const { data, error } = await supabase.from(this.tableName).select();
+    static async fetchAll<T extends typeof SupabaseEntity>(this: T, select: string | null = null): Promise<InstanceType<T>[]> {
+        console.debug(`Fetching '${select}' from '${this.tableName}'`);
+        const { data, error } = await supabase.from(this.tableName).select(select!);
         if (!data || data.length === 0) throw new NotFoundError(`No data found in '${this.tableName}'`);
         if (error) throw (error);
+        console.debug(data);
         return data.map((d: any) => new this(d) as InstanceType<T>);
     }
 
@@ -44,13 +44,13 @@ export default class SupabaseEntity {
      * @throws {NotFoundError} If the entity with the provided identifier is not found.
      */
     static async fetch<T extends typeof SupabaseEntity>(this: T, id: Identifier): Promise<InstanceType<T>> {
-        console.debug(`Fetching '${this.tableName}' where '${this.primaryKey}' == '${id}'`);
+        console.debug(`Fetching '${this.tableName}' where 'id' == '${id}'`);
         const { data, error } = await supabase
             .from(this.tableName)
             .select()
-            .eq(this.primaryKey, id)
+            .eq('id', id)
             .single();
-        if (!data) throw new NotFoundError(`Object with '${this.primaryKey} == ${id}' not found in '${this.tableName}'`);
+        if (!data) throw new NotFoundError(`Object with 'id' == ${id}' not found in '${this.tableName}'`);
         if (error) throw error
         return new this(data) as InstanceType<T>;
     }

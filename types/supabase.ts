@@ -6,176 +6,81 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export interface Database {
+export type Database = {
   public: {
     Tables: {
-      card_relations: {
+      cards: {
         Row: {
-          from: string
-          to: string
+          content: string
+          created_at: string
+          id: string
+          modified_at: string
         }
         Insert: {
-          from: string
-          to: string
+          content: string
+          created_at?: string
+          id?: string
+          modified_at?: string
         }
         Update: {
-          from?: string
-          to?: string
+          content?: string
+          created_at?: string
+          id?: string
+          modified_at?: string
         }
         Relationships: []
       }
-      cards: {
+      pack_card_rel: {
         Row: {
-          category: string | null
-          content: string
-          header: string | null
-          id: string
-          language: string
-          tags: string[]
+          card: string
+          created_at: string
+          modified_at: string
+          pack: string
         }
         Insert: {
-          category?: string | null
-          content: string
-          header?: string | null
-          id: string
-          language?: string
-          tags: string[]
+          card: string
+          created_at?: string
+          modified_at?: string
+          pack: string
         }
         Update: {
-          category?: string | null
-          content?: string
-          header?: string | null
-          id?: string
-          language?: string
-          tags?: string[]
+          card?: string
+          created_at?: string
+          modified_at?: string
+          pack?: string
         }
         Relationships: [
           {
-            foreignKeyName: "cards_category_fkey"
-            columns: ["category"]
+            foreignKeyName: "public_pack_card_rel_card_fkey"
+            columns: ["card"]
             isOneToOne: false
-            referencedRelation: "categories"
+            referencedRelation: "cards"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "cards_language_fkey"
-            columns: ["language"]
+            foreignKeyName: "public_pack_card_rel_pack_fkey"
+            columns: ["pack"]
             isOneToOne: false
-            referencedRelation: "languages"
+            referencedRelation: "packs"
             referencedColumns: ["id"]
           }
         ]
-      }
-      categories: {
-        Row: {
-          color: string | null
-          icon: string
-          id: string
-          individual: boolean
-        }
-        Insert: {
-          color?: string | null
-          icon: string
-          id: string
-          individual?: boolean
-        }
-        Update: {
-          color?: string | null
-          icon?: string
-          id?: string
-          individual?: boolean
-        }
-        Relationships: []
-      }
-      languages: {
-        Row: {
-          icon: string
-          id: string
-          title: string
-        }
-        Insert: {
-          icon: string
-          id: string
-          title: string
-        }
-        Update: {
-          icon?: string
-          id?: string
-          title?: string
-        }
-        Relationships: []
-      }
-      localizations: {
-        Row: {
-          key: string
-          language: string
-          value: string
-        }
-        Insert: {
-          key: string
-          language: string
-          value: string
-        }
-        Update: {
-          key?: string
-          language?: string
-          value?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "localizations_language_fkey"
-            columns: ["language"]
-            isOneToOne: false
-            referencedRelation: "languages"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-      log: {
-        Row: {
-          message: string
-          timestamp: string
-          type: string | null
-        }
-        Insert: {
-          message: string
-          timestamp?: string
-          type?: string | null
-        }
-        Update: {
-          message?: string
-          timestamp?: string
-          type?: string | null
-        }
-        Relationships: []
       }
       packs: {
         Row: {
-          end_date: string | null
-          excluded_tags: string[] | null
-          icon: string
+          created_at: string
           id: string
-          included_tags: string[] | null
-          is_free: boolean
-          start_date: string | null
+          modified_at: string
         }
         Insert: {
-          end_date?: string | null
-          excluded_tags?: string[] | null
-          icon: string
+          created_at?: string
           id: string
-          included_tags?: string[] | null
-          is_free?: boolean
-          start_date?: string | null
+          modified_at?: string
         }
         Update: {
-          end_date?: string | null
-          excluded_tags?: string[] | null
-          icon?: string
+          created_at?: string
           id?: string
-          included_tags?: string[] | null
-          is_free?: boolean
-          start_date?: string | null
+          modified_at?: string
         }
         Relationships: []
       }
@@ -184,10 +89,7 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
-      hello_world: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never

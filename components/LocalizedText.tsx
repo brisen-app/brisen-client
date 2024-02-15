@@ -19,15 +19,18 @@ export type LocalizedTextProps = LocalizationProps & TextProps;
 
 export function LocalizedText(props: LocalizedTextProps) {
     const isLightMode = useColorScheme() === 'light';
-    const language = Language.getCurrent();
+    // const language = Language.getCurrent();
     const { localeKey, placeHolderStyle: placeHolerStyle, forcePlaceholder, ...otherProps } = props;
 
-    const { data: localization, isLoading } = useQuery({
-        queryKey: [Localization.tableName, language.id, localeKey],
-        queryFn: async () => {
-            return await Localization.fetchWithLang(localeKey, language);
-        }
-    });
+    // const { data: localization, isLoading } = useQuery({
+    //     queryKey: [Localization.tableName, language.id, localeKey],
+    //     queryFn: async () => {
+    //         return await Localization.fetchWithLang(localeKey, language);
+    //     }
+    // });
+
+    const isLoading = false;
+    const localization = null
 
     if (isLoading || forcePlaceholder) return <View style={{
         flexGrow: placeHolerStyle?.width === null ? 1 : 0,
