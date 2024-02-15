@@ -1,21 +1,21 @@
-import React from 'react';
-import { ActivityIndicator, FlatList, View } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { ActivityIndicator, FlatList, View, useColorScheme } from 'react-native';
 import Card from '@/types/Card';
 import CardView from '@/components/CardView';
 import { useQuery } from '@tanstack/react-query';
+import { PlaylistContext } from './AppContext';
+import { Text } from './Themed';
+import Colors from '@/constants/Colors';
 
 
 export default function GameView() {
-	const { data: cards, isLoading } = useQuery({
-		queryKey: [Card.tableName],
-		queryFn: async () => {
-			return await Card.fetchAll()
-		}
-	})
+	const colorScheme = useColorScheme() ?? 'dark';
+	const { playlist } = useContext(PlaylistContext);
+	const [playedCards, setPlayedCards] = useState([] as Card[]);
 
-	if (isLoading) return (
-		<View style={{ flex: 1 }}>
-			<ActivityIndicator size={'large'} />
+	if (playlist.length === 0) return (
+		<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+			<Text style={{ color: Colors[colorScheme].secondaryText }}>Ingen pakker valg</Text>
 		</View>
 	)
 
@@ -23,7 +23,7 @@ export default function GameView() {
 		pagingEnabled
 		initialNumToRender={1}
 		showsVerticalScrollIndicator={false}
-		data={cards}
+		data={playedCards}
 		renderItem={({ item, index }) => <CardView card={item} />}
 	/>
 }

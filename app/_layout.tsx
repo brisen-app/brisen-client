@@ -8,6 +8,7 @@ import Pack from "@/types/Pack";
 import Category from "@/types/Category";
 import Localization from "@/types/Localization";
 import SupabaseEntity from "@/types/SupabaseEntity";
+import { AppContextProvider } from "@/components/AppContext";
 
 export default function Root() {
 	const isLightMode = useColorScheme() === 'light';
@@ -24,13 +25,15 @@ export default function Root() {
 
 	return (
 		<QueryClientProvider client={queryClient}>
-			<GestureHandlerRootView style={{
-				flex: 1,
-				backgroundColor: isLightMode ? 'white' : 'black'
-			}}>
-				<App />
-			</GestureHandlerRootView>
-			{Platform.OS === 'web' && <ReactQueryDevtools initialIsOpen={true} />}
+			<AppContextProvider>
+				<GestureHandlerRootView style={{
+					flex: 1,
+					backgroundColor: isLightMode ? 'white' : 'black'
+				}}>
+					<App />
+				</GestureHandlerRootView>
+				{Platform.OS === 'web' && <ReactQueryDevtools initialIsOpen={true} />}
+			</AppContextProvider>
 		</QueryClientProvider>
 	);
 }
