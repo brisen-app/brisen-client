@@ -95,10 +95,12 @@ function PackListView(props: Readonly<{ pack: Pack }>) {
 export default function MenuView() {
     const colorScheme = useColorScheme() ?? 'dark';
 
-    const { data: packs, isLoading } = useQuery({
+    const { data: packs, isLoading, error } = useQuery({
         queryKey: [Pack.tableName],
         queryFn: async () => { return await Pack.fetchAll() }
     })
+
+    if (error) return <Text>Error: {error.message}</Text>
 
     const { width } = Dimensions.get('window');
     const itemsPerRow = 3;

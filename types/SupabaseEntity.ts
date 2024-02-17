@@ -21,28 +21,13 @@ export default class SupabaseEntity {
         return JSON.stringify(this.data);
     }
 
-    /**
-     * Fetches all instances of the entity from the database.
-     * @returns A promise that resolves to an array of instances of the entity.
-     * @throws {NotFoundError} If no data is found in the table.
-     * @throws {PostgrestError} If an error occurs while fetching the data.
-     */
     static async fetchAll<T extends typeof SupabaseEntity>(this: T, select: string | null = null): Promise<InstanceType<T>[]> {
-        console.debug(`Fetching '${select}' from '${this.tableName}'`);
-        const { data, error } = await supabase.from(this.tableName).select(select!);
-        if (!data || data.length === 0) throw new NotFoundError(`No data found in '${this.tableName}'`);
-        if (error) throw (error);
-        console.debug(data);
-        return data.map((d: any) => new this(d) as InstanceType<T>);
+        const response = await supabase.from(this.tableName).select();
+        if (response.error) throw Error(`Error occured when fetching '${this.tableName}': ` + response.error.message);
+        if (!response.data || response.data.length === 0) throw new NotFoundError(`No data found in '${this.tableName}'`);
+        return response.data.map((d: any) => new this(d) as InstanceType<T>);
     }
 
-    /**
-     * Fetches a single instance of the entity from the database based on the provided identifier.
-     * 
-     * @param id - The identifier of the entity to fetch.
-     * @returns A promise that resolves to the fetched instance of the entity.
-     * @throws {NotFoundError} If the entity with the provided identifier is not found.
-     */
     static async fetch<T extends typeof SupabaseEntity>(this: T, id: Identifier): Promise<InstanceType<T>> {
         console.debug(`Fetching '${this.tableName}' where 'id' == '${id}'`);
         const { data, error } = await supabase
