@@ -8,9 +8,10 @@ import Pack from "@/types/Pack";
 import Category from "@/types/Category";
 import Localization from "@/types/Localization";
 import { AppContextProvider } from "@/components/AppContext";
+import Colors from "@/constants/Colors";
 
 export default function Root() {
-	const isLightMode = useColorScheme() === 'light';
+	const colorScheme = useColorScheme() ?? 'dark';
 	const queryClient = new QueryClient({
 		defaultOptions: {
 			queries: {
@@ -27,7 +28,7 @@ export default function Root() {
 			<AppContextProvider>
 				<GestureHandlerRootView style={{
 					flex: 1,
-					backgroundColor: isLightMode ? 'white' : 'black'
+					backgroundColor: Colors[colorScheme].appBackground,
 				}}>
 					<App />
 				</GestureHandlerRootView>

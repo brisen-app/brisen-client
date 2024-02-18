@@ -1,18 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
 import { Text, TextProps } from './Themed';
 import Localization from '@/types/Localization';
-import { AnimatableNumericValue, DimensionValue, View, useColorScheme } from 'react-native';
+import { AnimatableNumericValue, DimensionValue, StyleProp, ViewStyle, useColorScheme } from 'react-native';
 import Color from '@/types/Color';
 import Language from '@/types/Language';
+import Placeholder, { PlaceholderProps } from './Placeholder';
 
 type LocalizationProps = {
     localeKey: string;
     forcePlaceholder?: boolean;
-    placeHolderStyle: {
-        borderRadius?: AnimatableNumericValue;
-        width?: DimensionValue;
-        height: DimensionValue;
-    }
+    placeHolderStyle: PlaceholderProps;
 };
 
 export type LocalizedTextProps = LocalizationProps & TextProps;
@@ -32,14 +29,7 @@ export function LocalizedText(props: LocalizedTextProps) {
     const isLoading = false;
     const localization = null
 
-    if (isLoading || forcePlaceholder) return <View style={{
-        flexGrow: placeHolerStyle?.width === null ? 1 : 0,
-        height: placeHolerStyle?.height ?? 16,
-        width: placeHolerStyle?.width ?? 'auto',
-        backgroundColor: (isLightMode ? Color.black : Color.white).alpha(0.2).string,
-        borderRadius: placeHolerStyle.borderRadius ?? 4,
-        margin: 2,
-    }} />
+    if (isLoading || forcePlaceholder) return <Placeholder {...placeHolerStyle} />;
 
     return <Text {...otherProps} >{localization?.value ?? localeKey}</Text>;
 }

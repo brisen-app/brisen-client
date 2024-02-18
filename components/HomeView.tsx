@@ -6,6 +6,7 @@ import GameView from '@/components/GameView';
 import MenuView from '@/components/MenuView';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Color from '@/types/Color';
+import Sizes from '@/constants/Sizes';
 
 export default function HomeView() {
     const isLightMode = useColorScheme() === 'light';
@@ -13,7 +14,7 @@ export default function HomeView() {
     const bottomSheetRef = useRef<BottomSheet>(null);
 
     const snapPoints = useMemo(() => [
-        insets.bottom + 64, '50%', '100%'
+        insets.bottom + Sizes.big, '50%', '100%'
     ], []);
 
 

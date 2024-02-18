@@ -16,13 +16,14 @@ export default class SupabaseEntity {
     }
 
     get id(): Identifier { return this.data.id; }
+    get created_at(): Identifier { return this.data.created_at; }
 
     public toString() {
         return JSON.stringify(this.data);
     }
 
     static async fetchAll<T extends typeof SupabaseEntity>(this: T, select: string | null = null): Promise<InstanceType<T>[]> {
-        const response = await supabase.from(this.tableName).select();
+        const response = await supabase.from(this.tableName).select(select ?? '*');
         if (response.error) throw Error(`Error occured when fetching '${this.tableName}': ` + response.error.message);
         if (!response.data || response.data.length === 0) throw new NotFoundError(`No data found in '${this.tableName}'`);
         return response.data.map((d: any) => new this(d) as InstanceType<T>);

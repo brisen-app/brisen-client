@@ -38,19 +38,6 @@ function PackListView(props: Readonly<{ pack: Pack }>) {
     const isSelected = playlist.some(p => p.id === pack.id);
     const height: DimensionValue = Sizes.bigger;
 
-    const { data: cards } = useQuery({
-        queryKey: [Card.tableName],
-        queryFn: async () => {
-            return await Card.fetchAll()
-        },
-        enabled: isSelected
-    })
-
-    const queryClient = useQueryClient()
-    cards?.forEach(item => {
-        queryClient.setQueryData([Card.tableName, item.id], item)
-    })
-
     function onPress() {
         if (isSelected) setPlaylist(playlist.filter(p => p.id !== pack.id));
         else setPlaylist([...playlist, pack]);

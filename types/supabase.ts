@@ -6,31 +6,10 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export type Database = {
+export interface Database {
   public: {
     Tables: {
-      cards: {
-        Row: {
-          content: string
-          created_at: string
-          id: string
-          modified_at: string
-        }
-        Insert: {
-          content: string
-          created_at?: string
-          id?: string
-          modified_at?: string
-        }
-        Update: {
-          content?: string
-          created_at?: string
-          id?: string
-          modified_at?: string
-        }
-        Relationships: []
-      }
-      pack_card_rel: {
+      card_pack_rel: {
         Row: {
           card: string
           created_at: string
@@ -51,14 +30,14 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "public_pack_card_rel_card_fkey"
+            foreignKeyName: "public_card_pack_rel_card_fkey"
             columns: ["card"]
             isOneToOne: false
             referencedRelation: "cards"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "public_pack_card_rel_pack_fkey"
+            foreignKeyName: "public_card_pack_rel_pack_fkey"
             columns: ["pack"]
             isOneToOne: false
             referencedRelation: "packs"
@@ -66,21 +45,142 @@ export type Database = {
           }
         ]
       }
-      packs: {
+      cards: {
         Row: {
+          category: string | null
+          content: string
           created_at: string
           id: string
           modified_at: string
         }
         Insert: {
+          category?: string | null
+          content: string
           created_at?: string
+          id?: string
+          modified_at?: string
+        }
+        Update: {
+          category?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          modified_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_cards_category_fkey"
+            columns: ["category"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      categories: {
+        Row: {
+          color: string | null
+          created_at: string
+          icon: string
+          id: string
+          modified_at: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          icon: string
+          id?: string
+          modified_at?: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          icon?: string
+          id?: string
+          modified_at?: string
+        }
+        Relationships: []
+      }
+      languages: {
+        Row: {
+          created_at: string
+          icon: string
+          id: string
+          modified_at: string
+          name: string
+          public: boolean
+        }
+        Insert: {
+          created_at?: string
+          icon: string
           id: string
           modified_at?: string
+          name: string
+          public?: boolean
+        }
+        Update: {
+          created_at?: string
+          icon?: string
+          id?: string
+          modified_at?: string
+          name?: string
+          public?: boolean
+        }
+        Relationships: []
+      }
+      localizations: {
+        Row: {
+          created_at: string
+          id: string
+          language: string
+          modified_at: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          language: string
+          modified_at?: string
+          value: string
         }
         Update: {
           created_at?: string
           id?: string
+          language?: string
           modified_at?: string
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_localizations_language_fkey"
+            columns: ["language"]
+            isOneToOne: false
+            referencedRelation: "languages"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      packs: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          modified_at: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          modified_at?: string
+          name?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          modified_at?: string
+          name?: string
         }
         Relationships: []
       }
@@ -179,3 +279,4 @@ export type Enums<
   : PublicEnumNameOrOptions extends keyof Database["public"]["Enums"]
   ? Database["public"]["Enums"][PublicEnumNameOrOptions]
   : never
+

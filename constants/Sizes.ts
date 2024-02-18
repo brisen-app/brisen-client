@@ -11,5 +11,6 @@ export default {
     normal: 16,
     small: 8,
     tiny: 4,
+    mini: 2,
     thin: StyleSheet.hairlineWidth,
 }
