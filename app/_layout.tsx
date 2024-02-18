@@ -2,16 +2,17 @@ import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from "@tan
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import HomeView from "@/components/HomeView";
-import { ActivityIndicator, Platform, View, useColorScheme } from "react-native";
+import { Platform } from "react-native";
 import Language from "@/types/Language";
 import Pack from "@/types/Pack";
 import Category from "@/types/Category";
 import Localization from "@/types/Localization";
 import { AppContextProvider } from "@/components/AppContext";
 import Colors from "@/constants/Colors";
+import useColorScheme from "@/components/useColorScheme";
 
 export default function Root() {
-	const colorScheme = useColorScheme() ?? 'dark';
+	const colorScheme = useColorScheme();
 	const queryClient = new QueryClient({
 		defaultOptions: {
 			queries: {
@@ -31,17 +32,18 @@ export default function Root() {
 					backgroundColor: Colors[colorScheme].appBackground,
 				}}>
 					<App />
+					{Platform.OS === 'web' && <ReactQueryDevtools initialIsOpen={true} />}
 				</GestureHandlerRootView>
-				{Platform.OS === 'web' && <ReactQueryDevtools initialIsOpen={true} />}
 			</AppContextProvider>
 		</QueryClientProvider>
 	);
 }
 
 function App() {
+	// Initial setup
 	// const queryClient = useQueryClient()
 
-	// const { data: languages, isLoading: isLoadingLanguage } = useQuery({
+	// const { data: languages, error, isLoading: isLoadingLanguage } = useQuery({
 	// 	queryKey: [Language.tableName],
 	// 	queryFn: async () => {
 	// 		return await Language.fetchAll()

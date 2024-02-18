@@ -5,6 +5,8 @@ import { AnimatableNumericValue, DimensionValue, StyleProp, ViewStyle, useColorS
 import Color from '@/types/Color';
 import Language from '@/types/Language';
 import Placeholder, { PlaceholderProps } from './Placeholder';
+import { useContext } from 'react';
+import { languageContext } from './AppContext';
 
 type LocalizationProps = {
     localeKey: string;
@@ -15,20 +17,17 @@ type LocalizationProps = {
 export type LocalizedTextProps = LocalizationProps & TextProps;
 
 export function LocalizedText(props: LocalizedTextProps) {
-    const isLightMode = useColorScheme() === 'light';
-    // const language = Language.getCurrent();
+    const { language } = useContext(languageContext);
     const { localeKey, placeHolderStyle: placeHolerStyle, forcePlaceholder, ...otherProps } = props;
 
-    // const { data: localization, isLoading } = useQuery({
-    //     queryKey: [Localization.tableName, language.id, localeKey],
-    //     queryFn: async () => {
-    //         return await Localization.fetchWithLang(localeKey, language);
-    //     }
-    // });
+    const { data: localization, error, isLoading } = useQuery({
+        queryKey: [Localization.tableName, language.id, localeKey],
+        queryFn: async () => {
+            return await Localization.get(localeKey, language.id);
+        }
+    });
 
-    const isLoading = false;
-    const localization = null
-
+    if (error) console.warn(error);
     if (isLoading || forcePlaceholder) return <Placeholder {...placeHolerStyle} />;
 
     return <Text {...otherProps} >{localization?.value ?? localeKey}</Text>;

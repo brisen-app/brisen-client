@@ -1,13 +1,22 @@
 import SupabaseEntity from "./SupabaseEntity";
-import Localization from "./Localization";
 import UUID from "./uuid";
+import { Database } from "./supabase";
+
+type PackData = Database['public']['Tables']['packs']['Row']
 
 export default class Pack extends SupabaseEntity {
     static readonly tableName: string = "packs"
+    protected readonly data: PackData
+
+    constructor(data: PackData) {
+        super(data)
+        this.data = data
+    }
 
     // get icon() { return this.data.icon as string }
+    get name() { return this.data.name as string }
+    get description() { return this.data.description as string | null }
     get cards() { return this.data.cards.map((c: any) => c.id) as UUID[]}
-    get category() { return this.data.category as string | null }
 
     // async fetchTitle() {
     //     return await Localization.get(`${this.id}_title`)

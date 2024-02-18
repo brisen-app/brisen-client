@@ -9,7 +9,7 @@ export default {
     secondaryText: Color.brightness(0.5).string,
     background: Color.white.string,
     appBackground: Color.brightness(0.9).string,
-    stroke: Color.black.alpha(0.1).string,
+    stroke: Color.black.alpha(0.2).string,
     contentBackground: Color.white.string,
     placeholder: Color.black.alpha(0.1).string,
   },

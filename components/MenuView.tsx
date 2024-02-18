@@ -1,7 +1,7 @@
-import { ActivityIndicator, Dimensions, DimensionValue, Pressable, StyleSheet, useColorScheme, View, ViewProps } from "react-native";
+import { ActivityIndicator, Dimensions, DimensionValue, Pressable, StyleSheet, View, ViewProps } from "react-native";
 import { Text } from "./Themed";
 import Pack from "@/types/Pack";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { FlatList } from "react-native-gesture-handler";
 import { LocalizedText } from "./LocalizedText";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -9,7 +9,7 @@ import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
 import React, { useContext } from "react";
 import { PlaylistContext } from "./AppContext";
-import Card from "@/types/Card";
+import useColorScheme from "./useColorScheme";
 
 
 type TextProps = { items: Pack[] } & ViewProps;
@@ -21,7 +21,7 @@ function PagingGridView(props: TextProps) {
         <View {...otherProps} >
             {
                 props.items.map((pack, index) => (
-                    <React.Fragment key={pack.id}>
+                    <React.Fragment key={pack.id.toString()}>
                         <PackListView pack={pack} />
                         {(index < items.length - 1) && <View style={{ height: 8 }} />}
                     </React.Fragment>
@@ -33,7 +33,7 @@ function PagingGridView(props: TextProps) {
 
 function PackListView(props: Readonly<{ pack: Pack }>) {
     const { pack } = props;
-    const colorScheme = useColorScheme() ?? 'dark';
+    const colorScheme = useColorScheme()
     const { playlist, setPlaylist } = useContext(PlaylistContext);
     const isSelected = playlist.some(p => p.id === pack.id);
     const height: DimensionValue = Sizes.bigger;
@@ -60,13 +60,8 @@ function PackListView(props: Readonly<{ pack: Pack }>) {
                     flex: 1,
                     justifyContent: 'center',
                 }}>
-                    <LocalizedText localeKey={`${props.pack.id}_title`}
-                        placeHolderStyle={{ height: 20, width: 64 }}
-                        style={{ fontSize: 16, fontWeight: '900', color: Colors[colorScheme].text }} />
-                    <LocalizedText localeKey={`${props.pack.id}_desc`}
-                        numberOfLines={2}
-                        placeHolderStyle={{ height: 36 }}
-                        style={{ color: Colors[colorScheme].secondaryText }} />
+                    <Text style={{ fontSize: 16, fontWeight: '900' }}>{pack.name}</Text>
+                    {pack.description && <Text style={{ color: Colors[colorScheme].secondaryText }}>{pack.description}</Text>}
                 </View>
                 <View style={{
                     justifyContent: 'center',
@@ -80,7 +75,7 @@ function PackListView(props: Readonly<{ pack: Pack }>) {
 }
 
 export default function MenuView() {
-    const colorScheme = useColorScheme() ?? 'dark';
+    const colorScheme = useColorScheme()
 
     const { data: packs, isLoading, error } = useQuery({
         queryKey: [Pack.tableName],
@@ -98,8 +93,8 @@ export default function MenuView() {
     if (isLoading) return <ActivityIndicator />
 
     return (
-        <View style={{ overflow: 'visible', paddingHorizontal: Sizes.normal }}>
-            <Text style={styles.title}>Packs</Text>
+        <View style={{ overflow: 'visible', paddingHorizontal: 16 }}>
+            <LocalizedText localeKey="packs" style={styles.title} placeHolderStyle={{ height: 28, width: 96}}  />
             <FlatList
                 style={{ flexGrow: 0, overflow: 'visible' }}
                 showsHorizontalScrollIndicator={false}

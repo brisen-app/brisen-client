@@ -1,37 +1,42 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { ActivityIndicator, Dimensions, FlatList, View, useColorScheme } from 'react-native';
-import Card from '@/types/Card';
-import CardScreen from '@/components/CardView';
-import { useQuery } from '@tanstack/react-query';
+import { FlatList, View } from 'react-native';
+import CardScreen from '@/components/CardScreen';
 import { PlaylistContext } from './AppContext';
 import { Text } from './Themed';
 import Colors from '@/constants/Colors';
 import Pack from '@/types/Pack';
 import UUID from '@/types/uuid';
+import useColorScheme from './useColorScheme';
 
 function getRandomCard(playedCards: UUID[], playlist: Pack[]) {
-	if (playlist.length === 0) return null;
-	const packs = playlist.map(p => p.cards).flat();
-	const availableCards = packs.filter(c => !playedCards.includes(c));
+	const allCards = playlist.map(p => p.cards).flat();
+	const availableCards = allCards.filter(c => !playedCards.includes(c));
+	if (availableCards.length === 0) return null;
 	const randomIndex = Math.floor(Math.random() * availableCards.length);
 	return availableCards[randomIndex];
 }
 
 export default function GameView() {
-	const colorScheme = useColorScheme() ?? 'dark';
+	const colorScheme = useColorScheme();
 	const { playlist } = useContext(PlaylistContext);
-	const [playedCards, setPlayedCards] = useState([] as UUID[]);
+	const [playedCards, setPlayedCards] = useState([] as (UUID | null)[]);
 
 	const addCard = () => {
+		if (playlist.length === 0) return;
 		console.debug('Trying to add card');
 		const newCard = getRandomCard(playedCards, playlist);
-		if (!newCard) return;
+		if (playedCards[playedCards.length - 1] === null && newCard === null) return;
 		setPlayedCards([...playedCards, newCard])
 	};
 
 	useEffect(() => {
-		if (playedCards.length === 0) addCard()
+		// When playlist changes
+		if (playedCards.length === 0 || playedCards[playedCards.length - 1] === null) addCard()
 	}, [playlist]);
+
+	useEffect(() => {
+		console.debug("Rendering GameView");
+	}, [])
 
 	if (playedCards.length === 0) return (
 		<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -42,8 +47,13 @@ export default function GameView() {
 	return <FlatList
 		pagingEnabled
 		showsVerticalScrollIndicator={false}
+		initialNumToRender={1}
+		maxToRenderPerBatch={1}
 		data={playedCards}
-		onEndReached={() => addCard()}
+		onEndReached={() => {
+			if (playedCards[playedCards.length - 1] === null) return;
+			addCard()
+		}}
 		renderItem={({ item }) => <CardScreen cardID={item} />}
 	/>
 }

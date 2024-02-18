@@ -1,6 +1,7 @@
-import { AnimatableNumericValue, DimensionValue, FlexAlignType, View, useColorScheme } from 'react-native';
+import { AnimatableNumericValue, DimensionValue, FlexAlignType, View } from 'react-native';
 import Sizes from '@/constants/Sizes';
 import Colors from '@/constants/Colors';
+import useColorScheme from './useColorScheme';
 
 export type PlaceholderProps = {
     textAlignment?: 'left' | 'center' | 'right';
@@ -12,7 +13,7 @@ export type PlaceholderProps = {
 };
 
 export default function Placeholder ( props: PlaceholderProps ) {
-    const colorScheme = useColorScheme() ?? 'dark';
+    const colorScheme = useColorScheme();
     const { textAlignment, lineCount, isCircle, borderRadius, height, width } = props;
 
     const heightValue = height ?? Sizes.normal;
