@@ -1,20 +1,20 @@
 import React from 'react';
 import { StyleSheet, View, Dimensions, DimensionValue } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Card from '@/types/Card';
 import { useQuery } from '@tanstack/react-query';
-import Color from '@/types/Color';
 import { LocalizedText } from './LocalizedText';
 import { Text } from './Themed';
-import Category from '@/types/Category';
-import UUID from '@/types/uuid';
 import Colors from '@/constants/Colors';
 import Sizes from '@/constants/Sizes';
 import Placeholder from './Placeholder';
 import useColorScheme from './useColorScheme';
+import Supabase from '@/lib/supabase';
+import { Tables } from '@/types/supabase';
+import Color from '@/types/Color';
 
-export default function CardScreen(props: Readonly<{ cardID: UUID }>) {
-    let colorScheme = useColorScheme()
+export default function CardScreen(props: Readonly<{ cardID: string }>) {
+    const { cardID } = props;
+    const colorScheme = useColorScheme()
     let insets = useSafeAreaInsets()
     insets = {
         top: insets.top ? insets.top : 8,
@@ -24,9 +24,9 @@ export default function CardScreen(props: Readonly<{ cardID: UUID }>) {
     }
 
     const { data: card, isLoading } = useQuery({
-        queryKey: [Card.tableName, props.cardID],
+        queryKey: ['cards', cardID],
         queryFn: async () => {
-            return await Card.fetch(props.cardID)
+            return await Supabase.fetch('cards', cardID)
         }
     })
 
@@ -35,9 +35,9 @@ export default function CardScreen(props: Readonly<{ cardID: UUID }>) {
             height: Dimensions.get('window').height,
             width: Dimensions.get('window').width,
             paddingBottom: insets.bottom + Sizes.big + Sizes.normal,
-            // paddingTop: insets.top,
-            // paddingLeft: insets.left,
-            // paddingRight: insets.right,
+            paddingTop: insets.top,
+            paddingLeft: insets.left,
+            paddingRight: insets.right,
         }}>
             <View style={{
                 flex: 1,
@@ -72,16 +72,16 @@ function CardLoadingView() {
     )
 }
 
-function CardView(props: Readonly<{ card: Card, paddingTop: DimensionValue }>) {
+function CardView(props: Readonly<{ card: Tables<'cards'>, paddingTop: DimensionValue }>) {
     const colorScheme = useColorScheme()
     const { card, paddingTop } = props
 
     const { data: category, isLoading } = useQuery({
-        queryKey: card?.category ? [Category.tableName, card.category] : [],
+        queryKey: card.category ? ['categories', card.category] : [],
         queryFn: async () => {
-            return !!card?.category ? await Category.fetch(card.category) : null
+            return !!card.category ? await Supabase.fetch('categories', card.category) : null
         },
-        enabled: !!card?.category
+        enabled: !!card.category
     })
     
     return (
@@ -91,7 +91,7 @@ function CardView(props: Readonly<{ card: Card, paddingTop: DimensionValue }>) {
             alignItems: 'center',
             width: '100%',
             paddingTop: paddingTop,
-            backgroundColor: category?.color?.string ?? Colors[colorScheme].accentColor,
+            backgroundColor: category?.color ?? Colors[colorScheme].accentColor,
         }}>
             <Text style={[styles.text, styles.content]}>{card.content}</Text>
         </View>

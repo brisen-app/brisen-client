@@ -1,25 +1,24 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { FlatList, View } from 'react-native';
+import { Dimensions, FlatList, View } from 'react-native';
 import CardScreen from '@/components/CardScreen';
 import { PlaylistContext } from './AppContext';
 import { Text } from './Themed';
 import Colors from '@/constants/Colors';
-import Pack from '@/types/Pack';
-import UUID from '@/types/uuid';
 import useColorScheme from './useColorScheme';
+import { Pack } from '@/lib/supabase';
 
-function getRandomCard(playedCards: UUID[], playlist: Pack[]) {
+function getRandomCard(playedCards: (string | null)[], playlist: Pack[]) {
 	const allCards = playlist.map(p => p.cards).flat();
-	const availableCards = allCards.filter(c => !playedCards.includes(c));
+	const availableCards = allCards.filter(c => !playedCards.includes(c.id));
 	if (availableCards.length === 0) return null;
 	const randomIndex = Math.floor(Math.random() * availableCards.length);
-	return availableCards[randomIndex];
+	return availableCards[randomIndex].id;
 }
 
 export default function GameView() {
 	const colorScheme = useColorScheme();
 	const { playlist } = useContext(PlaylistContext);
-	const [playedCards, setPlayedCards] = useState([] as (UUID | null)[]);
+	const [playedCards, setPlayedCards] = useState([] as (string | null)[]);
 
 	const addCard = () => {
 		if (playlist.length === 0) return;
@@ -50,10 +49,32 @@ export default function GameView() {
 		initialNumToRender={1}
 		maxToRenderPerBatch={1}
 		data={playedCards}
+		// onEndReachedThreshold={0}
 		onEndReached={() => {
 			if (playedCards[playedCards.length - 1] === null) return;
 			addCard()
 		}}
-		renderItem={({ item }) => <CardScreen cardID={item} />}
+		renderItem={({ item, index }) => !!item ?
+			<CardScreen cardID={item} /> :
+			<NoCardView isMore={index != playedCards.length - 1} />
+		}
 	/>
+}
+
+function NoCardView(props: Readonly<{ isMore: boolean }>) {
+	return (
+		<View style={{
+			flex: 1,
+			justifyContent: 'center',
+			alignItems: 'center',
+			width: Dimensions.get('window').width,
+			height: Dimensions.get('window').height
+		}}>
+			{
+				props.isMore ?
+				<Text>Swipe videre!</Text> :
+				<Text>Tomt for kort!</Text>
+			}
+		</View>
+	)
 }

@@ -1,6 +1,5 @@
 import { ActivityIndicator, Dimensions, DimensionValue, Pressable, StyleSheet, View, ViewProps } from "react-native";
 import { Text } from "./Themed";
-import Pack from "@/types/Pack";
 import { useQuery } from "@tanstack/react-query";
 import { FlatList } from "react-native-gesture-handler";
 import { LocalizedText } from "./LocalizedText";
@@ -10,6 +9,7 @@ import Sizes from "@/constants/Sizes";
 import React, { useContext } from "react";
 import { PlaylistContext } from "./AppContext";
 import useColorScheme from "./useColorScheme";
+import Supabase, { Pack } from "@/lib/supabase";
 
 
 type TextProps = { items: Pack[] } & ViewProps;
@@ -77,10 +77,8 @@ function PackListView(props: Readonly<{ pack: Pack }>) {
 export default function MenuView() {
     const colorScheme = useColorScheme()
 
-    const { data: packs, isLoading, error } = useQuery({
-        queryKey: [Pack.tableName],
-        queryFn: async () => { return await Pack.fetchAll() }
-    })
+    // Todo: Implement pagination
+    const { data: packs, isLoading, error } = useQuery(Supabase.getPackQuery())
 
     if (error) return <Text>Error: {error.message}</Text>
 

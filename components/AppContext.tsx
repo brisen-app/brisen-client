@@ -1,37 +1,45 @@
-import Language from '@/types/Language';
-import Pack from '@/types/Pack';
-import { createContext, ReactNode, useState, useMemo } from 'react';
+import React, { createContext, ReactNode, useState, useMemo } from 'react';
+import { Pack } from '@/lib/supabase';
 
-export const languageContext = createContext({
-    language: Language.defaultLanguage as Language,
-    setLanguage: (language: Language) => {}
-});
+// Define types for the context values
+type LanguageContextType = {
+  language: string;
+  setLanguage: (language: string) => void;
+};
 
-export const PlaylistContext = createContext({
-    playlist: [] as Pack[],
-    setPlaylist: (playlist: Pack[]) => {}
-});
+type PlaylistContextType = {
+  playlist: Pack[];
+  setPlaylist: (playlist: Pack[]) => void;
+};
 
-export function AppContextProvider(props: Readonly<{ children: ReactNode }>) {
-    const { children } = props;
-    const [playlist, setPlaylist] = useState([] as Pack[]);
-    const [language, setLanguage] = useState(Language.defaultLanguage as Language);
+// Default values for the contexts
+const defaultLanguage: LanguageContextType = {
+  language: 'nb',
+  setLanguage: () => {}
+};
 
-    const playlistValue = useMemo(() => ({
-        playlist,
-        setPlaylist
-    }), [playlist]);
+const defaultPlaylist: PlaylistContextType = {
+  playlist: [],
+  setPlaylist: () => {}
+};
 
-    const languageValue = useMemo(() => ({
-        language,
-        setLanguage
-    }), [language]);
+// Create contexts with default values
+export const LanguageContext = createContext<LanguageContextType>(defaultLanguage);
+export const PlaylistContext = createContext<PlaylistContextType>(defaultPlaylist);
 
-    return (
-        <languageContext.Provider value={ languageValue }>
-            <PlaylistContext.Provider value={ playlistValue }>
-                {children}
-            </PlaylistContext.Provider>
-        </languageContext.Provider>
-    )
-}
+// AppContextProvider component
+export const AppContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [playlist, setPlaylist] = useState<Pack[]>([]);
+  const [language, setLanguage] = useState<string>('nb');
+
+  const playlistValue = useMemo(() => ({ playlist, setPlaylist }), [playlist]);
+  const languageValue = useMemo(() => ({ language, setLanguage }), [language]);
+
+  return (
+    <LanguageContext.Provider value={languageValue}>
+      <PlaylistContext.Provider value={playlistValue}>
+        {children}
+      </PlaylistContext.Provider>
+    </LanguageContext.Provider>
+  );
+};
