@@ -46,7 +46,13 @@ export default function HomeView() {
                 snapPoints={snapPoints}
                 onChange={handleSheetChanges}
                 backdropComponent={backdrop}
-                backgroundStyle={[styles.contentContainer, { backgroundColor: isLightMode ? Color.white.alpha(0.9).string : Color.black.alpha(0.1).string }]}
+                backgroundStyle={[
+                    styles.contentContainer, {
+                    backgroundColor: isLightMode ?
+                        Color.white.alpha(0.9).string :
+                        Color.black.alpha(0.1).string
+                    }
+                ]}
                 backgroundComponent={containerView}
                 handleIndicatorStyle={{
                     backgroundColor: isLightMode ?
