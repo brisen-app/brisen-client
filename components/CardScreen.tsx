@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { StyleSheet, View, Dimensions, DimensionValue } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
@@ -11,24 +11,39 @@ import useColorScheme from './useColorScheme';
 import Supabase from '@/lib/supabase';
 import { Tables } from '@/types/supabase';
 import Color from '@/types/Color';
+import { LinearGradient } from 'expo-linear-gradient';
+import { PlaylistContext } from './AppContext';
 
 export default function CardScreen(props: Readonly<{ cardID: string }>) {
     const { cardID } = props;
     const colorScheme = useColorScheme()
+    
+    const padding = 16
     let insets = useSafeAreaInsets()
     insets = {
-        top: insets.top ? insets.top : 8,
-        bottom: insets.bottom ? insets.bottom : 8,
-        left: insets.left ? insets.left : 8,
-        right: insets.right ? insets.right : 8
+        top: insets.top ? insets.top : padding,
+        bottom: insets.bottom ? insets.bottom : padding,
+        left: insets.left ? insets.left : padding,
+        right: insets.right ? insets.right : padding
     }
 
-    const { data: card, isLoading } = useQuery({
-        queryKey: ['cards', cardID],
-        queryFn: async () => {
-            return await Supabase.fetch('cards', cardID)
-        }
+    const { data: card, isLoading: isLoadingCard, error: errorCard } = useQuery(
+        Supabase.getCardQuery(cardID)
+    )
+
+    const { data: category, isLoading: isLoadingCategory, error: errorCategory } = useQuery({
+        ...Supabase.getCategoryQuery(card?.category),
+        enabled: !!card?.category
     })
+    
+    if (errorCategory) console.warn(errorCategory)
+
+    if (errorCard) {
+        console.warn(errorCard)
+        // TODO: Show empty card
+    }
+
+    const isLoading = isLoadingCard || isLoadingCategory
 
     return (
         <View style={{
@@ -44,7 +59,7 @@ export default function CardScreen(props: Readonly<{ cardID: string }>) {
                 justifyContent: 'center',
                 alignItems: 'center',
                 overflow: 'hidden',
-                borderRadius: 32,
+                borderRadius: 32 + 16,
                 // padding: 32,
                 backgroundColor: Colors[colorScheme].contentBackground,
                 borderColor: Colors[colorScheme].stroke,
@@ -52,8 +67,8 @@ export default function CardScreen(props: Readonly<{ cardID: string }>) {
             }}>
                 {
                 isLoading ? <CardLoadingView /> :
-                !card ? <Text style={{ fontSize: Sizes.big }}>🥵</Text> :
-                <CardView card={card} paddingTop={insets.top} />
+                !card ? <CardErrorView /> :
+                <CardView card={card} category={category} />
                 }
             </View>
         </View>
@@ -61,6 +76,7 @@ export default function CardScreen(props: Readonly<{ cardID: string }>) {
 }
 
 function CardLoadingView() {
+    // TODO: Add card skeleton
     return (
         <View>
         {/* <View style={{ flexDirection: 'row', width: '75%', alignItems: 'center' }}>
@@ -72,29 +88,74 @@ function CardLoadingView() {
     )
 }
 
-function CardView(props: Readonly<{ card: Tables<'cards'>, paddingTop: DimensionValue }>) {
-    const colorScheme = useColorScheme()
-    const { card, paddingTop } = props
+function CardErrorView() {
+    // TODO: Make more user friendly
+    return (
+        <View>
+            <Text style={{ fontSize: Sizes.big }}>🥵</Text>
+        </View>
+    )
+}
 
-    const { data: category, isLoading } = useQuery({
-        queryKey: card.category ? ['categories', card.category] : [],
-        queryFn: async () => {
-            return !!card.category ? await Supabase.fetch('categories', card.category) : null
-        },
-        enabled: !!card.category
-    })
+function CardView(props: Readonly<{ card: Tables<'cards'>, category: Tables<'categories'> | undefined }>) {
+    const colorScheme = useColorScheme()
+    const { card, category } = props
+    const { playlist } = useContext(PlaylistContext)
+
+    // TODO: Memoize
+    const pack = playlist.find(p => p.cards.find(c => c.id === card.id))
     
     return (
-        <View style={{
-            flex: 1,
-            justifyContent: 'space-around',
-            alignItems: 'center',
-            width: '100%',
-            paddingTop: paddingTop,
-            backgroundColor: category?.color ?? Colors[colorScheme].accentColor,
-        }}>
-            <Text style={[styles.text, styles.content]}>{card.content}</Text>
-        </View>
+        <LinearGradient
+            colors={category?.gradient ?? [Color.black.string, Colors[colorScheme].accentColor]}
+            start={{ x: 0, y: 1 }}
+            end={{ x: 1, y: 0 }}
+            style={{
+                flex: 1,
+                justifyContent: 'space-around',
+                alignItems: 'center',
+                width: '100%',
+                padding: 32,
+            }}
+        >
+            <View
+                style={{
+                    flex: 1,
+                    backgroundColor: 'red'
+                }}
+            >
+                {
+                category ? <Text style={[styles.text, styles.content]}>{category?.icon}</Text> : null
+                }
+            </View>
+            <View
+                style={{
+                    flex: 1,
+                    //alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: 'white'
+                }}
+            >
+                <Text style={[styles.text, styles.content]}>{card.content}</Text>
+            </View>
+            <View
+                style={{
+                    flex: 1,
+                    flexDirection: 'row',
+                    alignItems: 'flex-end',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                    backgroundColor: 'blue'
+                }}
+            >
+                <Text style={[styles.text, styles.content]}>{pack?.name}</Text>
+                <View style={{ backgroundColor: 'purple' }}>
+                    <View style={{ height: 64, width: 64, backgroundColor: 'black', borderRadius: 32 }}>
+                        {/* TODO: Insert user profile image */}
+                    </View>
+                </View>
+            </View>
+        </LinearGradient>
     );
 }
 
@@ -107,12 +168,12 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         color: Color.white.string,
     },
-    title: {
+    categoryTitle: {
         fontSize: 32,
         fontWeight: '900',
     },
     content: {
-        fontSize: 24,
+        fontSize: 28,
         fontWeight: '900',
     }
 });
