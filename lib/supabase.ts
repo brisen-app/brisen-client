@@ -27,15 +27,51 @@ export type Pack = QueryData<typeof packQuery>;
 
 export default abstract class Supabase {
 
-    static getPackQuery(): UndefinedInitialDataOptions<Pack[] | null> {
+    // Cards
+    private static cardsTableName = 'cards' as const
+    static getCardQuery(id: string) {
+        return {
+            queryKey: ['fetch', this.cardsTableName, id],
+            queryFn: async () => {
+                return await this.fetch(this.cardsTableName, id)
+            }
+        }
+    }
+    static getAllCardsQuery() {
+        return {
+            queryKey: ['fetch', this.cardsTableName],
+            queryFn: async () => {
+                return await this.fetchAll(this.cardsTableName)
+            }
+        }
+    }
+
+    // Categories
+    private static categoriesTableName = 'categories' as const
+    static getCategoryQuery(id: string | null | undefined) {
+        if (!id) return { queryKey: [] }
+        return {
+            queryKey: ['fetch', this.categoriesTableName, id],
+            queryFn: async () => {
+                return await this.fetch(this.categoriesTableName, id)
+            }
+        }
+    }
+
+    // Packs
+    private static async fetchAllPacks(id: string) {
+        return await this.fetchAll('packs', '*, cards(id)') as Pack[]
+    }
+    static getPackQuery() {
         return {
             queryKey: ['packs'],
             queryFn: async () => {
                 return (await supabase
                     .from('packs')
                     .select('*, cards(id)')
+                    .order('id')
                     .throwOnError()
-                    ).data as Pack[] | null
+                    ).data
             }
         }
     }
@@ -58,7 +94,7 @@ export default abstract class Supabase {
         }
     }
 
-    static getQuery<T extends keyof Database['public']['Tables']>(
+    private static getQuery<T extends keyof Database['public']['Tables']>(
         table: T,
         id: string
     ): UndefinedInitialDataOptions<Tables<T>> {
@@ -70,11 +106,7 @@ export default abstract class Supabase {
         }
     }
 
-    static async fetchAllPacks(): Promise<Pack[]> {
-        return Supabase.fetchAll('packs', '*, cards(id)') as Promise<Pack[]>;
-    }
-
-    static async fetch<T extends keyof Database['public']['Tables']>(
+    private static async fetch<T extends keyof Database['public']['Tables']>(
         table: T,
         id: string
     ): Promise<Tables<T>> {
@@ -83,7 +115,7 @@ export default abstract class Supabase {
         return data as Tables<T>;
     }
 
-    static async fetchAll<T extends keyof Database['public']['Tables']>(
+    private static async fetchAll<T extends keyof Database['public']['Tables']>(
         table: T,
         select: string | null = null
     ): Promise<Array<Tables<T>>> {
