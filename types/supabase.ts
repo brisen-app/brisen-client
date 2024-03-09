@@ -6,7 +6,7 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export interface Database {
+export type Database = {
   public: {
     Tables: {
       card_pack_rel: {
@@ -79,22 +79,22 @@ export interface Database {
       }
       categories: {
         Row: {
-          color: string | null
           created_at: string
+          gradient: string[] | null
           icon: string
           id: string
           modified_at: string
         }
         Insert: {
-          color?: string | null
           created_at?: string
+          gradient?: string[] | null
           icon: string
           id?: string
           modified_at?: string
         }
         Update: {
-          color?: string | null
           created_at?: string
+          gradient?: string[] | null
           icon?: string
           id?: string
           modified_at?: string
@@ -279,4 +279,3 @@ export type Enums<
   : PublicEnumNameOrOptions extends keyof Database["public"]["Enums"]
   ? Database["public"]["Enums"][PublicEnumNameOrOptions]
   : never
-
