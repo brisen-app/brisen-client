@@ -54,7 +54,7 @@ export default function GameView() {
 			if (playedCards[playedCards.length - 1] === null) return;
 			addCard()
 		}}
-		renderItem={({ item, index }) => !!item ?
+		renderItem={({ item, index }) => item ?
 			<CardScreen cardID={item} /> :
 			<NoCardView isMore={index != playedCards.length - 1} />
 		}
