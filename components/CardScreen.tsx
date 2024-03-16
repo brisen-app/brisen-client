@@ -184,7 +184,7 @@ function CardView(props: Readonly<{ card: Tables<'cards'>, category: Tables<'cat
                 >
                     <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <Image
-                            source='https://picsum.photos/200?random=1'
+                            source={`https://picsum.photos/seed/${pack?.id}/265`}
                             cachePolicy={'none'}
                             style={{
                                 height: 40,
@@ -205,7 +205,7 @@ function CardView(props: Readonly<{ card: Tables<'cards'>, category: Tables<'cat
                         <StatButton icon='send' label='27.1k' style={{ marginTop: 16 }}/>
                         <TouchableOpacity>
                             <Image
-                                source='https://picsum.photos/200?random=0'
+                                source={`https://picsum.photos/265?random=1`}
                                 cachePolicy={'none'}
                                 style={{
                                     height: 48,

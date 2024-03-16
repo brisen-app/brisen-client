@@ -25,6 +25,7 @@ export default function GameView() {
 		console.debug('Trying to add card');
 		const newCard = getRandomCard(playedCards, playlist);
 		if (playedCards[playedCards.length - 1] === null && newCard === null) return;
+		if (newCard && !playedCards[playedCards.length - 1]) playedCards.pop();
 		setPlayedCards([...playedCards, newCard])
 	};
 
@@ -54,14 +55,14 @@ export default function GameView() {
 			if (playedCards[playedCards.length - 1] === null) return;
 			addCard()
 		}}
-		renderItem={({ item, index }) => item ?
+		renderItem={({ item }) => item ?
 			<CardScreen cardID={item} /> :
-			<NoCardView isMore={index != playedCards.length - 1} />
+			<NoCardView />
 		}
 	/>
 }
 
-function NoCardView(props: Readonly<{ isMore: boolean }>) {
+function NoCardView() {
 	return (
 		<View style={{
 			flex: 1,
@@ -70,11 +71,7 @@ function NoCardView(props: Readonly<{ isMore: boolean }>) {
 			width: Dimensions.get('window').width,
 			height: Dimensions.get('window').height
 		}}>
-			{
-				props.isMore ?
-				<Text>Swipe videre!</Text> :
-				<Text>Tomt for kort!</Text>
-			}
+			<Text>Tomt for kort!</Text>
 		</View>
 	)
 }
