@@ -3,8 +3,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { QueryData, createClient } from '@supabase/supabase-js';
 import { Database, Tables } from '@/types/supabase';
 import { UndefinedInitialDataOptions } from '@tanstack/react-query';
-import { Key } from 'react';
-
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SB_URL!
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SB_ANON!
@@ -62,20 +60,27 @@ export default abstract class Supabase {
     }
 
     // Packs
-    private static async fetchAllPacks(id: string) {
-        return await this.fetchAll('packs', '*, cards(id)') as Pack[]
+    private static packsTableName = 'packs' as const
+
+    private static async fetchPack(id: string) {
+        return await this.fetch(this.packsTableName, id, '*, cards(id)')
     }
-    static getPackQuery() {
+
+    private static async fetchAllPacks() {
+        return await this.fetchAll(this.packsTableName, '*, cards(id)') as Pack[]
+    }
+
+    static getPackQuery(id: string) {
         return {
-            queryKey: ['packs'],
-            queryFn: async () => {
-                return (await supabase
-                    .from('packs')
-                    .select('*, cards(id)')
-                    .order('id')
-                    .throwOnError()
-                    ).data
-            }
+            queryKey: [this.packsTableName, id],
+            queryFn: async () => { return await this.fetchPack(id) }
+        }
+    }
+
+    static getPacksQuery() {
+        return {
+            queryKey: [this.packsTableName],
+            queryFn: async () => { return await this.fetchAllPacks() }
         }
     }
 
@@ -111,10 +116,10 @@ export default abstract class Supabase {
 
     private static async fetch<T extends keyof Database['public']['Tables']>(
         table: T,
-        id: string
+        id: string,
+        select: string | null = null
     ): Promise<Tables<T>> {
-        const { data, error } = await supabase.from(table).select().eq('id', id).single();
-        if (error) throw error;
+        const { data } = await supabase.from(table).select(select ?? '*').eq('id', id).single().throwOnError();
         return data as Tables<T>;
     }
 
