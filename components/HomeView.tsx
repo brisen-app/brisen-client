@@ -1,15 +1,16 @@
 import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet';
-import { StyleSheet, useColorScheme } from "react-native";
+import { StyleSheet } from "react-native";
 import { useCallback, useMemo, useRef } from "react";
 import { BlurView } from 'expo-blur';
 import GameView from '@/components/GameView';
 import MenuView from '@/components/MenuView';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Color from '@/types/Color';
 import Sizes from '@/constants/Sizes';
+import useColorScheme from './useColorScheme';
+import Colors from '@/constants/Colors';
 
 export default function HomeView() {
-    const isLightMode = useColorScheme() === 'light';
+    const colorScheme = useColorScheme();
     const insets = useSafeAreaInsets();
     const bottomSheetRef = useRef<BottomSheet>(null);
 
@@ -29,7 +30,7 @@ export default function HomeView() {
 
     const backdrop = useCallback(
         (props: any) => <BottomSheetBackdrop
-            opacity={0.9}
+            opacity={0.75}
             appearsOnIndex={2}
             disappearsOnIndex={0}
             pressBehavior={'collapse'}
@@ -42,22 +43,19 @@ export default function HomeView() {
             <GameView />
             <BottomSheet
                 ref={bottomSheetRef}
-                index={1}
+                index={2}
                 snapPoints={snapPoints}
                 onChange={handleSheetChanges}
                 backdropComponent={backdrop}
-                backgroundStyle={[
-                    styles.contentContainer, {
-                    backgroundColor: isLightMode ?
-                        Color.white.alpha(0.9).string :
-                        Color.black.alpha(0.1).string
-                    }
-                ]}
+                backgroundStyle={{
+                    borderRadius: 16,
+                    borderColor: Colors[colorScheme].stroke,
+                    borderWidth: Sizes.thin,
+                    overflow: 'hidden'
+                }}
                 backgroundComponent={containerView}
                 handleIndicatorStyle={{
-                    backgroundColor: isLightMode ?
-                        Color.black.alpha(0.5).string :
-                        Color.white.alpha(0.5).string
+                    backgroundColor: Colors[colorScheme].stroke,
                 }}
                 style={styles.shadow}
                 topInset={insets.top ?? 8}
@@ -69,13 +67,9 @@ export default function HomeView() {
 }
 
 const styles = StyleSheet.create({
-    contentContainer: {
-        borderRadius: 16,
-        overflow: 'hidden'
-    },
     shadow: {
         shadowColor: 'black',
-        shadowOpacity: 0.33,
+        shadowOpacity: 1/3,
         shadowRadius: 32,
         elevation: 24,
     }
