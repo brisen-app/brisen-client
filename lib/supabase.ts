@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { QueryData, createClient } from '@supabase/supabase-js';
 import { Database, Tables } from '@/types/supabase';
 import { UndefinedInitialDataOptions } from '@tanstack/react-query';
+import { Key } from 'react';
 
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SB_URL!
@@ -48,6 +49,8 @@ export default abstract class Supabase {
 
     // Categories
     private static categoriesTableName = 'categories' as const
+    static getCategoryTitleId(id: string) { return `${this.categoriesTableName}_${id}_title` }
+    static getCategoryDescId(id: string) { return `${this.categoriesTableName}_${id}_desc` }
     static getCategoryQuery(id: string | null | undefined) {
         if (!id) return { queryKey: [] }
         return {

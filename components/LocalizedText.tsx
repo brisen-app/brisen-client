@@ -8,21 +8,21 @@ import Supabase from '@/lib/supabase';
 type LocalizationProps = {
     localeKey: string;
     forcePlaceholder?: boolean;
-    placeHolderStyle: PlaceholderProps;
+    placeHolderStyle?: PlaceholderProps;
 };
 
 export type LocalizedTextProps = LocalizationProps & TextProps;
 
 export function LocalizedText(props: LocalizedTextProps) {
     const { language } = useContext(LanguageContext);
-    const { localeKey, placeHolderStyle: placeHolerStyle, forcePlaceholder, ...otherProps } = props;
+    const { localeKey, placeHolderStyle, forcePlaceholder, ...otherProps } = props;
 
     const { data: localization, error, isLoading } = useQuery(
         Supabase.getLocalizationQuery(localeKey, language)
     );
 
     if (error) console.warn(error);
-    if (isLoading || forcePlaceholder) return <Placeholder {...placeHolerStyle} />;
+    if (isLoading || forcePlaceholder) return <Placeholder {...placeHolderStyle} />;
 
     return <Text {...otherProps} >{localization?.value ?? localeKey}</Text>;
 }

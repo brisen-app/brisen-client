@@ -1,5 +1,5 @@
-import React, { useContext } from 'react';
-import { StyleSheet, View, Dimensions, DimensionValue } from 'react-native';
+import React, { useCallback, useContext, useMemo } from 'react';
+import { StyleSheet, View, Dimensions, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
 import { LocalizedText } from './LocalizedText';
@@ -13,6 +13,8 @@ import { Tables } from '@/types/supabase';
 import Color from '@/types/Color';
 import { LinearGradient } from 'expo-linear-gradient';
 import { PlaylistContext } from './AppContext';
+import { StatButton } from './StatButton';
+import { Image } from 'expo-image';
 
 export default function CardScreen(props: Readonly<{ cardID: string }>) {
     const { cardID } = props;
@@ -59,7 +61,7 @@ export default function CardScreen(props: Readonly<{ cardID: string }>) {
                 justifyContent: 'center',
                 alignItems: 'center',
                 overflow: 'hidden',
-                borderRadius: 32 + 16,
+                borderRadius: 32 + 8,
                 // padding: 32,
                 backgroundColor: Colors[colorScheme].contentBackground,
                 borderColor: Colors[colorScheme].stroke,
@@ -102,60 +104,124 @@ function CardView(props: Readonly<{ card: Tables<'cards'>, category: Tables<'cat
     const { card, category } = props
     const { playlist } = useContext(PlaylistContext)
 
-    // TODO: Memoize
-    const pack = playlist.find(p => p.cards.find(c => c.id === card.id))
+    const padding = 24
+
+    const pack = useMemo(
+        () => playlist.find(p => p.cards.find(c => c.id === card.id)),
+        [card.id]
+    )
     
     return (
-        <LinearGradient
-            colors={category?.gradient ?? [Color.black.string, Colors[colorScheme].accentColor]}
-            start={{ x: 0, y: 1 }}
-            end={{ x: 1, y: 0 }}
-            style={{
-                flex: 1,
-                justifyContent: 'space-around',
-                alignItems: 'center',
-                width: '100%',
-                padding: 32,
-            }}
-        >
-            <View
+        <>
+            <LinearGradient
+                colors={category?.gradient ?? [Color.hex('#370A00').string, Colors[colorScheme].accentColor]}
+                start={{ x: 0, y: 1 }}
+                end={{ x: 1, y: 0 }}
                 style={{
-                    flex: 1,
-                    backgroundColor: 'red'
+                    position: 'absolute',
+                    width: '100%',
+                    height: '100%',
+                    zIndex: -1,
                 }}
-            >
-                {
-                category ? <Text style={[styles.text, styles.content]}>{category?.icon}</Text> : null
-                }
-            </View>
-            <View
+            />
+
+
+            {/* Grain */}
+            <Image
+                source={require('@/assets/images/noise.png')}
                 style={{
-                    flex: 1,
-                    //alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: 'white'
+                    position: 'absolute',
+                    width: '100%',
+                    height: '100%',
+                    opacity: 0.05,
                 }}
-            >
-                <Text style={[styles.text, styles.content]}>{card.content}</Text>
-            </View>
+            />
+
+
+            {/* Content */}
+            <Text style={{
+                ...styles.text,
+                ...styles.content,
+                position: 'absolute',
+            }}>
+                {card.content}
+            </Text>
+
+            {/* Overlay */}
             <View
                 style={{
-                    flex: 1,
-                    flexDirection: 'row',
-                    alignItems: 'flex-end',
+                    position: 'absolute',
                     justifyContent: 'space-between',
                     width: '100%',
-                    backgroundColor: 'blue'
+                    height: '100%',
+                    padding: padding,
                 }}
             >
-                <Text style={[styles.text, styles.content]}>{pack?.name}</Text>
-                <View style={{ backgroundColor: 'purple' }}>
-                    <View style={{ height: 64, width: 64, backgroundColor: 'black', borderRadius: 32 }}>
-                        {/* TODO: Insert user profile image */}
+                <TouchableOpacity style= {{
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}>
+                    {
+                    category && <>
+                        <Text style={[styles.text, styles.content, { marginRight: 4}]}>
+                            {category?.icon}
+                        </Text>
+                        <LocalizedText
+                            localeKey={Supabase.getCategoryTitleId(category.id)}
+                            style={[styles.text, styles.categoryTitle]}
+                            placeHolderStyle={{ width: 128, height: 24 }}
+                        />
+                    </>
+                    }
+                </TouchableOpacity>
+                <View
+                    style={{
+                        flexDirection: 'row',
+                        alignItems: 'flex-end',
+                        justifyContent: 'space-between',
+                    }}
+                >
+                    <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Image
+                            source='https://picsum.photos/200?random=1'
+                            cachePolicy={'none'}
+                            style={{
+                                height: 40,
+                                width: 40,
+                                backgroundColor: Color.black.alpha(0.5).string,
+                                borderColor: Colors[colorScheme].stroke,
+                                borderWidth: Sizes.thin,
+                                borderRadius: 12,
+                                marginRight: 8
+                            }}
+                        />
+                        <Text style={[styles.text, styles.categoryTitle]}>{pack?.name}</Text>
+                    </TouchableOpacity>
+
+                    <View style={{ alignItems: 'center' }}>
+                        <StatButton icon='list' label='16' style={{ marginTop: 0 }}/>
+                        <StatButton icon='heart' label='12.0m' style={{ marginTop: 16 }}/>
+                        <StatButton icon='send' label='27.1k' style={{ marginTop: 16 }}/>
+                        <TouchableOpacity>
+                            <Image
+                                source='https://picsum.photos/200?random=0'
+                                cachePolicy={'none'}
+                                style={{
+                                    height: 48,
+                                    width: 48,
+                                    backgroundColor: Color.black.alpha(0.5).string,
+                                    borderColor: Colors[colorScheme].stroke,
+                                    borderWidth: Sizes.thin,
+                                    borderRadius: 32,
+                                    marginTop: 16
+                                }}
+                            />
+                        </TouchableOpacity>
                     </View>
                 </View>
             </View>
-        </LinearGradient>
+        </>
     );
 }
 
@@ -169,7 +235,7 @@ const styles = StyleSheet.create({
         color: Color.white.string,
     },
     categoryTitle: {
-        fontSize: 32,
+        fontSize: 20,
         fontWeight: '900',
     },
     content: {
