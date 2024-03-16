@@ -1,120 +1,74 @@
-import { ActivityIndicator, Dimensions, DimensionValue, Pressable, StyleSheet, View, ViewProps } from "react-native";
+import { ActivityIndicator, Dimensions, StyleSheet, View } from "react-native";
 import { Text } from "./Themed";
 import { useQuery } from "@tanstack/react-query";
 import { FlatList } from "react-native-gesture-handler";
 import { LocalizedText } from "./LocalizedText";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import Colors from "@/constants/Colors";
-import Sizes from "@/constants/Sizes";
-import React, { useContext } from "react";
-import { PlaylistContext } from "./AppContext";
+import React from "react";
 import useColorScheme from "./useColorScheme";
-import Supabase, { Pack } from "@/lib/supabase";
-
-
-type TextProps = { items: Pack[] } & ViewProps;
-
-function PagingGridView(props: TextProps) {
-    const { items, ...otherProps } = props;
-
-    return (
-        <View {...otherProps} >
-            {
-                props.items.map((pack, index) => (
-                    <React.Fragment key={pack.id.toString()}>
-                        <PackListView pack={pack} />
-                        {(index < items.length - 1) && <View style={{ height: 8 }} />}
-                    </React.Fragment>
-                ))
-            }
-        </View>
-    )
-}
-
-function PackListView(props: Readonly<{ pack: Pack }>) {
-    const { pack } = props;
-    const colorScheme = useColorScheme()
-    const { playlist, setPlaylist } = useContext(PlaylistContext);
-    const isSelected = playlist.some(p => p.id === pack.id);
-    const height: DimensionValue = Sizes.bigger;
-
-    function onPress() {
-        if (isSelected) setPlaylist(playlist.filter(p => p.id !== pack.id));
-        else setPlaylist([...playlist, pack]);
-    }
-
-    return (
-        <Pressable onPress={onPress} style={{
-            height: height,
-            borderRadius: Sizes.medium,
-            backgroundColor: Colors[colorScheme].background,
-            borderColor: isSelected ? Colors[colorScheme].text : Colors[colorScheme].stroke,
-            borderWidth: isSelected ? Sizes.tiny : Sizes.thin,
-        }}>
-            <View style={{
-                flex: 1,
-                flexDirection: 'row',
-                margin: 8
-            }} >
-                <View style={{
-                    flex: 1,
-                    justifyContent: 'center',
-                }}>
-                    <Text style={{ fontSize: 16, fontWeight: '900' }}>{pack.name}</Text>
-                    {pack.description && <Text style={{ color: Colors[colorScheme].secondaryText }}>{pack.description}</Text>}
-                </View>
-                <View style={{
-                    justifyContent: 'center',
-                    margin: Sizes.normal
-                }}>
-                    <Ionicons name="arrow-forward" size={24} color={Colors[colorScheme].text} />
-                </View>
-            </View>
-        </Pressable>
-    )
-}
+import Supabase from "@/lib/supabase";
+import { PackListView } from "./PackListView";
 
 export default function MenuView() {
     const colorScheme = useColorScheme()
 
+    return ( <View style={{ paddingHorizontal: 16 }}>
+        <HUDView />
+        <LocalizedText localeKey="most_popular" style={styles.header} placeHolderStyle={{ height: 28, width: 164}} />
+        <PackGridContainer />
+    </View> )
+}
+
+
+function HUDView() {
+    return ( <>
+        <Text>HUD</Text>
+    </> )
+}
+
+function PackGridContainer() {
+    const colorScheme = useColorScheme()
+
     // Todo: Implement pagination
-    const { data: packs, isLoading, error } = useQuery(Supabase.getPackQuery())
+    const { data, isLoading, error } = useQuery(Supabase.getPacksQuery())
+    const packs = data?.sort((a, b) => a.name.localeCompare(b.name))
 
     if (error) return <Text>Error: {error.message}</Text>
 
     const { width } = Dimensions.get('window');
     const itemsPerRow = 3;
-    const itemWidth = width - Sizes.normal * 2;
+    const itemWidth = width - 16 * 2;
     const enableScroll = (packs?.length ?? 0) > itemsPerRow;
-
 
     if (isLoading) return <ActivityIndicator />
 
     return (
-        <View style={{ overflow: 'visible', paddingHorizontal: 16 }}>
-            <LocalizedText localeKey="packs" style={styles.title} placeHolderStyle={{ height: 28, width: 96}}  />
-            <FlatList
-                style={{ flexGrow: 0, overflow: 'visible' }}
-                showsHorizontalScrollIndicator={false}
-                horizontal
-                scrollEnabled={enableScroll}
-                snapToInterval={itemWidth + 8}
-                decelerationRate={0}
-                data={partition(packs ?? [], itemsPerRow)}
-                keyExtractor={(item) => item.map(p => p.id).join('')}
-                renderItem={({ item }) => <PagingGridView items={item} style={{ width: itemWidth }} />}
-            />
-        </View>
+        <FlatList
+            style={{ flexGrow: 0, overflow: 'visible' }}
+            showsHorizontalScrollIndicator={false}
+            horizontal
+            scrollEnabled={enableScroll}
+            snapToInterval={itemWidth + 8}
+            decelerationRate={'fast'}
+            // initialNumToRender={itemsPerRow * 2}
+            // maxToRenderPerBatch={itemsPerRow * 3}
+            ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
+            data={partition(packs ?? [], itemsPerRow)}
+            keyExtractor={(item) => item.map(p => p.id).join()}
+            renderItem={({ item: items }) =>
+                <View style={{ width: itemWidth }} >
+                    {
+                        items.map((pack, index) => (
+                            <React.Fragment key={pack.id.toString()}>
+                                <PackListView pack={pack} />
+                                {(index < items.length - 1) && <View style={{ height: 8 }} />}
+                            </React.Fragment>
+                        ))
+                    }
+                </View>
+            }
+        />
     )
 }
-
-const styles = StyleSheet.create({
-    title: {
-        fontSize: Sizes.medium,
-        fontWeight: 'bold',
-        marginBottom: Sizes.tiny
-    }
-});
 
 function partition<T>(items: T[], size: number): T[][] {
     let p: T[][] = [];
@@ -123,3 +77,11 @@ function partition<T>(items: T[], size: number): T[][] {
     }
     return p;
 }
+
+const styles = StyleSheet.create({
+    header: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 8
+    }
+});

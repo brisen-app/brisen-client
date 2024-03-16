@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Sizes from '@/constants/Sizes';
 import useColorScheme from './useColorScheme';
 import Colors from '@/constants/Colors';
+import { Image } from 'expo-image';
 
 export default function HomeView() {
     const colorScheme = useColorScheme();
@@ -24,7 +25,17 @@ export default function HomeView() {
     }, []);
 
     const containerView = useCallback(
-        (props: any) => <BlurView intensity={100} {...props} />,
+        (props: any) =>
+            <BlurView intensity={100} {...props}>
+                <Image
+                    source={require('@/assets/images/noise.png')}
+                    style={{
+                        width: '100%',
+                        height: '55%',
+                        opacity: 0.02,
+                    }}
+                />  
+            </BlurView>,
         []
     )
 
@@ -43,7 +54,7 @@ export default function HomeView() {
             <GameView />
             <BottomSheet
                 ref={bottomSheetRef}
-                index={2}
+                index={1}
                 snapPoints={snapPoints}
                 onChange={handleSheetChanges}
                 backdropComponent={backdrop}
