@@ -8,5 +8,6 @@ export type ColorSchemeName = 'light' | 'dark';
  * Defaults to 'dark' if the user's preference is not available.
  */
 export default function useColorScheme(): ColorSchemeName {
-    return defaultFunc() ?? 'dark';
+    // return defaultFunc() ?? 'dark';
+    return 'dark';
 }
