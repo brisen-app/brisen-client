@@ -1,49 +1,64 @@
-import Colors from "@/constants/Colors";
-import { Feather } from "@expo/vector-icons";
-import { TouchableOpacity, TouchableOpacityProps } from "react-native";
-import useColorScheme from "./useColorScheme";
-import { Text } from "./Themed";
+import Colors from '@/constants/Colors'
+import { Feather } from '@expo/vector-icons'
+import { TouchableOpacity, TouchableOpacityProps } from 'react-native'
+import useColorScheme from './useColorScheme'
+import { Text } from './Themed'
+import Color from '@/types/Color'
 
 type ButtonProps = {
     icon: keyof typeof Feather.glyphMap
     label?: string
     size?: 'small' | 'large'
     isTapped?: boolean
-};
+}
 
-export type StatButtonProps = ButtonProps & TouchableOpacityProps;
+export type StatButtonProps = ButtonProps & TouchableOpacityProps
 
 export function StatButton(props: StatButtonProps) {
     const colorScheme = useColorScheme()
-    const { icon, label, size, isTapped, style, ...touchableOpacityProps } = props;
+    const { icon, label, size, isTapped, style, ...touchableOpacityProps } = props
 
     const iconSize = size === 'small' ? 24 : 32
     const labelSize = size === 'small' ? 12 : 14
 
+    const shadowColor = Color.black.alpha(0.25).string
+    const shadowRadius = 1
+
     return (
-        <TouchableOpacity {...touchableOpacityProps} style={{
-            alignItems: 'center',
-            justifyContent: 'center',
-            ...style as object
-        }} >
+        <TouchableOpacity
+            {...touchableOpacityProps}
+            style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                ...(style as object),
+            }}
+        >
             <Feather
                 name={icon}
                 size={iconSize}
-                color={Colors[colorScheme].text
-            } />
-            { label &&
+                color={Colors[colorScheme].text}
+                style={{
+                    textShadowColor: shadowColor,
+                    textShadowRadius: shadowRadius,
+                    textShadowOffset: { width: 0, height: shadowRadius },
+                }}
+            />
+            {label && (
                 <Text
                     numberOfLines={1}
                     style={{
                         color: Colors[colorScheme].text,
                         fontSize: labelSize,
                         textAlign: 'center',
-                        marginTop: 4
+                        marginTop: 4,
+                        textShadowColor: shadowColor,
+                        textShadowRadius: shadowRadius,
+                        textShadowOffset: { width: 0, height: shadowRadius },
                     }}
                 >
                     {label}
                 </Text>
-            }
+            )}
         </TouchableOpacity>
     )
 }

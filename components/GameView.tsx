@@ -5,7 +5,7 @@ import { PlaylistContext } from './AppContext';
 import { Text } from './Themed';
 import Colors from '@/constants/Colors';
 import useColorScheme from './useColorScheme';
-import { Pack } from '@/lib/supabase';
+import { Pack } from '@/lib/PackManager';
 
 function getRandomCard(playedCards: (string | null)[], playlist: Pack[]) {
 	const allCards = playlist.map(p => p.cards).flat();

@@ -1,43 +1,50 @@
-import React, { useCallback, useContext, useMemo } from 'react';
-import { StyleSheet, View, Dimensions, TouchableOpacity } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useQuery } from '@tanstack/react-query';
-import { LocalizedText } from './LocalizedText';
-import { Text } from './Themed';
-import Colors from '@/constants/Colors';
-import Sizes from '@/constants/Sizes';
-import Placeholder from './Placeholder';
-import useColorScheme from './useColorScheme';
-import Supabase from '@/lib/supabase';
-import { Tables } from '@/types/supabase';
-import Color from '@/types/Color';
-import { LinearGradient } from 'expo-linear-gradient';
-import { PlaylistContext } from './AppContext';
-import { StatButton } from './StatButton';
-import { Image } from 'expo-image';
+import { useContext, useMemo } from 'react'
+import { StyleSheet, View, Dimensions, TouchableOpacity } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useQuery } from '@tanstack/react-query'
+import { LocalizedText } from './LocalizedText'
+import { Text } from './Themed'
+import Colors from '@/constants/Colors'
+import Sizes from '@/constants/Sizes'
+import Placeholder from './Placeholder'
+import useColorScheme from './useColorScheme'
+import { Tables } from '@/types/supabase'
+import Color from '@/types/Color'
+import { LinearGradient } from 'expo-linear-gradient'
+import { PlaylistContext } from './AppContext'
+import { StatButton } from './StatButton'
+import { Image } from 'expo-image'
+import { CardManager } from '@/lib/CardManager'
+import { CategoryManager } from '@/lib/CategoryManager'
 
 export default function CardScreen(props: Readonly<{ cardID: string }>) {
-    const { cardID } = props;
+    const { cardID } = props
     const colorScheme = useColorScheme()
-    
+
     const padding = 16
     let insets = useSafeAreaInsets()
     insets = {
         top: insets.top ? insets.top : padding,
         bottom: insets.bottom ? insets.bottom : padding,
         left: insets.left ? insets.left : padding,
-        right: insets.right ? insets.right : padding
+        right: insets.right ? insets.right : padding,
     }
 
-    const { data: card, isLoading: isLoadingCard, error: errorCard } = useQuery(
-        Supabase.getCardQuery(cardID)
-    )
+    const {
+        data: card,
+        isLoading: isLoadingCard,
+        error: errorCard,
+    } = useQuery(CardManager.getFetchQuery(cardID))
 
-    const { data: category, isLoading: isLoadingCategory, error: errorCategory } = useQuery({
-        ...Supabase.getCategoryQuery(card?.category),
-        enabled: !!card?.category
+    const {
+        data: category,
+        isLoading: isLoadingCategory,
+        error: errorCategory,
+    } = useQuery({
+        ...CategoryManager.getFetchQuery(card?.category),
+        enabled: !!card?.category,
     })
-    
+
     if (errorCategory) console.warn(errorCategory)
 
     if (errorCard) {
@@ -48,30 +55,36 @@ export default function CardScreen(props: Readonly<{ cardID: string }>) {
     const isLoading = isLoadingCard || isLoadingCategory
 
     return (
-        <View style={{
-            height: Dimensions.get('window').height,
-            width: Dimensions.get('window').width,
-            paddingBottom: insets.bottom + Sizes.big + Sizes.normal,
-            paddingTop: insets.top,
-            paddingLeft: insets.left,
-            paddingRight: insets.right,
-        }}>
-            <View style={{
-                flex: 1,
-                justifyContent: 'center',
-                alignItems: 'center',
-                overflow: 'hidden',
-                borderRadius: 32 + 8,
-                // padding: 32,
-                backgroundColor: Colors[colorScheme].contentBackground,
-                borderColor: Colors[colorScheme].stroke,
-                borderWidth: Sizes.thin,
-            }}>
-                {
-                isLoading ? <CardLoadingView /> :
-                !card ? <CardErrorView /> :
-                <CardView card={card} category={category} />
-                }
+        <View
+            style={{
+                height: Dimensions.get('window').height,
+                width: Dimensions.get('window').width,
+                paddingBottom: insets.bottom + Sizes.big + Sizes.normal,
+                paddingTop: insets.top,
+                paddingLeft: insets.left,
+                paddingRight: insets.right,
+            }}
+        >
+            <View
+                style={{
+                    flex: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    overflow: 'hidden',
+                    borderRadius: 32 + 8,
+                    // padding: 32,
+                    backgroundColor: Colors[colorScheme].contentBackground,
+                    borderColor: Colors[colorScheme].stroke,
+                    borderWidth: Sizes.thin,
+                }}
+            >
+                {isLoading ? (
+                    <CardLoadingView />
+                ) : !card ? (
+                    <CardErrorView />
+                ) : (
+                    <CardView card={card} category={category} />
+                )}
             </View>
         </View>
     )
@@ -81,7 +94,7 @@ function CardLoadingView() {
     // TODO: Add card skeleton
     return (
         <View>
-        {/* <View style={{ flexDirection: 'row', width: '75%', alignItems: 'center' }}>
+            {/* <View style={{ flexDirection: 'row', width: '75%', alignItems: 'center' }}>
             <Placeholder isCircle height={Sizes.big} />
             <Placeholder height={Sizes.large} />
         </View> */}
@@ -99,18 +112,15 @@ function CardErrorView() {
     )
 }
 
-function CardView(props: Readonly<{ card: Tables<'cards'>, category: Tables<'categories'> | undefined }>) {
+function CardView(props: Readonly<{ card: Tables<'cards'>; category: Tables<'categories'> | undefined }>) {
     const colorScheme = useColorScheme()
     const { card, category } = props
     const { playlist } = useContext(PlaylistContext)
 
     const padding = 24
 
-    const pack = useMemo(
-        () => playlist.find(p => p.cards.find(c => c.id === card.id)),
-        [card.id]
-    )
-    
+    const pack = useMemo(() => playlist.find((p) => p.cards.find((c) => c.id === card.id)), [card.id])
+
     return (
         <>
             <LinearGradient
@@ -125,7 +135,6 @@ function CardView(props: Readonly<{ card: Tables<'cards'>, category: Tables<'cat
                 }}
             />
 
-
             {/* Grain */}
             <Image
                 source={require('@/assets/images/noise.png')}
@@ -137,13 +146,14 @@ function CardView(props: Readonly<{ card: Tables<'cards'>, category: Tables<'cat
                 }}
             />
 
-
             {/* Content */}
-            <Text style={{
-                ...styles.text,
-                ...styles.content,
-                position: 'absolute',
-            }}>
+            <Text
+                style={{
+                    ...styles.text,
+                    ...styles.content,
+                    position: 'absolute',
+                }}
+            >
                 {card.content}
             </Text>
 
@@ -157,23 +167,23 @@ function CardView(props: Readonly<{ card: Tables<'cards'>, category: Tables<'cat
                     padding: padding,
                 }}
             >
-                <TouchableOpacity style= {{
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    alignItems: 'center'
-                }}>
-                    {
-                    category && <>
-                        <Text style={[styles.text, styles.content, { marginRight: 4}]}>
-                            {category?.icon}
-                        </Text>
-                        <LocalizedText
-                            localeKey={Supabase.getCategoryTitleId(category.id)}
-                            style={[styles.text, styles.categoryTitle]}
-                            placeHolderStyle={{ width: 128, height: 24 }}
-                        />
-                    </>
-                    }
+                <TouchableOpacity
+                    style={{
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}
+                >
+                    {category && (
+                        <>
+                            <Text style={[styles.text, styles.content, { marginRight: 4 }]}>{category?.icon}</Text>
+                            <LocalizedText
+                                id={CategoryManager.getTitleLocaleKey(category)}
+                                style={[styles.text, styles.categoryTitle]}
+                                placeHolderStyle={{ width: 128, height: 24 }}
+                            />
+                        </>
+                    )}
                 </TouchableOpacity>
                 <View
                     style={{
@@ -193,16 +203,16 @@ function CardView(props: Readonly<{ card: Tables<'cards'>, category: Tables<'cat
                                 borderColor: Colors[colorScheme].stroke,
                                 borderWidth: Sizes.thin,
                                 borderRadius: 12,
-                                marginRight: 8
+                                marginRight: 8,
                             }}
                         />
                         <Text style={[styles.text, styles.categoryTitle]}>{pack?.name}</Text>
                     </TouchableOpacity>
 
                     <View style={{ alignItems: 'center' }}>
-                        <StatButton icon='list' label='16' style={{ marginTop: 0 }}/>
-                        <StatButton icon='heart' label='12.0m' style={{ marginTop: 16 }}/>
-                        <StatButton icon='send' label='27.1k' style={{ marginTop: 16 }}/>
+                        <StatButton icon="list" label="16" style={{ marginTop: 0 }} />
+                        <StatButton icon="heart" label="12.0m" style={{ marginTop: 16 }} />
+                        <StatButton icon="send" label="27.1k" style={{ marginTop: 16 }} />
                         <TouchableOpacity>
                             <Image
                                 source={`https://picsum.photos/265?random=1`}
@@ -214,7 +224,7 @@ function CardView(props: Readonly<{ card: Tables<'cards'>, category: Tables<'cat
                                     borderColor: Colors[colorScheme].stroke,
                                     borderWidth: Sizes.thin,
                                     borderRadius: 32,
-                                    marginTop: 16
+                                    marginTop: 16,
                                 }}
                             />
                         </TouchableOpacity>
@@ -222,7 +232,7 @@ function CardView(props: Readonly<{ card: Tables<'cards'>, category: Tables<'cat
                 </View>
             </View>
         </>
-    );
+    )
 }
 
 const styles = StyleSheet.create({
@@ -241,5 +251,5 @@ const styles = StyleSheet.create({
     content: {
         fontSize: 28,
         fontWeight: '900',
-    }
-});
+    },
+})

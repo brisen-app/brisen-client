@@ -13,7 +13,7 @@ type ThemeProps = {
   darkColor?: string;
 };
 
-export type TextProps = ThemeProps & DefaultText['props'];
+export type TextProps = ThemeProps & DefaultTextProps;
 
 export function useThemeColor(
   props: { light?: string; dark?: string },

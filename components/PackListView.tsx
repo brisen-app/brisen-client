@@ -1,37 +1,45 @@
-import { DimensionValue, View, TouchableOpacity, StyleSheet } from "react-native";
-import { Text } from "./Themed";
-import Colors from "@/constants/Colors";
-import Sizes from "@/constants/Sizes";
-import React, { useContext, useEffect } from "react";
-import { PlaylistContext } from "./AppContext";
-import useColorScheme from "./useColorScheme";
-import { Pack } from "@/lib/supabase";
-import { Image } from "expo-image";
+import { DimensionValue, View, TouchableOpacity, StyleSheet } from 'react-native'
+import { Image } from 'expo-image'
+import { PlaylistContext } from './AppContext'
+import { Text } from './Themed'
+import { Key, useContext, useEffect } from 'react'
+import Colors from '@/constants/Colors'
+import Sizes from '@/constants/Sizes'
+import useColorScheme from './useColorScheme'
+import { Pack } from '@/lib/PackManager'
+import Color from '@/types/Color'
 
+export type PackViewProps = {
+    pack: Pack
+    key?: Key
+}
 
-export function PackListView(props: Readonly<{ pack: Pack }>) {
-    const { pack } = props;
-    const colorScheme = useColorScheme();
-    const { playlist, setPlaylist } = useContext(PlaylistContext);
-    const isSelected = playlist.some(p => p.id === pack.id);
-    const height: DimensionValue = 88;
+export default function PackListView(props: Readonly<PackViewProps>) {
+    const { pack } = props
+    const colorScheme = useColorScheme()
+    const { playlist, setPlaylist } = useContext(PlaylistContext)
+    const isSelected = playlist.some((p) => p.id === pack.id)
+    const height: DimensionValue = 80
 
     function onPress() {
-        if (isSelected) setPlaylist(playlist.filter(p => p.id !== pack.id));
-        else setPlaylist([...playlist, pack]);
+        if (isSelected) setPlaylist(playlist.filter((p) => p.id !== pack.id))
+        else setPlaylist([...playlist, pack])
     }
 
     useEffect(() => {
-		console.debug(`Rendering PackListView: ${pack.name}`);
-	}, [])
+        console.debug(`Rendering PackListView: ${pack.name}`)
+    }, [])
 
     return (
-        <TouchableOpacity activeOpacity={0.5} style={{
-            height: height,
-            borderRadius: 16,
-            borderColor: Colors[colorScheme].stroke,
-            borderWidth: Sizes.thin,
-        }}>
+        <TouchableOpacity
+            activeOpacity={0.5}
+            style={{
+                height: height,
+                borderRadius: 16,
+                borderColor: Colors[colorScheme].stroke,
+                borderWidth: Sizes.thin,
+            }}
+        >
             <Image
                 source={`https://picsum.photos/seed/${pack.id}/265`}
                 blurRadius={64}
@@ -42,20 +50,24 @@ export function PackListView(props: Readonly<{ pack: Pack }>) {
                     borderRadius: 16,
                 }}
             />
-            <View style={{
-                position: 'absolute',
-                width: '100%',
-                height: '100%',
-                opacity: 0.75,
-                borderRadius: 16,
-                backgroundColor: Colors[colorScheme].background,
-            }} />
-            <View style={{
-                // flex: 1,
-                flexDirection: 'row',
-                alignItems: 'center',
-                margin: 8
-            }}>
+            <View
+                style={{
+                    position: 'absolute',
+                    width: '100%',
+                    height: '100%',
+                    opacity: 0.75,
+                    borderRadius: 16,
+                    backgroundColor: Colors[colorScheme].background,
+                }}
+            />
+            <View
+                style={{
+                    // flex: 1,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    margin: 8,
+                }}
+            >
                 <Image
                     source={`https://picsum.photos/seed/${pack.id}/256`}
                     style={{
@@ -66,42 +78,59 @@ export function PackListView(props: Readonly<{ pack: Pack }>) {
                         borderWidth: Sizes.thin,
                     }}
                 />
-                <View style={{
-                    flex: 1,
-                    paddingHorizontal: 8,
-                    justifyContent: 'center',
-                }}>
-                    <Text style={styles.header}>{pack.name}</Text>
-                    { pack.description &&
+                <View
+                    style={{
+                        flex: 1,
+                        paddingHorizontal: 8,
+                        justifyContent: 'center',
+                    }}
+                >
+                    <Text numberOfLines={2} style={[styles.text, styles.header]}>
+                        {pack.name}
+                    </Text>
+                    {/* {pack.description &&
                         <Text numberOfLines={2} style={{ color: Colors[colorScheme].secondaryText }}>
                             {pack.description}
                         </Text>
-                    }
+                    } */}
+                    <Text numberOfLines={2} style={{ ...styles.text, color: Colors[colorScheme].secondaryText }}>
+                        mrkallerud • {pack.cards.length} cards
+                    </Text>
                 </View>
-                <TouchableOpacity onPress={onPress} style={{
-                    justifyContent: 'center',
-                    margin: 8,
-                    backgroundColor: Colors[colorScheme].background,
-                    borderRadius: 64,
-                    paddingVertical: 8,
-                    paddingHorizontal: 16,
-                }}>
-                    <Text style={{
-                        ...styles.header,
-                        color: isSelected ? 'red' : Colors[colorScheme].accentColor,
-                    }}>
-                        { isSelected ? 'Remove' : 'Play' }
+                <TouchableOpacity
+                    onPress={onPress}
+                    style={{
+                        justifyContent: 'center',
+                        margin: 8,
+                        backgroundColor: Colors[colorScheme].background,
+                        borderRadius: 64,
+                        paddingVertical: 8,
+                        paddingHorizontal: 16,
+                    }}
+                >
+                    <Text
+                        style={{
+                            ...styles.header,
+                            color: isSelected ? 'red' : Colors[colorScheme].accentColor,
+                        }}
+                    >
+                        {isSelected ? 'Remove' : 'Play'}
                     </Text>
                 </TouchableOpacity>
             </View>
         </TouchableOpacity>
-    
     )
 }
 
 const styles = StyleSheet.create({
+    text: {
+        userSelect: 'none',
+        textShadowColor: Color.black.alpha(0.25).string,
+        textShadowRadius: 1,
+        textShadowOffset: { width: 0, height: 1 },
+    },
     header: {
         fontSize: 16,
-        fontWeight: 'bold'
-    }
-});
+        fontWeight: 'bold',
+    },
+})
