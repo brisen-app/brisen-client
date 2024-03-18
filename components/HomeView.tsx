@@ -13,6 +13,7 @@ import { Image } from 'expo-image';
 export default function HomeView() {
     const colorScheme = useColorScheme();
     const insets = useSafeAreaInsets();
+
     const bottomSheetRef = useRef<BottomSheet>(null);
 
     const snapPoints = useMemo(() => [
@@ -51,7 +52,7 @@ export default function HomeView() {
 
     return (
         <>
-            <GameView />
+            <GameView bottomSheetRef={bottomSheetRef} />
             <BottomSheet
                 ref={bottomSheetRef}
                 index={1}

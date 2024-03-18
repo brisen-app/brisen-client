@@ -1,4 +1,4 @@
-import { DimensionValue, View, TouchableOpacity, StyleSheet } from 'react-native'
+import { DimensionValue, View, TouchableOpacity, StyleSheet, Pressable } from 'react-native'
 import { Image } from 'expo-image'
 import { PlaylistContext } from './AppContext'
 import { Text } from './Themed'
@@ -31,8 +31,7 @@ export default function PackListView(props: Readonly<PackViewProps>) {
     }, [])
 
     return (
-        <TouchableOpacity
-            activeOpacity={0.5}
+        <Pressable
             style={{
                 height: height,
                 borderRadius: 16,
@@ -118,7 +117,7 @@ export default function PackListView(props: Readonly<PackViewProps>) {
                     </Text>
                 </TouchableOpacity>
             </View>
-        </TouchableOpacity>
+        </Pressable>
     )
 }
 

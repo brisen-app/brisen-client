@@ -1,5 +1,5 @@
 import { useContext, useMemo } from 'react'
-import { StyleSheet, View, Dimensions, TouchableOpacity } from 'react-native'
+import { StyleSheet, View, Dimensions, TouchableOpacity, PressableProps, Pressable } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useQuery } from '@tanstack/react-query'
 import { LocalizedText } from './LocalizedText'
@@ -8,17 +8,22 @@ import Colors from '@/constants/Colors'
 import Sizes from '@/constants/Sizes'
 import Placeholder from './Placeholder'
 import useColorScheme from './useColorScheme'
-import { Tables } from '@/types/supabase'
 import Color from '@/types/Color'
 import { LinearGradient } from 'expo-linear-gradient'
 import { PlaylistContext } from './AppContext'
 import { StatButton } from './StatButton'
 import { Image } from 'expo-image'
-import { CardManager } from '@/lib/CardManager'
-import { CategoryManager } from '@/lib/CategoryManager'
+import { Card, CardManager } from '@/lib/CardManager'
+import { Category, CategoryManager } from '@/lib/CategoryManager'
 
-export default function CardScreen(props: Readonly<{ cardID: string }>) {
-    const { cardID } = props
+type CardProps = {
+    cardID: string
+}
+
+export type CardScreenProps = CardProps & PressableProps
+
+export default function CardScreen(props: Readonly<CardScreenProps>) {
+    const { cardID, onPress } = props
     const colorScheme = useColorScheme()
 
     const padding = 16
@@ -30,11 +35,7 @@ export default function CardScreen(props: Readonly<{ cardID: string }>) {
         right: insets.right ? insets.right : padding,
     }
 
-    const {
-        data: card,
-        isLoading: isLoadingCard,
-        error: errorCard,
-    } = useQuery(CardManager.getFetchQuery(cardID))
+    const { data: card, isLoading: isLoadingCard, error: errorCard } = useQuery(CardManager.getFetchQuery(cardID))
 
     const {
         data: category,
@@ -55,7 +56,8 @@ export default function CardScreen(props: Readonly<{ cardID: string }>) {
     const isLoading = isLoadingCard || isLoadingCategory
 
     return (
-        <View
+        <Pressable
+            onPress={onPress}
             style={{
                 height: Dimensions.get('window').height,
                 width: Dimensions.get('window').width,
@@ -71,7 +73,7 @@ export default function CardScreen(props: Readonly<{ cardID: string }>) {
                     justifyContent: 'center',
                     alignItems: 'center',
                     overflow: 'hidden',
-                    borderRadius: 32 + 8,
+                    borderRadius: 32,
                     // padding: 32,
                     backgroundColor: Colors[colorScheme].contentBackground,
                     borderColor: Colors[colorScheme].stroke,
@@ -86,7 +88,7 @@ export default function CardScreen(props: Readonly<{ cardID: string }>) {
                     <CardView card={card} category={category} />
                 )}
             </View>
-        </View>
+        </Pressable>
     )
 }
 
@@ -112,7 +114,7 @@ function CardErrorView() {
     )
 }
 
-function CardView(props: Readonly<{ card: Tables<'cards'>; category: Tables<'categories'> | undefined }>) {
+function CardView(props: Readonly<{ card: Card; category: Category | undefined }>) {
     const colorScheme = useColorScheme()
     const { card, category } = props
     const { playlist } = useContext(PlaylistContext)
@@ -192,7 +194,7 @@ function CardView(props: Readonly<{ card: Tables<'cards'>; category: Tables<'cat
                         justifyContent: 'space-between',
                     }}
                 >
-                    <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <TouchableOpacity style={{ ...styles.shadow, flexDirection: 'row', alignItems: 'center' }}>
                         <Image
                             source={`https://picsum.photos/seed/${pack?.id}/265`}
                             cachePolicy={'none'}
@@ -206,25 +208,25 @@ function CardView(props: Readonly<{ card: Tables<'cards'>; category: Tables<'cat
                                 marginRight: 8,
                             }}
                         />
-                        <Text style={[styles.text, styles.categoryTitle]}>{pack?.name}</Text>
+                        <Text style={styles.categoryTitle}>{pack?.name}</Text>
                     </TouchableOpacity>
 
-                    <View style={{ alignItems: 'center' }}>
-                        <StatButton icon="list" label="16" style={{ marginTop: 0 }} />
-                        <StatButton icon="heart" label="12.0m" style={{ marginTop: 16 }} />
-                        <StatButton icon="send" label="27.1k" style={{ marginTop: 16 }} />
-                        <TouchableOpacity>
+                    <View style={{ alignItems: 'center', gap: 16 }}>
+                        <StatButton icon="list" label="16" />
+                        <StatButton icon="heart" label="12.0m" />
+                        <StatButton icon="send" label="27.1k" />
+                        <TouchableOpacity style={{ ...styles.shadow }} >
                             <Image
                                 source={`https://picsum.photos/265?random=1`}
                                 cachePolicy={'none'}
                                 style={{
+                                    ...styles.shadow,
                                     height: 48,
                                     width: 48,
                                     backgroundColor: Color.black.alpha(0.5).string,
                                     borderColor: Colors[colorScheme].stroke,
                                     borderWidth: Sizes.thin,
                                     borderRadius: 32,
-                                    marginTop: 16,
                                 }}
                             />
                         </TouchableOpacity>
@@ -236,6 +238,12 @@ function CardView(props: Readonly<{ card: Tables<'cards'>; category: Tables<'cat
 }
 
 const styles = StyleSheet.create({
+    shadow: {
+        shadowColor: 'black',
+        shadowOpacity: 0.5,
+        shadowRadius: 1,
+        shadowOffset: { width: 0, height: 1 },
+    },
     text: {
         userSelect: 'none',
         textShadowColor: Color.black.alpha(0.5).string,

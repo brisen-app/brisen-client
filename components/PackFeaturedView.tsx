@@ -19,7 +19,7 @@ export default function PackFeaturedView(props: Readonly<PackViewProps>) {
     const isSelected = playlist.some((p) => p.id === pack.id)
     
     const borderRadius = 16
-    const height: DimensionValue = 256 + 64
+    const height: DimensionValue = 256 + 32
 
     function onPress() {
         if (isSelected) setPlaylist(playlist.filter((p) => p.id !== pack.id))
@@ -80,7 +80,7 @@ export default function PackFeaturedView(props: Readonly<PackViewProps>) {
                     style={{
                         flexDirection: 'row',
                         alignItems: 'center',
-                        height: 88,
+                        // height: 88,
                         padding: 16,
                         borderBottomLeftRadius: borderRadius,
                         borderBottomRightRadius: borderRadius,
