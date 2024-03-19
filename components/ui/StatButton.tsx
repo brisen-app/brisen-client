@@ -1,8 +1,8 @@
 import Colors from '@/constants/Colors'
 import { Feather } from '@expo/vector-icons'
 import { TouchableOpacity, TouchableOpacityProps } from 'react-native'
-import useColorScheme from './useColorScheme'
-import { Text } from './Themed'
+import useColorScheme from '../utils/useColorScheme'
+import { Text } from '../utils/Themed'
 import Color from '@/types/Color'
 
 type ButtonProps = {

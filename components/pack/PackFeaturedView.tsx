@@ -2,14 +2,14 @@ import { BlurView } from 'expo-blur'
 import { DimensionValue, View, TouchableOpacity, StyleSheet, Pressable } from 'react-native'
 import { Image } from 'expo-image'
 import { PackViewProps } from './PackListView'
-import { PlaylistContext } from './AppContext'
-import { Text } from './Themed'
+import { PlaylistContext } from '../utils/AppContext'
+import { Text } from '../utils/Themed'
 import { useContext, useEffect } from 'react'
 import Color from '@/types/Color'
 import Colors from '@/constants/Colors'
 import Sizes from '@/constants/Sizes'
-import useColorScheme from './useColorScheme'
-import { StatButton } from './StatButton'
+import useColorScheme from '../utils/useColorScheme'
+import { StatButton } from '../ui/StatButton'
 import { LinearGradient } from 'expo-linear-gradient'
 
 export default function PackFeaturedView(props: Readonly<PackViewProps>) {
@@ -17,7 +17,7 @@ export default function PackFeaturedView(props: Readonly<PackViewProps>) {
     const colorScheme = useColorScheme()
     const { playlist, setPlaylist } = useContext(PlaylistContext)
     const isSelected = playlist.some((p) => p.id === pack.id)
-    
+
     const borderRadius = 16
     const height: DimensionValue = 256 + 32
 
@@ -49,11 +49,8 @@ export default function PackFeaturedView(props: Readonly<PackViewProps>) {
                 }}
             />
             <LinearGradient
-                end={{ x: 0.5, y: 0.25}}
-                colors={[
-                    Color.black.alpha(0.5).string,
-                    Color.black.alpha(0).string,
-                ]}
+                end={{ x: 0.5, y: 0.25 }}
+                colors={[Color.black.alpha(0.5).string, Color.black.alpha(0).string]}
                 style={{
                     position: 'absolute',
                     width: '100%',

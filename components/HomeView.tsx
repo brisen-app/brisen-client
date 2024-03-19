@@ -1,32 +1,29 @@
-import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet';
-import { StyleSheet } from "react-native";
-import { useCallback, useMemo, useRef } from "react";
-import { BlurView } from 'expo-blur';
-import GameView from '@/components/GameView';
-import MenuView from '@/components/MenuView';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Sizes from '@/constants/Sizes';
-import useColorScheme from './useColorScheme';
-import Colors from '@/constants/Colors';
-import { Image } from 'expo-image';
+import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet'
+import { StyleSheet } from 'react-native'
+import { useCallback, useMemo, useRef } from 'react'
+import { BlurView } from 'expo-blur'
+import GameView from '@/components/GameView'
+import MenuView from '@/components/MenuView'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import Sizes from '@/constants/Sizes'
+import useColorScheme from './utils/useColorScheme'
+import Colors from '@/constants/Colors'
+import { Image } from 'expo-image'
 
 export default function HomeView() {
-    const colorScheme = useColorScheme();
-    const insets = useSafeAreaInsets();
+    const colorScheme = useColorScheme()
+    const insets = useSafeAreaInsets()
 
-    const bottomSheetRef = useRef<BottomSheet>(null);
+    const bottomSheetRef = useRef<BottomSheet>(null)
 
-    const snapPoints = useMemo(() => [
-        insets.bottom + Sizes.big, '50%', '100%'
-    ], []);
-
+    const snapPoints = useMemo(() => [insets.bottom + Sizes.big, '50%', '100%'], [])
 
     const handleSheetChanges = useCallback((index: number) => {
         // console.log('handleSheetChanges', index);
-    }, []);
+    }, [])
 
     const containerView = useCallback(
-        (props: any) =>
+        (props: any) => (
             <BlurView intensity={100} {...props}>
                 <Image
                     source={require('@/assets/images/noise.png')}
@@ -35,18 +32,22 @@ export default function HomeView() {
                         height: '55%',
                         opacity: 0.02,
                     }}
-                />  
-            </BlurView>,
+                />
+            </BlurView>
+        ),
         []
     )
 
     const backdrop = useCallback(
-        (props: any) => <BottomSheetBackdrop
-            opacity={0.75}
-            appearsOnIndex={2}
-            disappearsOnIndex={0}
-            pressBehavior={'collapse'}
-            {...props} />,
+        (props: any) => (
+            <BottomSheetBackdrop
+                opacity={0.75}
+                appearsOnIndex={2}
+                disappearsOnIndex={0}
+                pressBehavior={'collapse'}
+                {...props}
+            />
+        ),
         []
     )
 
@@ -63,7 +64,7 @@ export default function HomeView() {
                     borderRadius: 16,
                     borderColor: Colors[colorScheme].stroke,
                     borderWidth: Sizes.thin,
-                    overflow: 'hidden'
+                    overflow: 'hidden',
                 }}
                 backgroundComponent={containerView}
                 handleIndicatorStyle={{
@@ -81,8 +82,8 @@ export default function HomeView() {
 const styles = StyleSheet.create({
     shadow: {
         shadowColor: 'black',
-        shadowOpacity: 1/3,
+        shadowOpacity: 1 / 3,
         shadowRadius: 32,
         elevation: 24,
-    }
-});
+    },
+})

@@ -1,11 +1,11 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { Dimensions, FlatList, Pressable, PressableProps } from 'react-native'
-import CardScreen from '@/components/CardScreen'
-import { PlaylistContext } from './AppContext'
+import CardScreen from '@/components/card/CardScreen'
+import { PlaylistContext } from './utils/AppContext'
 import Colors from '@/constants/Colors'
-import useColorScheme from './useColorScheme'
+import useColorScheme from './utils/useColorScheme'
 import { Pack } from '@/lib/PackManager'
-import { LocalizedText } from './LocalizedText'
+import { LocalizedText } from './utils/LocalizedText'
 import BottomSheet from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet'
 
 function getRandomCard(playedCards: (string | null)[], playlist: Pack[]) {

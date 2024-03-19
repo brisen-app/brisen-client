@@ -1,9 +1,9 @@
 import { Pressable, StyleSheet } from 'react-native'
-import { Text } from './Themed'
-import { LocalizedText } from './LocalizedText'
-import useColorScheme from './useColorScheme'
+import { Text } from './utils/Themed'
+import { LocalizedText } from './utils/LocalizedText'
+import useColorScheme from './utils/useColorScheme'
 import { PackManager } from '@/lib/PackManager'
-import GridContainer from './GridContainer'
+import GridContainer from './utils/GridContainer'
 import { BottomSheetScrollView, useBottomSheet } from '@gorhom/bottom-sheet'
 
 export default function MenuView() {
@@ -11,7 +11,7 @@ export default function MenuView() {
     const { expand } = useBottomSheet()
 
     return (
-        <BottomSheetScrollView >
+        <BottomSheetScrollView>
             <Pressable onPress={() => expand()} style={{ paddingHorizontal: 16 }}>
                 {/* <HUDView /> */}
 
