@@ -12,9 +12,15 @@ import { StatButton } from '../ui/StatButton'
 import { Image } from 'expo-image'
 import { Card } from '@/lib/CardManager'
 import { Category, CategoryManager } from '@/lib/CategoryManager'
-import { styles } from './CardScreen'
+import { FontStyles, Styles } from '@/constants/Styles'
+import UserQuickView from '../user/UserQuickView'
 
-export function CardView(props: Readonly<{ card: Card; category: Category | undefined }>) {
+export type CardViewProps = {
+    card: Card
+    category?: Category
+}
+
+export function CardView(props: Readonly<CardViewProps>) {
     const colorScheme = useColorScheme()
     const { card, category } = props
     const { playlist } = useContext(PlaylistContext)
@@ -29,35 +35,20 @@ export function CardView(props: Readonly<{ card: Card; category: Category | unde
                 colors={category?.gradient ?? [Color.hex('#370A00').string, Colors[colorScheme].accentColor]}
                 start={{ x: 0, y: 1 }}
                 end={{ x: 1, y: 0 }}
-                style={{
-                    position: 'absolute',
-                    width: '100%',
-                    height: '100%',
-                    zIndex: -1,
-                }}
+                style={Styles.absoluteFill}
             />
 
             {/* Grain */}
             <Image
                 source={require('@/assets/images/noise.png')}
                 style={{
-                    position: 'absolute',
-                    width: '100%',
-                    height: '100%',
+                    ...Styles.absoluteFill,
                     opacity: 0.05,
                 }}
             />
 
             {/* Content */}
-            <Text
-                style={{
-                    ...styles.text,
-                    ...styles.content,
-                    position: 'absolute',
-                }}
-            >
-                {card.content}
-            </Text>
+            <Text style={FontStyles.LargeTitle}>{card.content}</Text>
 
             {/* Overlay */}
             <View
@@ -67,26 +58,32 @@ export function CardView(props: Readonly<{ card: Card; category: Category | unde
                     width: '100%',
                     height: '100%',
                     padding: padding,
+                    ...Styles.shadow,
                 }}
             >
-                <TouchableOpacity
-                    style={{
-                        flexDirection: 'row',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}
-                >
-                    {category && (
-                        <>
-                            <Text style={[styles.text, styles.content, { marginRight: 4 }]}>{category?.icon}</Text>
-                            <LocalizedText
-                                id={CategoryManager.getTitleLocaleKey(category)}
-                                style={[styles.text, styles.categoryTitle]}
-                                placeHolderStyle={{ width: 128, height: 24 }}
-                            />
-                        </>
-                    )}
-                </TouchableOpacity>
+                {category ? (
+                    <TouchableOpacity
+                        onPress={() => {
+                            console.log('Category tapped')
+                        }}
+                        style={{
+                            flexDirection: 'row',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            gap: 4,
+                        }}
+                    >
+                        <Text style={FontStyles.LargeTitle}>{category?.icon}</Text>
+                        <LocalizedText
+                            id={CategoryManager.getTitleLocaleKey(category)}
+                            style={FontStyles.Title}
+                            placeHolderStyle={{ width: 128, height: 24 }}
+                        />
+                    </TouchableOpacity>
+                ) : (
+                    <View />
+                )}
+
                 <View
                     style={{
                         flexDirection: 'row',
@@ -94,13 +91,21 @@ export function CardView(props: Readonly<{ card: Card; category: Category | unde
                         justifyContent: 'space-between',
                     }}
                 >
-                    <TouchableOpacity style={{ ...styles.shadow, flexDirection: 'row', alignItems: 'center' }}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            console.log('Pack tapped')
+                        }}
+                        style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                        }}
+                    >
                         <Image
                             source={`https://picsum.photos/seed/${pack?.id}/265`}
                             cachePolicy={'none'}
                             style={{
                                 height: 40,
-                                width: 40,
+                                aspectRatio: 1,
                                 backgroundColor: Color.black.alpha(0.5).string,
                                 borderColor: Colors[colorScheme].stroke,
                                 borderWidth: Sizes.thin,
@@ -108,28 +113,14 @@ export function CardView(props: Readonly<{ card: Card; category: Category | unde
                                 marginRight: 8,
                             }}
                         />
-                        <Text style={styles.categoryTitle}>{pack?.name}</Text>
+                        <Text style={FontStyles.Title}>{pack?.name}</Text>
                     </TouchableOpacity>
 
                     <View style={{ alignItems: 'center', gap: 16 }}>
                         <StatButton icon="list" label="16" />
                         <StatButton icon="heart" label="12.0m" />
                         <StatButton icon="send" label="27.1k" />
-                        <TouchableOpacity style={{ ...styles.shadow }}>
-                            <Image
-                                source={`https://picsum.photos/265?random=1`}
-                                cachePolicy={'none'}
-                                style={{
-                                    ...styles.shadow,
-                                    height: 48,
-                                    width: 48,
-                                    backgroundColor: Color.black.alpha(0.5).string,
-                                    borderColor: Colors[colorScheme].stroke,
-                                    borderWidth: Sizes.thin,
-                                    borderRadius: 32,
-                                }}
-                            />
-                        </TouchableOpacity>
+                        <UserQuickView />
                     </View>
                 </View>
             </View>

@@ -11,11 +11,7 @@ import { CategoryManager } from '@/lib/CategoryManager'
 import { CardView } from './CardView'
 import { CardLoadingView } from './CardLoadingView'
 
-type CardProps = {
-    cardID: string
-}
-
-export type CardScreenProps = CardProps & PressableProps
+export type CardScreenProps = { cardID: string } & PressableProps
 
 export default function CardScreen(props: Readonly<CardScreenProps>) {
     const { cardID, onPress } = props

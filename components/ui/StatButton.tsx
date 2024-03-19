@@ -26,12 +26,13 @@ export function StatButton(props: StatButtonProps) {
 
     return (
         <TouchableOpacity
-            {...touchableOpacityProps}
+            onPress={() => { console.log(`${icon} tapped`) }}
             style={{
                 alignItems: 'center',
                 justifyContent: 'center',
                 ...(style as object),
             }}
+            {...touchableOpacityProps}
         >
             <Feather
                 name={icon}

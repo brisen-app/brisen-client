@@ -1,10 +1,10 @@
 import { Pressable, StyleSheet } from 'react-native'
-import { Text } from './utils/Themed'
 import { LocalizedText } from './utils/LocalizedText'
 import useColorScheme from './utils/useColorScheme'
 import { PackManager } from '@/lib/PackManager'
 import GridContainer from './utils/GridContainer'
 import { BottomSheetScrollView, useBottomSheet } from '@gorhom/bottom-sheet'
+import UserQuickView from './user/UserQuickView'
 
 export default function MenuView() {
     const colorScheme = useColorScheme()
@@ -13,7 +13,7 @@ export default function MenuView() {
     return (
         <BottomSheetScrollView>
             <Pressable onPress={() => expand()} style={{ paddingHorizontal: 16 }}>
-                {/* <HUDView /> */}
+                <HUDView />
 
                 <LocalizedText id="featured" style={styles.header} placeHolderStyle={{ height: 28, width: 128 }} />
                 <GridContainer query={PackManager.getFetchAllQuery()} itemsPerRow={1} style="card" />
@@ -26,11 +26,7 @@ export default function MenuView() {
 }
 
 function HUDView() {
-    return (
-        <>
-            <Text>HUD</Text>
-        </>
-    )
+    return <UserQuickView size={64} showDetails style={{ maxWidth: '30%' }} />
 }
 
 const styles = StyleSheet.create({
