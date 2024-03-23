@@ -3,6 +3,10 @@ name: 🎸 CI
 on:
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     name: 🧪 Test
@@ -24,7 +28,9 @@ jobs:
 
       - name: 🧪 Run tests
         id: test
-        run: echo "test_results=$(npm run testCI)" >> $GITHUB_OUTPUT
+        run: |
+          test_results=$(npm run testCI)
+          echo "::set-output name=test_results::$test_results"
 
       - name: 💬 Comment on PR
         uses: peter-evans/create-or-update-comment@v4

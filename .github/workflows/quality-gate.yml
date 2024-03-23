@@ -3,6 +3,10 @@ name: 🔍 Code Quality Check
 on:
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   sonarqube:
     name: 🔍 SonarQube Quality Check
@@ -31,5 +35,6 @@ jobs:
         with:
           issue-number: ${{ github.event.number }}
           body: |
-            The Quality Gate status is ${{ steps.gate.outputs.quality-gate-status }}
+            # SonarQube Quality Gate Check
+            ## ${{ steps.gate.outputs.quality-gate-status }}
             Check the results [here](${{ vars.SONAR_HOST_URL }}dashboard?id=${{ vars.SONAR_REPO_ID }})
