@@ -6,9 +6,8 @@ permissions:
 
 on:
   pull_request:
-  pull_request_review_comment:
     types:
-      - created
+      - opened
 
 concurrency:
   group: ${{ github.repository }}-${{ github.event.number || github.head_ref ||
@@ -30,12 +29,3 @@ jobs:
           review_simple_changes: false
           review_comment_lgtm: false
           disable_review: true
-          openai_heavy_model: gpt-3.5-turbo
-          summarize: |
-            Provide your final response in markdown with the following content:
-
-            - **Summary**: A high-level summary of the overall change instead of specific files, within 50 words.
-            - **Changes**: A summary of changes made to each file. Format this by having each file name in H2 and the changes in a markdown list.
-            - **Review**: A markdown list of suggestions to specific changes that can be made to improve the code quality. Consider both specific code-level suggestions and high-level architectural suggestions. Only add this section if the suggestions have significant impact on the code quality.
-
-            Avoid additional commentary as this summary will be added as a comment on the GitHub pull request. Use the titles "Summary", "Changes", and "Review" and they must be H1. Only include the "Reivew" section if the suggestions have significant impact on the code quality.
