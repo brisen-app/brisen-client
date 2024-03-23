@@ -16,8 +16,6 @@ jobs:
 
       - name: 🏗 Setup Node
         uses: actions/setup-node@v3
-        with:
-          node-version: ${{ vars.NODE_VERSION }}
 
       - name: 🏗 Setup EAS
         uses: expo/expo-github-action@v8
