@@ -1,4 +1,4 @@
-name: Code Review
+name: ✅ Code Review
 
 permissions:
   contents: read
@@ -29,3 +29,11 @@ jobs:
           debug: false
           review_simple_changes: false
           review_comment_lgtm: false
+          openai_heavy_model: gpt-3.5-turbo
+          summarize: |
+            Provide your final response in markdown with the following content:
+
+            - **Summary**: A high-level summary of the overall change instead of specific files, within 50 words.
+            - **Changes**: A summary of changes made to each file. Format this by having each file name in H3 and the changes in a markdown list.
+
+            Avoid additional commentary as this summary will be added as a comment on the GitHub pull request. Use the titles "Summary", and "Changes" and they must be H2.
