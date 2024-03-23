@@ -9,7 +9,7 @@ concurrency:
 
 jobs:
   update-preview:
-    name: 🚀 Create Expo Preview
+    name: 🔨 Create
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
