@@ -1,0 +1,18 @@
+name: 🔄 Convert TODOs to Issues
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - release/*
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: 🔄 TODO to Issue
+        uses: alstr/todo-to-issue-action@v4
+        with:
+          AUTO_ASSIGN: true
+          CLOSE_ISSUES: true
