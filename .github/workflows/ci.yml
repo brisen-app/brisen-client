@@ -23,4 +23,10 @@ jobs:
         run: npm install
 
       - name: 🧪 Run tests
-        run: npm run testCI
+        id: test
+        run: echo "test_results=$(npm run testCI)" >> $GITHUB_OUTPUT
+
+      - name: 💬 Comment on PR
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          body: ${{ steps.test.outputs.test_results }}
