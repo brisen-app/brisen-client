@@ -28,14 +28,4 @@ jobs:
 
       - name: 🧪 Run tests
         id: test
-        run: |
-          test_results=$(npm run testCI)
-          echo "::set-output name=test_results::$test_results"
-
-      - name: 💬 Comment on PR
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          issue-number: ${{ github.event.number }}
-          body: |
-            # Test Results
-            ${{ steps.test.outputs.test_results }}
+        run: npm run testCI

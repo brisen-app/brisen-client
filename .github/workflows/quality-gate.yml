@@ -35,6 +35,5 @@ jobs:
         with:
           issue-number: ${{ github.event.number }}
           body: |
-            # SonarQube Quality Gate Check
-            ## ${{ steps.gate.outputs.quality-gate-status }}
+            # Quality Gate ${{ steps.gate.outputs.quality-gate-status }}
             Check the results [here](${{ vars.SONAR_HOST_URL }}dashboard?id=${{ vars.SONAR_REPO_ID }})
