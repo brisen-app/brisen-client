@@ -23,4 +23,12 @@ jobs:
       # Check the Quality Gate status.
       - name: 📋 SonarQube Quality Gate check
         uses: sonarsource/sonarqube-quality-gate-action@master
+        id: gate
         timeout-minutes: 5
+
+      - name: 💬 Comment on PR
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          body: |
+            The Quality Gate status is ${{ steps.gate.outputs.quality-gate-status }}
+            Check the results [here](${{ vars.SONAR_HOST_URL }}dashboard?id=${{ vars.SONAR_REPO_ID }})
