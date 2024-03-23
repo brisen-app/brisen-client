@@ -23,21 +23,21 @@ jobs:
         uses: expo/expo-github-action@v8
         with:
           eas-version: latest
+          packager: npm
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: 📦 Install dependencies
         run: npm install
 
       - name: 🚀 Create preview
+        # id: preview
         uses: expo/expo-github-action/preview@v8
         with:
           command: eas update --auto --branch ${{ github.event.pull_request.head.ref }}
 
-      # TODO: Add a comment to the PR with the QR code
-      # - name: Add Comment To PR
+      # - name: Add QR code to PR
       #   uses: mshick/add-pr-comment@v1
       #   with:
       #     message: |
-      #       ## Application
-      #       ![Expo QR](https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=exp://exp.host/${{ env.EXPO_PROJECT }}?release-channel=pr${{ github.event.number }})
-      #       Published to https://exp.host/${{ env.EXPO_PROJECT }}?
+      #       # Preview
+      #       ![Expo QR](${{ steps.preview.outputs.qr }})
