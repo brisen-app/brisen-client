@@ -1,4 +1,4 @@
-name: ✅ Code Review
+name: ✅ PR Summary
 
 permissions:
   contents: read
@@ -17,8 +17,8 @@ concurrency:
   cancel-in-progress: ${{ github.event_name != 'pull_request_review_comment' }}
 
 jobs:
-  review:
-    name: 🐰 CodeRabbit review and summary
+  summarize:
+    name: 🐰 CodeRabbit summary
     runs-on: ubuntu-latest
     steps:
       - uses: coderabbitai/ai-pr-reviewer@latest
@@ -34,6 +34,7 @@ jobs:
             Provide your final response in markdown with the following content:
 
             - **Summary**: A high-level summary of the overall change instead of specific files, within 50 words.
-            - **Changes**: A summary of changes made to each file. Format this by having each file name in H3 and the changes in a markdown list.
+            - **Changes**: A summary of changes made to each file. Format this by having each file name in H2 and the changes in a markdown list.
+            - **Review**: A markdown list of suggestions to specific changes that can be made to improve the code quality. Consider both specific code-level suggestions and high-level architectural suggestions. Only add this section if the suggestions have significant impact on the code quality.
 
-            Avoid additional commentary as this summary will be added as a comment on the GitHub pull request. Use the titles "Summary", and "Changes" and they must be H2.
+            Avoid additional commentary as this summary will be added as a comment on the GitHub pull request. Use the titles "Summary", "Changes", and "Review" and they must be H1. Only include the "Reivew" section if the suggestions have significant impact on the code quality.
