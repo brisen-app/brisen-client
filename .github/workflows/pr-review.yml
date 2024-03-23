@@ -18,6 +18,7 @@ concurrency:
 
 jobs:
   review:
+    name: 🐰 CodeRabbit review and summary
     runs-on: ubuntu-latest
     steps:
       - uses: coderabbitai/ai-pr-reviewer@latest

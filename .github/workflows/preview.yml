@@ -1,10 +1,11 @@
+name: 🚀 Create Expo Preview
+
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
 
 jobs:
-  Update-Preview:
-    name: Create Expo Preview
+  update-preview:
+    name: 🚀 Create Expo Preview
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
