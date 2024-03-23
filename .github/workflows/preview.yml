@@ -1,0 +1,42 @@
+on:
+  pull_request:
+
+jobs:
+  Update-Preview:
+    name: Create Expo Preview
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      EXPO_PROJECT: ${{ vars.EXPO_PROJECT }}
+    steps:
+      - name: 🏗 Setup repo
+        uses: actions/checkout@v3
+
+      - name: 🏗 Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ vars.NODE_VERSION }}
+          cache: yarn
+
+      - name: 🏗 Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 📦 Install dependencies
+        run: yarn install
+
+      - name: 🚀 Create preview
+        uses: expo/expo-github-action/preview@v8
+        with:
+          command: eas update --auto --branch ${{ github.event.pull_request.head.ref }}
+
+      # TODO: Add a comment to the PR with the QR code
+      # - name: Add Comment To PR
+      #   uses: mshick/add-pr-comment@v1
+      #   with:
+      #     message: |
+      #       ## Application
+      #       ![Expo QR](https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=exp://exp.host/${{ env.EXPO_PROJECT }}?release-channel=pr${{ github.event.number }})
+      #       Published to https://exp.host/${{ env.EXPO_PROJECT }}?
