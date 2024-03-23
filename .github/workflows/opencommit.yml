@@ -1,4 +1,4 @@
-name: "OpenCommit Action"
+name: "✍🏼 Rename commit messages"
 
 on:
   push:
@@ -8,9 +8,9 @@ on:
       - release/*
 
 jobs:
-  OpenCommit:
+  opencommit:
     runs-on: ubuntu-latest
-    name: Rename commit messages
+    name: ✍🏼 Rename commit messages
     permissions: write-all
     timeout-minutes: 5
     steps:
@@ -20,7 +20,7 @@ jobs:
           fetch-depth: 0
 
       - name: 🏗 Setup Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: "16"
 
