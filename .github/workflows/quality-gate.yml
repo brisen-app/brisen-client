@@ -26,19 +26,19 @@ jobs:
         uses: sonarsource/sonarqube-quality-gate-action@master
         timeout-minutes: 5
 
-  gpt-review:
-    name: 📋 Chat GPT code review
-    runs-on: ubuntu-latest
-    needs: sonarqube
-    steps:
-      - name: 🏗️ Setup repo
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+  # gpt-review:
+  #   name: 📋 Chat GPT code review
+  #   runs-on: ubuntu-latest
+  #   needs: sonarqube
+  #   steps:
+  #     - name: 🏗️ Setup repo
+  #       uses: actions/checkout@v3
+  #       with:
+  #         fetch-depth: 0
 
-      - name: 📋 Perform Chat GPT code review
-        uses: mattzcarey/code-review-gpt@v0.1.4-alpha
-        with:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          MODEL: 'gpt-3.5-turbo'
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: 📋 Perform Chat GPT code review
+  #       uses: mattzcarey/code-review-gpt@v0.1.4-alpha
+  #       with:
+  #         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  #         MODEL: 'gpt-3.5-turbo'
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
