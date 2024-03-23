@@ -1,25 +1,44 @@
-name: Quality Gate
+name: Code Quality Check
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize]
 
 jobs:
-  SonarQube-Quality-Gate:
+  sonarqube:
+    name: 🔍 SonarQube Quality Gate
     runs-on: ubuntu-latest
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
     steps:
-      - uses: actions/checkout@v3
+      - name: 🏗️ Setup repo
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       # Triggering SonarQube analysis as results of it are required by Quality Gate check.
-      - name: SonarQube Scan
+      - name: 🔍 SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
 
       # Check the Quality Gate status.
-      - name: SonarQube Quality Gate check
+      - name: 📋 SonarQube Quality Gate check
         uses: sonarsource/sonarqube-quality-gate-action@master
         timeout-minutes: 5
+
+  gpt-review:
+    name: 📋 Chat GPT code review
+    runs-on: ubuntu-latest
+    needs: sonarqube
+    steps:
+      - name: 🏗️ Setup repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: 📋 Perform Chat GPT code review
+        uses: mattzcarey/code-review-gpt@v0.1.4-alpha
+        with:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          MODEL: 'gpt-3.5-turbo'
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

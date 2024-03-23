@@ -1,11 +1,8 @@
 name: "✍🏼 Rename commit messages"
 
 on:
-  push:
-    branches-ignore:
-      - main
-      - develop
-      - release/*
+  pull_request:
+    types: [opened, synchronize]
 
 jobs:
   opencommit:
