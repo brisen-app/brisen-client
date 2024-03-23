@@ -29,6 +29,7 @@ jobs:
           debug: false
           review_simple_changes: false
           review_comment_lgtm: false
+          disable_review: true
           openai_heavy_model: gpt-3.5-turbo
           summarize: |
             Provide your final response in markdown with the following content:
