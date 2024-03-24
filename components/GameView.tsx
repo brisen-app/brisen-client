@@ -7,12 +7,13 @@ import useColorScheme from './utils/useColorScheme'
 import { Pack } from '@/lib/PackManager'
 import { LocalizedText } from './utils/LocalizedText'
 import BottomSheet from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet'
+import * as Crypto from 'expo-crypto'
 
 function getRandomCard(playedCards: (string | null)[], playlist: Pack[]) {
     const allCards = playlist.map((p) => p.cards).flat()
     const availableCards = allCards.filter((c) => !playedCards.includes(c.id))
     if (availableCards.length === 0) return null
-    const randomIndex = Math.floor(Math.random() * availableCards.length)
+    const randomIndex = Crypto.getRandomBytes(1)[0] % availableCards.length
     return availableCards[randomIndex].id
 }
 

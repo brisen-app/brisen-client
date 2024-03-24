@@ -5,7 +5,7 @@ import { Image } from 'expo-image'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import useColorScheme from '../utils/useColorScheme'
 import { useMemo } from 'react'
-import { DimensionValue, TouchableOpacityProps, View, ViewProps } from 'react-native'
+import { DimensionValue, TouchableOpacityProps, View } from 'react-native'
 import { Text } from '../utils/Themed'
 import { FontStyles, Styles } from '@/constants/Styles'
 

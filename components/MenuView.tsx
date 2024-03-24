@@ -10,7 +10,6 @@ import useColorScheme from './utils/useColorScheme'
 import { FontStyles, Styles } from '@/constants/Styles'
 
 export default function MenuView() {
-    const colorScheme = useColorScheme()
     const { expand } = useBottomSheet()
 
     return (
