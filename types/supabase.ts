@@ -6,124 +6,153 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export interface Database {
+export type Database = {
   public: {
     Tables: {
-      card_relations: {
+      card_pack_rel: {
         Row: {
-          from: string
-          to: string
+          card: string
+          created_at: string
+          modified_at: string
+          pack: string
         }
         Insert: {
-          from: string
-          to: string
+          card: string
+          created_at?: string
+          modified_at?: string
+          pack: string
         }
         Update: {
-          from?: string
-          to?: string
+          card?: string
+          created_at?: string
+          modified_at?: string
+          pack?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "public_card_pack_rel_card_fkey"
+            columns: ["card"]
+            isOneToOne: false
+            referencedRelation: "cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "public_card_pack_rel_pack_fkey"
+            columns: ["pack"]
+            isOneToOne: false
+            referencedRelation: "packs"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       cards: {
         Row: {
           category: string | null
           content: string
-          header: string | null
+          created_at: string
           id: string
-          language: string
-          tags: string[]
+          modified_at: string
         }
         Insert: {
           category?: string | null
           content: string
-          header?: string | null
-          id: string
-          language?: string
-          tags: string[]
+          created_at?: string
+          id?: string
+          modified_at?: string
         }
         Update: {
           category?: string | null
           content?: string
-          header?: string | null
+          created_at?: string
           id?: string
-          language?: string
-          tags?: string[]
+          modified_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "cards_category_fkey"
+            foreignKeyName: "public_cards_category_fkey"
             columns: ["category"]
             isOneToOne: false
             referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cards_language_fkey"
-            columns: ["language"]
-            isOneToOne: false
-            referencedRelation: "languages"
             referencedColumns: ["id"]
           }
         ]
       }
       categories: {
         Row: {
-          color: string | null
+          created_at: string
+          gradient: string[] | null
           icon: string
           id: string
-          individual: boolean
+          modified_at: string
         }
         Insert: {
-          color?: string | null
+          created_at?: string
+          gradient?: string[] | null
           icon: string
-          id: string
-          individual?: boolean
+          id?: string
+          modified_at?: string
         }
         Update: {
-          color?: string | null
+          created_at?: string
+          gradient?: string[] | null
           icon?: string
           id?: string
-          individual?: boolean
+          modified_at?: string
         }
         Relationships: []
       }
       languages: {
         Row: {
+          created_at: string
           icon: string
           id: string
-          title: string
+          modified_at: string
+          name: string
+          public: boolean
         }
         Insert: {
+          created_at?: string
           icon: string
           id: string
-          title: string
+          modified_at?: string
+          name: string
+          public?: boolean
         }
         Update: {
+          created_at?: string
           icon?: string
           id?: string
-          title?: string
+          modified_at?: string
+          name?: string
+          public?: boolean
         }
         Relationships: []
       }
       localizations: {
         Row: {
-          key: string
+          created_at: string
+          id: string
           language: string
+          modified_at: string
           value: string
         }
         Insert: {
-          key: string
+          created_at?: string
+          id: string
           language: string
+          modified_at?: string
           value: string
         }
         Update: {
-          key?: string
+          created_at?: string
+          id?: string
           language?: string
+          modified_at?: string
           value?: string
         }
         Relationships: [
           {
-            foreignKeyName: "localizations_language_fkey"
+            foreignKeyName: "public_localizations_language_fkey"
             columns: ["language"]
             isOneToOne: false
             referencedRelation: "languages"
@@ -131,51 +160,27 @@ export interface Database {
           }
         ]
       }
-      log: {
-        Row: {
-          message: string
-          timestamp: string
-          type: string | null
-        }
-        Insert: {
-          message: string
-          timestamp?: string
-          type?: string | null
-        }
-        Update: {
-          message?: string
-          timestamp?: string
-          type?: string | null
-        }
-        Relationships: []
-      }
       packs: {
         Row: {
-          end_date: string | null
-          excluded_tags: string[] | null
-          icon: string
+          created_at: string
+          description: string | null
           id: string
-          included_tags: string[] | null
-          is_free: boolean
-          start_date: string | null
+          modified_at: string
+          name: string
         }
         Insert: {
-          end_date?: string | null
-          excluded_tags?: string[] | null
-          icon: string
-          id: string
-          included_tags?: string[] | null
-          is_free?: boolean
-          start_date?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          modified_at?: string
+          name?: string
         }
         Update: {
-          end_date?: string | null
-          excluded_tags?: string[] | null
-          icon?: string
+          created_at?: string
+          description?: string | null
           id?: string
-          included_tags?: string[] | null
-          is_free?: boolean
-          start_date?: string | null
+          modified_at?: string
+          name?: string
         }
         Relationships: []
       }
@@ -184,10 +189,7 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
-      hello_world: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never

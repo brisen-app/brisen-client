@@ -1,56 +1,74 @@
-import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet';
-import { StyleSheet, useColorScheme } from "react-native";
-import { useCallback, useMemo, useRef } from "react";
-import { BlurView } from 'expo-blur';
-import GameView from '@/components/GameView';
-import MenuView from '@/components/MenuView';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Color from '@/types/Color';
+import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet'
+import { StyleSheet } from 'react-native'
+import { useCallback, useMemo, useRef } from 'react'
+import { BlurView } from 'expo-blur'
+import GameView from '@/components/GameView'
+import MenuView from '@/components/MenuView'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import Sizes from '@/constants/Sizes'
+import useColorScheme from './utils/useColorScheme'
+import Colors from '@/constants/Colors'
+import { Image } from 'expo-image'
 
 export default function HomeView() {
-    const isLightMode = useColorScheme() === 'light';
-    const insets = useSafeAreaInsets();
-    const bottomSheetRef = useRef<BottomSheet>(null);
+    const colorScheme = useColorScheme()
+    const insets = useSafeAreaInsets()
 
-    const snapPoints = useMemo(() => [
-        insets.bottom + 64, '50%', '100%'
-    ], []);
+    const bottomSheetRef = useRef<BottomSheet>(null)
 
+    const snapPoints = useMemo(() => [insets.bottom + Sizes.big, '50%', '100%'], [])
 
     const handleSheetChanges = useCallback((index: number) => {
         // console.log('handleSheetChanges', index);
-    }, []);
+    }, [])
 
     const containerView = useCallback(
-        (props: any) => <BlurView intensity={100} {...props} />,
+        (props: any) => (
+            <BlurView intensity={100} {...props}>
+                <Image
+                    source={require('@/assets/images/noise.png')}
+                    style={{
+                        width: '100%',
+                        height: '55%',
+                        opacity: 0.02,
+                    }}
+                />
+            </BlurView>
+        ),
         []
     )
 
     const backdrop = useCallback(
-        (props: any) => <BottomSheetBackdrop
-            opacity={0.9}
-            appearsOnIndex={2}
-            disappearsOnIndex={0}
-            pressBehavior={'collapse'}
-            {...props} />,
+        (props: any) => (
+            <BottomSheetBackdrop
+                opacity={0.75}
+                appearsOnIndex={2}
+                disappearsOnIndex={0}
+                pressBehavior={'collapse'}
+                {...props}
+            />
+        ),
         []
     )
 
     return (
         <>
-            <GameView />
+            <GameView bottomSheetRef={bottomSheetRef} />
             <BottomSheet
                 ref={bottomSheetRef}
                 index={1}
                 snapPoints={snapPoints}
                 onChange={handleSheetChanges}
                 backdropComponent={backdrop}
-                backgroundStyle={[styles.contentContainer, { backgroundColor: isLightMode ? Color.white.alpha(0.9).string : Color.black.alpha(0.1).string }]}
+                backgroundStyle={{
+                    borderRadius: 16,
+                    borderColor: Colors[colorScheme].stroke,
+                    borderWidth: Sizes.thin,
+                    overflow: 'hidden',
+                }}
                 backgroundComponent={containerView}
                 handleIndicatorStyle={{
-                    backgroundColor: isLightMode ?
-                        Color.black.alpha(0.5).string :
-                        Color.white.alpha(0.5).string
+                    backgroundColor: Colors[colorScheme].stroke,
                 }}
                 style={styles.shadow}
                 topInset={insets.top ?? 8}
@@ -62,14 +80,10 @@ export default function HomeView() {
 }
 
 const styles = StyleSheet.create({
-    contentContainer: {
-        borderRadius: 16,
-        overflow: 'hidden'
-    },
     shadow: {
         shadowColor: 'black',
-        shadowOpacity: 0.33,
+        shadowOpacity: 1 / 3,
         shadowRadius: 32,
         elevation: 24,
-    }
-});
+    },
+})
