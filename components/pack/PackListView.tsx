@@ -2,12 +2,14 @@ import { DimensionValue, View, TouchableOpacity, StyleSheet, Pressable } from 'r
 import { Image } from 'expo-image'
 import { PlaylistContext } from '../utils/AppContext'
 import { Text } from '../utils/Themed'
-import { Key, useContext, useEffect } from 'react'
+import { Key, useContext } from 'react'
 import Colors from '@/constants/Colors'
 import Sizes from '@/constants/Sizes'
 import useColorScheme from '../utils/useColorScheme'
-import { Pack } from '@/lib/PackManager'
+import { Pack, PackManager } from '@/lib/PackManager'
 import Color from '@/types/Color'
+import { useQuery } from '@tanstack/react-query'
+import Assets from '@/constants/Assets'
 
 export type PackViewProps = {
     pack: Pack
@@ -26,9 +28,8 @@ export default function PackListView(props: Readonly<PackViewProps>) {
         else setPlaylist([...playlist, pack])
     }
 
-    useEffect(() => {
-        console.debug(`Rendering PackListView: ${pack.name}`)
-    }, [])
+    const { data: image, error } = useQuery(PackManager.getImageQuery(pack.image))
+    if (error) console.warn(error)
 
     return (
         <Pressable
@@ -40,7 +41,7 @@ export default function PackListView(props: Readonly<PackViewProps>) {
             }}
         >
             <Image
-                source={`https://picsum.photos/seed/${pack.id}/265`}
+                source={image ?? Assets[colorScheme].pack_placeholder}
                 blurRadius={64}
                 style={{
                     position: 'absolute',
@@ -68,7 +69,7 @@ export default function PackListView(props: Readonly<PackViewProps>) {
                 }}
             >
                 <Image
-                    source={`https://picsum.photos/seed/${pack.id}/256`}
+                    source={image ?? Assets[colorScheme].pack_placeholder}
                     style={{
                         aspectRatio: 1,
                         height: '100%',

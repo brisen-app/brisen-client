@@ -1,6 +1,7 @@
 import { Tables } from '@/types/supabase';
-import { SupabaseEntityManager, supabase } from './supabase';
+import { supabase } from './supabase';
 import { NativeModules, Platform } from 'react-native';
+import { NotFoundError } from '@/types/Errors'
 
 
 export type Language = Tables<'languages'>;
@@ -18,8 +19,8 @@ const defaultLanguage: Language = {
     modified_at: new Date().toISOString(),
 }
 
-export abstract class LanguageManager extends SupabaseEntityManager {
-    static readonly tableName = 'languages';
+export abstract class LanguageManager {
+    static readonly tableName = 'languages'
     private static displayLanguage: Language = defaultLanguage
 
     static setLanguage(language: Language) {
@@ -29,6 +30,21 @@ export abstract class LanguageManager extends SupabaseEntityManager {
     static getLanguage() {
         if (!this.displayLanguage) throw new LanguageNotSetError()
         return this.displayLanguage
+    }
+
+    static getFetchAllQuery() {
+        return {
+            queryKey: [this.tableName],
+            queryFn: async () => {
+                return await this.fetchAll()
+            },
+        }
+    }
+
+    static async fetchAll() {
+        const { data } = await supabase.from(this.tableName).select().eq('public', true).throwOnError()
+        if (!data) throw new NotFoundError(`No data found in table '${this.tableName}'`)
+        return data
     }
 
     // static findDeviceLanguage(languages: Language[]): Language {
@@ -42,9 +58,9 @@ export abstract class LanguageManager extends SupabaseEntityManager {
     //         console.debug(`Unable to determine device language. Defaulting to '${this.defaultLanguage.id}'.`);
     //         return this.defaultLanguage
     //     }
-        
+
     //     const language = languages.find(l => l.id === deviceLanguageCode)
-        
+
     //     if (!language) {
     //         console.debug(`Device language '${deviceLanguageCode}' not supported. Defaulting to '${this.defaultLanguage.id}'.`);
     //         return this.defaultLanguage
@@ -53,12 +69,4 @@ export abstract class LanguageManager extends SupabaseEntityManager {
     //     console.debug(`Device language is '${language.name}' (${language.id})`);
     //     return language
     // }
-
-    static async fetchAll() {
-        const { data } = await supabase.from(this.tableName)
-            .select()
-            .eq('public', true)
-            .throwOnError()
-        return this.throwOnNull(data)
-    }
 }

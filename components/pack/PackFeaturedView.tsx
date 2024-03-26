@@ -11,6 +11,9 @@ import Sizes from '@/constants/Sizes'
 import useColorScheme from '../utils/useColorScheme'
 import { StatButton } from '../ui/StatButton'
 import { LinearGradient } from 'expo-linear-gradient'
+import Assets from '@/constants/Assets'
+import { PackManager } from '@/lib/PackManager'
+import { useQuery } from '@tanstack/react-query'
 
 export default function PackFeaturedView(props: Readonly<PackViewProps>) {
     const { pack } = props
@@ -26,29 +29,29 @@ export default function PackFeaturedView(props: Readonly<PackViewProps>) {
         else setPlaylist([...playlist, pack])
     }
 
-    useEffect(() => {
-        console.debug(`Rendering PackFeaturedView: ${pack.name}`)
-    }, [])
+    const { data: image, error } = useQuery(PackManager.getImageQuery(pack.image))
+    if (error) console.warn(error)
 
     return (
         <Pressable
             style={{
                 height: height,
                 borderRadius: borderRadius,
+                overflow: 'hidden',
                 borderColor: Colors[colorScheme].stroke,
                 borderWidth: Sizes.thin,
             }}
         >
-            <Image
-                source={`https://picsum.photos/seed/${pack.id}/1024`}
+            {/* <Image
+                source={image ?? Assets[colorScheme].pack_placeholder}
                 style={{
                     position: 'absolute',
                     width: '100%',
                     height: '100%',
                     borderRadius: borderRadius,
                 }}
-            />
-            <LinearGradient
+            /> */}
+            {/* <LinearGradient
                 end={{ x: 0.5, y: 0.25 }}
                 colors={[Color.black.alpha(0.5).string, Color.black.alpha(0).string]}
                 style={{
@@ -57,10 +60,10 @@ export default function PackFeaturedView(props: Readonly<PackViewProps>) {
                     height: '100%',
                     borderRadius: borderRadius,
                 }}
-            />
+            /> */}
 
-            <View style={{ flex: 1, justifyContent: 'space-between' }}>
-                <View
+            <View style={{ flex: 1 }}>
+                {/* <View
                     style={{
                         flexDirection: 'row',
                         justifyContent: 'flex-end',
@@ -70,7 +73,18 @@ export default function PackFeaturedView(props: Readonly<PackViewProps>) {
                 >
                     <StatButton icon="heart" label="17.3k" />
                     <StatButton icon="send" label="34" />
-                </View>
+                </View> */}
+                <Image
+                    source={image ?? Assets[colorScheme].pack_placeholder}
+                    style={{
+                        flex: 1,
+                        overflow: 'hidden',
+                        // position: 'absolute',
+                        // width: '100%',
+                        // height: '100%',
+                        // borderRadius: borderRadius,
+                    }}
+                />
 
                 <BlurView
                     intensity={100}
