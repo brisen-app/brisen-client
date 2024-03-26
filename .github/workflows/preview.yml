@@ -1,4 +1,4 @@
-name: 🚀 Create Expo Preview
+name: 🚀 Push Preview
 
 on:
   pull_request:
@@ -9,11 +9,13 @@ concurrency:
 
 jobs:
   update-preview:
-    name: 🔨 Create
+    name: 🔨 Build Preview
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       EXPO_PROJECT: ${{ vars.EXPO_PROJECT }}
+      EXPO_PUBLIC_SB_URL: ${{ vars.SUPABASE_URL_DEV }}
+      EXPO_PUBLIC_SB_ANON: ${{ secrets.SUPABASE_ANON_DEV }}
     steps:
       - name: 🏗 Setup repo
         uses: actions/checkout@v3
