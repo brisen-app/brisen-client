@@ -38,4 +38,4 @@ jobs:
           EXPO_PUBLIC_SB_URL: ${{ vars.EXPO_PUBLIC_SB_URL }}
           EXPO_PUBLIC_SB_ANON: ${{ secrets.EXPO_PUBLIC_SB_ANON }}
         with:
-          command: eas update --auto --branch ${{ github.event.pull_request.head.ref }} --message ${{ github.event.pull_request.title }}
+          command: eas update --auto --branch ${{ github.event.pull_request.head.ref }}
