@@ -11,10 +11,11 @@ jobs:
   update-preview:
     name: 🔨 Build Preview
     runs-on: ubuntu-latest
-    environment: development
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       EXPO_PROJECT: ${{ vars.EXPO_PROJECT }}
+      EXPO_PUBLIC_SB_URL: ${{ vars.SUPABASE_URL_DEV }}
+      EXPO_PUBLIC_SB_ANON: ${{ secrets.SUPABASE_ANON_DEV }}
     steps:
       - name: 🏗 Setup repo
         uses: actions/checkout@v3
@@ -34,8 +35,5 @@ jobs:
 
       - name: 🚀 Create preview
         uses: expo/expo-github-action/preview@v8
-        env:
-          EXPO_PUBLIC_SB_URL: ${{ vars.EXPO_PUBLIC_SB_URL }}
-          EXPO_PUBLIC_SB_ANON: ${{ secrets.EXPO_PUBLIC_SB_ANON }}
         with:
           command: eas update --auto --branch ${{ github.event.pull_request.head.ref }}
