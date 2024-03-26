@@ -9,6 +9,7 @@ on:
   pull_request:
     types:
       - opened
+      - reopened
 
 concurrency:
   group: ${{ github.repository }}-${{ github.event.number || github.head_ref ||
