@@ -1,4 +1,4 @@
-name: 🚀 Create Expo Preview
+name: 🚀 Push Preview
 
 on:
   pull_request:
@@ -9,7 +9,7 @@ concurrency:
 
 jobs:
   update-preview:
-    name: 🔨 Create
+    name: 🔨 Build Preview
     runs-on: ubuntu-latest
     environment: development
     env:
@@ -34,5 +34,8 @@ jobs:
 
       - name: 🚀 Create preview
         uses: expo/expo-github-action/preview@v8
+        env:
+          EXPO_PUBLIC_SB_URL: ${{ vars.EXPO_PUBLIC_SB_URL }}
+          EXPO_PUBLIC_SB_ANON: ${{ secrets.EXPO_PUBLIC_SB_ANON }}
         with:
-          command: eas update --auto --branch ${{ github.event.pull_request.head.ref }}
+          command: eas update --auto --branch ${{ github.event.pull_request.head.ref }} --message ${{ github.event.pull_request.title }}
