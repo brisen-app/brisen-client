@@ -2,10 +2,11 @@ import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from '@tan
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import HomeView from '@/components/HomeView'
-import { Platform } from 'react-native'
+import { Platform, View } from 'react-native'
 import { AppContextProvider } from '@/components/utils/AppContext'
 import Colors from '@/constants/Colors'
 import useColorScheme from '@/components/utils/useColorScheme'
+import { Text } from '@/components/utils/Themed'
 
 export default function Root() {
     const colorScheme = useColorScheme()
@@ -21,20 +22,26 @@ export default function Root() {
     })
 
     return (
-        <QueryClientProvider client={queryClient}>
-            <AppContextProvider>
-                <GestureHandlerRootView
-                    style={{
-                        flex: 1,
-                        backgroundColor: Colors[colorScheme].appBackground,
-                    }}
-                >
-                    <App />
-                    {Platform.OS === 'web' && <ReactQueryDevtools initialIsOpen={true} />}
-                </GestureHandlerRootView>
-            </AppContextProvider>
-        </QueryClientProvider>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <Text style={{ color: 'black' }}>Test</Text>
+        </View>
     )
+
+    // return (
+    //     <QueryClientProvider client={queryClient}>
+    //         <AppContextProvider>
+    //             <GestureHandlerRootView
+    //                 style={{
+    //                     flex: 1,
+    //                     backgroundColor: Colors[colorScheme].appBackground,
+    //                 }}
+    //             >
+    //                 <App />
+    //                 {Platform.OS === 'web' && <ReactQueryDevtools initialIsOpen={true} />}
+    //             </GestureHandlerRootView>
+    //         </AppContextProvider>
+    //     </QueryClientProvider>
+    // )
 }
 
 function App() {
