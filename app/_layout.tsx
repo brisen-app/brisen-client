@@ -22,7 +22,7 @@ export default function Root() {
     })
 
     return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'red' }}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
             <Text style={{ color: 'black' }}>Test</Text>
         </View>
     )
