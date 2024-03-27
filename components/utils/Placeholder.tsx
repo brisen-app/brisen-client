@@ -12,7 +12,7 @@ export type PlaceholderProps = {
     width?: DimensionValue
 }
 
-export default function Placeholder(props: PlaceholderProps) {
+export default function Placeholder(props: Readonly<PlaceholderProps>) {
     const colorScheme = useColorScheme()
     const { textAlignment, lineCount, isCircle, borderRadius, height, width } = props
 
@@ -42,7 +42,6 @@ export default function Placeholder(props: PlaceholderProps) {
                 borderRadius: borderRadiusValue,
                 width: width ?? '100%',
                 overflow: 'hidden',
-                margin: Sizes.tiny,
             }}
         >
             {Array.from({ length: lineCount ?? 1 }).map((_, index) => (
