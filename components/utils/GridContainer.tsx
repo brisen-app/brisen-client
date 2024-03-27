@@ -1,12 +1,14 @@
-import { Dimensions, FlatListProps } from 'react-native'
+import { Dimensions, FlatListProps, View } from 'react-native'
 import { FlatList } from 'react-native-gesture-handler'
 import React from 'react'
+import { BottomSheetFlatList } from '@gorhom/bottom-sheet'
 
-function partition<T>(items: T[] | null, size: number): T[][] {
+function partition<T>(items: ArrayLike<T> | undefined | null, size: number) {
     if (!items) return []
     let p: T[][] = []
-    for (let i = 0; i < items.length; i += size) {
-        p.push(items.slice(i, i + size))
+    const itemsArray = Array.from(items)
+    for (let i = 0; i < itemsArray.length; i += size) {
+        p.push(itemsArray.slice(i, i + size))
     }
     return p
 }
@@ -16,22 +18,26 @@ export type GridContainerProps<T> = {
 } & FlatListProps<T>
 
 export default function GridContainer<T>(props: Readonly<GridContainerProps<T>>) {
-    const { itemsPerRow = 3, data } = props
+    const { itemsPerRow = 3, data, renderItem } = props
 
     const itemWidth = Dimensions.get('window').width - 16 * 2
     const enableScroll = (data?.length ?? 0) > itemsPerRow
 
     return (
         <FlatList
-            {...props}
             style={{ flexGrow: 0, overflow: 'visible' }}
             showsHorizontalScrollIndicator={false}
             horizontal
             scrollEnabled={enableScroll}
             snapToInterval={itemWidth + 8}
             decelerationRate={'fast'}
-            // ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
+            ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
             data={partition(data, itemsPerRow)}
+            renderItem={({ item: items }) => (
+                <View style={{ width: itemWidth, gap: 8 }}>
+                    {items.map((item, index) => renderItem && renderItem({ item, index }))}
+                </View>
+            )}
         />
     )
 }
