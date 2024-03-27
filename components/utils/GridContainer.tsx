@@ -1,7 +1,6 @@
 import { Dimensions, FlatListProps, View } from 'react-native'
 import { FlatList } from 'react-native-gesture-handler'
 import React from 'react'
-import { BottomSheetFlatList } from '@gorhom/bottom-sheet'
 
 function partition<T>(items: ArrayLike<T> | undefined | null, size: number) {
     if (!items) return []
@@ -33,9 +32,14 @@ export default function GridContainer<T>(props: Readonly<GridContainerProps<T>>)
             decelerationRate={'fast'}
             ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
             data={partition(data, itemsPerRow)}
+            keyExtractor={(items) => items.map((item) => item.id).join()}
             renderItem={({ item: items }) => (
                 <View style={{ width: itemWidth, gap: 8 }}>
-                    {items.map((item, index) => renderItem && renderItem({ item, index }))}
+                    {items.map((item, index) => (
+                        <View key={item.id ?? index}>
+                            {renderItem ? renderItem({ item, index }) : null}
+                        </View>
+                    ))}
                 </View>
             )}
         />
