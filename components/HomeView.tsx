@@ -13,14 +13,8 @@ import { Image } from 'expo-image'
 export default function HomeView() {
     const colorScheme = useColorScheme()
     const insets = useSafeAreaInsets()
-
     const bottomSheetRef = useRef<BottomSheet>(null)
-
-    const snapPoints = useMemo(() => [insets.bottom + Sizes.big, '50%', '100%'], [])
-
-    const handleSheetChanges = useCallback((index: number) => {
-        // console.log('handleSheetChanges', index);
-    }, [])
+    const snapPoints = useMemo(() => [insets.bottom + Sizes.big], [bottomSheetRef, insets])
 
     const containerView = useCallback(
         (props: any) => (
@@ -58,7 +52,8 @@ export default function HomeView() {
                 ref={bottomSheetRef}
                 index={1}
                 snapPoints={snapPoints}
-                onChange={handleSheetChanges}
+                enableDynamicSizing
+                backgroundComponent={containerView}
                 backdropComponent={backdrop}
                 backgroundStyle={{
                     borderRadius: 16,
@@ -66,7 +61,6 @@ export default function HomeView() {
                     borderWidth: Sizes.thin,
                     overflow: 'hidden',
                 }}
-                backgroundComponent={containerView}
                 handleIndicatorStyle={{
                     backgroundColor: Colors[colorScheme].stroke,
                 }}
@@ -74,6 +68,9 @@ export default function HomeView() {
                 topInset={insets.top ?? 8}
             >
                 <MenuView />
+                {/* <BottomSheetView >
+                    <View style={{ height: 500 }} />
+                </BottomSheetView> */}
             </BottomSheet>
         </>
     )
