@@ -32,7 +32,7 @@ export abstract class PackManager {
     }
 
     static async fetchAll(): Promise<Pack[]> {
-        const { data } = await supabase.from(this.tableName).select('*, cards(id)').throwOnError()
+        const { data } = await supabase.from(this.tableName).select('*, cards(id)').order('name').throwOnError()
         if (!data) throw new NotFoundError(`No data found in table '${this.tableName}'`)
         return data
     }
