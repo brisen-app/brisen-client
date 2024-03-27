@@ -4,7 +4,7 @@ import { PackManager } from '@/lib/PackManager'
 import GridContainer from './utils/GridContainer'
 import { BottomSheetView, useBottomSheet } from '@gorhom/bottom-sheet'
 import { useQuery } from '@tanstack/react-query'
-import PackFeaturedView from './pack/PackFeaturedView'
+import PackFeaturedView, { PackFeaturedViewPlaceholder } from './pack/PackFeaturedView'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export default function MenuView() {
@@ -18,11 +18,15 @@ export default function MenuView() {
         <BottomSheetView style={{ paddingHorizontal: 16, paddingBottom: insets.bottom }}>
             <Pressable onPress={() => expand()}>
                 <LocalizedText id="packs" style={styles.header} placeHolderStyle={{ height: 28, width: 128 }} />
-                <GridContainer
-                    data={packs}
-                    itemsPerRow={1}
-                    renderItem={({ item }) => <PackFeaturedView pack={item} />}
-                />
+                {!isLoading ? (
+                    <GridContainer
+                        data={packs}
+                        itemsPerRow={1}
+                        renderItem={({ item }) => <PackFeaturedView pack={item} />}
+                    />
+                ) : (
+                    <PackFeaturedViewPlaceholder />
+                )}
             </Pressable>
         </BottomSheetView>
     )
