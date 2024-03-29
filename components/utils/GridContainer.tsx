@@ -12,11 +12,11 @@ function partition<T>(items: ArrayLike<T> | undefined | null, size: number) {
     return p
 }
 
-export type GridContainerProps<T> = {
+export type GridContainerProps<T extends { id: string }> = {
     itemsPerRow?: number
 } & FlatListProps<T>
 
-export default function GridContainer<T>(props: Readonly<GridContainerProps<T>>) {
+export default function GridContainer<T extends { id: string }>(props: Readonly<GridContainerProps<T>>) {
     const { itemsPerRow = 3, data, renderItem } = props
 
     const itemWidth = Dimensions.get('window').width - 16 * 2
@@ -32,13 +32,11 @@ export default function GridContainer<T>(props: Readonly<GridContainerProps<T>>)
             decelerationRate={'fast'}
             ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
             data={partition(data, itemsPerRow)}
-            keyExtractor={(items) => items.map((item) => item.id).join()}
             renderItem={({ item: items }) => (
                 <View style={{ width: itemWidth, gap: 8 }}>
                     {items.map((item, index) => (
-                        <View key={item.id ?? index}>
-                            {renderItem ? renderItem({ item, index }) : null}
-                        </View>
+                        // @ts-ignore
+                        <View key={item.id}>{renderItem ? renderItem({ item, index }) : null}</View>
                     ))}
                 </View>
             )}
