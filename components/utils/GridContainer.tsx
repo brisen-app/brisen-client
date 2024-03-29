@@ -24,13 +24,13 @@ export default function GridContainer<T extends { id: string }>(props: Readonly<
 
     return (
         <FlatList
-            style={{ flexGrow: 0, overflow: 'visible' }}
+            style={{ overflow: 'visible' }}
             showsHorizontalScrollIndicator={false}
             horizontal
             scrollEnabled={enableScroll}
             snapToInterval={itemWidth + 8}
             decelerationRate={'fast'}
-            ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
+            contentContainerStyle={{ gap: 8 }}
             data={partition(data, itemsPerRow)}
             renderItem={({ item: items }) => (
                 <View style={{ width: itemWidth, gap: 8 }}>

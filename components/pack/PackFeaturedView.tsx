@@ -1,7 +1,6 @@
 import { BlurView } from 'expo-blur'
 import { DimensionValue, View, TouchableOpacity, StyleSheet, Pressable, ActivityIndicator } from 'react-native'
 import { Image, ImageProps } from 'expo-image'
-import { PackViewProps } from './PackListView'
 import { PlaylistContext } from '../utils/AppContext'
 import { Text } from '../utils/Themed'
 import { useCallback, useContext } from 'react'
@@ -13,6 +12,8 @@ import Assets from '@/constants/Assets'
 import { PackManager } from '@/lib/PackManager'
 import { useQuery } from '@tanstack/react-query'
 import Placeholder from '../utils/Placeholder'
+import { PackViewProps } from '@/app/pack/[packID]'
+import { Link } from 'expo-router'
 
 const borderRadius = 16
 const height: DimensionValue = 256 + 32
@@ -32,110 +33,113 @@ export default function PackFeaturedView(props: Readonly<PackViewProps>) {
     if (error) console.warn(error)
 
     const PackImage = useCallback(
-        (props: ImageProps) => (
-            <Image {...props} source={image ?? Assets[colorScheme].pack_placeholder} contentFit="cover" />
-        ),
-        [isLoading]
+        (props: ImageProps) => <Image {...props} source={image ?? Assets[colorScheme].pack_placeholder} />,
+        [image]
     )
 
     if (isLoading) return <PackFeaturedViewPlaceholder />
 
     return (
-        <Pressable
-            style={{
-                height: height,
-                borderRadius: borderRadius,
-                overflow: 'hidden',
-                borderColor: Colors[colorScheme].stroke,
-                borderWidth: Sizes.thin,
-            }}
-        >
-            <PackImage
+        <Link href={`/pack/${pack.id}`} asChild>
+            <Pressable
                 style={{
-                    position: 'absolute',
-                    width: '100%',
-                    height: '100%',
+                    height: height,
                     borderRadius: borderRadius,
+                    overflow: 'hidden',
+                    borderColor: Colors[colorScheme].stroke,
+                    borderWidth: Sizes.thin,
                 }}
-            />
-            {/* <LinearGradient
-                end={{ x: 0.5, y: 0.25 }}
-                colors={[Color.black.alpha(0.5).string, Color.black.alpha(0).string]}
-                style={{
-                    position: 'absolute',
-                    width: '100%',
-                    height: '100%',
-                    borderRadius: borderRadius,
-                }}
-            /> */}
+            >
+                {/* <PackImage
+                    style={{
+                        position: 'absolute',
+                        width: '100%',
+                        height: '100%',
+                        borderRadius: borderRadius,
+                    }}
+                /> */}
+                {/* <LinearGradient
+                    end={{ x: 0.5, y: 0.25 }}
+                    colors={[Color.black.alpha(0.5).string, Color.black.alpha(0).string]}
+                    style={{
+                        position: 'absolute',
+                        width: '100%',
+                        height: '100%',
+                        borderRadius: borderRadius,
+                    }}
+                /> */}
 
-            <View style={{ flex: 1 }}>
-                {/* <View
-                    style={{
-                        flexDirection: 'row',
-                        justifyContent: 'flex-end',
-                        padding: 16,
-                        gap: 16,
-                    }}
-                >
-                    <StatButton icon="heart" label="17.3k" />
-                    <StatButton icon="send" label="34" />
-                </View> */}
-                <PackImage
-                    style={{
-                        flex: 1,
-                        overflow: 'hidden',
-                    }}
-                />
-
-                <BlurView
-                    intensity={100}
-                    style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        padding: 16,
-                        borderBottomLeftRadius: borderRadius,
-                        borderBottomRightRadius: borderRadius,
-                        overflow: 'hidden',
-                        backgroundColor: Color.black.alpha(0.5).string,
-                    }}
-                >
-                    <View
+                <View style={{ flex: 1 }}>
+                    {/* <View
+                        style={{
+                            flexDirection: 'row',
+                            justifyContent: 'flex-end',
+                            padding: 16,
+                            gap: 16,
+                        }}
+                    >
+                        <StatButton icon="heart" label="17.3k" />
+                        <StatButton icon="send" label="34" />
+                    </View> */}
+                    <PackImage
                         style={{
                             flex: 1,
-                            justifyContent: 'center',
-                            gap: 2,
+                            overflow: 'hidden',
                         }}
-                    >
-                        <Text style={[styles.text, styles.header]}>{pack.name}</Text>
+                    />
 
-                        <Text numberOfLines={1} style={{ ...styles.text, color: Colors[colorScheme].secondaryText }}>
-                            {pack.cards.length} cards {pack.description && '• ' + pack.description}
-                        </Text>
-                    </View>
-                    <TouchableOpacity
-                        onPress={onPress}
+                    <BlurView
+                        intensity={100}
                         style={{
-                            justifyContent: 'center',
-                            // margin: 8,
-                            backgroundColor: Colors[colorScheme].background,
-                            borderRadius: 64,
-                            paddingVertical: 8,
-                            paddingHorizontal: 16,
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            padding: 16,
+                            borderBottomLeftRadius: borderRadius,
+                            borderBottomRightRadius: borderRadius,
+                            overflow: 'hidden',
+                            backgroundColor: Color.black.alpha(0.5).string,
                         }}
                     >
-                        <Text
+                        <View
                             style={{
-                                ...styles.header,
-                                color: isSelected ? 'red' : Colors[colorScheme].accentColor,
+                                flex: 1,
+                                justifyContent: 'center',
+                                gap: 2,
                             }}
                         >
-                            {isSelected ? 'Remove' : 'Play'}
-                        </Text>
-                    </TouchableOpacity>
-                </BlurView>
-            </View>
-        </Pressable>
+                            <Text style={[styles.text, styles.header]}>{pack.name}</Text>
+
+                            <Text
+                                numberOfLines={1}
+                                style={{ ...styles.text, color: Colors[colorScheme].secondaryText }}
+                            >
+                                {pack.cards.length} cards {pack.description && '• ' + pack.description}
+                            </Text>
+                        </View>
+                        <TouchableOpacity
+                            onPress={onPress}
+                            style={{
+                                justifyContent: 'center',
+                                // margin: 8,
+                                backgroundColor: Colors[colorScheme].background,
+                                borderRadius: 64,
+                                paddingVertical: 8,
+                                paddingHorizontal: 16,
+                            }}
+                        >
+                            <Text
+                                style={{
+                                    ...styles.header,
+                                    color: isSelected ? 'red' : Colors[colorScheme].accentColor,
+                                }}
+                            >
+                                {isSelected ? 'Remove' : 'Play'}
+                            </Text>
+                        </TouchableOpacity>
+                    </BlurView>
+                </View>
+            </Pressable>
+        </Link>
     )
 }
 
@@ -154,7 +158,7 @@ export function PackFeaturedViewPlaceholder() {
             }}
         >
             <View style={{ flex: 1, justifyContent: 'center' }}>
-                <ActivityIndicator size='large' color={Color.white.alpha(0.1).string} />
+                <ActivityIndicator size="large" color={Color.white.alpha(0.1).string} />
             </View>
             <View
                 style={{
