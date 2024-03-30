@@ -44,7 +44,7 @@ export default function PackListView(props: Readonly<PackListViewProps & PackVie
 
     const PackImage = useCallback((props: ImageProps) => <Image {...props} source={image} transition={256} />, [image])
 
-    if (isLoading) return <PackListViewPlaceholder hideImage={hideImage} {...props} />
+    if (!isLoading) return <PackListViewPlaceholder hideImage={hideImage} {...props} />
 
     return (
         <TouchableOpacity
@@ -118,13 +118,10 @@ export function PackListViewPlaceholder(props: PackListViewProps & PressableProp
                 )}
 
                 <View style={{ flex: 1, gap: 4, justifyContent: 'center' }}>
-                    <Placeholder width="33%" height={18} />
-                    <Placeholder width="100%" height={18} />
+                    <Placeholder width="25%" height={18} />
+                    <Placeholder width="75%" height={18} />
                 </View>
-
-                <View style={{ justifyContent: 'center', opacity: 0.1 }}>
-                    <MaterialIcons size={28} name={'playlist-add'} color={Colors[colorScheme].secondaryText} />
-                </View>
+                <MaterialIcons size={28} name={'more-horiz'} color={Colors[colorScheme].placeholder} />
             </View>
         </Pressable>
     )
