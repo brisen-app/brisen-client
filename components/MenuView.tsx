@@ -1,7 +1,7 @@
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet'
 import { LocalizedText } from './utils/LocalizedText'
 import { PackManager } from '@/lib/PackManager'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, TouchableOpacity, View } from 'react-native'
 import { useQuery } from '@tanstack/react-query'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import PackFeaturedView from './pack/PackFeaturedView'
@@ -9,23 +9,41 @@ import PackListView from './pack/PackListView'
 import Colors from '@/constants/Colors'
 import useColorScheme from './utils/useColorScheme'
 import { FontStyles } from '@/constants/Styles'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { useContext } from 'react'
+import { PlaylistContext } from './utils/AppContext'
 
 export default function MenuView() {
     const insets = useSafeAreaInsets()
     const colorScheme = useColorScheme()
+    const { playlist, setPlaylist } = useContext(PlaylistContext)
 
     const { data: packs, error } = useQuery(PackManager.getFetchAllQuery())
     if (error) console.warn(error)
 
+    function fillPlaylist() {
+        if (playlist.length > 0) setPlaylist([])
+        else setPlaylist(packs ?? [])
+    }
+
     return (
         <BottomSheetScrollView showsVerticalScrollIndicator={false}>
-            <View style={{ marginHorizontal: 16, marginBottom: 8 }}>
-                <LocalizedText id="packs" style={FontStyles.Header} placeHolderStyle={{ height: 28, width: 128 }} />
-                <LocalizedText
-                    id="no_pack_selected_description"
-                    style={FontStyles.Subheading}
-                    placeHolderStyle={{ height: 28, width: 128 }}
-                />
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 16, marginBottom: 8 }}>
+                <View style={{ flex: 1 }}>
+                    <LocalizedText id="packs" style={FontStyles.Header} placeHolderStyle={{ height: 28, width: 128 }} />
+                    <LocalizedText
+                        id="no_pack_selected_description"
+                        style={FontStyles.Subheading}
+                        placeHolderStyle={{ height: 28, width: 128 }}
+                    />
+                </View>
+                <TouchableOpacity onPress={fillPlaylist} style={{ padding: 8 }}>
+                    <MaterialCommunityIcons
+                        name={playlist.length > 0 ? 'layers-off-outline' : 'layers-outline'}
+                        size={28}
+                        color={Colors[colorScheme].secondaryText}
+                    />
+                </TouchableOpacity>
             </View>
 
             {packs &&
