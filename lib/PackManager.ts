@@ -5,6 +5,7 @@ import { blobToBase64 } from './utils'
 export type Pack = Awaited<ReturnType<typeof PackManager.fetch>>
 
 export abstract class PackManager {
+    static readonly select = '*, cards(id)'
     static readonly tableName = 'packs'
 
     static getFetchAllQuery() {
@@ -26,13 +27,13 @@ export abstract class PackManager {
     }
 
     static async fetch(id: string) {
-        const { data } = await supabase.from(this.tableName).select('*, cards(id)').eq('id', id).single().throwOnError()
+        const { data } = await supabase.from(this.tableName).select(this.select).eq('id', id).single().throwOnError()
         if (!data) throw new NotFoundError(`No data found in table '${this.tableName}'`)
         return data
     }
 
     static async fetchAll(): Promise<Pack[]> {
-        const { data } = await supabase.from(this.tableName).select('*, cards(id)').order('name').throwOnError()
+        const { data } = await supabase.from(this.tableName).select(this.select).order('name').throwOnError()
         if (!data) throw new NotFoundError(`No data found in table '${this.tableName}'`)
         return data
     }
