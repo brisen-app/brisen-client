@@ -41,7 +41,7 @@ export abstract class PackManager {
         return 'cards' in item
     }
 
-    static getImageQuery(imageName: string | null | undefined) {
+    static getImageQuery(imageName: string | null | undefined, enabled = true) {
         if (!imageName)
             return {
                 queryKey: [],
@@ -55,6 +55,7 @@ export abstract class PackManager {
             queryFn: async () => {
                 return await this.fetchImage(imageName)
             },
+            enabled: enabled,
         }
     }
 

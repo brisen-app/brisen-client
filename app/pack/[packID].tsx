@@ -31,9 +31,9 @@ export default function PackView() {
 
     return (
         <View style={{ flex: 1 }}>
-            <Stack.Screen options={{ headerShown: true, title: pack?.name, headerBackTitle: 'back' }} />
+            {/* <Stack.Screen options={{ headerShown: true, title: pack?.name, headerBackTitle: 'back' }} /> */}
             <Image source={image ?? Assets[colorScheme].pack_placeholder} style={{ height: '66%', width: '100%' }} />
-            <Text style={{ color: 'black' }}>{pack.name}</Text>
+            <Text style={{ color: 'black' }}>{pack?.name}</Text>
         </View>
     )
 }
