@@ -44,7 +44,7 @@ export default function PackListView(props: Readonly<PackListViewProps & PackVie
 
     const PackImage = useCallback((props: ImageProps) => <Image {...props} source={image} transition={256} />, [image])
 
-    if (!isLoading) return <PackListViewPlaceholder hideImage={hideImage} {...props} />
+    if (isLoading) return <PackListViewPlaceholder hideImage={hideImage} {...props} />
 
     return (
         <TouchableOpacity
