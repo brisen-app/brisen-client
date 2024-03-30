@@ -60,7 +60,7 @@ export default function PackListView(props: Readonly<PackListViewProps & PackVie
                         />
                     )}
 
-                    <View style={{ flex: 1, justifyContent: 'center' }}>
+                    <View style={{ flex: 1 }}>
                         <Text numberOfLines={1} style={[styles.text, styles.header]}>
                             {pack.name}
                         </Text>
@@ -70,13 +70,16 @@ export default function PackListView(props: Readonly<PackListViewProps & PackVie
                         </Text>
                     </View>
 
-                    <TouchableOpacity onPress={onAddToQueue} style={{ justifyContent: 'center' }}>
+                    <TouchableOpacity onPress={onAddToQueue}>
                         <MaterialIcons
                             size={28}
                             name={isSelected ? 'playlist-remove' : 'playlist-add'}
                             color={isSelected ? Colors[colorScheme].secondaryText : Colors[colorScheme].accentColor}
                         />
                     </TouchableOpacity>
+                    {!hideImage && (
+                        <MaterialIcons size={28} name={'chevron-right'} color={Colors[colorScheme].secondaryText} />
+                    )}
                 </View>
             </Pressable>
         </Link>

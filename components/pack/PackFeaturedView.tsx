@@ -82,16 +82,3 @@ export function PackFeaturedViewPlaceholder(props: Readonly<PressableProps>) {
         </Pressable>
     )
 }
-
-const styles = StyleSheet.create({
-    text: {
-        userSelect: 'none',
-        textShadowColor: Color.black.alpha(0.25).string,
-        textShadowRadius: 1,
-        textShadowOffset: { width: 0, height: 1 },
-    },
-    header: {
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-})
