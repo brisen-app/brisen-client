@@ -40,7 +40,7 @@ export default function PackFeaturedView(props: Readonly<PackViewProps>) {
     if (isLoading) return <PackFeaturedViewPlaceholder />
 
     return (
-        <Link href={`/pack/${pack.id}`} asChild>
+        <Link key={pack.id} href={`/pack/${pack.id}`} asChild>
             <Pressable
                 style={{
                     height: height,
