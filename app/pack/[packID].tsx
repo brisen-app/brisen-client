@@ -1,4 +1,4 @@
-import { Stack, useLocalSearchParams } from 'expo-router'
+import { useLocalSearchParams } from 'expo-router'
 import { Text } from '@/components/utils/Themed'
 import { Pack, PackManager } from '@/lib/PackManager'
 import { ActivityIndicator, View } from 'react-native'
