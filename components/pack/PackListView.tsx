@@ -1,4 +1,4 @@
-import { DimensionValue, View, TouchableOpacity, StyleSheet, Pressable, PressableProps, ViewProps } from 'react-native'
+import { DimensionValue, View, TouchableOpacity, StyleSheet, Pressable, PressableProps, TouchableOpacityProps } from 'react-native'
 import { Image, ImageProps } from 'expo-image'
 import { PlaylistContext } from '../utils/AppContext'
 import { Text } from '../utils/Themed'
@@ -20,7 +20,7 @@ export type PackListViewProps = {
 
 const height: DimensionValue = 80
 
-export default function PackListView(props: Readonly<PackListViewProps & PackViewProps & PressableProps>) {
+export default function PackListView(props: Readonly<PackListViewProps & PackViewProps & TouchableOpacityProps>) {
     const { pack, hideImage } = props
     const colorScheme = useColorScheme()
     const { playlist, setPlaylist } = useContext(PlaylistContext)
@@ -40,7 +40,7 @@ export default function PackListView(props: Readonly<PackListViewProps & PackVie
 
     return (
         <Link key={pack.id} href={`/pack/${pack.id}`} asChild>
-            <Pressable
+            <TouchableOpacity
                 style={{
                     height: height,
                     borderRadius: 16,
@@ -81,7 +81,7 @@ export default function PackListView(props: Readonly<PackListViewProps & PackVie
                         <MaterialIcons size={28} name={'chevron-right'} color={Colors[colorScheme].secondaryText} />
                     )}
                 </View>
-            </Pressable>
+            </TouchableOpacity>
         </Link>
     )
 }
