@@ -29,7 +29,7 @@ export default function MenuView() {
 
                 {packs &&
                     packs.map((pack, index) =>
-                        index === 0 ? (
+                        index === -1 ? (
                             <PackFeaturedView key={pack.id} pack={pack} style={{ paddingHorizontal: 16, paddingBottom: 16 }} />
                         ) : (
                             <View key={pack.id}>

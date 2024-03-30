@@ -74,8 +74,8 @@ export default function App() {
     const backdrop = useCallback(
         (props: any) => (
             <BottomSheetBackdrop
-                opacity={0.75}
-                appearsOnIndex={2}
+                opacity={0.5}
+                appearsOnIndex={1}
                 disappearsOnIndex={0}
                 pressBehavior={'collapse'}
                 {...props}
