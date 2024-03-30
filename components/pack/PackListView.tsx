@@ -1,4 +1,12 @@
-import { DimensionValue, View, TouchableOpacity, StyleSheet, Pressable, PressableProps, TouchableOpacityProps } from 'react-native'
+import {
+    DimensionValue,
+    View,
+    TouchableOpacity,
+    StyleSheet,
+    Pressable,
+    PressableProps,
+    TouchableOpacityProps,
+} from 'react-native'
 import { Image, ImageProps } from 'expo-image'
 import { PlaylistContext } from '../utils/AppContext'
 import { Text } from '../utils/Themed'
@@ -39,50 +47,44 @@ export default function PackListView(props: Readonly<PackListViewProps & PackVie
     if (isLoading) return <PackListViewPlaceholder hideImage={hideImage} {...props} />
 
     return (
-        <Link key={pack.id} href={`/pack/${pack.id}`} asChild>
-            <TouchableOpacity
-                style={{
-                    height: height,
-                    borderRadius: 16,
-                }}
-                {...props}
-            >
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                    {!hideImage && (
-                        <PackImage
-                            style={{
-                                aspectRatio: 1,
-                                height: '100%',
-                                borderRadius: 16,
-                                borderColor: Colors[colorScheme].stroke,
-                                borderWidth: StyleSheet.hairlineWidth,
-                            }}
-                        />
-                    )}
+        <TouchableOpacity
+            style={{
+                height: height,
+                borderRadius: 16,
+            }}
+            {...props}
+            onPress={onAddToQueue}
+        >
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                {!hideImage && (
+                    <PackImage
+                        style={{
+                            aspectRatio: 1,
+                            height: '100%',
+                            borderRadius: 16,
+                            borderColor: Colors[colorScheme].stroke,
+                            borderWidth: StyleSheet.hairlineWidth,
+                            opacity: isSelected ? 1 : 0.2,
+                        }}
+                    />
+                )}
 
-                    <View style={{ flex: 1 }}>
-                        <Text numberOfLines={1} style={[styles.text, styles.header]}>
-                            {pack.name}
-                        </Text>
+                <View style={{ flex: 1, opacity: isSelected ? 1 : 0.5 }}>
+                    <Text numberOfLines={1} style={[styles.text, styles.header]}>
+                        {pack.name}
+                    </Text>
 
-                        <Text numberOfLines={2} style={{ ...styles.text, color: Colors[colorScheme].secondaryText }}>
-                            {pack.description ? pack.description : pack.cards.length + ' cards'}
-                        </Text>
-                    </View>
-
-                    <TouchableOpacity onPress={onAddToQueue}>
-                        <MaterialIcons
-                            size={28}
-                            name={isSelected ? 'playlist-remove' : 'playlist-add'}
-                            color={isSelected ? Colors[colorScheme].secondaryText : Colors[colorScheme].accentColor}
-                        />
-                    </TouchableOpacity>
-                    {!hideImage && (
-                        <MaterialIcons size={28} name={'chevron-right'} color={Colors[colorScheme].secondaryText} />
-                    )}
+                    <Text numberOfLines={2} style={{ ...styles.text, color: Colors[colorScheme].secondaryText }}>
+                        {pack.description ? pack.description : pack.cards.length + ' cards'}
+                    </Text>
                 </View>
-            </TouchableOpacity>
-        </Link>
+                <Link href={`/pack/${pack.id}`} asChild>
+                    <TouchableOpacity>
+                        <MaterialIcons size={28} name={'more-horiz'} color={Colors[colorScheme].text} />
+                    </TouchableOpacity>
+                </Link>
+            </View>
+        </TouchableOpacity>
     )
 }
 

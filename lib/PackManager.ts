@@ -5,7 +5,7 @@ import { blobToBase64 } from './utils'
 export type Pack = Awaited<ReturnType<typeof PackManager.fetch>>
 
 export abstract class PackManager {
-    static readonly select = '*, cards(id)'
+    static readonly select = '*, cards(id, category)'
     static readonly tableName = 'packs'
 
     static getFetchAllQuery() {
