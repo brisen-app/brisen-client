@@ -5,6 +5,7 @@ import Colors from '@/constants/Colors'
 import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet'
 import { BlurView } from 'expo-blur'
 import { Image } from 'expo-image'
+import { Stack } from 'expo-router'
 import { useCallback, useMemo, useRef } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -70,22 +71,6 @@ export default function App() {
     // 	</View>
     // )
 
-    const containerView = useCallback(
-        (props: any) => (
-            <BlurView intensity={100} {...props}>
-                <Image
-                    source={require('@/assets/images/noise.png')}
-                    style={{
-                        width: '100%',
-                        height: '55%',
-                        opacity: 0.02,
-                    }}
-                />
-            </BlurView>
-        ),
-        []
-    )
-
     const backdrop = useCallback(
         (props: any) => (
             <BottomSheetBackdrop
@@ -100,20 +85,19 @@ export default function App() {
     )
 
     return (
-        <View style={{ flex: 1, backgroundColor: 'black' }}>
+        <View style={{ flex: 1, backgroundColor: Colors[colorScheme].background }}>
             <GameView bottomSheetRef={bottomSheetRef} />
             <BottomSheet
                 ref={bottomSheetRef}
                 index={1}
                 snapPoints={snapPoints}
                 enableDynamicSizing
-                backgroundComponent={containerView}
                 backdropComponent={backdrop}
                 backgroundStyle={{
                     borderRadius: 16,
                     borderColor: Colors[colorScheme].stroke,
                     borderWidth: StyleSheet.hairlineWidth,
-                    overflow: 'hidden',
+                    backgroundColor: Colors[colorScheme].secondaryBackground,
                 }}
                 handleIndicatorStyle={{
                     backgroundColor: Colors[colorScheme].secondaryText,
@@ -129,7 +113,7 @@ export default function App() {
 const styles = StyleSheet.create({
     shadow: {
         shadowColor: 'black',
-        shadowOpacity: 1 / 3,
+        shadowOpacity: 0.1,
         shadowRadius: 32,
         elevation: 24,
     },
