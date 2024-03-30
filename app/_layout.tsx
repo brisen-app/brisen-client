@@ -30,6 +30,7 @@ export default function Layout() {
                             headerStyle: { backgroundColor: Colors[colorScheme].background },
                             headerTintColor: Colors[colorScheme].accentColor,
                             headerTitleStyle: { color: Colors[colorScheme].text },
+                            contentStyle: { backgroundColor: Colors[colorScheme].background },
                         }}
                     />
                     {Platform.OS === 'web' && <ReactQueryDevtools initialIsOpen={true} />}

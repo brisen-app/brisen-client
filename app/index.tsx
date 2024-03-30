@@ -85,7 +85,7 @@ export default function App() {
     )
 
     return (
-        <View style={{ flex: 1, backgroundColor: Colors[colorScheme].background }}>
+        <>
             <GameView bottomSheetRef={bottomSheetRef} />
             <BottomSheet
                 ref={bottomSheetRef}
@@ -106,7 +106,7 @@ export default function App() {
             >
                 <MenuView />
             </BottomSheet>
-        </View>
+        </>
     )
 }
 
