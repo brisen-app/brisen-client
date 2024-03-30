@@ -53,7 +53,7 @@ export function CardView(props: Readonly<CardViewProps>) {
             />
 
             {/* Content */}
-            <Text style={FontStyles.LargeTitle}>{card.content}</Text>
+            <Text style={{ fontSize: 28, fontWeight: '900', ...Styles.shadow }}>{card.content}</Text>
 
             {/* Overlay */}
             <View

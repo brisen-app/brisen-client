@@ -66,7 +66,7 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
                     overflow: 'hidden',
                     borderRadius: 32,
                     // padding: 32,
-                    backgroundColor: Colors[colorScheme].contentBackground,
+                    backgroundColor: Colors[colorScheme].secondaryBackground,
                     borderColor: Colors[colorScheme].stroke,
                     borderWidth: Sizes.thin,
                 }}
