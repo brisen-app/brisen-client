@@ -1,4 +1,4 @@
-import { DimensionValue, View, StyleSheet, Pressable, ActivityIndicator, PressableProps } from 'react-native'
+import { DimensionValue, View, Pressable, ActivityIndicator, PressableProps } from 'react-native'
 import { Image, ImageProps } from 'expo-image'
 import { useCallback } from 'react'
 import Color from '@/types/Color'

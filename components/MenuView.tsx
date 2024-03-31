@@ -28,30 +28,31 @@ export default function MenuView() {
                 />
             </View>
 
-            {packs &&
-                packs.map((pack, index) =>
-                    index === -1 ? (
-                        <PackFeaturedView
-                            key={pack.id}
-                            pack={pack}
-                            style={{ marginHorizontal: 16, marginBottom: 16 }}
-                        />
-                    ) : (
-                        <View key={pack.id}>
-                            <PackListView pack={pack} style={{ height: 80, marginHorizontal: 16 }} />
-                            {index < packs.length - 1 ? (
-                                <View
-                                    style={{
-                                        borderTopColor: Colors[colorScheme].stroke,
-                                        borderTopWidth: StyleSheet.hairlineWidth,
-                                        marginVertical: 8,
-                                        marginLeft: 80 + 8 + 16,
-                                    }}
-                                />
-                            ) : null}
-                        </View>
-                    )
-                )}
+            {packs
+                ? packs.map((pack, index) =>
+                      index === -1 ? (
+                          <PackFeaturedView
+                              key={pack.id}
+                              pack={pack}
+                              style={{ marginHorizontal: 16, marginBottom: 16 }}
+                          />
+                      ) : (
+                          <View key={pack.id}>
+                              <PackListView pack={pack} style={{ height: 80, marginHorizontal: 16 }} />
+                              {index < packs.length - 1 ? (
+                                  <View
+                                      style={{
+                                          borderTopColor: Colors[colorScheme].stroke,
+                                          borderTopWidth: StyleSheet.hairlineWidth,
+                                          marginVertical: 8,
+                                          marginLeft: 80 + 8 + 16,
+                                      }}
+                                  />
+                              ) : null}
+                          </View>
+                      )
+                  )
+                : null}
 
             <View style={{ height: insets.bottom ?? 16 }} />
         </BottomSheetScrollView>
