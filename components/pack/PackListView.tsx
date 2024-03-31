@@ -19,7 +19,7 @@ import Color from '@/types/Color'
 import { useQuery } from '@tanstack/react-query'
 import { PackViewProps } from '@/app/pack/[packID]'
 import { Link } from 'expo-router'
-import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
+import { MaterialCommunityIcons, MaterialIcons, Octicons } from '@expo/vector-icons'
 import Placeholder from '../utils/Placeholder'
 
 export type PackListViewProps = {
@@ -79,9 +79,9 @@ export default function PackListView(props: Readonly<PackListViewProps & PackVie
                     </Text>
                 </View>
 
-                <MaterialCommunityIcons
-                    size={28}
-                    name={isSelected ? 'check' : 'checkbox-blank-circle-outline'}
+                <Octicons
+                    size={24}
+                    name={isSelected ? 'check-circle-fill' : 'circle'}
                     color={isSelected ? Colors[colorScheme].accentColor : Colors[colorScheme].secondaryText}
                 />
 
