@@ -1,22 +1,37 @@
-import { DimensionValue, View, Pressable, ActivityIndicator, PressableProps } from 'react-native'
+import {
+    DimensionValue,
+    View,
+    Pressable,
+    ActivityIndicator,
+    PressableProps,
+    TouchableOpacity,
+    TouchableOpacityProps,
+    StyleSheet,
+} from 'react-native'
 import { Image, ImageProps } from 'expo-image'
-import { useCallback } from 'react'
-import Color from '@/types/Color'
+import { useCallback, useContext } from 'react'
 import Colors from '@/constants/Colors'
 import Sizes from '@/constants/Sizes'
 import useColorScheme from '../utils/useColorScheme'
 import { PackManager } from '@/lib/PackManager'
 import { useQuery } from '@tanstack/react-query'
 import { PackViewProps } from '@/app/pack/[packID]'
-import { Link } from 'expo-router'
 import PackListView, { PackListViewPlaceholder } from './PackListView'
+import { PlaylistContext } from '../utils/AppContext'
 
 const borderRadius = 16
 const height: DimensionValue = 256 - 32
 
-export default function PackFeaturedView(props: Readonly<PackViewProps & PressableProps>) {
+export default function PackFeaturedView(props: Readonly<PackViewProps & TouchableOpacityProps>) {
     const { pack } = props
     const colorScheme = useColorScheme()
+    const { playlist, setPlaylist } = useContext(PlaylistContext)
+    const isSelected = playlist.some((p) => p.id === pack.id)
+
+    function onAddToQueue() {
+        if (isSelected) setPlaylist(playlist.filter((p) => p.id !== pack.id))
+        else setPlaylist([...playlist, pack])
+    }
 
     const { data: image, isLoading, error } = useQuery(PackManager.getImageQuery(pack.image))
     if (error) console.warn(error)
@@ -26,34 +41,20 @@ export default function PackFeaturedView(props: Readonly<PackViewProps & Pressab
     if (isLoading) return <PackFeaturedViewPlaceholder {...props} />
 
     return (
-        <Link key={pack.id} href={`/pack/${pack.id}`} asChild>
-            <Pressable {...props}>
-                <View
-                    style={{
-                        borderRadius: borderRadius,
-                        overflow: 'hidden',
-                        borderColor: Colors[colorScheme].stroke,
-                        borderWidth: Sizes.thin,
-                        backgroundColor: Colors[colorScheme].background,
-                    }}
-                >
-                    <PackImage
-                        style={{
-                            position: 'absolute',
-                            width: '100%',
-                            height: '100%',
-                            opacity: 0.25,
-                        }}
-                        contentFit="fill"
-                        blurRadius={100}
-                    />
-
-                    <PackImage style={{ height: height }} />
-
-                    <PackListView pack={pack} hideImage style={{ padding: 16 }} />
-                </View>
-            </Pressable>
-        </Link>
+        <TouchableOpacity onPress={onAddToQueue} {...props}>
+            <PackImage
+                style={{
+                    height: height,
+                    overflow: 'hidden',
+                    borderRadius: borderRadius,
+                    borderColor: Colors[colorScheme].stroke,
+                    borderWidth: StyleSheet.hairlineWidth,
+                    opacity: isSelected ? 1 : 0.5,
+                }}
+            />
+            <PackListView pack={pack} hideImage style={{ paddingVertical: 16 }} />
+            <View style={{ borderTopWidth: StyleSheet.hairlineWidth, borderColor: Colors[colorScheme].stroke }} />
+        </TouchableOpacity>
     )
 }
 
@@ -68,17 +69,18 @@ export function PackFeaturedViewPlaceholder(props: Readonly<PressableProps>) {
                     justifyContent: 'flex-end',
                     borderColor: Colors[colorScheme].stroke,
                     borderWidth: Sizes.thin,
-                    backgroundColor: Color.white.alpha(0.05).string,
+                    backgroundColor: Colors[colorScheme].placeholder,
                 }}
             >
                 <View style={{ height: height, justifyContent: 'center' }}>
-                    <ActivityIndicator size="large" color={Color.white.alpha(0.1).string} />
+                    <ActivityIndicator size="large" color={Colors[colorScheme].placeholder} />
                 </View>
-                <PackListViewPlaceholder
-                    hideImage
-                    style={{ backgroundColor: Colors[colorScheme].secondaryBackground, padding: 16 }}
-                />
             </View>
+            <PackListViewPlaceholder
+                hideImage
+                style={{ backgroundColor: Colors[colorScheme].secondaryBackground, paddingVertical: 16 }}
+            />
+            <View style={{ borderTopWidth: StyleSheet.hairlineWidth, borderColor: Colors[colorScheme].stroke }} />
         </Pressable>
     )
 }
