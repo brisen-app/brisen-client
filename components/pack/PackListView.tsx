@@ -6,6 +6,7 @@ import {
     Pressable,
     PressableProps,
     TouchableOpacityProps,
+    ActivityIndicator,
 } from 'react-native'
 import { Image, ImageProps } from 'expo-image'
 import { PlaylistContext } from '../utils/AppContext'
@@ -18,9 +19,8 @@ import Color from '@/types/Color'
 import { useQuery } from '@tanstack/react-query'
 import { PackViewProps } from '@/app/pack/[packID]'
 import { Link } from 'expo-router'
-import { MaterialIcons } from '@expo/vector-icons'
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import Placeholder from '../utils/Placeholder'
-import { ActivityIndicator } from 'react-native'
 
 export type PackListViewProps = {
     hideImage?: boolean
@@ -64,12 +64,12 @@ export default function PackListView(props: Readonly<PackListViewProps & PackVie
                             borderRadius: 16,
                             borderColor: Colors[colorScheme].stroke,
                             borderWidth: StyleSheet.hairlineWidth,
-                            opacity: isSelected ? 1 : 0.2,
+                            opacity: isSelected ? 1 : 0.5,
                         }}
                     />
                 )}
 
-                <View style={{ flex: 1, opacity: isSelected ? 1 : 0.5 }}>
+                <View style={{ flex: 1 }}>
                     <Text numberOfLines={1} style={[styles.text, styles.header]}>
                         {pack.name}
                     </Text>
@@ -78,6 +78,13 @@ export default function PackListView(props: Readonly<PackListViewProps & PackVie
                         {pack.description ? pack.description : pack.cards.length + ' cards'}
                     </Text>
                 </View>
+
+                <MaterialCommunityIcons
+                    size={28}
+                    name={isSelected ? 'check' : 'checkbox-blank-circle-outline'}
+                    color={isSelected ? Colors[colorScheme].accentColor : Colors[colorScheme].secondaryText}
+                />
+
                 <Link href={`/pack/${pack.id}`} asChild>
                     <TouchableOpacity>
                         <MaterialIcons size={28} name={'more-horiz'} color={Colors[colorScheme].text} />
@@ -113,7 +120,7 @@ export function PackListViewPlaceholder(props: PackListViewProps & PressableProp
                             backgroundColor: Color.white.alpha(0.05).string,
                         }}
                     >
-                        <ActivityIndicator color={Color.white.alpha(0.1).string} />
+                        <ActivityIndicator color={Colors[colorScheme].secondaryText} />
                     </View>
                 )}
 
@@ -121,6 +128,11 @@ export function PackListViewPlaceholder(props: PackListViewProps & PressableProp
                     <Placeholder width="25%" height={18} />
                     <Placeholder width="75%" height={18} />
                 </View>
+                <MaterialCommunityIcons
+                    size={28}
+                    name='checkbox-blank-circle-outline'
+                    color={Colors[colorScheme].placeholder}
+                />
                 <MaterialIcons size={28} name={'more-horiz'} color={Colors[colorScheme].placeholder} />
             </View>
         </Pressable>
