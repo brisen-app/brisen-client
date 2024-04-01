@@ -8,8 +8,7 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
-    update-preview:
-        name: 🗑️ Delete Preview
+    delete-preview:
         runs-on: ubuntu-latest
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -36,4 +35,4 @@ jobs:
             - name: 💣 Delete
               uses: expo/expo-github-action/preview@v8
               with:
-                  command: eas branch:delete ${{ github.event.pull_request.head.ref }}
+                  command: eas channel:delete ${{ github.event.pull_request.head.ref }}
