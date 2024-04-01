@@ -27,9 +27,6 @@ export default function Layout() {
                     <Stack
                         screenOptions={{
                             headerShown: false,
-                            headerStyle: { backgroundColor: Colors[colorScheme].background },
-                            headerTintColor: Colors[colorScheme].accentColor,
-                            headerTitleStyle: { color: Colors[colorScheme].text },
                             contentStyle: { backgroundColor: Colors[colorScheme].background },
                         }}
                     />
