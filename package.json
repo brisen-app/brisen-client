@@ -8,13 +8,20 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "test": "jest --watchAll",
-    "testCI": "jest --ci --coverage"
+    "testCI": "jest --ci"
   },
   "jest": {
     "preset": "jest-expo",
     "collectCoverage": true,
+    "collectCoverageFrom": [
+        "**/*.{ts,tsx,js,jsx}"
+    ],
     "coveragePathIgnorePatterns": [
-        "app"
+        "/node_modules/",
+        "/app/",
+        "/coverage/",
+        "/\\.+",
+        ".*\\.(config|d)\\.(js|jsx|ts|tsx|json)"
     ]
   },
   "prettier": {
