@@ -1,0 +1,22 @@
+{
+    "build": {
+        "develop": {
+            "extends": "preview",
+            "developmentClient": true,
+            "env": {
+                "ENVIRONMENT": "develop"
+            }
+        },
+        "preview": {
+            "distribution": "internal",
+            "env": {
+                "ENVIRONMENT": "preview"
+            }
+        },
+        "production": {
+            "env": {
+                "ENVIRONMENT": "production"
+            }
+        }
+    }
+}
