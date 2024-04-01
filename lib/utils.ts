@@ -1,4 +1,3 @@
-
 export function blobToBase64(blob: Blob): Promise<string | null> {
     return new Promise((resolve) => {
         const reader = new FileReader()
@@ -6,3 +5,13 @@ export function blobToBase64(blob: Blob): Promise<string | null> {
         reader.readAsDataURL(blob)
     })
 }
+
+const emptyQuery = {
+    queryKey: Array<string>(),
+    queryFn: async () => {
+        return null
+    },
+    enabled: false,
+}
+
+export { emptyQuery }

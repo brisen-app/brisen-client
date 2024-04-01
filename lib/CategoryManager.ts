@@ -1,6 +1,7 @@
 import { Tables } from '@/types/supabase'
 import { supabase } from './supabase'
 import { NotFoundError } from '@/types/Errors'
+import { emptyQuery } from './utils'
 
 export type Category = Tables<'categories'>
 
@@ -8,14 +9,7 @@ export abstract class CategoryManager {
     static readonly tableName = 'categories'
 
     static getFetchQuery(id: string | null | undefined) {
-        if (!id)
-            return {
-                queryKey: [],
-                queryFn: async () => {
-                    return null
-                },
-                enabled: false,
-            }
+        if (!id) return emptyQuery
         return {
             queryKey: [this.tableName, id],
             queryFn: async () => {

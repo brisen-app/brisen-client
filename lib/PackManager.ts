@@ -1,6 +1,6 @@
 import { NotFoundError } from '@/types/Errors'
 import { supabase } from './supabase'
-import { blobToBase64 } from './utils'
+import { blobToBase64, emptyQuery } from './utils'
 
 export type Pack = Awaited<ReturnType<typeof PackManager.fetch>>
 
@@ -39,14 +39,7 @@ export abstract class PackManager {
     }
 
     static getImageQuery(imageName: string | null | undefined, enabled = true) {
-        if (!imageName)
-            return {
-                queryKey: [],
-                queryFn: async () => {
-                    return null
-                },
-                enabled: false,
-            }
+        if (!imageName) return emptyQuery
         return {
             queryKey: ['storage', this.tableName, imageName],
             queryFn: async () => {
