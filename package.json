@@ -13,12 +13,12 @@
   "jest": {
     "preset": "jest-expo",
     "coveragePathIgnorePatterns": [
-        "/node_modules/",
-        "/coverage/",
-        "/app/",
-        "/components/",
-        "/\\.",
-        "\\.(config|d)\\.(js|jsx|ts|tsx|json)"
+      "/node_modules/",
+      "/coverage/",
+      "/app/",
+      "/components/",
+      "/\\.",
+      "\\.(config|d)\\.(js|jsx|ts|tsx|json)"
     ]
   },
   "prettier": {
