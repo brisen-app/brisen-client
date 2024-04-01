@@ -2,22 +2,16 @@
     "build": {
         "develop": {
             "extends": "preview",
-            "developmentClient": true,
-            "env": {
-                "ENVIRONMENT": "develop"
-            }
+            "channel": "develop",
+            "developmentClient": true
         },
         "preview": {
             "extends": "production",
-            "distribution": "internal",
-            "env": {
-                "ENVIRONMENT": "preview"
-            }
+            "channel": "preview",
+            "distribution": "internal"
         },
         "production": {
-            "env": {
-                "ENVIRONMENT": "production"
-            },
+            "channel": "production",
             "android": {
                 "image": "latest"
             },
