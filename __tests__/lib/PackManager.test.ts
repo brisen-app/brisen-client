@@ -61,7 +61,7 @@ jest.mock('@/lib/supabase', () => ({
         storage: {
             from: () => ({
                 download: (imageName: string) => ({
-                    data: imageName + "-blob",
+                    data: imageName + '-blob',
                     error: null,
                 }),
             }),
@@ -70,6 +70,7 @@ jest.mock('@/lib/supabase', () => ({
 }))
 
 jest.mock('@/lib/utils', () => ({
+    ...jest.requireActual('@/lib/utils'),
     blobToBase64: (blob: string) => blob + '-base64data',
 }))
 
