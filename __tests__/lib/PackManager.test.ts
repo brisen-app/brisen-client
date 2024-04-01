@@ -48,7 +48,7 @@ jest.mock('@/lib/supabase', () => ({
             select: () => ({
                 eq: (columnName: keyof Pack, value: string) => ({
                     single: () => ({
-                        throwOnError: () => ({ data: mockedPacks.find((pack) => pack[columnName] === value) || null }),
+                        throwOnError: () => ({ data: mockedPacks.find((pack) => pack[columnName] === value) }),
                     }),
                 }),
                 order: (columnName: 'id' | 'name') => ({
