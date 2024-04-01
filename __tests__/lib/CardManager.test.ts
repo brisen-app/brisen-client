@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { CardManager, Card } from '@/lib/CardManager'
 import { supabase } from '@/lib/supabase'
 
@@ -89,7 +91,6 @@ describe('fetch', () => {
         const cardID = '1'
         jest.spyOn(supabase, 'from').mockReturnValueOnce({
             select: () => ({
-                // @ts-ignore
                 throwOnError: () => ({ error: new Error() }),
             }),
         })
@@ -106,7 +107,6 @@ describe('fetchAll', () => {
     it('should throw a NotFoundError if no cards are found', async () => {
         jest.spyOn(supabase, 'from').mockReturnValueOnce({
             select: () => ({
-                // @ts-ignore
                 throwOnError: () => ({ data: [] }),
             }),
         })
@@ -117,7 +117,6 @@ describe('fetchAll', () => {
         jest.spyOn(supabase, 'from').mockReturnValueOnce({
             select: () => ({
                 order: () => ({
-                    // @ts-ignore
                     throwOnError: () => ({ error: new Error() }),
                 }),
             }),
