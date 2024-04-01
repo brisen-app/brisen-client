@@ -40,7 +40,7 @@ const mockedPacks: Pack[] = [
     },
 ]
 
-const mockedSortedPacks = mockedPacks.toSorted((a, b) => a.name.localeCompare(b.name))
+const mockedSortedPacks = [...mockedPacks].sort((a, b) => a.name.localeCompare(b.name))
 
 jest.mock('@/lib/supabase', () => ({
     supabase: {
@@ -53,7 +53,7 @@ jest.mock('@/lib/supabase', () => ({
                 }),
                 order: (columnName: 'id' | 'name') => ({
                     throwOnError: () => ({
-                        data: mockedPacks.toSorted((a, b) => a[columnName].localeCompare(b[columnName])),
+                        data: [...mockedPacks].sort((a, b) => a[columnName].localeCompare(b[columnName])),
                     }),
                 }),
             }),
