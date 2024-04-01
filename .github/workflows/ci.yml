@@ -1,4 +1,4 @@
-name: 🎸 CI
+name: 📋 CI
 
 on:
   pull_request:
@@ -8,15 +8,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
-    name: 🧪 Test
+  ci:
+    name: 🧪 Testing & Code Quality Check
     runs-on: ubuntu-latest
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       EXPO_PROJECT: ${{ vars.EXPO_PROJECT }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     steps:
-      - name: 🏗 Setup
+      - name: 🏗️ Setup repo
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: 🏗 Setup Node
         uses: actions/setup-node@v4
@@ -27,3 +31,11 @@ jobs:
       - name: 🧪 Run tests
         id: test
         run: npm run testCI
+
+      - name: 🔍 SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+
+      - name: 📋 SonarQube Quality Gate check
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        id: gate
+        timeout-minutes: 5
