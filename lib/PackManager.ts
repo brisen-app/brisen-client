@@ -34,12 +34,8 @@ export abstract class PackManager {
 
     static async fetchAll(): Promise<Pack[]> {
         const { data } = await supabase.from(this.tableName).select(this.select).order('name').throwOnError()
-        if (!data) throw new NotFoundError(`No data found in table '${this.tableName}'`)
+        if (!data || data.length === 0) throw new NotFoundError(`No data found in table '${this.tableName}'`)
         return data
-    }
-
-    static isPack(item: any): item is Pack {
-        return 'cards' in item
     }
 
     static getImageQuery(imageName: string | null | undefined, enabled = true) {
