@@ -8,6 +8,7 @@
             }
         },
         "preview": {
+            "extends": "production",
             "distribution": "internal",
             "env": {
                 "ENVIRONMENT": "preview"
@@ -16,6 +17,12 @@
         "production": {
             "env": {
                 "ENVIRONMENT": "production"
+            },
+            "android": {
+                "image": "latest"
+            },
+            "ios": {
+                "image": "latest"
             }
         }
     }
