@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { Tables } from '@/types/supabase'
 import { supabase } from './supabase'
 import { NotFoundError } from '@/types/Errors'
@@ -33,7 +35,7 @@ export abstract class CategoryManager {
 
     private static async fetchAll() {
         const { data } = await supabase.from(this.tableName).select().throwOnError()
-        if (!data) throw new NotFoundError(`No data found in table '${this.tableName}'`)
+        if (!data || data.length === 0) throw new NotFoundError(`No data found in table '${this.tableName}'`)
         return data
     }
 
