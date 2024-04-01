@@ -43,7 +43,7 @@ export abstract class LocalizationManager {
             .select()
             .eq('language', LanguageManager.getLanguage().id)
             .throwOnError()
-        if (!data) throw new NotFoundError(`No data found in table '${this.tableName}'`)
+        if (!data || data.length === 0) throw new NotFoundError(`No data found in table '${this.tableName}'`)
         return data
     }
 }
