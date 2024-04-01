@@ -14,7 +14,7 @@
     "preset": "jest-expo",
     "collectCoverage": true,
     "coveragePathIgnorePatterns": [
-        "app/*"
+        "app"
     ]
   },
   "prettier": {
