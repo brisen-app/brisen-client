@@ -15,8 +15,8 @@
     "collectCoverage": true,
     "coveragePathIgnorePatterns": [
         "/node_modules/",
-        "/app/",
         "/coverage/",
+        "/app/",
         "/components/",
         "/\\.",
         "\\.(config|d)\\.(js|jsx|ts|tsx|json)"
