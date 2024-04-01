@@ -11,7 +11,11 @@
     "testCI": "jest --ci --coverage"
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "collectCoverage": true,
+    "coveragePathIgnorePatterns": [
+        "app/*"
+    ]
   },
   "prettier": {
     "trailingComma": "es5",
