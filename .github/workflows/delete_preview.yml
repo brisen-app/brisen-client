@@ -30,7 +30,10 @@ jobs:
                   packager: npm
                   token: ${{ secrets.EXPO_TOKEN }}
 
-            - name: 🚀 Create preview
+            - name: 📦 Install dependencies
+              run: npm install
+
+            - name: 💣 Delete
               uses: expo/expo-github-action/preview@v8
               with:
                   command: eas branch:delete ${{ github.event.pull_request.head.ref }}
