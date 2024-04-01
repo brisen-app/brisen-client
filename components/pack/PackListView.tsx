@@ -19,7 +19,7 @@ import Color from '@/types/Color'
 import { useQuery } from '@tanstack/react-query'
 import { PackViewProps } from '@/app/pack/[packID]'
 import { Link } from 'expo-router'
-import { MaterialCommunityIcons, MaterialIcons, Octicons } from '@expo/vector-icons'
+import { MaterialIcons, Octicons } from '@expo/vector-icons'
 import Placeholder from '../utils/Placeholder'
 
 export type PackListViewProps = {
