@@ -166,6 +166,7 @@ describe('fetchAll', () => {
 describe('getImageQuery', () => {
     it('should return a query object with the correct queryKey and queryFn', () => {
         const imageName = 'pack1.png'
+        // @ts-ignore
         const fetchImageSpy = jest.spyOn(PackManager, 'fetchImage')
         const query = PackManager.getImageQuery(imageName)
         expect(query.queryKey).toEqual(['storage', 'packs', imageName])
