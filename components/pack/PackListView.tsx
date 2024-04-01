@@ -80,9 +80,9 @@ export default function PackListView(props: Readonly<PackListViewProps & PackVie
                 </View>
 
                 <Octicons
-                    size={24}
-                    name={isSelected ? 'check-circle-fill' : 'circle'}
-                    color={isSelected ? Colors[colorScheme].accentColor : Colors[colorScheme].secondaryText}
+                    size={18}
+                    name={'check-circle-fill'}
+                    color={isSelected ? Colors[colorScheme].accentColor : 'transparent'}
                 />
 
                 <Link href={`/pack/${pack.id}`} asChild>
@@ -128,11 +128,6 @@ export function PackListViewPlaceholder(props: PackListViewProps & PressableProp
                     <Placeholder width="25%" height={18} />
                     <Placeholder width="75%" height={18} />
                 </View>
-                <MaterialCommunityIcons
-                    size={28}
-                    name='checkbox-blank-circle-outline'
-                    color={Colors[colorScheme].placeholder}
-                />
                 <MaterialIcons size={28} name={'more-horiz'} color={Colors[colorScheme].placeholder} />
             </View>
         </Pressable>
