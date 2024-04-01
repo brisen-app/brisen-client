@@ -2,6 +2,11 @@ name: ❌ Delete Preview Branch
 
 on:
     pull_request:
+    push:
+        branches-ignore:
+            - main
+            - develop
+            - release/*
 
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
@@ -32,7 +37,12 @@ jobs:
             - name: 📦 Install dependencies
               run: npm install
 
-            - name: 💣 Delete
+            - name: 🗑️ Delete channel
               uses: expo/expo-github-action/preview@v8
               with:
-                  command: eas channel:delete ${{ github.event.pull_request.head.ref }}
+                  command: eas channel:delete ${{ github.ref_name }}
+
+            - name: 🗑️ Delete branch
+              uses: expo/expo-github-action/preview@v8
+              with:
+                  command: eas branch:delete ${{ github.ref_name }}
