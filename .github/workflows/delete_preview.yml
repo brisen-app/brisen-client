@@ -1,36 +1,36 @@
 name: ❌ Delete Preview Branch
 
 on:
-  pull_request:
+    pull_request:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
 
 jobs:
-  update-preview:
-    name: 🗑️ Delete Preview
-    runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      EXPO_PROJECT: ${{ vars.EXPO_PROJECT }}
-      EXPO_PUBLIC_SB_URL: ${{ vars.SUPABASE_URL_DEV }}
-      EXPO_PUBLIC_SB_ANON: ${{ secrets.SUPABASE_ANON_DEV }}
-    steps:
-      - name: 🏗 Setup repo
-        uses: actions/checkout@v3
+    update-preview:
+        name: 🗑️ Delete Preview
+        runs-on: ubuntu-latest
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            EXPO_PROJECT: ${{ vars.EXPO_PROJECT }}
+            EXPO_PUBLIC_SB_URL: ${{ vars.SUPABASE_URL_DEV }}
+            EXPO_PUBLIC_SB_ANON: ${{ secrets.SUPABASE_ANON_DEV }}
+        steps:
+            - name: 🏗 Setup repo
+              uses: actions/checkout@v4
 
-      - name: 🏗 Setup Node
-        uses: actions/setup-node@v4
+            - name: 🏗 Setup Node
+              uses: actions/setup-node@v4
 
-      - name: 🏗 Setup EAS
-        uses: expo/expo-github-action@v8
-        with:
-          eas-version: latest
-          packager: npm
-          token: ${{ secrets.EXPO_TOKEN }}
+            - name: 🏗 Setup EAS
+              uses: expo/expo-github-action@v8
+              with:
+                  eas-version: latest
+                  packager: npm
+                  token: ${{ secrets.EXPO_TOKEN }}
 
-      - name: 🚀 Create preview
-        uses: expo/expo-github-action/preview@v8
-        with:
-          command: eas branch:delete ${{ github.event.pull_request.head.ref }} --non-interactive
+            - name: 🚀 Create preview
+              uses: expo/expo-github-action/preview@v8
+              with:
+                  command: eas branch:delete ${{ github.event.pull_request.head.ref }} --non-interactive

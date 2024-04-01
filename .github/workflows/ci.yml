@@ -1,41 +1,41 @@
 name: 📋 CI
 
 on:
-  pull_request:
+    pull_request:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
 
 jobs:
-  ci:
-    name: 🧪 Testing & Code Quality Check
-    runs-on: ubuntu-latest
-    env:
-      EXPO_PROJECT: ${{ vars.EXPO_PROJECT }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-    steps:
-      - name: 🏗️ Setup repo
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+    ci:
+        name: 🧪 Testing & Code Quality Check
+        runs-on: ubuntu-latest
+        env:
+            EXPO_PROJECT: ${{ vars.EXPO_PROJECT }}
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        steps:
+            - name: 🏗️ Setup repo
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
 
-      - name: 🏗 Setup Node
-        uses: actions/setup-node@v4
+            - name: 🏗 Setup Node
+              uses: actions/setup-node@v4
 
-      - name: 📦 Install dependencies
-        run: npm install
+            - name: 📦 Install dependencies
+              run: npm install
 
-      - name: 🧪 Run tests
-        id: test
-        run: npm run testCI
+            - name: 🧪 Run tests
+              id: test
+              run: npm run testCI
 
-      - name: 🔍 SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@master
+            - name: 🔍 SonarQube Scan
+              uses: sonarsource/sonarqube-scan-action@master
 
-      - name: 📋 SonarQube Quality Gate check
-        uses: sonarsource/sonarqube-quality-gate-action@master
-        id: gate
-        timeout-minutes: 5
+            - name: 📋 SonarQube Quality Gate check
+              uses: sonarsource/sonarqube-quality-gate-action@master
+              id: gate
+              timeout-minutes: 5
