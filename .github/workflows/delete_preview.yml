@@ -33,4 +33,4 @@ jobs:
             - name: 🚀 Create preview
               uses: expo/expo-github-action/preview@v8
               with:
-                  command: eas branch:delete ${{ github.event.pull_request.head.ref }} --non-interactive
+                  command: eas branch:delete ${{ github.event.pull_request.head.ref }}
