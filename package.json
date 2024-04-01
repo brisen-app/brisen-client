@@ -8,11 +8,10 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "test": "jest --watchAll",
-    "testCI": "jest --ci"
+    "testCI": "jest --ci --coverage"
   },
   "jest": {
     "preset": "jest-expo",
-    "collectCoverage": true,
     "coveragePathIgnorePatterns": [
         "/node_modules/",
         "/coverage/",
