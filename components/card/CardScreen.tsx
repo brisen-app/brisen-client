@@ -27,24 +27,14 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
     }
 
     const { data: card, isLoading: isLoadingCard, error: errorCard } = useQuery(CardManager.getFetchQuery(cardID))
-
-    const {
-        data: category,
-        isLoading: isLoadingCategory,
-        error: errorCategory,
-    } = useQuery({
-        ...CategoryManager.getFetchQuery(card?.category),
-        enabled: !!card?.category,
-    })
-
-    if (errorCategory) console.warn(errorCategory)
+    const category = CategoryManager.get(card?.category)
 
     if (errorCard) {
         console.warn(errorCard)
         // TODO: Show empty card
     }
 
-    const isLoading = isLoadingCard || isLoadingCategory
+    const isLoading = isLoadingCard
 
     return (
         <Pressable

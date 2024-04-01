@@ -2,7 +2,9 @@ import GameView from '@/components/GameView'
 import MenuView from '@/components/MenuView'
 import useColorScheme from '@/components/utils/useColorScheme'
 import Colors from '@/constants/Colors'
+import { CategoryManager } from '@/lib/CategoryManager'
 import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { BlurView } from 'expo-blur'
 import { Image } from 'expo-image'
 import { Stack } from 'expo-router'
@@ -41,16 +43,10 @@ export default function App() {
     // 	queryClient.setQueryData([Pack.tableName, item.id], item)
     // })
 
-    // const { data: categories, isLoading: isLoadingCategories } = useQuery({
-    // 	queryKey: [Category.tableName],
-    // 	queryFn: async () => {
-    // 		return await Category.fetchAll()
-    // 	}
-    // })
-
-    // categories?.forEach(item => {
-    // 	queryClient.setQueryData([Category.tableName, item.id], item)
-    // })
+    const { data: categories, isLoading: isLoadingCategories } = useQuery(CategoryManager.getFetchAllQuery())
+    if (categories) {
+        CategoryManager.set(categories)
+    }
 
     // const language = languages ? Language.findDeviceLanguage(languages) : null
     // const { data: localizations, isLoading: isLoadingLocalizations } = useQuery({

@@ -1,22 +1,12 @@
 import { Tables } from '@/types/supabase'
 import { supabase } from './supabase'
 import { NotFoundError } from '@/types/Errors'
-import { emptyQuery } from './utils'
 
 export type Category = Tables<'categories'>
 
 export abstract class CategoryManager {
     static readonly tableName = 'categories'
-
-    static getFetchQuery(id: string | null | undefined) {
-        if (!id) return emptyQuery
-        return {
-            queryKey: [this.tableName, id],
-            queryFn: async () => {
-                return await this.fetch(id)
-            },
-        }
-    }
+    private static categories: { [id: string]: Category } | null = null
 
     static getFetchAllQuery() {
         return {
@@ -27,13 +17,21 @@ export abstract class CategoryManager {
         }
     }
 
-    static async fetch(id: string) {
-        const { data } = await supabase.from(this.tableName).select().eq('id', id).single().throwOnError()
-        if (!data) throw new NotFoundError(`No data found in table '${this.tableName}'`)
-        return data
+    static get(id: string | null | undefined) {
+        if (!id) return null
+        if (!this.categories) throw new NotFoundError('Categories have not been fetched yet')
+        if (!this.categories[id]) throw new NotFoundError(`Category with ID ${id} not found`)
+        return this.categories[id]
     }
 
-    static async fetchAll() {
+    static set(categories: Category[]) {
+        this.categories = categories.reduce((acc, category) => {
+            acc[category.id] = category
+            return acc
+        }, {} as { [id: string]: Category })
+    }
+
+    private static async fetchAll() {
         const { data } = await supabase.from(this.tableName).select().throwOnError()
         if (!data) throw new NotFoundError(`No data found in table '${this.tableName}'`)
         return data
