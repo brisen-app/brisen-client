@@ -8,6 +8,7 @@ import { useMemo } from 'react'
 import { DimensionValue, TouchableOpacityProps, View } from 'react-native'
 import { Text } from '../utils/Themed'
 import { FontStyles, Styles } from '@/constants/Styles'
+import * as Crypto from 'expo-crypto'
 
 const users: {
     name: string
@@ -46,7 +47,7 @@ export default function UserQuickView(props: Readonly<UserQuickViewProps>) {
     const colorScheme = useColorScheme()
 
     const user = useMemo(() => {
-        return users[Math.floor(Math.random() * users.length)]
+        return users[Crypto.getRandomBytes(1)[0] % users.length]
     }, [])
 
     return (

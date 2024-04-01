@@ -21,8 +21,13 @@ export const Styles = StyleSheet.create({
 export const FontStyles = StyleSheet.create({
     LargeTitle: {
         userSelect: 'none',
-        fontSize: 28,
+        fontSize: 32,
         fontWeight: '900',
+    },
+    Header: {
+        userSelect: 'none',
+        fontSize: 24,
+        fontWeight: 'bold',
     },
     Title: {
         userSelect: 'none',

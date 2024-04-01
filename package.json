@@ -8,10 +8,18 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "test": "jest --watchAll",
-    "testCI": "jest --ci"
+    "testCI": "jest --ci --coverage"
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/coverage/",
+      "/app/",
+      "/components/",
+      "/\\.",
+      "\\.(config|d)\\.(js|jsx|ts|tsx|json)"
+    ]
   },
   "prettier": {
     "trailingComma": "es5",
@@ -53,7 +61,9 @@
     "react-native-url-polyfill": "^2.0.0",
     "react-native-web": "~0.19.6",
     "expo-crypto": "~12.8.1",
-    "expo-constants": "~15.4.5"
+    "expo-constants": "~15.4.5",
+    "expo-dev-client": "~3.3.11",
+    "expo-updates": "~0.24.12"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

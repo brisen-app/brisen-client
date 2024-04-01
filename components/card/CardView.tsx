@@ -14,10 +14,13 @@ import { Card } from '@/lib/CardManager'
 import { Category, CategoryManager } from '@/lib/CategoryManager'
 import { FontStyles, Styles } from '@/constants/Styles'
 import UserQuickView from '../user/UserQuickView'
+import Assets from '@/constants/Assets'
+import { useQuery } from '@tanstack/react-query'
+import { PackManager } from '@/lib/PackManager'
 
 export type CardViewProps = {
     card: Card
-    category?: Category
+    category?: Category | null
 }
 
 export function CardView(props: Readonly<CardViewProps>) {
@@ -28,6 +31,8 @@ export function CardView(props: Readonly<CardViewProps>) {
     const padding = 24
 
     const pack = useMemo(() => playlist.find((p) => p.cards.find((c) => c.id === card.id)), [card.id])
+    const { data: image, error } = useQuery(PackManager.getImageQuery(pack?.image))
+    if (error) console.warn(error)
 
     return (
         <>
@@ -48,7 +53,7 @@ export function CardView(props: Readonly<CardViewProps>) {
             />
 
             {/* Content */}
-            <Text style={FontStyles.LargeTitle}>{card.content}</Text>
+            <Text style={{ fontSize: 28, fontWeight: '900', ...Styles.shadow }}>{card.content}</Text>
 
             {/* Overlay */}
             <View
@@ -101,7 +106,7 @@ export function CardView(props: Readonly<CardViewProps>) {
                         }}
                     >
                         <Image
-                            source={`https://picsum.photos/seed/${pack?.id}/265`}
+                            source={image ?? Assets[colorScheme].pack_placeholder}
                             cachePolicy={'none'}
                             style={{
                                 height: 40,

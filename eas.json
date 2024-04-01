@@ -1,0 +1,23 @@
+{
+    "build": {
+        "develop": {
+            "extends": "preview",
+            "channel": "develop",
+            "developmentClient": true
+        },
+        "preview": {
+            "extends": "production",
+            "channel": "preview",
+            "distribution": "internal"
+        },
+        "production": {
+            "channel": "production",
+            "android": {
+                "image": "latest"
+            },
+            "ios": {
+                "image": "latest"
+            }
+        }
+    }
+}

@@ -17,6 +17,7 @@ export default class Color {
     }
 
     protected constructor(string: string) {
+        string = string.toLowerCase()
         if (!Color.hexPattern.test(string)) throw new TypeError(`Invalid hex pattern: '${string}'`)
         switch (string.length) {
             case 4:
@@ -25,7 +26,7 @@ export default class Color {
                 break
             case 5:
                 this.hex = Color.shortHexToLong(string)
-                this.a = Color.hexToNumber(string.slice(-1)) / 255
+                this.a = Color.hexToNumber(string.slice(-1) + string.slice(-1)) / 255
                 break
             case 7:
                 this.hex = string

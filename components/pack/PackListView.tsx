@@ -1,121 +1,134 @@
-import { DimensionValue, View, TouchableOpacity, StyleSheet, Pressable } from 'react-native'
-import { Image } from 'expo-image'
+import {
+    DimensionValue,
+    View,
+    TouchableOpacity,
+    StyleSheet,
+    Pressable,
+    PressableProps,
+    TouchableOpacityProps,
+    ActivityIndicator,
+} from 'react-native'
+import { Image, ImageProps } from 'expo-image'
 import { PlaylistContext } from '../utils/AppContext'
 import { Text } from '../utils/Themed'
-import { Key, useContext, useEffect } from 'react'
+import { useCallback, useContext } from 'react'
 import Colors from '@/constants/Colors'
-import Sizes from '@/constants/Sizes'
 import useColorScheme from '../utils/useColorScheme'
-import { Pack } from '@/lib/PackManager'
+import { PackManager } from '@/lib/PackManager'
 import Color from '@/types/Color'
+import { useQuery } from '@tanstack/react-query'
+import { PackViewProps } from '@/app/pack/[packID]'
+import { Link } from 'expo-router'
+import { MaterialIcons, Octicons } from '@expo/vector-icons'
+import Placeholder from '../utils/Placeholder'
 
-export type PackViewProps = {
-    pack: Pack
-    key?: Key
+export type PackListViewProps = {
+    hideImage?: boolean
 }
 
-export default function PackListView(props: Readonly<PackViewProps>) {
-    const { pack } = props
+const height: DimensionValue = 80
+
+export default function PackListView(props: Readonly<PackListViewProps & PackViewProps & TouchableOpacityProps>) {
+    const { pack, hideImage } = props
     const colorScheme = useColorScheme()
     const { playlist, setPlaylist } = useContext(PlaylistContext)
     const isSelected = playlist.some((p) => p.id === pack.id)
-    const height: DimensionValue = 80
 
-    function onPress() {
+    function onAddToQueue() {
         if (isSelected) setPlaylist(playlist.filter((p) => p.id !== pack.id))
         else setPlaylist([...playlist, pack])
     }
 
-    useEffect(() => {
-        console.debug(`Rendering PackListView: ${pack.name}`)
-    }, [])
+    const { data: image, isLoading, error } = useQuery(PackManager.getImageQuery(pack.image, !hideImage))
+    if (error) console.warn(error)
 
+    const PackImage = useCallback((props: ImageProps) => <Image {...props} source={image} transition={256} />, [image])
+
+    if (isLoading) return <PackListViewPlaceholder hideImage={hideImage} {...props} />
+
+    return (
+        <TouchableOpacity
+            style={{
+                height: height,
+                borderRadius: 16,
+            }}
+            {...props}
+            onPress={onAddToQueue}
+        >
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                {!hideImage && (
+                    <PackImage
+                        style={{
+                            aspectRatio: 1,
+                            height: '100%',
+                            borderRadius: 16,
+                            borderColor: Colors[colorScheme].stroke,
+                            borderWidth: StyleSheet.hairlineWidth,
+                            opacity: isSelected ? 1 : 0.5,
+                        }}
+                    />
+                )}
+
+                <View style={{ flex: 1 }}>
+                    <Text numberOfLines={1} style={[styles.text, styles.header]}>
+                        {pack.name}
+                    </Text>
+
+                    <Text numberOfLines={2} style={{ ...styles.text, color: Colors[colorScheme].secondaryText }}>
+                        {pack.description ? pack.description : pack.cards.length + ' cards'}
+                    </Text>
+                </View>
+
+                <Octicons
+                    size={18}
+                    name={'check-circle-fill'}
+                    color={isSelected ? Colors[colorScheme].accentColor : 'transparent'}
+                />
+
+                <Link href={`/pack/${pack.id}`} asChild>
+                    <TouchableOpacity>
+                        <MaterialIcons size={28} name={'more-horiz'} color={Colors[colorScheme].text} />
+                    </TouchableOpacity>
+                </Link>
+            </View>
+        </TouchableOpacity>
+    )
+}
+
+export function PackListViewPlaceholder(props: PackListViewProps & PressableProps) {
+    const { hideImage } = props
+    const colorScheme = useColorScheme()
     return (
         <Pressable
             style={{
                 height: height,
                 borderRadius: 16,
-                borderColor: Colors[colorScheme].stroke,
-                borderWidth: Sizes.thin,
             }}
+            {...props}
+            onPress={() => {}}
         >
-            <Image
-                source={`https://picsum.photos/seed/${pack.id}/265`}
-                blurRadius={64}
-                style={{
-                    position: 'absolute',
-                    width: '100%',
-                    height: '100%',
-                    borderRadius: 16,
-                }}
-            />
-            <View
-                style={{
-                    position: 'absolute',
-                    width: '100%',
-                    height: '100%',
-                    opacity: 0.75,
-                    borderRadius: 16,
-                    backgroundColor: Colors[colorScheme].background,
-                }}
-            />
-            <View
-                style={{
-                    // flex: 1,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    margin: 8,
-                }}
-            >
-                <Image
-                    source={`https://picsum.photos/seed/${pack.id}/256`}
-                    style={{
-                        aspectRatio: 1,
-                        height: '100%',
-                        borderRadius: 12,
-                        borderColor: Colors[colorScheme].stroke,
-                        borderWidth: Sizes.thin,
-                    }}
-                />
-                <View
-                    style={{
-                        flex: 1,
-                        paddingHorizontal: 8,
-                        justifyContent: 'center',
-                    }}
-                >
-                    <Text numberOfLines={2} style={[styles.text, styles.header]}>
-                        {pack.name}
-                    </Text>
-                    {/* {pack.description &&
-                        <Text numberOfLines={2} style={{ color: Colors[colorScheme].secondaryText }}>
-                            {pack.description}
-                        </Text>
-                    } */}
-                    <Text numberOfLines={2} style={{ ...styles.text, color: Colors[colorScheme].secondaryText }}>
-                        mrkallerud • {pack.cards.length} cards
-                    </Text>
-                </View>
-                <TouchableOpacity
-                    onPress={onPress}
-                    style={{
-                        justifyContent: 'center',
-                        margin: 8,
-                        backgroundColor: Colors[colorScheme].background,
-                        borderRadius: 64,
-                        paddingVertical: 8,
-                        paddingHorizontal: 16,
-                    }}
-                >
-                    <Text
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                {!hideImage && (
+                    <View
                         style={{
-                            ...styles.header,
-                            color: isSelected ? 'red' : Colors[colorScheme].accentColor,
+                            aspectRatio: 1,
+                            height: '100%',
+                            borderRadius: 16,
+                            borderColor: Colors[colorScheme].stroke,
+                            borderWidth: StyleSheet.hairlineWidth,
+                            justifyContent: 'center',
+                            backgroundColor: Color.white.alpha(0.05).string,
                         }}
                     >
-                        {isSelected ? 'Remove' : 'Play'}
-                    </Text>
-                </TouchableOpacity>
+                        <ActivityIndicator color={Colors[colorScheme].secondaryText} />
+                    </View>
+                )}
+
+                <View style={{ flex: 1, gap: 4, justifyContent: 'center' }}>
+                    <Placeholder width="25%" height={18} />
+                    <Placeholder width="75%" height={18} />
+                </View>
+                <MaterialIcons size={28} name={'more-horiz'} color={Colors[colorScheme].placeholder} />
             </View>
         </Pressable>
     )
