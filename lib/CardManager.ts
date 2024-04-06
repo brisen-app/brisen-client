@@ -6,6 +6,7 @@ export type Card = Awaited<ReturnType<typeof CardManager.fetch>>
 
 export abstract class CardManager {
     static readonly tableName = 'cards'
+    static readonly playerTemplateRegex = /\{player\W*(\d+)\}/gi
 
     static getFetchQuery(id: string) {
         return {
@@ -37,13 +38,12 @@ export abstract class CardManager {
         return data
     }
 
-    static insertPlayers(card: Card, players: Iterable<string>) {
-        const regex = /\{player\W*(\d+)\}/gi
-        const matches = card.content.matchAll(regex)
-        if (!matches) return card.content
+    static insertPlayers(cardContent: string, players: Iterable<string>) {
+        const matches = cardContent.matchAll(this.playerTemplateRegex)
+        if (!matches) return cardContent
 
         const shuffledPlayers = shuffled(players)
-        let replacedContent = card.content
+        let replacedContent = cardContent
         for (const match of matches) {
             const matchedString = match[0]
             const index = parseInt(match[1])
@@ -55,5 +55,15 @@ export abstract class CardManager {
         }
 
         return replacedContent
+    }
+
+    static getRequiredPlayerCount(cardContent: string) {
+        const matches = cardContent.matchAll(this.playerTemplateRegex)
+        let highestIndex = -1
+        for (const match of matches) {
+            const index = parseInt(match[1])
+            if (index > highestIndex) highestIndex = index
+        }
+        return highestIndex + 1
     }
 }
