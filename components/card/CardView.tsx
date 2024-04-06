@@ -8,12 +8,10 @@ import useColorScheme from '../utils/useColorScheme'
 import Color from '@/types/Color'
 import { LinearGradient } from 'expo-linear-gradient'
 import { PlayerListContext, PlaylistContext } from '../utils/AppContext'
-import { StatButton } from '../ui/StatButton'
 import { Image } from 'expo-image'
 import { Card, CardManager } from '@/lib/CardManager'
 import { Category, CategoryManager } from '@/lib/CategoryManager'
 import { FontStyles, Styles } from '@/constants/Styles'
-import UserQuickView from '../user/UserQuickView'
 import Assets from '@/constants/Assets'
 import { useQuery } from '@tanstack/react-query'
 import { PackManager } from '@/lib/PackManager'
@@ -62,7 +60,7 @@ export function CardView(props: Readonly<CardViewProps>) {
             />
 
             {/* Content */}
-            <Text style={{ fontSize: 28, fontWeight: '900', ...Styles.shadow, textAlign: 'center' }}>
+            <Text style={{ fontSize: 28, fontWeight: '900', ...Styles.shadow, textAlign: 'center', padding: 32 }}>
                 {formattedContent ?? card.content}
             </Text>
 
@@ -131,13 +129,6 @@ export function CardView(props: Readonly<CardViewProps>) {
                         />
                         <Text style={FontStyles.Title}>{pack?.name}</Text>
                     </TouchableOpacity>
-
-                    <View style={{ alignItems: 'center', gap: 16 }}>
-                        <StatButton icon="list" label="16" />
-                        <StatButton icon="heart" label="12.0m" />
-                        <StatButton icon="send" label="27.1k" />
-                        <UserQuickView />
-                    </View>
                 </View>
             </View>
         </>
