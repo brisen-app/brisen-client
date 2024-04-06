@@ -23,9 +23,10 @@ export default function TagList(props: Readonly<TagListProps & ViewProps>) {
                     style={{
                         flexDirection: 'row',
                         backgroundColor: Colors[colorScheme].background,
-                        paddingVertical: 4,
-                        paddingHorizontal: 8,
+                        paddingVertical: 6,
+                        paddingHorizontal: 10,
                         borderRadius: 8,
+                        alignItems: 'center',
                         overflow: 'hidden',
                         gap: 4,
                     }}
