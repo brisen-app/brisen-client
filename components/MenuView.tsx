@@ -11,6 +11,7 @@ import useColorScheme from './utils/useColorScheme'
 import { FontStyles } from '@/constants/Styles'
 import { useState } from 'react'
 import { LocalizationManager } from '@/lib/LocalizationManager'
+import Color from '@/types/Color'
 
 export default function MenuView() {
     const insets = useSafeAreaInsets()
@@ -74,25 +75,35 @@ function PackSection() {
 
 function PlayerSection() {
     const colorScheme = useColorScheme()
-    const [text, setText] = useState('')
+    const [text, setText] = useState<string | undefined>(undefined)
     const [isAdding, setIsAdding] = useState(false)
 
-    const addPlayersKey = 'add_players'
-    const { data: placeHolderText, error } = useQuery(LocalizationManager.getFetchQuery(addPlayersKey))
-    if (error) console.warn(error)
+    const { data: buttonText, error: buttonError } = useQuery(LocalizationManager.getFetchQuery('add_players_button'))
+    if (buttonError) console.warn(buttonError)
+
+    const { data: placeholderText, error: placeholderError } = useQuery(
+        LocalizationManager.getFetchQuery('add_players_placeholder')
+    )
+    if (placeholderError) console.warn(placeholderError)
 
     const handleAddPlayer = () => {
+        if (!text) return
         if (text.length > 0) {
             console.log('Adding player:', text)
-            setText('')
+            setText(undefined)
         }
+    }
+
+    const handleSetText = (value: string) => {
+        if (value.length < 1) return setText(undefined)
+        setText(value)
     }
 
     return (
         <BottomSheetTextInput
             value={text}
-            onChangeText={setText}
-            placeholder={placeHolderText?.value ?? addPlayersKey}
+            onChangeText={handleSetText}
+            placeholder={(isAdding ? placeholderText?.value : buttonText?.value) ?? ''}
             keyboardAppearance={colorScheme}
             returnKeyType="done"
             enablesReturnKeyAutomatically
@@ -105,10 +116,10 @@ function PlayerSection() {
             onFocus={() => setIsAdding(true)}
             onBlur={() => {
                 setIsAdding(false)
-                setText('')
+                setText(undefined)
             }}
             selectionColor={Colors[colorScheme].accentColor}
-            placeholderTextColor={Colors[colorScheme].background}
+            placeholderTextColor={isAdding ? Color.hex(Colors[colorScheme].text).alpha(1/3).string : Colors[colorScheme].background}
             style={{
                 backgroundColor: isAdding ? Colors[colorScheme].background : Colors[colorScheme].accentColor,
                 borderWidth: StyleSheet.hairlineWidth,
