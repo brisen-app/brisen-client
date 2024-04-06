@@ -75,7 +75,7 @@ function PackSection() {
 
 function PlayerSection() {
     const colorScheme = useColorScheme()
-    const [text, setText] = useState<string | undefined>(undefined)
+    const [text, setText] = useState<string>('')
     const [isAdding, setIsAdding] = useState(false)
 
     const { data: buttonText, error: buttonError } = useQuery(LocalizationManager.getFetchQuery('add_players_button'))
@@ -90,19 +90,14 @@ function PlayerSection() {
         if (!text) return
         if (text.length > 0) {
             console.log('Adding player:', text)
-            setText(undefined)
+            setText('')
         }
-    }
-
-    const handleSetText = (value: string) => {
-        if (value.length < 1) return setText(undefined)
-        setText(value)
     }
 
     return (
         <BottomSheetTextInput
             value={text}
-            onChangeText={handleSetText}
+            onChangeText={setText}
             placeholder={(isAdding ? placeholderText?.value : buttonText?.value) ?? ''}
             keyboardAppearance={colorScheme}
             returnKeyType="done"
@@ -116,7 +111,7 @@ function PlayerSection() {
             onFocus={() => setIsAdding(true)}
             onBlur={() => {
                 setIsAdding(false)
-                setText(undefined)
+                setText('')
             }}
             selectionColor={Colors[colorScheme].accentColor}
             placeholderTextColor={isAdding ? Color.hex(Colors[colorScheme].text).alpha(1/3).string : Colors[colorScheme].background}
