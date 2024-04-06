@@ -1,7 +1,7 @@
 import { BottomSheetScrollView, BottomSheetTextInput } from '@gorhom/bottom-sheet'
 import { LocalizedText } from './utils/LocalizedText'
 import { PackManager } from '@/lib/PackManager'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, View, ViewProps } from 'react-native'
 import { useQuery } from '@tanstack/react-query'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import PackFeaturedView from './pack/PackFeaturedView'
@@ -9,41 +9,62 @@ import PackListView from './pack/PackListView'
 import Colors from '@/constants/Colors'
 import useColorScheme from './utils/useColorScheme'
 import { FontStyles } from '@/constants/Styles'
-import { useState } from 'react'
+import { useContext, useMemo, useState } from 'react'
 import { LocalizationManager } from '@/lib/LocalizationManager'
 import Color from '@/types/Color'
+import { PlayerListContext } from './utils/AppContext'
+import TagList from './utils/TagList'
+import { formatName as prettifyString } from '@/lib/utils'
 
 export default function MenuView() {
     const insets = useSafeAreaInsets()
+    const { players, setPlayers } = useContext(PlayerListContext)
+
+    const sortedPlayers = useMemo(() => [...players].sort((a, b) => a.localeCompare(b)), [players])
+
+    const onPressPlayer = (player: string) => {
+        setPlayers(new Set([...players].filter((p) => p !== player)))
+    }
 
     return (
-        <BottomSheetScrollView showsVerticalScrollIndicator={false}>
-            <PlayerSection />
-            <View style={{ height: 16 }} />
+        <BottomSheetScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ rowGap: 8 }}>
+            <AddPlayerField />
+            {players.size > 0 && (
+                <TagList tags={sortedPlayers} onPress={onPressPlayer} style={{ marginHorizontal: 16 }} />
+            )}
 
+            <Header titleKey="packs" descriptionKey="no_pack_selected_description" />
             <PackSection />
             <View style={{ height: insets.bottom ?? 16 }} />
         </BottomSheetScrollView>
     )
 }
 
-function PackSection() {
+function Header(props: Readonly<{ titleKey: string; descriptionKey?: string }>) {
+    const { titleKey, descriptionKey } = props
+
+    return (
+        <View style={{ marginHorizontal: 16, paddingTop: 16 }}>
+            <LocalizedText id={titleKey} style={FontStyles.Header} placeHolderStyle={{ height: 28, width: 128 }} />
+            {descriptionKey && (
+                <LocalizedText
+                    id={descriptionKey}
+                    style={FontStyles.Subheading}
+                    placeHolderStyle={{ height: 28, width: 128 }}
+                />
+            )}
+        </View>
+    )
+}
+
+function PackSection(props: Readonly<ViewProps>) {
     const colorScheme = useColorScheme()
 
     const { data: packs, error } = useQuery(PackManager.getFetchAllQuery())
     if (error) console.warn(error)
 
     return (
-        <>
-            <View style={{ marginHorizontal: 16, marginBottom: 8 }}>
-                <LocalizedText id="packs" style={FontStyles.Header} placeHolderStyle={{ height: 28, width: 128 }} />
-                <LocalizedText
-                    id="no_pack_selected_description"
-                    style={FontStyles.Subheading}
-                    placeHolderStyle={{ height: 28, width: 128 }}
-                />
-            </View>
-
+        <View {...props}>
             {packs
                 ? packs.map((pack, index) =>
                       index === -1 ? (
@@ -69,14 +90,15 @@ function PackSection() {
                       )
                   )
                 : null}
-        </>
+        </View>
     )
 }
 
-function PlayerSection() {
+function AddPlayerField() {
     const colorScheme = useColorScheme()
     const [text, setText] = useState<string>('')
     const [isAdding, setIsAdding] = useState(false)
+    const { players, setPlayers } = useContext(PlayerListContext)
 
     const { data: buttonText, error: buttonError } = useQuery(LocalizationManager.getFetchQuery('add_players_button'))
     if (buttonError) console.warn(buttonError)
@@ -87,11 +109,12 @@ function PlayerSection() {
     if (placeholderError) console.warn(placeholderError)
 
     const handleAddPlayer = () => {
-        if (!text) return
-        if (text.length > 0) {
-            console.log('Adding player:', text)
-            setText('')
-        }
+        if (text.trim().length === 0) return
+
+        const formattedText = prettifyString(text)
+        if (players.has(formattedText)) console.warn('Player already exists') // TODO: Show error message to user
+        else setPlayers(new Set([...players, formattedText]))
+        setText('')
     }
 
     return (
@@ -114,7 +137,9 @@ function PlayerSection() {
                 setText('')
             }}
             selectionColor={Colors[colorScheme].accentColor}
-            placeholderTextColor={isAdding ? Color.hex(Colors[colorScheme].text).alpha(1/3).string : Colors[colorScheme].background}
+            placeholderTextColor={
+                isAdding ? Color.hex(Colors[colorScheme].text).alpha(1 / 3).string : Colors[colorScheme].background
+            }
             style={{
                 backgroundColor: isAdding ? Colors[colorScheme].background : Colors[colorScheme].accentColor,
                 borderWidth: StyleSheet.hairlineWidth,

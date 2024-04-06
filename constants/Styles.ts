@@ -43,4 +43,8 @@ export const FontStyles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
     },
+    AccentuatedBody: {
+        userSelect: 'none',
+        fontSize: 16,
+    },
 })

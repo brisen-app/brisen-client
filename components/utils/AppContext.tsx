@@ -15,8 +15,8 @@ type PlaylistContextType = {
 }
 
 type PlayerListContextType = {
-    players: string[]
-    setPlayers: (players: string[]) => void
+    players: Set<string>
+    setPlayers: (players: Set<string>) => void
 }
 
 // Default values for the contexts
@@ -31,7 +31,7 @@ const defaultPlaylist: PlaylistContextType = {
 }
 
 const defaultPlayerList: PlayerListContextType = {
-    players: [],
+    players: new Set<string>(),
     setPlayers: () => {},
 }
 
@@ -44,8 +44,8 @@ export const PlayerListContext = createContext<PlayerListContextType>(defaultPla
 export const AppContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     // const { data: supportedLanguages } = useQuery(LanguageManager.getFetchAllQuery());
 
-    const [playlist, setPlaylist] = useState<Pack[]>([])
-    const [players, setPlayers] = useState<string[]>([])
+    const [playlist, setPlaylist] = useState<Pack[]>(defaultPlaylist.playlist)
+    const [players, setPlayers] = useState<Set<string>>(defaultPlayerList.players)
     // const [language, setLanguage] = useState<Language>();
 
     const playlistValue = useMemo(() => ({ playlist, setPlaylist }), [playlist])
