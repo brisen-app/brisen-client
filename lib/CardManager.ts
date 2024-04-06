@@ -57,13 +57,21 @@ export abstract class CardManager {
         return replacedContent
     }
 
+    private static cachedPlayerCounts: Map<string, number> = new Map()
     static getRequiredPlayerCount(cardContent: string) {
+        if (this.cachedPlayerCounts.has(cardContent)) {
+            return this.cachedPlayerCounts.get(cardContent)!
+        }
+
         const matches = cardContent.matchAll(this.playerTemplateRegex)
         let highestIndex = -1
         for (const match of matches) {
             const index = parseInt(match[1])
             if (index > highestIndex) highestIndex = index
         }
-        return highestIndex + 1
+        const requiredPlayerCount = highestIndex + 1
+        this.cachedPlayerCounts.set(cardContent, requiredPlayerCount)
+
+        return requiredPlayerCount
     }
 }

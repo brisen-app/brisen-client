@@ -175,6 +175,10 @@ describe('insertPlayers', () => {
 })
 
 describe('getRequiredPlayerCount', () => {
+    beforeEach(() => {
+        CardManager.cachedPlayerCounts = new Map()
+    })
+
     it('should return the number of player placeholders in the card content', () => {
         const templateString = 'Hello {player-0}, how are you {player-9}? ({player-3} is testing {player-2})'
         const result = CardManager.getRequiredPlayerCount(templateString)
@@ -195,5 +199,16 @@ describe('getRequiredPlayerCount', () => {
         const templateString = 'Hello {player-0}, how are you {player-0}? ({player-0} is testing {player-0})'
         const result = CardManager.getRequiredPlayerCount(templateString)
         expect(result).toEqual(1)
+    })
+
+    it('should cache the result for subsequent calls with the same card content', () => {
+        const templateString = 'Hello {player-0}, how are you {player-9}? ({player-3} is testing {player-2})'
+        const matchAllSpy = jest.spyOn(String.prototype, 'matchAll')
+
+        const result1 = CardManager.getRequiredPlayerCount(templateString)
+        const result2 = CardManager.getRequiredPlayerCount(templateString)
+
+        expect(matchAllSpy).toHaveBeenCalledTimes(1)
+        expect(result1).toEqual(result2)
     })
 })
