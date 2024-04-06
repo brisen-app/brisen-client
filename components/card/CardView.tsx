@@ -7,10 +7,10 @@ import Sizes from '@/constants/Sizes'
 import useColorScheme from '../utils/useColorScheme'
 import Color from '@/types/Color'
 import { LinearGradient } from 'expo-linear-gradient'
-import { PlaylistContext } from '../utils/AppContext'
+import { PlayerListContext, PlaylistContext } from '../utils/AppContext'
 import { StatButton } from '../ui/StatButton'
 import { Image } from 'expo-image'
-import { Card } from '@/lib/CardManager'
+import { Card, CardManager } from '@/lib/CardManager'
 import { Category, CategoryManager } from '@/lib/CategoryManager'
 import { FontStyles, Styles } from '@/constants/Styles'
 import UserQuickView from '../user/UserQuickView'
@@ -27,8 +27,17 @@ export function CardView(props: Readonly<CardViewProps>) {
     const colorScheme = useColorScheme()
     const { card, category } = props
     const { playlist } = useContext(PlaylistContext)
+    const { players } = useContext(PlayerListContext)
 
     const padding = 24
+
+    const formattedContent = useMemo(() => {
+        try {
+            return CardManager.insertPlayers(card.content, players)
+        } catch (error) {
+            console.warn(error)
+        }
+    }, [card])
 
     const pack = useMemo(() => playlist.find((p) => p.cards.find((c) => c.id === card.id)), [card.id])
     const { data: image, error } = useQuery(PackManager.getImageQuery(pack?.image))
@@ -53,7 +62,9 @@ export function CardView(props: Readonly<CardViewProps>) {
             />
 
             {/* Content */}
-            <Text style={{ fontSize: 28, fontWeight: '900', ...Styles.shadow }}>{card.content}</Text>
+            <Text style={{ fontSize: 28, fontWeight: '900', ...Styles.shadow, textAlign: 'center' }}>
+                {formattedContent ?? card.content}
+            </Text>
 
             {/* Overlay */}
             <View

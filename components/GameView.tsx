@@ -1,17 +1,20 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { Dimensions, FlatList, Pressable, PressableProps } from 'react-native'
 import CardScreen from '@/components/card/CardScreen'
-import { PlaylistContext } from './utils/AppContext'
+import { PlayerListContext, PlaylistContext } from './utils/AppContext'
 import Colors from '@/constants/Colors'
 import useColorScheme from './utils/useColorScheme'
 import { Pack } from '@/lib/PackManager'
 import { LocalizedText } from './utils/LocalizedText'
 import BottomSheet from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet'
 import * as Crypto from 'expo-crypto'
+import { CardManager } from '@/lib/CardManager'
 
-function getRandomCard(playedCards: (string | null)[], playlist: Pack[]) {
+function getRandomCard(playedCards: (string | null)[], playlist: Pack[], players: Set<string>) {
     const allCards = playlist.map((p) => p.cards).flat()
-    const availableCards = allCards.filter((c) => !playedCards.includes(c.id))
+    const availableCards = allCards.filter(
+        (c) => !playedCards.includes(c.id) && players.size >= (CardManager.getRequiredPlayerCount(c.content))
+    )
     if (availableCards.length === 0) return null
     const randomIndex = Crypto.getRandomBytes(1)[0] % availableCards.length
     return availableCards[randomIndex].id
@@ -26,6 +29,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
     const { bottomSheetRef } = props
     const flatListRef = React.useRef<FlatList>(null)
     const { playlist } = useContext(PlaylistContext)
+    const { players } = useContext(PlayerListContext)
     const [playedCards, setPlayedCards] = useState([] as (string | null)[])
 
     const onPressCard = useCallback(
@@ -43,7 +47,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
     const addCard = () => {
         if (playlist.length === 0) return
         console.debug('Trying to add card')
-        const newCard = getRandomCard(playedCards, playlist)
+        const newCard = getRandomCard(playedCards, playlist, players)
         if (playedCards[playedCards.length - 1] === null && newCard === null) return
         if (newCard && !playedCards[playedCards.length - 1]) playedCards.pop()
         setPlayedCards([...playedCards, newCard])
