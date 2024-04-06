@@ -141,43 +141,59 @@ const mockPlayers = [
     'Kevin', // 10
 ]
 
-const mockPlayerTemplateCard = {
-    id: '1',
-    category: 'cat1',
-    content: 'Hello {player-0}, how are you {player-1}? ({player-1} is testing {player-0})',
-    created_at: '2021-01-01T00:00:00.000Z',
-    modified_at: '2021-01-01T00:00:00.000Z',
-}
+const mockPlayerTemplateString = 'Hello {player-0}, how are you {player-1}? ({player-1} is testing {player-0})'
 
 describe('insertPlayers', () => {
+    it('should not change the content in place', () => {
+        const testString = mockPlayerTemplateString
+        const result = CardManager.insertPlayers(testString, mockPlayers)
+        expect(testString).toBe(mockPlayerTemplateString)
+        expect(result).not.toBe(mockPlayerTemplateString)
+    })
+
     it('should insert players in the correct order', () => {
         jest.spyOn(utils, 'shuffled').mockReturnValueOnce(mockPlayers)
 
-        const result = CardManager.insertPlayers(mockPlayerTemplateCard, [])
+        const result = CardManager.insertPlayers(mockPlayerTemplateString, [])
         expect(result).toEqual('Hello Alice, how are you Bob? (Bob is testing Alice)')
     })
 
     it('should accept player indeces with multiple digits', () => {
-        const card = { ...mockPlayerTemplateCard, content: 'Hello {player-10}' }
         jest.spyOn(utils, 'shuffled').mockReturnValueOnce(mockPlayers)
-        const result = CardManager.insertPlayers(card, mockPlayers)
+        const result = CardManager.insertPlayers('Hello {player-10}', mockPlayers)
         expect(result).toEqual('Hello Kevin')
     })
 
-    it('should throw an error if there are not enough players', () => {
-        const players = ['Alice']
-        expect(() => CardManager.insertPlayers(mockPlayerTemplateCard, players)).toThrow(InsufficientCountError)
-    })
-
-    it('should not change the contents of the card object', () => {
-        const card = { ...mockPlayerTemplateCard }
-        CardManager.insertPlayers(card, mockPlayers)
-        expect(card).toEqual(mockPlayerTemplateCard)
+    it('should throw an error if a player index is out of bounds', () => {
+        expect(() => CardManager.insertPlayers('Hello {player-11}', mockPlayers)).toThrow(InsufficientCountError)
     })
 
     it('should return the original content if there are no placeholders', () => {
-        const card = mockedItems[0]
-        const result = CardManager.insertPlayers(mockedItems[0], mockPlayers)
-        expect(result).toEqual(card.content)
+        const result = CardManager.insertPlayers(mockedItems[0].content, mockPlayers)
+        expect(result).toEqual(mockedItems[0].content)
+    })
+})
+
+describe('getRequiredPlayerCount', () => {
+    it('should return the number of player placeholders in the card content', () => {
+        const templateString = 'Hello {player-0}, how are you {player-9}? ({player-3} is testing {player-2})'
+        const result = CardManager.getRequiredPlayerCount(templateString)
+        expect(result).toEqual(10)
+    })
+
+    it('should return 0 if there are no player placeholders', () => {
+        const result = CardManager.getRequiredPlayerCount(mockedItems[0].content)
+        expect(result).toEqual(0)
+    })
+
+    it('should return 0 if the card content is empty', () => {
+        const result = CardManager.getRequiredPlayerCount('')
+        expect(result).toEqual(0)
+    })
+
+    it('should correctly handle duplicate player placeholders with the same index', () => {
+        const templateString = 'Hello {player-0}, how are you {player-0}? ({player-0} is testing {player-0})'
+        const result = CardManager.getRequiredPlayerCount(templateString)
+        expect(result).toEqual(1)
     })
 })
