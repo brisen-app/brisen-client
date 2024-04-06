@@ -1,7 +1,7 @@
 import { BottomSheetScrollView, BottomSheetTextInput } from '@gorhom/bottom-sheet'
 import { LocalizedText } from './utils/LocalizedText'
 import { PackManager } from '@/lib/PackManager'
-import { StyleSheet, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { useQuery } from '@tanstack/react-query'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import PackFeaturedView from './pack/PackFeaturedView'
@@ -9,9 +9,8 @@ import PackListView from './pack/PackListView'
 import Colors from '@/constants/Colors'
 import useColorScheme from './utils/useColorScheme'
 import { FontStyles } from '@/constants/Styles'
-import Color from '@/types/Color'
-import { MaterialIcons } from '@expo/vector-icons'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
+import { LocalizationManager } from '@/lib/LocalizationManager'
 
 export default function MenuView() {
     const insets = useSafeAreaInsets()
@@ -76,46 +75,52 @@ function PackSection() {
 function PlayerSection() {
     const colorScheme = useColorScheme()
     const [text, setText] = useState('')
+    const [isAdding, setIsAdding] = useState(false)
+
+    const addPlayersKey = 'add_players'
+    const { data: placeHolderText, error } = useQuery(LocalizationManager.getFetchQuery(addPlayersKey))
+    if (error) console.warn(error)
+
+    const handleAddPlayer = () => {
+        if (text.length > 0) {
+            console.log('Adding player:', text)
+            setText('')
+        }
+    }
 
     return (
-        <>
-            <TouchableOpacity
-                style={{
-                    flexDirection: 'row',
-                    backgroundColor: Colors[colorScheme].accentColor,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    borderRadius: 8,
-                    padding: 8,
-                    marginHorizontal: 16,
-                    gap: 4,
-                }}
-            >
-                <MaterialIcons name="add" size={24} color={Color.black.string} />
-                <LocalizedText id="add_players" style={[{ color: Color.black.string }, FontStyles.Button]} />
-            </TouchableOpacity>
-            <BottomSheetTextInput
-                value={text}
-                onChangeText={setText}
-                placeholder="Enter player name"
-                keyboardAppearance={colorScheme}
-                returnKeyType="done"
-                enablesReturnKeyAutomatically
-                autoCapitalize='words'
-                autoComplete='off'
-                maxLength={32}
-                inputMode='text'
-                style={{
-                    backgroundColor: Colors[colorScheme].background,
-                    borderWidth: StyleSheet.hairlineWidth,
-                    borderColor: Colors[colorScheme].stroke,
-                    borderRadius: 8,
-                    padding: 8,
-                    marginHorizontal: 16,
-                    fontSize: 16,
-                    color: Colors[colorScheme].text,
-                }}
-            />
-        </>
+        <BottomSheetTextInput
+            value={text}
+            onChangeText={setText}
+            placeholder={placeHolderText?.value ?? addPlayersKey}
+            keyboardAppearance={colorScheme}
+            returnKeyType="done"
+            enablesReturnKeyAutomatically
+            autoCapitalize="words"
+            autoComplete="off"
+            maxLength={32}
+            inputMode="text"
+            blurOnSubmit={false}
+            onSubmitEditing={handleAddPlayer}
+            onFocus={() => setIsAdding(true)}
+            onBlur={() => {
+                setIsAdding(false)
+                setText('')
+            }}
+            selectionColor={Colors[colorScheme].accentColor}
+            placeholderTextColor={Colors[colorScheme].background}
+            style={{
+                backgroundColor: isAdding ? Colors[colorScheme].background : Colors[colorScheme].accentColor,
+                borderWidth: StyleSheet.hairlineWidth,
+                borderColor: Colors[colorScheme].stroke,
+                borderRadius: 8,
+                padding: 8,
+                marginHorizontal: 16,
+                fontSize: 16,
+                color: Colors[colorScheme].text,
+                textAlign: isAdding ? 'auto' : 'center',
+                fontWeight: isAdding ? 'normal' : '600',
+            }}
+        />
     )
 }
