@@ -24,6 +24,7 @@ export function CardView(props: Readonly<CardViewProps>) {
     const { card, category } = props
 
     const padding = 24
+    const showTarget = !card.is_group && card.players.length > 0
     const { data: image, error } = useQuery(PackManager.getImageQuery(card.pack.image))
 
     if (error) console.warn(error)
@@ -47,9 +48,31 @@ export function CardView(props: Readonly<CardViewProps>) {
             />
 
             {/* Content */}
-            <Text style={{ fontSize: 28, fontWeight: '900', ...Styles.shadow, textAlign: 'center', padding: 32 }}>
-                {card.formattedContent ?? card.content}
-            </Text>
+            <>
+                {showTarget && (
+                    <Text
+                        style={{
+                            fontSize: 28,
+                            fontWeight: '900',
+                            ...Styles.shadow,
+                            textAlign: 'center',
+                        }}
+                    >
+                        {card.players[0]}
+                    </Text>
+                )}
+                <Text
+                    style={{
+                        fontSize: 28,
+                        fontWeight: '900',
+                        ...Styles.shadow,
+                        textAlign: 'center',
+                        paddingHorizontal: 32,
+                    }}
+                >
+                    {card.formattedContent ?? card.content}
+                </Text>
+            </>
 
             {/* Overlay */}
             <View
