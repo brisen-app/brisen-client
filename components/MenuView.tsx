@@ -17,10 +17,10 @@ export default function MenuView() {
 
     return (
         <BottomSheetScrollView showsVerticalScrollIndicator={false}>
-            <View style={{ gap: 16 }}>
-                <PlayerSection />
-                <PackSection />
-            </View>
+            <PlayerSection />
+            <View style={{ height: 16 }} />
+
+            <PackSection />
             <View style={{ height: insets.bottom ?? 16 }} />
         </BottomSheetScrollView>
     )
