@@ -1,44 +1,31 @@
-import { useContext, useMemo } from 'react'
-import { View, TouchableOpacity } from 'react-native'
+import { Category, CategoryManager } from '@/lib/CategoryManager'
+import { FontStyles, Styles } from '@/constants/Styles'
+import { Image } from 'expo-image'
+import { LinearGradient } from 'expo-linear-gradient'
 import { LocalizedText } from '../utils/LocalizedText'
+import { PackManager } from '@/lib/PackManager'
+import { PlayedCard } from '@/lib/CardManager'
 import { Text } from '../utils/Themed'
+import { useQuery } from '@tanstack/react-query'
+import { View, TouchableOpacity } from 'react-native'
+import Assets from '@/constants/Assets'
+import Color from '@/types/Color'
 import Colors from '@/constants/Colors'
 import Sizes from '@/constants/Sizes'
 import useColorScheme from '../utils/useColorScheme'
-import Color from '@/types/Color'
-import { LinearGradient } from 'expo-linear-gradient'
-import { PlayerListContext, PlaylistContext } from '../utils/AppContext'
-import { Image } from 'expo-image'
-import { Card, CardManager } from '@/lib/CardManager'
-import { Category, CategoryManager } from '@/lib/CategoryManager'
-import { FontStyles, Styles } from '@/constants/Styles'
-import Assets from '@/constants/Assets'
-import { useQuery } from '@tanstack/react-query'
-import { PackManager } from '@/lib/PackManager'
 
 export type CardViewProps = {
-    card: Card
+    card: PlayedCard
     category?: Category | null
 }
 
 export function CardView(props: Readonly<CardViewProps>) {
     const colorScheme = useColorScheme()
     const { card, category } = props
-    const { playlist } = useContext(PlaylistContext)
-    const { players } = useContext(PlayerListContext)
 
     const padding = 24
+    const { data: image, error } = useQuery(PackManager.getImageQuery(card.pack.image))
 
-    const formattedContent = useMemo(() => {
-        try {
-            return CardManager.insertPlayers(card.content, players)
-        } catch (error) {
-            console.warn(error)
-        }
-    }, [card])
-
-    const pack = useMemo(() => playlist.find((p) => p.cards.find((c) => c.id === card.id)), [card.id])
-    const { data: image, error } = useQuery(PackManager.getImageQuery(pack?.image))
     if (error) console.warn(error)
 
     return (
@@ -61,7 +48,7 @@ export function CardView(props: Readonly<CardViewProps>) {
 
             {/* Content */}
             <Text style={{ fontSize: 28, fontWeight: '900', ...Styles.shadow, textAlign: 'center', padding: 32 }}>
-                {formattedContent ?? card.content}
+                {card.formattedContent ?? card.content}
             </Text>
 
             {/* Overlay */}
@@ -127,7 +114,7 @@ export function CardView(props: Readonly<CardViewProps>) {
                                 marginRight: 8,
                             }}
                         />
-                        <Text style={FontStyles.Title}>{pack?.name}</Text>
+                        <Text style={FontStyles.Title}>{card.pack.name}</Text>
                     </TouchableOpacity>
                 </View>
             </View>

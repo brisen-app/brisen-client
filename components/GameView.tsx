@@ -6,7 +6,7 @@ import Colors from '@/constants/Colors'
 import useColorScheme from './utils/useColorScheme'
 import { LocalizedText } from './utils/LocalizedText'
 import BottomSheet from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet'
-import { CardManager } from '@/lib/CardManager'
+import { CardManager, PlayedCard } from '@/lib/CardManager'
 
 export type GameViewProps = {
     bottomSheetRef?: React.RefObject<BottomSheet>
@@ -18,7 +18,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
     const flatListRef = React.useRef<FlatList>(null)
     const { playlist } = useContext(PlaylistContext)
     const { players } = useContext(PlayerListContext)
-    const [playedCards, setPlayedCards] = useState([] as (string)[])
+    const [playedCards, setPlayedCards] = useState(Array<PlayedCard>())
 
     const onPressCard = useCallback(
         (index: number) => {
@@ -35,7 +35,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
     const addCard = () => {
         if (playlist.length === 0) return
         console.debug('Trying to add card')
-        const newCard = CardManager.getNextCardId(playedCards, playlist, players)
+        const newCard = CardManager.getNextCard(playedCards, playlist, players)
         if (newCard === null) return
         setPlayedCards([...playedCards, newCard])
     }
@@ -82,7 +82,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
             ListEmptyComponent={<NoCardsView onPress={onPressNoCard} />}
             renderItem={({ item, index }) =>
                 item ? (
-                    <CardScreen cardID={item} onPress={() => onPressCard(index)} />
+                    <CardScreen card={item} onPress={() => onPressCard(index)} />
                 ) : (
                     <OutOfCardsView onPress={onPressNoCard} />
                 )
