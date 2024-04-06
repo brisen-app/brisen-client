@@ -14,6 +14,11 @@ type PlaylistContextType = {
     setPlaylist: (playlist: Pack[]) => void
 }
 
+type PlayerListContextType = {
+    players: string[]
+    setPlayers: (players: string[]) => void
+}
+
 // Default values for the contexts
 // const defaultLanguage: LanguageContextType = {
 //     language: LanguageManager.defaultLanguage,
@@ -25,18 +30,26 @@ const defaultPlaylist: PlaylistContextType = {
     setPlaylist: () => {},
 }
 
+const defaultPlayerList: PlayerListContextType = {
+    players: [],
+    setPlayers: () => {},
+}
+
 // Create contexts with default values
 // export const LanguageContext = createContext<LanguageContextType>(defaultLanguage);
 export const PlaylistContext = createContext<PlaylistContextType>(defaultPlaylist)
+export const PlayerListContext = createContext<PlayerListContextType>(defaultPlayerList)
 
 // AppContextProvider component
 export const AppContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     // const { data: supportedLanguages } = useQuery(LanguageManager.getFetchAllQuery());
 
     const [playlist, setPlaylist] = useState<Pack[]>([])
+    const [players, setPlayers] = useState<string[]>([])
     // const [language, setLanguage] = useState<Language>();
 
     const playlistValue = useMemo(() => ({ playlist, setPlaylist }), [playlist])
+    const playerListValue = useMemo(() => ({ players, setPlayers }), [players])
     // const languageValue = useMemo(() => ({ language, setLanguage }), [language]);
 
     useEffect(() => {
@@ -45,7 +58,9 @@ export const AppContextProvider: React.FC<{ children: ReactNode }> = ({ children
 
     return (
         // <LanguageContext.Provider value={languageValue}>
-        <PlaylistContext.Provider value={playlistValue}>{children}</PlaylistContext.Provider>
+        <PlayerListContext.Provider value={playerListValue}>
+            <PlaylistContext.Provider value={playlistValue}>{children}</PlaylistContext.Provider>
+        </PlayerListContext.Provider>
         // </LanguageContext.Provider>
     )
 }
