@@ -1,12 +1,22 @@
 import { InsufficientCountError, NotFoundError } from '@/types/Errors'
 import { supabase } from './supabase'
-import { shuffled } from './utils'
+import { getRandom, shuffled } from './utils'
+import { Pack } from './PackManager'
 
 export type Card = Awaited<ReturnType<typeof CardManager.fetch>>
 
 export abstract class CardManager {
     static readonly tableName = 'cards'
     static readonly playerTemplateRegex = /\{player\W*(\d+)\}/gi
+
+    static getNextCardId(playedCardIds: string[], playlist: Pack[], players: Set<string>) {
+        const cards = playlist.map((p) => p.cards).flat()
+        const candidates = cards.filter(
+            (c) => !playedCardIds.includes(c.id) && players.size >= this.getRequiredPlayerCount(c.content)
+        )
+        if (candidates.length === 0) return null
+        return getRandom(candidates).id
+    }
 
     static getFetchQuery(id: string) {
         return {
