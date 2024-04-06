@@ -51,6 +51,7 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          is_group: boolean
           modified_at: string
         }
         Insert: {
@@ -58,6 +59,7 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
+          is_group?: boolean
           modified_at?: string
         }
         Update: {
@@ -65,6 +67,7 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          is_group?: boolean
           modified_at?: string
         }
         Relationships: [
