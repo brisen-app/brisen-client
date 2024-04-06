@@ -120,7 +120,7 @@ function PlayerSection() {
                 borderWidth: StyleSheet.hairlineWidth,
                 borderColor: Colors[colorScheme].stroke,
                 borderRadius: 8,
-                padding: 8,
+                padding: 12,
                 marginHorizontal: 16,
                 fontSize: 16,
                 color: Colors[colorScheme].text,
