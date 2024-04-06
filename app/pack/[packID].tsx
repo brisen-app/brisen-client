@@ -36,6 +36,8 @@ export default function PackView() {
     if (isLoadingPack || isLoadingImage) return <ActivityIndicator size="large" />
     if (!pack) throw new Error('Pack not found')
 
+    // TODO: [BUG] Add loading view skeleton for PackView
+
     return (
         <View style={{ flex: 1 }}>
             <View style={{ height: '50%' }}>
