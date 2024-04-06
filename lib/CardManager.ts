@@ -38,15 +38,15 @@ export abstract class CardManager {
     }
 
     static insertPlayers(card: Card, players: Iterable<string>) {
-        const shuffledPlayers = shuffled(players)
-        const regex = /\{player-(\d+)\}/gi
+        const regex = /\{player\W*(\d+)\}/gi
         const matches = card.content.matchAll(regex)
         if (!matches) return card.content
 
+        const shuffledPlayers = shuffled(players)
         let replacedContent = card.content
         for (const match of matches) {
             const matchedString = match[0]
-            const index = parseInt(match[1]) - 1
+            const index = parseInt(match[1])
             if (index >= shuffledPlayers.length)
                 throw new InsufficientCountError(
                     `Not enough players (${shuffledPlayers.length}) to insert ${matchedString} into card.`
