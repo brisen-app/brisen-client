@@ -40,6 +40,8 @@ export default function App() {
                 snapPoints={snapPoints}
                 enableDynamicSizing
                 backdropComponent={backdrop}
+                keyboardBehavior='extend'
+                keyboardBlurBehavior='restore'
                 backgroundStyle={{
                     borderRadius: 16,
                     borderColor: Colors[colorScheme].stroke,
