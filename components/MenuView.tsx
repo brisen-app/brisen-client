@@ -15,6 +15,7 @@ import Color from '@/types/Color'
 import { PlayerListContext } from './utils/AppContext'
 import TagList from './utils/TagList'
 import { formatName as prettifyString } from '@/lib/utils'
+import { AntDesign, MaterialIcons } from '@expo/vector-icons'
 
 export default function MenuView() {
     const insets = useSafeAreaInsets()
@@ -28,6 +29,7 @@ export default function MenuView() {
 
     return (
         <BottomSheetScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ rowGap: 8 }}>
+            {/* <View style={{ height: insets.top ?? 16 }} /> */}
             <AddPlayerField />
             {players.size > 0 && (
                 <TagList tags={sortedPlayers} onPress={onPressPlayer} style={{ marginHorizontal: 16 }} />
@@ -97,16 +99,10 @@ function PackSection(props: Readonly<ViewProps>) {
 function AddPlayerField() {
     const colorScheme = useColorScheme()
     const [text, setText] = useState<string>('')
-    const [isAdding, setIsAdding] = useState(false)
     const { players, setPlayers } = useContext(PlayerListContext)
 
-    const { data: buttonText, error: buttonError } = useQuery(LocalizationManager.getFetchQuery('add_players_button'))
-    if (buttonError) console.warn(buttonError)
-
-    const { data: placeholderText, error: placeholderError } = useQuery(
-        LocalizationManager.getFetchQuery('add_players_placeholder')
-    )
-    if (placeholderError) console.warn(placeholderError)
+    const { data: placeholderText, error } = useQuery(LocalizationManager.getFetchQuery('add_players'))
+    if (error) console.warn(error)
 
     const handleAddPlayer = () => {
         if (text.trim().length === 0) return
@@ -118,40 +114,36 @@ function AddPlayerField() {
     }
 
     return (
-        <BottomSheetTextInput
-            value={text}
-            onChangeText={setText}
-            placeholder={(isAdding ? placeholderText?.value : buttonText?.value) ?? ''}
-            keyboardAppearance={colorScheme}
-            returnKeyType="done"
-            enablesReturnKeyAutomatically
-            autoCapitalize="words"
-            autoComplete="off"
-            maxLength={32}
-            inputMode="text"
-            blurOnSubmit={false}
-            onSubmitEditing={handleAddPlayer}
-            onFocus={() => setIsAdding(true)}
-            onBlur={() => {
-                setIsAdding(false)
-                setText('')
-            }}
-            selectionColor={Colors[colorScheme].accentColor}
-            placeholderTextColor={
-                isAdding ? Color.hex(Colors[colorScheme].text).alpha(1 / 3).string : Colors[colorScheme].background
-            }
+        <View
             style={{
-                backgroundColor: isAdding ? Colors[colorScheme].background : Colors[colorScheme].accentColor,
+                flexDirection: 'row',
+                backgroundColor: Colors[colorScheme].background,
                 borderWidth: StyleSheet.hairlineWidth,
                 borderColor: Colors[colorScheme].stroke,
-                borderRadius: 8,
-                padding: 12,
+                alignItems: 'center',
+                borderRadius: 12,
+                padding: 8,
                 marginHorizontal: 16,
-                fontSize: 16,
-                color: Colors[colorScheme].text,
-                textAlign: isAdding ? 'auto' : 'center',
-                fontWeight: isAdding ? 'normal' : '600',
+                gap: 4,
             }}
-        />
+        >
+            <AntDesign name="plus" size={18} color={Color.brightness(1 / 3).string} />
+            <BottomSheetTextInput
+                value={text}
+                onChangeText={setText}
+                placeholder={placeholderText?.value ?? ''}
+                keyboardAppearance={colorScheme}
+                returnKeyType="done"
+                enablesReturnKeyAutomatically
+                autoCapitalize="words"
+                autoComplete="off"
+                maxLength={32}
+                inputMode="text"
+                blurOnSubmit={false}
+                onSubmitEditing={handleAddPlayer}
+                selectionColor={Colors[colorScheme].accentColor}
+                style={{ flex: 1, fontSize: 18, color: Colors[colorScheme].text }}
+            />
+        </View>
     )
 }

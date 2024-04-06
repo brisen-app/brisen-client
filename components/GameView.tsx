@@ -34,18 +34,14 @@ export default function GameView(props: Readonly<GameViewProps>) {
 
     const addCard = () => {
         if (playlist.length === 0) return
-        console.debug('Trying to add card')
         const newCard = CardManager.getNextCard(playedCards, playlist, players)
         if (newCard === null) return
         setPlayedCards([...playedCards, newCard])
     }
 
     useEffect(() => {
-        // When playlist changes
-        if (playedCards.length === 0 || playedCards[playedCards.length - 1] === null) {
-            addCard()
-        }
-    }, [playlist])
+        addCard()
+    }, [playlist, players])
 
     useEffect(() => {
         console.debug('Rendering GameView')
