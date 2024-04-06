@@ -127,39 +127,52 @@ describe('fetchAll', () => {
     })
 })
 
-const mockPlayers = ['Alice', 'Bob', 'Charlie']
+const mockPlayers = [
+    'Alice', // 0
+    'Bob', // 1
+    'Charlie', // 2
+    'David', // 3
+    'Earl', // 4
+    'Frank', // 5
+    'George', // 6
+    'Hank', // 7
+    'Igor', // 8
+    'John', // 9
+    'Kevin', // 10
+]
+
 const mockPlayerTemplateCard = {
     id: '1',
     category: 'cat1',
-    content: 'Hello {player-1}, how are you {player-2}? ({player-2} is testing {player-1})',
+    content: 'Hello {player-0}, how are you {player-1}? ({player-1} is testing {player-0})',
     created_at: '2021-01-01T00:00:00.000Z',
     modified_at: '2021-01-01T00:00:00.000Z',
 }
 
 describe('insertPlayers', () => {
-    it('should replace player placeholders with shuffled players', () => {
-        const result = CardManager.insertPlayers(mockPlayerTemplateCard, mockPlayers)
-        expect(result).toMatch(
-            /Hello (Alice|Bob|Charlie), how are you (Alice|Bob|Charlie)\? \((Alice|Bob|Charlie) is testing (Alice|Bob|Charlie)\)/
-        )
+    it('should insert players in the correct order', () => {
+        jest.spyOn(utils, 'shuffled').mockReturnValueOnce(mockPlayers)
+
+        const result = CardManager.insertPlayers(mockPlayerTemplateCard, [])
+        expect(result).toEqual('Hello Alice, how are you Bob? (Bob is testing Alice)')
+    })
+
+    it('should accept player indeces with multiple digits', () => {
+        const card = { ...mockPlayerTemplateCard, content: 'Hello {player-10}' }
+        jest.spyOn(utils, 'shuffled').mockReturnValueOnce(mockPlayers)
+        const result = CardManager.insertPlayers(card, mockPlayers)
+        expect(result).toEqual('Hello Kevin')
+    })
+
+    it('should throw an error if there are not enough players', () => {
+        const players = ['Alice']
+        expect(() => CardManager.insertPlayers(mockPlayerTemplateCard, players)).toThrow(InsufficientCountError)
     })
 
     it('should not change the contents of the card object', () => {
         const card = { ...mockPlayerTemplateCard }
         CardManager.insertPlayers(card, mockPlayers)
         expect(card).toEqual(mockPlayerTemplateCard)
-    })
-
-    it('should insert players in the correct order', () => {
-        jest.spyOn(utils, 'shuffled').mockReturnValueOnce(['David', 'Earl', 'Frank', 'George', 'Hank'])
-
-        const result = CardManager.insertPlayers(mockPlayerTemplateCard, [])
-        expect(result).toEqual('Hello David, how are you Earl? (Earl is testing David)')
-    })
-
-    it('should throw an error if there are not enough players', () => {
-        const players = ['Alice']
-        expect(() => CardManager.insertPlayers(mockPlayerTemplateCard, players)).toThrow(InsufficientCountError)
     })
 
     it('should return the original content if there are no placeholders', () => {
