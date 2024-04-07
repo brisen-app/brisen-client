@@ -1,6 +1,7 @@
 // @ts-nocheck
 
-import { CardManager, Card } from '@/lib/CardManager'
+import { CardManager, Card, PlayedCard } from '@/lib/CardManager'
+import { Pack } from '@/lib/PackManager'
 import { supabase } from '@/lib/supabase'
 import * as utils from '@/lib/utils'
 import { InsufficientCountError } from '@/types/Errors'
@@ -179,7 +180,7 @@ const mockTemplateCard = {
 }
 
 describe('getRequiredPlayerCount', () => {
-    beforeEach(() => {
+    afterEach(() => {
         CardManager.cachedPlayerCounts = new Map()
     })
 
@@ -204,6 +205,10 @@ describe('getRequiredPlayerCount', () => {
         })
     })
 
+    it('should throw an error if card is null', () => {
+        expect(() => CardManager.getRequiredPlayerCount(null)).toThrow(TypeError)
+    })
+
     it('should cache the result for subsequent calls with the same card content', () => {
         const matchAllSpy = jest.spyOn(String.prototype, 'matchAll')
 
@@ -213,4 +218,59 @@ describe('getRequiredPlayerCount', () => {
         expect(matchAllSpy).toHaveBeenCalledTimes(1)
         expect(result1).toEqual(result2)
     })
+})
+
+describe('getNextCard', () => {
+    const playedCards: PlayedCard[] = []
+    const playlist: Pack[] = [{ cards: [{ id: '69', content: 'Hello {player-0} and {player-1}' }] }]
+    const players: Set<string> = new Set(['Player 1', 'Player 2'])
+    
+    it('should return a valid next card if unplayed cards are available', () => {
+        const shuffledPlayers = ['Player 1', 'Player 2']
+        const spyOnShuffled = jest.spyOn(utils, 'shuffled').mockReturnValueOnce(shuffledPlayers)
+        const matchAllSpy = jest.spyOn(String.prototype, 'matchAll')
+
+        const result = CardManager.getNextCard(playedCards, playlist, players)
+        expect(matchAllSpy).toHaveBeenCalledTimes(2)
+
+        expect(spyOnShuffled).toHaveBeenCalledTimes(1)
+        expect(spyOnShuffled).toHaveBeenCalledWith(players)
+
+        expect(result).not.toBeNull()
+        expect(result.formattedContent).toBe('Hello Player 1 and Player 2')
+        expect(result.minPlayers).toBe(2)
+    })
+
+    // it('should return null if no unplayed cards are available', () => {
+    //     const result = CardManager.getNextCard(playedCards, [], players)
+    //     expect(result).toBeNull()
+    // })
+
+    // it('should return null if no unplayed cards are available for the given players', () => {
+    //     const result = CardManager.getNextCard([{ id: '1', content: 'Played Card 1' }], playlist, players)
+    //     expect(result).toBeNull()
+    // })
+
+    // it('should return a card that can accommodate all players', () => {
+    //     const result = CardManager.getNextCard(playedCards, playlist, players)
+    //     expect(result).not.toBeNull()
+    //     expect(result.minPlayers).toBe(players.size)
+    // })
+
+    // it('should correctly insert players into the formatted content', () => {
+    //     const result = CardManager.getNextCard(playedCards, playlist, players)
+    //     expect(result?.formattedContent).toContain('Player 1')
+    //     expect(result?.formattedContent).toContain('Player 2')
+    // })
+
+    // it('should return a card with correct properties', () => {
+    //     const result = CardManager.getNextCard(playedCards, playlist, players)
+    //     expect(result).toHaveProperty('id')
+    //     expect(result).toHaveProperty('content')
+    //     expect(result).toHaveProperty('formattedContent')
+    //     expect(result).toHaveProperty('minPlayers')
+    //     expect(result).toHaveProperty('pack')
+    //     expect(result).toHaveProperty('players')
+    //     expect(result?.players).toEqual([...players])
+    // })
 })
