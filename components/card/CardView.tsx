@@ -117,6 +117,7 @@ export function CardView(props: Readonly<CardViewProps>) {
                 >
                     <TouchableOpacity
                         onPress={() => {
+                            // TODO: [BUG] Implement missing navigation to pack screen
                             console.log('Pack tapped')
                         }}
                         style={{
