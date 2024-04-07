@@ -38,8 +38,7 @@ export abstract class CardManager {
 
     private static insertPlayers(cardContent: string, players: string[]) {
         const matches = cardContent.matchAll(this.playerTemplateRegex)
-        if (!matches) return null
-
+        
         let replacedContent = cardContent
         for (const match of matches) {
             const matchedString = match[0]
@@ -51,7 +50,7 @@ export abstract class CardManager {
             replacedContent = replacedContent.replace(matchedString, players[index])
         }
 
-        return replacedContent
+        return replacedContent === cardContent ? null : replacedContent
     }
 
     private static cachedPlayerCounts: Map<string, number> = new Map()
@@ -66,7 +65,7 @@ export abstract class CardManager {
             const index = parseInt(match[1])
             if (index > highestIndex) highestIndex = index
         }
-        const requiredPlayerCount = highestIndex + (card.is_group ? 1 : 2)
+        const requiredPlayerCount = highestIndex + 1
         this.cachedPlayerCounts.set(card.id, requiredPlayerCount)
         return requiredPlayerCount
     }

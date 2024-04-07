@@ -141,72 +141,74 @@ const mockPlayers = [
     'Kevin', // 10
 ]
 
-const mockPlayerTemplateString = 'Hello {player-0}, how are you {player-1}? ({player-1} is testing {player-0})'
+const mockTemplateString = 'Hello {player-0}, how are you {player-4}? ({player-4} is testing {player-0})'
 
 describe('insertPlayers', () => {
     it('should not change the content in place', () => {
-        const testString = mockPlayerTemplateString
+        const testString = mockTemplateString
         const result = CardManager.insertPlayers(testString, mockPlayers)
-        expect(testString).toBe(mockPlayerTemplateString)
-        expect(result).not.toBe(mockPlayerTemplateString)
+        expect(testString).toBe(mockTemplateString)
+        expect(result).not.toBe(mockTemplateString)
     })
 
-    it('should insert players in the correct order', () => {
-        jest.spyOn(utils, 'shuffled').mockReturnValueOnce(mockPlayers)
+    const testCases = [
+        {
+            cardContent: mockTemplateString,
+            players: mockPlayers,
+            expected: 'Hello Alice, how are you Earl? (Earl is testing Alice)',
+        },
+        { cardContent: 'Hello {player-10}', players: mockPlayers, expected: 'Hello Kevin' },
+        { cardContent: 'Hello {plopper-0}', players: mockPlayers, expected: null },
+    ]
 
-        const result = CardManager.insertPlayers(mockPlayerTemplateString, [])
-        expect(result).toEqual('Hello Alice, how are you Bob? (Bob is testing Alice)')
-    })
-
-    it('should accept player indeces with multiple digits', () => {
-        jest.spyOn(utils, 'shuffled').mockReturnValueOnce(mockPlayers)
-        const result = CardManager.insertPlayers('Hello {player-10}', mockPlayers)
-        expect(result).toEqual('Hello Kevin')
+    testCases.forEach(({ cardContent, players, expected }) => {
+        it(`should return '${expected}' for "${cardContent}"`, () => {
+            const result = CardManager.insertPlayers(cardContent, players)
+            expect(result).toEqual(expected)
+        })
     })
 
     it('should throw an error if a player index is out of bounds', () => {
         expect(() => CardManager.insertPlayers('Hello {player-11}', mockPlayers)).toThrow(InsufficientCountError)
     })
-
-    it('should return the original content if there are no placeholders', () => {
-        const result = CardManager.insertPlayers(mockedItems[0].content, mockPlayers)
-        expect(result).toEqual(mockedItems[0].content)
-    })
 })
+
+const mockTemplateCard = {
+    ...mockedItems[0],
+    content: mockTemplateString,
+}
 
 describe('getRequiredPlayerCount', () => {
     beforeEach(() => {
         CardManager.cachedPlayerCounts = new Map()
     })
 
-    it('should return the number of player placeholders in the card content', () => {
-        const templateString = 'Hello {player-0}, how are you {player-9}? ({player-3} is testing {player-2})'
-        const result = CardManager.getRequiredPlayerCount(templateString)
-        expect(result).toEqual(10)
-    })
+    const testCases = [
+        {
+            cardContent: 'Hello {player-0}, how are you {player-1}? ({player-2} is testing {player-3})',
+            expected: 4,
+        },
+        {
+            cardContent: 'Hello {player-0}, how are you {player-150}? ({player-3} is testing {player-2})',
+            expected: 151,
+        },
+        { cardContent: 'Hello {player-0}.', expected: 1 },
+        { cardContent: 'String with no template.', expected: 0 },
+        { cardContent: '', expected: 0 },
+    ]
 
-    it('should return 0 if there are no player placeholders', () => {
-        const result = CardManager.getRequiredPlayerCount(mockedItems[0].content)
-        expect(result).toEqual(0)
-    })
-
-    it('should return 0 if the card content is empty', () => {
-        const result = CardManager.getRequiredPlayerCount('')
-        expect(result).toEqual(0)
-    })
-
-    it('should correctly handle duplicate player placeholders with the same index', () => {
-        const templateString = 'Hello {player-0}, how are you {player-0}? ({player-0} is testing {player-0})'
-        const result = CardManager.getRequiredPlayerCount(templateString)
-        expect(result).toEqual(1)
+    testCases.forEach(({ cardContent, expected }) => {
+        it(`should return ${expected} for "${cardContent}"`, () => {
+            const result = CardManager.getRequiredPlayerCount({ ...mockedItems[0], content: cardContent })
+            expect(result).toEqual(expected)
+        })
     })
 
     it('should cache the result for subsequent calls with the same card content', () => {
-        const templateString = 'Hello {player-0}, how are you {player-9}? ({player-3} is testing {player-2})'
         const matchAllSpy = jest.spyOn(String.prototype, 'matchAll')
 
-        const result1 = CardManager.getRequiredPlayerCount(templateString)
-        const result2 = CardManager.getRequiredPlayerCount(templateString)
+        const result1 = CardManager.getRequiredPlayerCount(mockTemplateCard)
+        const result2 = CardManager.getRequiredPlayerCount(mockTemplateCard)
 
         expect(matchAllSpy).toHaveBeenCalledTimes(1)
         expect(result1).toEqual(result2)
