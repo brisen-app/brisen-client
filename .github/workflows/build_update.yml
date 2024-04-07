@@ -37,4 +37,4 @@ jobs:
             - name: 🚀 Create preview
               uses: expo/expo-github-action/preview@v8
               with:
-                  command: eas update --branch ${{ github.ref_name }} --message ${{ github.event.head_commit.message }}
+                  command: eas update --branch "${{ github.ref_name }}" --message "${{ github.event.head_commit.message }}"
