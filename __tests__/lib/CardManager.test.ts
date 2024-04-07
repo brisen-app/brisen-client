@@ -182,6 +182,7 @@ const mockTemplateCard = {
 describe('getRequiredPlayerCount', () => {
     afterEach(() => {
         CardManager.cachedPlayerCounts = new Map()
+        jest.clearAllMocks()
     })
 
     const testCases = [
@@ -221,56 +222,69 @@ describe('getRequiredPlayerCount', () => {
 })
 
 describe('getNextCard', () => {
-    const playedCards: PlayedCard[] = []
-    const playlist: Pack[] = [{ cards: [{ id: '69', content: 'Hello {player-0} and {player-1}' }] }]
-    const players: Set<string> = new Set(['Player 1', 'Player 2'])
-    
+    afterEach(() => {
+        CardManager.cachedPlayerCounts = new Map()
+        jest.clearAllMocks()
+    })
+
     it('should return a valid next card if unplayed cards are available', () => {
-        const shuffledPlayers = ['Player 1', 'Player 2']
-        const spyOnShuffled = jest.spyOn(utils, 'shuffled').mockReturnValueOnce(shuffledPlayers)
+        const players = new Set(mockPlayers)
+        const playlist: Pack[] = [
+            {
+                cards: [...mockedItems, { id: '69', content: 'Hello {player-0} and {player-1}' }],
+            },
+        ]
+
+        const spyOnShuffled = jest.spyOn(utils, 'shuffled').mockReturnValueOnce(mockPlayers)
         const matchAllSpy = jest.spyOn(String.prototype, 'matchAll')
 
-        const result = CardManager.getNextCard(playedCards, playlist, players)
+        const result = CardManager.getNextCard(mockedItems, playlist, players)
         expect(matchAllSpy).toHaveBeenCalledTimes(2)
 
         expect(spyOnShuffled).toHaveBeenCalledTimes(1)
         expect(spyOnShuffled).toHaveBeenCalledWith(players)
 
         expect(result).not.toBeNull()
-        expect(result.formattedContent).toBe('Hello Player 1 and Player 2')
+        expect(result.formattedContent).toBe('Hello Alice and Bob')
         expect(result.minPlayers).toBe(2)
     })
 
-    // it('should return null if no unplayed cards are available', () => {
-    //     const result = CardManager.getNextCard(playedCards, [], players)
-    //     expect(result).toBeNull()
-    // })
+    it('should return a card that can accommodate all players', () => {
+        const playedCards: PlayedCard[] = [{ id: '1' }, { id: '2' }]
 
-    // it('should return null if no unplayed cards are available for the given players', () => {
-    //     const result = CardManager.getNextCard([{ id: '1', content: 'Played Card 1' }], playlist, players)
-    //     expect(result).toBeNull()
-    // })
+        const playlist: Pack[] = [
+            {
+                cards: [
+                    { id: '2', content: '' },
+                    { id: '4', content: 'Content of card 4 {player-0} {player-1}' },
+                ],
+            },
+            {
+                cards: [
+                    { id: '3', content: 'Content of card 3 {player-0}' },
+                    { id: '5', content: 'Content of card 5 {player-0} {player-1} {player-2}' },
+                ],
+            },
+        ]
 
-    // it('should return a card that can accommodate all players', () => {
-    //     const result = CardManager.getNextCard(playedCards, playlist, players)
-    //     expect(result).not.toBeNull()
-    //     expect(result.minPlayers).toBe(players.size)
-    // })
+        const result = CardManager.getNextCard(playedCards, playlist, new Set([mockPlayers[0]]))
+        expect(result.id).toBe('3')
+        expect(result.minPlayers).toBe(1)
+    })
 
-    // it('should correctly insert players into the formatted content', () => {
-    //     const result = CardManager.getNextCard(playedCards, playlist, players)
-    //     expect(result?.formattedContent).toContain('Player 1')
-    //     expect(result?.formattedContent).toContain('Player 2')
-    // })
+    it('should return null if not enough players for card', () => {
+        const playlist: Pack[] = [
+            {
+                cards: [...mockedItems, { id: '69', content: 'Hello {player-0} and {player-1}' }],
+            },
+        ]
 
-    // it('should return a card with correct properties', () => {
-    //     const result = CardManager.getNextCard(playedCards, playlist, players)
-    //     expect(result).toHaveProperty('id')
-    //     expect(result).toHaveProperty('content')
-    //     expect(result).toHaveProperty('formattedContent')
-    //     expect(result).toHaveProperty('minPlayers')
-    //     expect(result).toHaveProperty('pack')
-    //     expect(result).toHaveProperty('players')
-    //     expect(result?.players).toEqual([...players])
-    // })
+        const result = CardManager.getNextCard(mockedItems, playlist, [])
+        expect(result).toBeNull()
+    })
+
+    it('should ignore duplicate cards', () => {
+        const result = CardManager.getNextCard([], [{ cards: [mockedItems[0], mockedItems[0]] }], new Set())
+        expect(result.id).toBe('1')
+    })
 })

@@ -17,7 +17,7 @@ export abstract class CardManager {
 
     /**
      * Retrieves the next card to be played based on the given parameters.
-     * 
+     *
      * @param playedCards - An array of previously played cards.
      * @param playlist - An array of packs containing cards.
      * @param players - A set of players.
@@ -48,7 +48,7 @@ export abstract class CardManager {
      * Inserts the names of players into the card content.
      * Formats the card content by replacing `{player-#}` with the name of the player at the corresponding index.
      * `{player-0}` will always be the targeted player if `is_group` is `false`.
-     * 
+     *
      * @param cardContent - The original card content.
      * @param players - An array of player names.
      * @returns The modified card content with player names inserted, or `null` if no replacements were made.
@@ -56,7 +56,7 @@ export abstract class CardManager {
      */
     private static insertPlayers(cardContent: string, players: string[]) {
         const matches = cardContent.matchAll(this.playerTemplateRegex)
-        
+
         let replacedContent = cardContent
         for (const match of matches) {
             const matchedString = match[0]
@@ -75,7 +75,7 @@ export abstract class CardManager {
     /**
      * Calculates the required player count based on the card's content.
      * The method is memoized to avoid recalculating the same card multiple times.
-     * 
+     *
      * @param card - The card for which to retrieve the required player count.
      * @returns The required player count for the card.
      */
