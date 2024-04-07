@@ -1,37 +1,32 @@
-import { useContext, useMemo } from 'react'
-import { View, TouchableOpacity } from 'react-native'
+import { Category, CategoryManager } from '@/lib/CategoryManager'
+import { FontStyles, Styles } from '@/constants/Styles'
+import { Image } from 'expo-image'
+import { LinearGradient } from 'expo-linear-gradient'
 import { LocalizedText } from '../utils/LocalizedText'
+import { PackManager } from '@/lib/PackManager'
+import { PlayedCard } from '@/lib/CardManager'
 import { Text } from '../utils/Themed'
+import { useQuery } from '@tanstack/react-query'
+import { View, TouchableOpacity } from 'react-native'
+import Assets from '@/constants/Assets'
+import Color from '@/types/Color'
 import Colors from '@/constants/Colors'
 import Sizes from '@/constants/Sizes'
 import useColorScheme from '../utils/useColorScheme'
-import Color from '@/types/Color'
-import { LinearGradient } from 'expo-linear-gradient'
-import { PlaylistContext } from '../utils/AppContext'
-import { StatButton } from '../ui/StatButton'
-import { Image } from 'expo-image'
-import { Card } from '@/lib/CardManager'
-import { Category, CategoryManager } from '@/lib/CategoryManager'
-import { FontStyles, Styles } from '@/constants/Styles'
-import UserQuickView from '../user/UserQuickView'
-import Assets from '@/constants/Assets'
-import { useQuery } from '@tanstack/react-query'
-import { PackManager } from '@/lib/PackManager'
 
 export type CardViewProps = {
-    card: Card
+    card: PlayedCard
     category?: Category | null
 }
 
 export function CardView(props: Readonly<CardViewProps>) {
     const colorScheme = useColorScheme()
     const { card, category } = props
-    const { playlist } = useContext(PlaylistContext)
 
     const padding = 24
+    const showTarget = !card.is_group && card.players.length > 0
+    const { data: image, error } = useQuery(PackManager.getImageQuery(card.pack.image))
 
-    const pack = useMemo(() => playlist.find((p) => p.cards.find((c) => c.id === card.id)), [card.id])
-    const { data: image, error } = useQuery(PackManager.getImageQuery(pack?.image))
     if (error) console.warn(error)
 
     return (
@@ -53,7 +48,31 @@ export function CardView(props: Readonly<CardViewProps>) {
             />
 
             {/* Content */}
-            <Text style={{ fontSize: 28, fontWeight: '900', ...Styles.shadow }}>{card.content}</Text>
+            <>
+                {showTarget && (
+                    <Text
+                        style={{
+                            fontSize: 28,
+                            fontWeight: '900',
+                            ...Styles.shadow,
+                            textAlign: 'center',
+                        }}
+                    >
+                        {card.players[0]}
+                    </Text>
+                )}
+                <Text
+                    style={{
+                        fontSize: 28,
+                        fontWeight: '900',
+                        ...Styles.shadow,
+                        textAlign: 'center',
+                        paddingHorizontal: 32,
+                    }}
+                >
+                    {card.formattedContent ?? card.content}
+                </Text>
+            </>
 
             {/* Overlay */}
             <View
@@ -98,6 +117,7 @@ export function CardView(props: Readonly<CardViewProps>) {
                 >
                     <TouchableOpacity
                         onPress={() => {
+                            // TODO: [BUG] Implement missing navigation to pack screen
                             console.log('Pack tapped')
                         }}
                         style={{
@@ -118,15 +138,8 @@ export function CardView(props: Readonly<CardViewProps>) {
                                 marginRight: 8,
                             }}
                         />
-                        <Text style={FontStyles.Title}>{pack?.name}</Text>
+                        <Text style={FontStyles.Title}>{card.pack.name}</Text>
                     </TouchableOpacity>
-
-                    <View style={{ alignItems: 'center', gap: 16 }}>
-                        <StatButton icon="list" label="16" />
-                        <StatButton icon="heart" label="12.0m" />
-                        <StatButton icon="send" label="27.1k" />
-                        <UserQuickView />
-                    </View>
                 </View>
             </View>
         </>

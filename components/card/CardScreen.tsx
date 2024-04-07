@@ -1,20 +1,17 @@
 import { StyleSheet, View, Dimensions, PressableProps, Pressable } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useQuery } from '@tanstack/react-query'
-import { Text } from '../utils/Themed'
 import Colors from '@/constants/Colors'
 import Sizes from '@/constants/Sizes'
 import useColorScheme from '../utils/useColorScheme'
 import Color from '@/types/Color'
-import { CardManager } from '@/lib/CardManager'
+import { PlayedCard } from '@/lib/CardManager'
 import { CategoryManager } from '@/lib/CategoryManager'
 import { CardView } from './CardView'
-import { CardLoadingView } from './CardLoadingView'
 
-export type CardScreenProps = { cardID: string } & PressableProps
+export type CardScreenProps = { card: PlayedCard } & PressableProps
 
 export default function CardScreen(props: Readonly<CardScreenProps>) {
-    const { cardID, onPress } = props
+    const { card, onPress } = props
     const colorScheme = useColorScheme()
 
     const padding = 16
@@ -26,15 +23,7 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
         right: insets.right ? insets.right : padding,
     }
 
-    const { data: card, isLoading: isLoadingCard, error: errorCard } = useQuery(CardManager.getFetchQuery(cardID))
     const category = CategoryManager.get(card?.category)
-
-    if (errorCard) {
-        console.warn(errorCard)
-        // TODO: Show empty card
-    }
-
-    const isLoading = isLoadingCard
 
     return (
         <Pressable
@@ -61,24 +50,9 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
                     borderWidth: Sizes.thin,
                 }}
             >
-                {isLoading ? (
-                    <CardLoadingView />
-                ) : !card ? (
-                    <CardErrorView />
-                ) : (
-                    <CardView card={card} category={category} />
-                )}
+                <CardView card={card} category={category} />
             </View>
         </Pressable>
-    )
-}
-
-function CardErrorView() {
-    // TODO: Make more user friendly
-    return (
-        <View>
-            <Text style={{ fontSize: Sizes.big }}>🥵</Text>
-        </View>
     )
 }
 

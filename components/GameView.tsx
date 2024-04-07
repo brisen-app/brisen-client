@@ -1,21 +1,12 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { Dimensions, FlatList, Pressable, PressableProps } from 'react-native'
 import CardScreen from '@/components/card/CardScreen'
-import { PlaylistContext } from './utils/AppContext'
+import { PlayerListContext, PlaylistContext } from './utils/AppContext'
 import Colors from '@/constants/Colors'
 import useColorScheme from './utils/useColorScheme'
-import { Pack } from '@/lib/PackManager'
 import { LocalizedText } from './utils/LocalizedText'
 import BottomSheet from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet'
-import * as Crypto from 'expo-crypto'
-
-function getRandomCard(playedCards: (string | null)[], playlist: Pack[]) {
-    const allCards = playlist.map((p) => p.cards).flat()
-    const availableCards = allCards.filter((c) => !playedCards.includes(c.id))
-    if (availableCards.length === 0) return null
-    const randomIndex = Crypto.getRandomBytes(1)[0] % availableCards.length
-    return availableCards[randomIndex].id
-}
+import { CardManager, PlayedCard } from '@/lib/CardManager'
 
 export type GameViewProps = {
     bottomSheetRef?: React.RefObject<BottomSheet>
@@ -26,7 +17,8 @@ export default function GameView(props: Readonly<GameViewProps>) {
     const { bottomSheetRef } = props
     const flatListRef = React.useRef<FlatList>(null)
     const { playlist } = useContext(PlaylistContext)
-    const [playedCards, setPlayedCards] = useState([] as (string | null)[])
+    const { players } = useContext(PlayerListContext)
+    const [playedCards, setPlayedCards] = useState(Array<PlayedCard>())
 
     const onPressCard = useCallback(
         (index: number) => {
@@ -42,19 +34,14 @@ export default function GameView(props: Readonly<GameViewProps>) {
 
     const addCard = () => {
         if (playlist.length === 0) return
-        console.debug('Trying to add card')
-        const newCard = getRandomCard(playedCards, playlist)
-        if (playedCards[playedCards.length - 1] === null && newCard === null) return
-        if (newCard && !playedCards[playedCards.length - 1]) playedCards.pop()
+        const newCard = CardManager.getNextCard(playedCards, playlist, players)
+        if (newCard === null) return
         setPlayedCards([...playedCards, newCard])
     }
 
     useEffect(() => {
-        // When playlist changes
-        if (playedCards.length === 0 || playedCards[playedCards.length - 1] === null) {
-            addCard()
-        }
-    }, [playlist])
+        addCard()
+    }, [playlist, players])
 
     useEffect(() => {
         console.debug('Rendering GameView')
@@ -91,7 +78,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
             ListEmptyComponent={<NoCardsView onPress={onPressNoCard} />}
             renderItem={({ item, index }) =>
                 item ? (
-                    <CardScreen cardID={item} onPress={() => onPressCard(index)} />
+                    <CardScreen card={item} onPress={() => onPressCard(index)} />
                 ) : (
                     <OutOfCardsView onPress={onPressNoCard} />
                 )
