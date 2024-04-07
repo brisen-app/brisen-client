@@ -3,7 +3,6 @@
         "develop": {
             "extends": "preview",
             "channel": "develop",
-            "branch": "develop",
             "developmentClient": true
         },
         "preview": {
@@ -13,7 +12,6 @@
         },
         "production": {
             "channel": "production",
-            "branch": "main",
             "android": {
                 "image": "latest"
             },
