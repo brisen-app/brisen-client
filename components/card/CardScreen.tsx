@@ -44,7 +44,6 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
                     alignItems: 'center',
                     overflow: 'hidden',
                     borderRadius: 32,
-                    // padding: 32,
                     backgroundColor: Colors[colorScheme].secondaryBackground,
                     borderColor: Colors[colorScheme].stroke,
                     borderWidth: Sizes.thin,
