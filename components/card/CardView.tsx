@@ -34,7 +34,14 @@ export function CardView(props: Readonly<CardViewProps>) {
     return (
         <>
             <LinearGradient
-                colors={category?.gradient ?? [Color.hex('#370A00').string, Colors[colorScheme].accentColor]}
+                colors={
+                    category?.gradient ?? [
+                        Color.hex('#370A00').string,
+                        Color.hex('#a14316').string,
+                        Colors[colorScheme].accentColor,
+                        'white',
+                    ]
+                }
                 start={{ x: 0, y: 1 }}
                 end={{ x: 1, y: 0 }}
                 style={Styles.absoluteFill}
