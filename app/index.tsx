@@ -62,8 +62,7 @@ export default function App() {
 const styles = StyleSheet.create({
     shadow: {
         shadowColor: 'black',
-        shadowOpacity: 0.1,
+        shadowOpacity: 0.5,
         shadowRadius: 32,
-        elevation: 24,
     },
 })
