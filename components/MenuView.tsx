@@ -1,4 +1,4 @@
-import { AntDesign } from '@expo/vector-icons'
+import { AntDesign, MaterialIcons } from '@expo/vector-icons'
 import { BottomSheetScrollView, BottomSheetTextInput } from '@gorhom/bottom-sheet'
 import { FontStyles } from '@/constants/Styles'
 import { formatName as prettifyString } from '@/lib/utils'
@@ -6,7 +6,7 @@ import { LocalizationManager } from '@/lib/LocalizationManager'
 import { LocalizedText } from './utils/LocalizedText'
 import { PackManager } from '@/lib/PackManager'
 import { PlayerListContext } from './utils/AppContext'
-import { StyleSheet, View, ViewProps } from 'react-native'
+import { ScrollView, StyleSheet, View, ViewProps } from 'react-native'
 import { useContext, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -14,31 +14,82 @@ import Color from '@/types/Color'
 import Colors from '@/constants/Colors'
 import PackFeaturedView from './pack/PackFeaturedView'
 import PackListView from './pack/PackListView'
-import TagList from './utils/TagList'
 import useColorScheme from './utils/useColorScheme'
+import Tag from './utils/Tag'
+import { Category, CategoryManager } from '@/lib/CategoryManager'
 
 export default function MenuView() {
     const insets = useSafeAreaInsets()
     const { players, setPlayers } = useContext(PlayerListContext)
+    const [categoryFilter, setCategoryFilter] = useState<Set<Category>>(new Set())
+    const { data: categories, isLoading, error } = useQuery(CategoryManager.getFetchAllQuery())
+    if (error) console.warn(error)
 
     const sortedPlayers = useMemo(() => [...players].sort((a, b) => a.localeCompare(b)), [players])
+    const sortedCategories = useMemo(() => categories?.sort((a, b) => a.id.localeCompare(b.id)), [categories])
 
     const onPressPlayer = (player: string) => {
         setPlayers(new Set([...players].filter((p) => p !== player)))
     }
 
+    const onPressCategory = (category: Category) => {
+        if (categoryFilter.has(category)) categoryFilter.delete(category)
+        else categoryFilter.add(category)
+        setCategoryFilter(new Set(categoryFilter))
+    }
+
     return (
         <BottomSheetScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ rowGap: 8 }}>
-            {/* <View style={{ height: insets.top ?? 16 }} /> */}
             <AddPlayerField />
             {players.size > 0 && (
-                <TagList tags={sortedPlayers} onPress={onPressPlayer} style={{ marginHorizontal: 16 }} />
+                <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginHorizontal: 16 }}>
+                    {sortedPlayers.map((tag) => (
+                        <Tag key={tag} text={tag} onPress={() => onPressPlayer(tag)} />
+                    ))}
+                </View>
             )}
 
             <Header titleKey="packs" descriptionKey="no_pack_selected_description" />
+            <ScrollView
+                horizontal
+                contentContainerStyle={{ gap: 8 }}
+                style={{ flexDirection: 'row', overflow: 'visible', marginHorizontal: 16, marginTop: 8 }}
+            >
+                {sortedCategories?.map((category) => (
+                    <CategoryTag
+                        key={category.id}
+                        category={category}
+                        isSelected={!categoryFilter.has(category)}
+                        onPress={onPressCategory}
+                    />
+                ))}
+            </ScrollView>
             <PackSection />
             <View style={{ height: insets.bottom ?? 16 }} />
         </BottomSheetScrollView>
+    )
+}
+
+function CategoryTag(
+    props: Readonly<{ category: Category; isSelected: boolean; onPress: (category: Category) => void }>
+) {
+    const { category, isSelected, onPress } = props
+    const colorScheme = useColorScheme()
+
+    const titleKey = CategoryManager.getTitleLocaleKey(category)
+    const { data: categoryText, error } = useQuery(LocalizationManager.getFetchQuery(titleKey))
+    if (error) console.warn(error)
+
+    if (!categoryText) return null
+    return (
+        <Tag
+            text={category.icon + ' ' + categoryText.value}
+            style={{
+                opacity: isSelected ? 1 : 0.25,
+                backgroundColor: category.gradient?.[0] ?? Colors[colorScheme].accentColor,
+            }}
+            onPress={() => onPress(category)}
+        />
     )
 }
 
