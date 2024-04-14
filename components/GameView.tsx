@@ -16,7 +16,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
     const colorScheme = useColorScheme()
     const { bottomSheetRef } = props
     const flatListRef = React.useRef<FlatList>(null)
-    const { playlist, players } = useAppContext()
+    const { playlist, players, categoryFilter } = useAppContext()
     const [playedCards, setPlayedCards] = useState(Array<PlayedCard>())
 
     const onPressCard = useCallback(
@@ -33,7 +33,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
 
     const addCard = () => {
         if (playlist.size === 0) return
-        const newCard = CardManager.getNextCard(playedCards, playlist, players)
+        const newCard = CardManager.getNextCard(playedCards, playlist, players, categoryFilter)
         if (newCard === null) return
         setPlayedCards([...playedCards, newCard])
     }
