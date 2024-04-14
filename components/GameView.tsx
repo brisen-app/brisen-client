@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from 'react'
-import { Dimensions, FlatList, Pressable, PressableProps } from 'react-native'
+import { Button, Dimensions, FlatList, Pressable, PressableProps } from 'react-native'
 import CardScreen from '@/components/card/CardScreen'
 import Colors from '@/constants/Colors'
 import useColorScheme from './utils/useColorScheme'
@@ -57,6 +57,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
             maxToRenderPerBatch={1}
             data={playedCards}
             // onEndReachedThreshold={0}
+            ListFooterComponent={<OutOfCardsView onPress={onPressNoCard} />}
             onEndReached={addCard}
             ListEmptyComponent={<NoCardsView onPress={onPressNoCard} />}
             renderItem={({ item, index }) =>
@@ -88,6 +89,10 @@ function NoCardsView(props: Readonly<PressableProps>) {
 }
 
 function OutOfCardsView(props: Readonly<PressableProps>) {
+    const colorScheme = useColorScheme()
+    const { playedCards } = useAppContext()
+    const setContext = useAppDispatchContext()
+
     return (
         <Pressable
             style={{
@@ -107,6 +112,12 @@ function OutOfCardsView(props: Readonly<PressableProps>) {
             >
                 {LocalizationManager.get('out_of_cards')?.value}
             </Text>
+            <Button
+                title={LocalizationManager.get('restart_game')?.value ?? '-'}
+                color={Colors[colorScheme].accentColor}
+                disabled={playedCards.length === 0}
+                onPress={() => setContext({ type: 'restartGame' })}
+            />
         </Pressable>
     )
 }

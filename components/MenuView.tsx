@@ -5,7 +5,7 @@ import { formatName as prettifyString } from '@/lib/utils'
 import { LocalizationManager } from '@/lib/LocalizationManager'
 import { PackManager } from '@/lib/PackManager'
 import { useAppContext, useAppDispatchContext } from './utils/AppContextProvider'
-import { Button, ScrollView, StyleSheet, View, ViewProps } from 'react-native'
+import { ScrollView, StyleSheet, View, ViewProps } from 'react-native'
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -20,10 +20,9 @@ import { router } from 'expo-router'
 import { Text } from './utils/Themed'
 
 export default function MenuView() {
-    const colorScheme = useColorScheme()
     const insets = useSafeAreaInsets()
 
-    const { players, categoryFilter, playedCards } = useAppContext()
+    const { players, categoryFilter } = useAppContext()
     const setContext = useAppDispatchContext()
 
     const sortedPlayers = useMemo(() => [...players].sort((a, b) => a.localeCompare(b)), [players])
@@ -68,13 +67,6 @@ export default function MenuView() {
                 ))}
             </ScrollView>
             <PackSection />
-
-            <Button
-                title={LocalizationManager.get('restart_game')?.value ?? '-'}
-                color={Colors[colorScheme].accentColor}
-                disabled={playedCards.length === 0}
-                onPress={() => setContext({ type: 'restartGame' })}
-            />
 
             <View style={{ height: insets.bottom ?? 16 }} />
         </BottomSheetScrollView>
