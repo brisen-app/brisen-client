@@ -16,6 +16,7 @@ export default function CategoryView() {
     return (
         <View>
             <Text>{title}</Text>
+            <Text>{description}</Text>
         </View>
     )
 }
