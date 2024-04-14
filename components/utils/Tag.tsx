@@ -31,7 +31,7 @@ export default function Tag(props: Readonly<TagListProps>) {
                 style,
             ]}
         >
-            {hideIcon ? <MaterialIcons name="close" size={16} color={Colors[colorScheme].secondaryText} /> : null}
+            {!hideIcon ? <MaterialIcons name="close" size={16} color={Colors[colorScheme].secondaryText} /> : null}
             <Text style={[FontStyles.AccentuatedBody, { color: Colors[colorScheme].text }]}>{text}</Text>
         </TouchableOpacity>
     )

@@ -9,9 +9,8 @@ import {
     ActivityIndicator,
 } from 'react-native'
 import { Image, ImageProps } from 'expo-image'
-import { PlaylistContext } from '../utils/AppContext'
 import { Text } from '../utils/Themed'
-import { useCallback, useContext } from 'react'
+import { useCallback } from 'react'
 import Colors from '@/constants/Colors'
 import useColorScheme from '../utils/useColorScheme'
 import { PackManager } from '@/lib/PackManager'
@@ -21,6 +20,7 @@ import { PackViewProps } from '@/app/pack/[packID]'
 import { Link } from 'expo-router'
 import { MaterialIcons, Octicons } from '@expo/vector-icons'
 import Placeholder from '../utils/Placeholder'
+import { useAppContext, useAppDispatchContext } from '../utils/AppContextProvider'
 
 export type PackListViewProps = {
     hideImage?: boolean
@@ -31,12 +31,12 @@ const height: DimensionValue = 80
 export default function PackListView(props: Readonly<PackListViewProps & PackViewProps & TouchableOpacityProps>) {
     const { pack, hideImage } = props
     const colorScheme = useColorScheme()
-    const { playlist, setPlaylist } = useContext(PlaylistContext)
-    const isSelected = playlist.some((p) => p.id === pack.id)
+    const { playlist } = useAppContext()
+    const setContext = useAppDispatchContext()
+    const isSelected = playlist.has(pack)
 
-    function onAddToQueue() {
-        if (isSelected) setPlaylist(playlist.filter((p) => p.id !== pack.id))
-        else setPlaylist([...playlist, pack])
+    function handleQueue() {
+        isSelected ? setContext({ type: 'removePack', payload: pack }) : setContext({ type: 'addPack', payload: pack })
     }
 
     const { data: image, isLoading, error } = useQuery(PackManager.getImageQuery(pack.image, !hideImage))
@@ -53,7 +53,7 @@ export default function PackListView(props: Readonly<PackListViewProps & PackVie
                 borderRadius: 16,
             }}
             {...props}
-            onPress={onAddToQueue}
+            onPress={handleQueue}
         >
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                 {!hideImage && (
@@ -64,7 +64,6 @@ export default function PackListView(props: Readonly<PackListViewProps & PackVie
                             borderRadius: 16,
                             borderColor: Colors[colorScheme].stroke,
                             borderWidth: StyleSheet.hairlineWidth,
-                            opacity: isSelected ? 1 : 0.5,
                         }}
                     />
                 )}

@@ -17,7 +17,7 @@ import { PackManager } from '@/lib/PackManager'
 import { useQuery } from '@tanstack/react-query'
 import { PackViewProps } from '@/app/pack/[packID]'
 import PackListView, { PackListViewPlaceholder } from './PackListView'
-import { PlaylistContext } from '../utils/AppContext'
+import { PlaylistContext } from '../utils/AppContextProvider'
 
 const borderRadius = 16
 const height: DimensionValue = 256 - 32

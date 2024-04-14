@@ -23,8 +23,8 @@ export abstract class CardManager {
      * @param players - A set of players.
      * @returns The next card to be played, or null if no valid card is available.
      */
-    static getNextCard(playedCards: PlayedCard[], playlist: Pack[], players: Set<string>): PlayedCard | null {
-        const cards = playlist.map((p) => p.cards).flat()
+    static getNextCard(playedCards: PlayedCard[], playlist: Set<Pack>, players: Set<string>): PlayedCard | null {
+        const cards = [...playlist].map((p) => p.cards).flat()
         const playedIDs = playedCards.map((c) => c.id)
         const candidates = cards.filter(
             (c) => !playedIDs.includes(c.id) && players.size >= this.getRequiredPlayerCount(c)
@@ -39,7 +39,7 @@ export abstract class CardManager {
             ...card,
             formattedContent: this.insertPlayers(card.content, shuffledPlayers),
             minPlayers: this.getRequiredPlayerCount(card),
-            pack: playlist.find((p) => p.cards.includes(card))!,
+            pack: [...playlist].find((p) => p.cards.includes(card))!,
             players: shuffledPlayers,
         }
     }

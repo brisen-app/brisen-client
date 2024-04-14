@@ -1,12 +1,12 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Dimensions, FlatList, Pressable, PressableProps } from 'react-native'
 import CardScreen from '@/components/card/CardScreen'
-import { PlayerListContext, PlaylistContext } from './utils/AppContext'
 import Colors from '@/constants/Colors'
 import useColorScheme from './utils/useColorScheme'
 import { LocalizedText } from './utils/LocalizedText'
 import BottomSheet from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet'
 import { CardManager, PlayedCard } from '@/lib/CardManager'
+import { useAppContext } from './utils/AppContextProvider'
 
 export type GameViewProps = {
     bottomSheetRef?: React.RefObject<BottomSheet>
@@ -16,8 +16,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
     const colorScheme = useColorScheme()
     const { bottomSheetRef } = props
     const flatListRef = React.useRef<FlatList>(null)
-    const { playlist } = useContext(PlaylistContext)
-    const { players } = useContext(PlayerListContext)
+    const { playlist, players } = useAppContext()
     const [playedCards, setPlayedCards] = useState(Array<PlayedCard>())
 
     const onPressCard = useCallback(
@@ -33,7 +32,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
     }, [])
 
     const addCard = () => {
-        if (playlist.length === 0) return
+        if (playlist.size === 0) return
         const newCard = CardManager.getNextCard(playedCards, playlist, players)
         if (newCard === null) return
         setPlayedCards([...playedCards, newCard])

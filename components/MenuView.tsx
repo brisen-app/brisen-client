@@ -5,9 +5,9 @@ import { formatName as prettifyString } from '@/lib/utils'
 import { LocalizationManager } from '@/lib/LocalizationManager'
 import { LocalizedText } from './utils/LocalizedText'
 import { PackManager } from '@/lib/PackManager'
-import { PlayerListContext } from './utils/AppContext'
+import { useAppContext, useAppDispatchContext } from './utils/AppContextProvider'
 import { ScrollView, StyleSheet, View, ViewProps } from 'react-native'
-import { useContext, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Color from '@/types/Color'
@@ -20,21 +20,26 @@ import { Category, CategoryManager } from '@/lib/CategoryManager'
 
 export default function MenuView() {
     const insets = useSafeAreaInsets()
-    const { players, setPlayers } = useContext(PlayerListContext)
+
+    const { players } = useAppContext()
+    const setContext = useAppDispatchContext()
+
     const [categoryFilter, setCategoryFilter] = useState<Set<Category>>(new Set())
-    const { data: categories, isLoading, error } = useQuery(CategoryManager.getFetchAllQuery())
-    if (error) console.warn(error)
+
+    const categories = CategoryManager.items
 
     const sortedPlayers = useMemo(() => [...players].sort((a, b) => a.localeCompare(b)), [players])
-    const sortedCategories = useMemo(() => categories?.sort((a, b) => a.id.localeCompare(b.id)), [categories])
+    const sortedCategories = useMemo(
+        () => [...categories]?.sort((a, b) => getCategoryTitle(a).localeCompare(getCategoryTitle(b))),
+        [categories]
+    )
 
-    const onPressPlayer = (player: string) => {
-        setPlayers(new Set([...players].filter((p) => p !== player)))
+    function getCategoryTitle(category: Category) {
+        return LocalizationManager.get(CategoryManager.getTitleLocaleKey(category))?.value ?? category.id
     }
 
     const onPressCategory = (category: Category) => {
-        if (categoryFilter.has(category)) categoryFilter.delete(category)
-        else categoryFilter.add(category)
+        if (!categoryFilter.delete(category)) categoryFilter.add(category)
         setCategoryFilter(new Set(categoryFilter))
     }
 
@@ -44,7 +49,7 @@ export default function MenuView() {
             {players.size > 0 && (
                 <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginHorizontal: 16 }}>
                     {sortedPlayers.map((tag) => (
-                        <Tag key={tag} text={tag} onPress={() => onPressPlayer(tag)} />
+                        <Tag key={tag} text={tag} onPress={() => setContext({ type: 'removePlayer', payload: tag })} />
                     ))}
                 </View>
             )}
@@ -52,6 +57,7 @@ export default function MenuView() {
             <Header titleKey="packs" descriptionKey="no_pack_selected_description" />
             <ScrollView
                 horizontal
+                showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{ gap: 8 }}
                 style={{ flexDirection: 'row', overflow: 'visible', marginHorizontal: 16, marginTop: 8 }}
             >
@@ -77,17 +83,16 @@ function CategoryTag(
     const colorScheme = useColorScheme()
 
     const titleKey = CategoryManager.getTitleLocaleKey(category)
-    const { data: categoryText, error } = useQuery(LocalizationManager.getFetchQuery(titleKey))
-    if (error) console.warn(error)
+    const title = LocalizationManager.get(titleKey)?.value
 
-    if (!categoryText) return null
     return (
         <Tag
-            text={category.icon + ' ' + categoryText.value}
+            text={category.icon + (title ? ` ${title}` : '')}
             style={{
                 opacity: isSelected ? 1 : 0.25,
                 backgroundColor: category.gradient?.[0] ?? Colors[colorScheme].accentColor,
             }}
+            hideIcon
             onPress={() => onPress(category)}
         />
     )
@@ -150,17 +155,15 @@ function PackSection(props: Readonly<ViewProps>) {
 function AddPlayerField() {
     const colorScheme = useColorScheme()
     const [text, setText] = useState<string>('')
-    const { players, setPlayers } = useContext(PlayerListContext)
-
-    const { data: placeholderText, error } = useQuery(LocalizationManager.getFetchQuery('add_players'))
-    if (error) console.warn(error)
+    const { players } = useAppContext()
+    const setContext = useAppDispatchContext()
 
     const handleAddPlayer = () => {
         if (text.trim().length === 0) return
 
         const formattedText = prettifyString(text)
         if (players.has(formattedText)) console.warn('Player already exists') // TODO: Show error message to user
-        else setPlayers(new Set([...players, formattedText]))
+        else setContext({ type: 'addPlayer', payload: formattedText })
         setText('')
     }
 
@@ -182,7 +185,7 @@ function AddPlayerField() {
             <BottomSheetTextInput
                 value={text}
                 onChangeText={setText}
-                placeholder={placeholderText?.value ?? ''}
+                placeholder={LocalizationManager.get('add_players')?.value ?? ''}
                 keyboardAppearance={colorScheme}
                 returnKeyType="done"
                 enablesReturnKeyAutomatically

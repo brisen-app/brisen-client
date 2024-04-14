@@ -23,7 +23,7 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
         right: insets.right ? insets.right : padding,
     }
 
-    const category = CategoryManager.get(card?.category)
+    const category = card.category ? CategoryManager.get(card.category) : null
 
     return (
         <Pressable
