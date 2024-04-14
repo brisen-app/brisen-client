@@ -2,65 +2,42 @@ import React, { createContext, ReactNode, useState, useMemo, useEffect } from 'r
 import { Pack } from '@/lib/PackManager'
 import { Language, LanguageManager } from '@/lib/LanguageManager'
 import { useQuery } from '@tanstack/react-query'
+import { Category, CategoryManager } from '@/lib/CategoryManager'
+import { Localization } from '@/lib/LocalizationManager'
 
-// Define types for the context values
-// type LanguageContextType = {
-//     language: Language;
-//     setLanguage: (language: Language) => void;
-// };
-
-type PlaylistContextType = {
-    playlist: Pack[]
-    setPlaylist: (playlist: Pack[]) => void
-}
-
-type PlayerListContextType = {
+type AppContext = {
+    playlist: Set<Pack>
     players: Set<string>
-    setPlayers: (players: Set<string>) => void
+
+    categories: Set<Category>
+    locations: Set<Localization>
 }
 
-// Default values for the contexts
-// const defaultLanguage: LanguageContextType = {
-//     language: LanguageManager.defaultLanguage,
-//     setLanguage: () => {},
-// };
-
-const defaultPlaylist: PlaylistContextType = {
-    playlist: [],
-    setPlaylist: () => {},
+type AppContextType = {
+    appContext: AppContext
+    setAppContext: (context: AppContext) => void
 }
 
-const defaultPlayerList: PlayerListContextType = {
-    players: new Set<string>(),
-    setPlayers: () => {},
+const defaultAppContext: AppContextType = {
+    appContext: {
+        playlist: new Set(),
+        players: new Set(),
+        categories: new Set(),
+        locations: new Set(),
+    },
+    setAppContext: () => {},
 }
 
-// Create contexts with default values
-// export const LanguageContext = createContext<LanguageContextType>(defaultLanguage);
-export const PlaylistContext = createContext<PlaylistContextType>(defaultPlaylist)
-export const PlayerListContext = createContext<PlayerListContextType>(defaultPlayerList)
+export const AppContext = createContext<AppContextType>(defaultAppContext)
 
-// AppContextProvider component
 export const AppContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     // const { data: supportedLanguages } = useQuery(LanguageManager.getFetchAllQuery());
+    const { data: categories, isLoading, error } = useQuery(CategoryManager.getFetchAllQuery())
 
-    const [playlist, setPlaylist] = useState<Pack[]>(defaultPlaylist.playlist)
-    const [players, setPlayers] = useState<Set<string>>(defaultPlayerList.players)
+    const [appContext, setAppContext] = useState<AppContext>(defaultAppContext.appContext)
     // const [language, setLanguage] = useState<Language>();
 
-    const playlistValue = useMemo(() => ({ playlist, setPlaylist }), [playlist])
-    const playerListValue = useMemo(() => ({ players, setPlayers }), [players])
-    // const languageValue = useMemo(() => ({ language, setLanguage }), [language]);
+    const appContextValue = useMemo(() => ({ appContext, setAppContext }), [appContext])
 
-    useEffect(() => {
-        // LanguageManager.setLanguage(LanguageManager.findDeviceLanguage(supportedLanguages as Language[]))
-    }, [])
-
-    return (
-        // <LanguageContext.Provider value={languageValue}>
-        <PlayerListContext.Provider value={playerListValue}>
-            <PlaylistContext.Provider value={playlistValue}>{children}</PlaylistContext.Provider>
-        </PlayerListContext.Provider>
-        // </LanguageContext.Provider>
-    )
+    return <AppContext.Provider value={appContextValue}>{children}</AppContext.Provider>
 }

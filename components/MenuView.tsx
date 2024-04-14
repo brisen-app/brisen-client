@@ -1,4 +1,4 @@
-import { AntDesign, MaterialIcons } from '@expo/vector-icons'
+import { AntDesign } from '@expo/vector-icons'
 import { BottomSheetScrollView, BottomSheetTextInput } from '@gorhom/bottom-sheet'
 import { FontStyles } from '@/constants/Styles'
 import { formatName as prettifyString } from '@/lib/utils'
