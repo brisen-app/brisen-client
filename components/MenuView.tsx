@@ -70,7 +70,7 @@ export default function MenuView() {
             <PackSection />
 
             <Button
-                title="Restart spill"
+                title={LocalizationManager.get('restart_game')?.value ?? '-'}
                 color={Colors[colorScheme].accentColor}
                 disabled={playedCards.length === 0}
                 onPress={() => setContext({ type: 'restartGame' })}
