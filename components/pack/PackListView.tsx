@@ -35,10 +35,6 @@ export default function PackListView(props: Readonly<PackListViewProps & PackVie
     const setContext = useAppDispatchContext()
     const isSelected = playlist.has(pack)
 
-    function handleQueue() {
-        isSelected ? setContext({ type: 'removePack', payload: pack }) : setContext({ type: 'addPack', payload: pack })
-    }
-
     const { data: image, isLoading, error } = useQuery(PackManager.getImageQuery(pack.image, !hideImage))
     if (error) console.warn(error)
 
@@ -53,7 +49,7 @@ export default function PackListView(props: Readonly<PackListViewProps & PackVie
                 borderRadius: 16,
             }}
             {...props}
-            onPress={handleQueue}
+            onPress={() => setContext({ type: 'togglePack', payload: pack })}
         >
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                 {!hideImage && (

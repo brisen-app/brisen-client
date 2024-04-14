@@ -9,7 +9,7 @@ type AppContextType = {
 }
 
 type AppContextAction = {
-    type: 'addPack' | 'removePack' | 'addPlayer' | 'removePlayer' | 'toggleCategory'
+    type: 'togglePack' | 'addPlayer' | 'removePlayer' | 'toggleCategory'
     payload: any
 }
 
@@ -17,10 +17,10 @@ function contextReducer(state: AppContextType, action: AppContextAction): AppCon
     const { type, payload } = action
 
     switch (type) {
-        case 'addPack':
+        case 'togglePack':
+            if (state.playlist.has(payload))
+                return { ...state, playlist: new Set([...state.playlist].filter((p) => p !== payload)) }
             return { ...state, playlist: new Set([...state.playlist, payload]) }
-        case 'removePack':
-            return { ...state, playlist: new Set([...state.playlist].filter((p) => p !== payload)) }
         case 'addPlayer':
             return { ...state, players: new Set([...state.players, payload]) }
         case 'removePlayer':
@@ -29,6 +29,8 @@ function contextReducer(state: AppContextType, action: AppContextAction): AppCon
             if (state.categoryFilter.has(payload))
                 return { ...state, categoryFilter: new Set([...state.categoryFilter].filter((c) => c !== payload)) }
             return { ...state, categoryFilter: new Set([...state.categoryFilter, payload]) }
+        default:
+            throw new Error(`Unhandled action type: ${type}`)
     }
 }
 
