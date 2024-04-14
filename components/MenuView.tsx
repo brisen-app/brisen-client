@@ -3,7 +3,6 @@ import { BottomSheetScrollView, BottomSheetTextInput } from '@gorhom/bottom-shee
 import { FontStyles } from '@/constants/Styles'
 import { formatName as prettifyString } from '@/lib/utils'
 import { LocalizationManager } from '@/lib/LocalizationManager'
-import { LocalizedText } from './utils/LocalizedText'
 import { PackManager } from '@/lib/PackManager'
 import { useAppContext, useAppDispatchContext } from './utils/AppContextProvider'
 import { Button, ScrollView, StyleSheet, View, ViewProps } from 'react-native'
@@ -18,6 +17,7 @@ import useColorScheme from './utils/useColorScheme'
 import Tag from './utils/Tag'
 import { Category, CategoryManager } from '@/lib/CategoryManager'
 import { router } from 'expo-router'
+import { Text } from './utils/Themed'
 
 export default function MenuView() {
     const colorScheme = useColorScheme()
@@ -109,13 +109,13 @@ function Header(props: Readonly<{ titleKey: string; descriptionKey?: string }>) 
 
     return (
         <View style={{ marginHorizontal: 16, paddingTop: 16 }}>
-            <LocalizedText id={titleKey} style={FontStyles.Header} placeHolderStyle={{ height: 28, width: 128 }} />
+            <Text id={titleKey} style={FontStyles.Header}>
+                {LocalizationManager.get(titleKey)?.value}
+            </Text>
             {descriptionKey && (
-                <LocalizedText
-                    id={descriptionKey}
-                    style={FontStyles.Subheading}
-                    placeHolderStyle={{ height: 28, width: 128 }}
-                />
+                <Text id={descriptionKey} style={FontStyles.Subheading}>
+                    {LocalizationManager.get(descriptionKey)?.value}
+                </Text>
             )}
         </View>
     )
@@ -168,7 +168,7 @@ function AddPlayerField() {
         if (text.trim().length === 0) return
 
         const formattedText = prettifyString(text)
-        if (players.has(formattedText)) console.warn('Player already exists') // TODO: Show error message to user
+        if (players.has(formattedText)) console.warn('Player already exists') // TODO: [BUG] Show error message to user
         else setContext({ type: 'addPlayer', payload: formattedText })
         setText('')
     }

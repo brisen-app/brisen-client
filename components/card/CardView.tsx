@@ -2,7 +2,6 @@ import { Category, CategoryManager } from '@/lib/CategoryManager'
 import { FontStyles, Styles } from '@/constants/Styles'
 import { Image } from 'expo-image'
 import { LinearGradient } from 'expo-linear-gradient'
-import { LocalizedText } from '../utils/LocalizedText'
 import { PackManager } from '@/lib/PackManager'
 import { PlayedCard } from '@/lib/CardManager'
 import { Text } from '../utils/Themed'
@@ -14,6 +13,7 @@ import Colors from '@/constants/Colors'
 import Sizes from '@/constants/Sizes'
 import useColorScheme from '../utils/useColorScheme'
 import { Link } from 'expo-router'
+import { LocalizationManager } from '@/lib/LocalizationManager'
 
 export type CardViewProps = {
     card: PlayedCard
@@ -76,11 +76,9 @@ export function CardView(props: Readonly<CardViewProps>) {
                                 gap: 8,
                             }}
                         >
-                            <LocalizedText
-                                id={CategoryManager.getTitleLocaleKey(category)}
-                                style={FontStyles.Title}
-                                placeHolderStyle={{ width: 128, height: 24 }}
-                            />
+                            <Text style={FontStyles.Title}>
+                                {LocalizationManager.get(CategoryManager.getTitleLocaleKey(category))?.value ?? ''}
+                            </Text>
                             <Text style={{ fontSize: 48 }}>{category?.icon}</Text>
                         </TouchableOpacity>
                     </Link>

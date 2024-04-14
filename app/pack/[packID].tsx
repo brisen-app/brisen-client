@@ -10,7 +10,7 @@ import Colors from '@/constants/Colors'
 import { FontStyles, Styles } from '@/constants/Styles'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { MaterialIcons } from '@expo/vector-icons'
-import { LocalizedText } from '@/components/utils/LocalizedText'
+import { LocalizationManager } from '@/lib/LocalizationManager'
 
 export type PackViewProps = {
     pack: Pack
@@ -76,10 +76,9 @@ export default function PackView() {
                                 }}
                             >
                                 <MaterialIcons name="chevron-left" size={24} color={Colors[colorScheme].accentColor} />
-                                <LocalizedText
-                                    id="back"
-                                    style={{ paddingRight: 10, color: Colors[colorScheme].accentColor }}
-                                />
+                                <Text style={{ paddingRight: 10, color: Colors[colorScheme].accentColor }}>
+                                    {LocalizationManager.get('back')?.value}
+                                </Text>
                             </View>
                         </TouchableOpacity>
                     </Link>

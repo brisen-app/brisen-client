@@ -9,7 +9,7 @@ import {
     StyleSheet,
 } from 'react-native'
 import { Image, ImageProps } from 'expo-image'
-import { useCallback, useContext } from 'react'
+import { useCallback } from 'react'
 import Colors from '@/constants/Colors'
 import Sizes from '@/constants/Sizes'
 import useColorScheme from '../utils/useColorScheme'
@@ -17,7 +17,7 @@ import { PackManager } from '@/lib/PackManager'
 import { useQuery } from '@tanstack/react-query'
 import { PackViewProps } from '@/app/pack/[packID]'
 import PackListView, { PackListViewPlaceholder } from './PackListView'
-import { PlaylistContext } from '../utils/AppContextProvider'
+import { useAppContext, useAppDispatchContext } from '../utils/AppContextProvider'
 
 const borderRadius = 16
 const height: DimensionValue = 256 - 32
@@ -25,13 +25,9 @@ const height: DimensionValue = 256 - 32
 export default function PackFeaturedView(props: Readonly<PackViewProps & TouchableOpacityProps>) {
     const { pack } = props
     const colorScheme = useColorScheme()
-    const { playlist, setPlaylist } = useContext(PlaylistContext)
-    const isSelected = playlist.some((p) => p.id === pack.id)
-
-    function onAddToQueue() {
-        if (isSelected) setPlaylist(playlist.filter((p) => p.id !== pack.id))
-        else setPlaylist([...playlist, pack])
-    }
+    const { playlist } = useAppContext()
+    const setContext = useAppDispatchContext()
+    const isSelected = playlist.has(pack)
 
     const { data: image, isLoading, error } = useQuery(PackManager.getImageQuery(pack.image))
     if (error) console.warn(error)
@@ -41,7 +37,7 @@ export default function PackFeaturedView(props: Readonly<PackViewProps & Touchab
     if (isLoading) return <PackFeaturedViewPlaceholder {...props} />
 
     return (
-        <TouchableOpacity onPress={onAddToQueue} {...props}>
+        <TouchableOpacity onPress={() => setContext({ type: 'togglePack', payload: pack })} {...props}>
             <PackImage
                 style={{
                     height: height,

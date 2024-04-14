@@ -3,17 +3,17 @@ import { Dimensions, FlatList, Pressable, PressableProps } from 'react-native'
 import CardScreen from '@/components/card/CardScreen'
 import Colors from '@/constants/Colors'
 import useColorScheme from './utils/useColorScheme'
-import { LocalizedText } from './utils/LocalizedText'
 import BottomSheet from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet'
 import { CardManager } from '@/lib/CardManager'
 import { useAppContext, useAppDispatchContext } from './utils/AppContextProvider'
+import { Text } from './utils/Themed'
+import { LocalizationManager } from '@/lib/LocalizationManager'
 
 export type GameViewProps = {
     bottomSheetRef?: React.RefObject<BottomSheet>
 }
 
 export default function GameView(props: Readonly<GameViewProps>) {
-    const colorScheme = useColorScheme()
     const { bottomSheetRef } = props
     const flatListRef = React.useRef<FlatList>(null)
     const { playlist, players, playedCards, categoryFilter } = useAppContext()
@@ -46,23 +46,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
         console.debug('Rendering GameView')
     }, [])
 
-    if (playedCards.length === 0)
-        return (
-            <Pressable
-                onPress={onPressNoCard}
-                style={{
-                    flex: 1,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}
-            >
-                <LocalizedText
-                    id={'select_pack'}
-                    style={{ color: Colors[colorScheme].secondaryText }}
-                    placeHolderStyle={{ width: 128 }}
-                />
-            </Pressable>
-        )
+    if (playedCards.length === 0) return <NoCardsView />
 
     return (
         <FlatList
@@ -96,11 +80,9 @@ function NoCardsView(props: Readonly<PressableProps>) {
                 alignItems: 'center',
             }}
         >
-            <LocalizedText
-                id={'select_pack'}
-                style={{ color: Colors[useColorScheme()].secondaryText }}
-                placeHolderStyle={{ width: 128 }}
-            />
+            <Text style={{ color: Colors[useColorScheme()].secondaryText }}>
+                {LocalizationManager.get('select_pack')?.value}
+            </Text>
         </Pressable>
     )
 }
@@ -117,13 +99,14 @@ function OutOfCardsView(props: Readonly<PressableProps>) {
             }}
             {...props}
         >
-            <LocalizedText
-                id="out_of_cards"
+            <Text
                 style={{
                     textAlign: 'center',
                     color: Colors[useColorScheme()].secondaryText,
                 }}
-            />
+            >
+                {LocalizationManager.get('out_of_cards')?.value}
+            </Text>
         </Pressable>
     )
 }
