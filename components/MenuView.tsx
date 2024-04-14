@@ -21,17 +21,13 @@ import { Category, CategoryManager } from '@/lib/CategoryManager'
 export default function MenuView() {
     const insets = useSafeAreaInsets()
 
-    const { players } = useAppContext()
+    const { players, categoryFilter } = useAppContext()
     const setContext = useAppDispatchContext()
-
-    const [categoryFilter, setCategoryFilter] = useState<Set<Category>>(new Set())
-
-    const categories = CategoryManager.items
 
     const sortedPlayers = useMemo(() => [...players].sort((a, b) => a.localeCompare(b)), [players])
     const sortedCategories = useMemo(
-        () => [...categories]?.sort((a, b) => getCategoryTitle(a).localeCompare(getCategoryTitle(b))),
-        [categories]
+        () => [...CategoryManager.items]?.sort((a, b) => getCategoryTitle(a).localeCompare(getCategoryTitle(b))),
+        [CategoryManager.items]
     )
 
     function getCategoryTitle(category: Category) {
@@ -39,8 +35,7 @@ export default function MenuView() {
     }
 
     const onPressCategory = (category: Category) => {
-        if (!categoryFilter.delete(category)) categoryFilter.add(category)
-        setCategoryFilter(new Set(categoryFilter))
+        setContext({ type: 'toggleCategory', payload: category })
     }
 
     return (
