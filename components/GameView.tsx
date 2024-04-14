@@ -1,12 +1,12 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { Dimensions, FlatList, Pressable, PressableProps } from 'react-native'
 import CardScreen from '@/components/card/CardScreen'
 import Colors from '@/constants/Colors'
 import useColorScheme from './utils/useColorScheme'
 import { LocalizedText } from './utils/LocalizedText'
 import BottomSheet from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet'
-import { CardManager, PlayedCard } from '@/lib/CardManager'
-import { useAppContext } from './utils/AppContextProvider'
+import { CardManager } from '@/lib/CardManager'
+import { useAppContext, useAppDispatchContext } from './utils/AppContextProvider'
 
 export type GameViewProps = {
     bottomSheetRef?: React.RefObject<BottomSheet>
@@ -16,15 +16,15 @@ export default function GameView(props: Readonly<GameViewProps>) {
     const colorScheme = useColorScheme()
     const { bottomSheetRef } = props
     const flatListRef = React.useRef<FlatList>(null)
-    const { playlist, players, categoryFilter } = useAppContext()
-    const [playedCards, setPlayedCards] = useState(Array<PlayedCard>())
+    const { playlist, players, playedCards, categoryFilter } = useAppContext()
+    const setContext = useAppDispatchContext()
 
     const onPressCard = useCallback(
         (index: number) => {
             if (playedCards.length <= index + 1) return
             flatListRef.current?.scrollToIndex({ index: index + 1, animated: true })
         },
-        [playedCards.length]
+        [playedCards]
     )
 
     const onPressNoCard = useCallback(() => {
@@ -35,7 +35,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
         if (playlist.size === 0) return
         const newCard = CardManager.getNextCard(playedCards, playlist, players, categoryFilter)
         if (newCard === null) return
-        setPlayedCards([...playedCards, newCard])
+        setContext({ type: 'addPlayedCard', payload: newCard })
     }
 
     useEffect(() => {

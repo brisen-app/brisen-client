@@ -1,16 +1,18 @@
 import React, { createContext, Dispatch, ReactNode, useContext, useReducer } from 'react'
 import { Pack } from '@/lib/PackManager'
 import { Category } from '@/lib/CategoryManager'
+import { PlayedCard } from '@/lib/CardManager'
 
 type AppContextType = {
+    playedCards: PlayedCard[]
     playlist: Set<Pack>
     players: Set<string>
     categoryFilter: Set<Category>
 }
 
 type AppContextAction = {
-    type: 'togglePack' | 'addPlayer' | 'removePlayer' | 'toggleCategory'
-    payload: any
+    type: 'togglePack' | 'addPlayer' | 'removePlayer' | 'toggleCategory' | 'addPlayedCard' | 'restartGame'
+    payload?: any
 }
 
 function contextReducer(state: AppContextType, action: AppContextAction): AppContextType {
@@ -29,6 +31,10 @@ function contextReducer(state: AppContextType, action: AppContextAction): AppCon
             if (state.categoryFilter.has(payload))
                 return { ...state, categoryFilter: new Set([...state.categoryFilter].filter((c) => c !== payload)) }
             return { ...state, categoryFilter: new Set([...state.categoryFilter, payload]) }
+        case 'addPlayedCard':
+            return { ...state, playedCards: [...state.playedCards, payload] }
+        case 'restartGame':
+            return { ...state, playlist: new Set(), playedCards: [] }
         default:
             throw new Error(`Unhandled action type: ${type}`)
     }
@@ -51,6 +57,7 @@ export function useAppDispatchContext() {
 
 export function AppContextProvider(props: Readonly<{ children: ReactNode }>) {
     const [context, setContext] = useReducer(contextReducer, {
+        playedCards: [],
         playlist: new Set(),
         players: new Set(),
         categoryFilter: new Set(),

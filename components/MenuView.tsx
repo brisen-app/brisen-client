@@ -6,7 +6,7 @@ import { LocalizationManager } from '@/lib/LocalizationManager'
 import { LocalizedText } from './utils/LocalizedText'
 import { PackManager } from '@/lib/PackManager'
 import { useAppContext, useAppDispatchContext } from './utils/AppContextProvider'
-import { ScrollView, StyleSheet, View, ViewProps } from 'react-native'
+import { Button, ScrollView, StyleSheet, View, ViewProps } from 'react-native'
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -17,11 +17,13 @@ import PackListView from './pack/PackListView'
 import useColorScheme from './utils/useColorScheme'
 import Tag from './utils/Tag'
 import { Category, CategoryManager } from '@/lib/CategoryManager'
+import { router } from 'expo-router'
 
 export default function MenuView() {
+    const colorScheme = useColorScheme()
     const insets = useSafeAreaInsets()
 
-    const { players, categoryFilter } = useAppContext()
+    const { players, categoryFilter, playedCards } = useAppContext()
     const setContext = useAppDispatchContext()
 
     const sortedPlayers = useMemo(() => [...players].sort((a, b) => a.localeCompare(b)), [players])
@@ -66,6 +68,14 @@ export default function MenuView() {
                 ))}
             </ScrollView>
             <PackSection />
+
+            <Button
+                title="Restart spill"
+                color={Colors[colorScheme].accentColor}
+                disabled={playedCards.length === 0}
+                onPress={() => setContext({ type: 'restartGame' })}
+            />
+
             <View style={{ height: insets.bottom ?? 16 }} />
         </BottomSheetScrollView>
     )
@@ -89,6 +99,7 @@ function CategoryTag(
             }}
             hideIcon
             onPress={() => onPress(category)}
+            onLongPress={() => router.navigate(`/category/${category.id}`)}
         />
     )
 }
