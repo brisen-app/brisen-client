@@ -33,7 +33,7 @@ jobs:
               run: npm run testCI
 
             - name: 🔍 SonarQube Scan
-              uses: sonarsource/sonarqube-scan-action@master
+              uses: sonarsource/sonarqube-scan-action@v2
 
             - name: 📋 SonarQube Quality Gate check
               uses: sonarsource/sonarqube-quality-gate-action@master
