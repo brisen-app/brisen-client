@@ -273,6 +273,52 @@ describe('getNextCard', () => {
         expect(result.minPlayers).toBe(1)
     })
 
+    it('should not return cards with categories that are in the filter', () => {
+        const playlist: Pack[] = [
+            {
+                cards: [{ id: '4', content: 'Content of card 4 {player-0} {player-1}', category: 'cat1' }],
+            },
+            {
+                cards: [
+                    { id: '3', content: 'Content of card 3 {player-0}', category: 'cat2' },
+                    { id: '5', content: 'Content of card 5 {player-0} {player-1} {player-2}', category: 'cat3' },
+                ],
+            },
+        ]
+
+        const categoryFilter: Set<Category> = new Set([{ id: 'cat1' }, { id: 'cat2' }])
+
+        let result = CardManager.getNextCard([], playlist, new Set(mockPlayers), categoryFilter)
+        expect(result.id).toBe('5')
+        result = CardManager.getNextCard([], playlist, new Set(mockPlayers), categoryFilter)
+        expect(result.id).toBe('5')
+        result = CardManager.getNextCard([], playlist, new Set(mockPlayers), categoryFilter)
+        expect(result.id).toBe('5')
+    })
+
+    it('should not return cards with no category', () => {
+        const playlist: Pack[] = [
+            {
+                cards: [{ id: '4', content: 'Content of card 4 {player-0} {player-1}', category: 'cat1' }],
+            },
+            {
+                cards: [
+                    { id: '3', content: 'Content of card 3 {player-0}', category: 'cat2' },
+                    { id: '5', content: 'Content of card 5 {player-0} {player-1} {player-2}' },
+                ],
+            },
+        ]
+
+        const categoryFilter: Set<Category> = new Set([{ id: 'cat1' }, { id: 'cat2' }])
+
+        let result = CardManager.getNextCard([], playlist, new Set(mockPlayers), categoryFilter)
+        expect(result.id).toBe('5')
+        result = CardManager.getNextCard([], playlist, new Set(mockPlayers), categoryFilter)
+        expect(result.id).toBe('5')
+        result = CardManager.getNextCard([], playlist, new Set(mockPlayers), categoryFilter)
+        expect(result.id).toBe('5')
+    })
+
     it('should return null if not enough players for card', () => {
         const playlist: Pack[] = [
             {
