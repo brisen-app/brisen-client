@@ -21,7 +21,8 @@ export abstract class CardManager {
      *
      * @param playedCards - An array of previously played cards.
      * @param playlist - An array of packs containing cards.
-     * @param players - A set of players.
+     * @param players - A set of strings representing player names.
+     * @param categoryFilter - A set of categories to exclude from the card selection.
      * @returns The next card to be played, or null if no valid card is available.
      */
     static getNextCard(

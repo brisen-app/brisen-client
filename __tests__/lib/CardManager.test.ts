@@ -1,6 +1,7 @@
 // @ts-nocheck
 
 import { CardManager, Card, PlayedCard } from '@/lib/CardManager'
+import { Category } from '@/lib/CategoryManager'
 import { Pack } from '@/lib/PackManager'
 import { supabase } from '@/lib/supabase'
 import * as utils from '@/lib/utils'
@@ -238,7 +239,7 @@ describe('getNextCard', () => {
         const spyOnShuffled = jest.spyOn(utils, 'shuffled').mockReturnValueOnce(mockPlayers)
         const matchAllSpy = jest.spyOn(String.prototype, 'matchAll')
 
-        const result = CardManager.getNextCard(mockedItems, playlist, players)
+        const result = CardManager.getNextCard(mockedItems, playlist, players, new Set())
         expect(matchAllSpy).toHaveBeenCalledTimes(2)
 
         expect(spyOnShuffled).toHaveBeenCalledTimes(1)
@@ -267,7 +268,7 @@ describe('getNextCard', () => {
             },
         ]
 
-        const result = CardManager.getNextCard(playedCards, playlist, new Set([mockPlayers[0]]))
+        const result = CardManager.getNextCard(playedCards, playlist, new Set([mockPlayers[0]]), new Set())
         expect(result.id).toBe('3')
         expect(result.minPlayers).toBe(1)
     })
@@ -279,12 +280,12 @@ describe('getNextCard', () => {
             },
         ]
 
-        const result = CardManager.getNextCard(mockedItems, playlist, [])
+        const result = CardManager.getNextCard(mockedItems, playlist, new Set(), new Set())
         expect(result).toBeNull()
     })
 
     it('should ignore duplicate cards', () => {
-        const result = CardManager.getNextCard([], [{ cards: [mockedItems[0], mockedItems[0]] }], new Set())
+        const result = CardManager.getNextCard([], [{ cards: [mockedItems[0], mockedItems[0]] }], new Set(), new Set())
         expect(result.id).toBe('1')
     })
 })

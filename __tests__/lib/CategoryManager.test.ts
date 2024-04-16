@@ -4,7 +4,6 @@ import { Category, CategoryManager } from '@/lib/CategoryManager'
 import { supabase } from '@/lib/supabase'
 import { NotFoundError } from '@/types/Errors'
 
-
 const mockedItems: Category[] = [
     {
         id: '1',
@@ -53,9 +52,9 @@ describe('getFetchAllQuery', () => {
 })
 
 describe('get', () => {
-    it('should return null if id is falsy', () => {
-        const result = CategoryManager.get(null)
-        expect(result).toBeNull()
+    it('should return throw if id is invalid or not found', () => {
+        expect(() => CategoryManager.get(null)).toThrow(NotFoundError)
+        expect(() => CategoryManager.get('random')).toThrow(NotFoundError)
     })
 
     it('should throw NotFoundError if categories have not been fetched yet', () => {
@@ -85,10 +84,8 @@ describe('set', () => {
     it('should set categories correctly', () => {
         const categories: Category[] = [{ id: '1' }, { id: '2' }] as Category[]
         CategoryManager.set(categories)
-        expect(CategoryManager['categories']).toEqual({
-            '1': categories[0],
-            '2': categories[1],
-        })
+        expect(CategoryManager['cache']).toContain(categories[0])
+        expect(CategoryManager['cache']).toContain(categories[1])
     })
 })
 
