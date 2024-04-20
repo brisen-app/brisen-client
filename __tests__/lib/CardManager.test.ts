@@ -1,6 +1,7 @@
 // @ts-nocheck
 
 import { CardManager, Card, PlayedCard } from '@/lib/CardManager'
+import { Category } from '@/lib/CategoryManager'
 import { Pack } from '@/lib/PackManager'
 import { supabase } from '@/lib/supabase'
 import * as utils from '@/lib/utils'
@@ -238,7 +239,7 @@ describe('getNextCard', () => {
         const spyOnShuffled = jest.spyOn(utils, 'shuffled').mockReturnValueOnce(mockPlayers)
         const matchAllSpy = jest.spyOn(String.prototype, 'matchAll')
 
-        const result = CardManager.getNextCard(mockedItems, playlist, players)
+        const result = CardManager.getNextCard(mockedItems, playlist, players, new Set())
         expect(matchAllSpy).toHaveBeenCalledTimes(2)
 
         expect(spyOnShuffled).toHaveBeenCalledTimes(1)
@@ -267,9 +268,55 @@ describe('getNextCard', () => {
             },
         ]
 
-        const result = CardManager.getNextCard(playedCards, playlist, new Set([mockPlayers[0]]))
+        const result = CardManager.getNextCard(playedCards, playlist, new Set([mockPlayers[0]]), new Set())
         expect(result.id).toBe('3')
         expect(result.minPlayers).toBe(1)
+    })
+
+    it('should not return cards with categories that are in the filter', () => {
+        const playlist: Pack[] = [
+            {
+                cards: [{ id: '4', content: 'Content of card 4 {player-0} {player-1}', category: 'cat1' }],
+            },
+            {
+                cards: [
+                    { id: '3', content: 'Content of card 3 {player-0}', category: 'cat2' },
+                    { id: '5', content: 'Content of card 5 {player-0} {player-1} {player-2}', category: 'cat3' },
+                ],
+            },
+        ]
+
+        const categoryFilter: Set<Category> = new Set([{ id: 'cat1' }, { id: 'cat2' }])
+
+        let result = CardManager.getNextCard([], playlist, new Set(mockPlayers), categoryFilter)
+        expect(result.id).toBe('5')
+        result = CardManager.getNextCard([], playlist, new Set(mockPlayers), categoryFilter)
+        expect(result.id).toBe('5')
+        result = CardManager.getNextCard([], playlist, new Set(mockPlayers), categoryFilter)
+        expect(result.id).toBe('5')
+    })
+
+    it('should not return cards with no category', () => {
+        const playlist: Pack[] = [
+            {
+                cards: [{ id: '4', content: 'Content of card 4 {player-0} {player-1}', category: 'cat1' }],
+            },
+            {
+                cards: [
+                    { id: '3', content: 'Content of card 3 {player-0}', category: 'cat2' },
+                    { id: '5', content: 'Content of card 5 {player-0} {player-1} {player-2}' },
+                ],
+            },
+        ]
+
+        const categoryFilter: Set<Category> = new Set([{ id: 'cat1' }, { id: 'cat2' }])
+
+        let result = CardManager.getNextCard([], playlist, new Set(mockPlayers), categoryFilter)
+        expect(result.id).toBe('5')
+        result = CardManager.getNextCard([], playlist, new Set(mockPlayers), categoryFilter)
+        expect(result.id).toBe('5')
+        result = CardManager.getNextCard([], playlist, new Set(mockPlayers), categoryFilter)
+        expect(result.id).toBe('5')
     })
 
     it('should return null if not enough players for card', () => {
@@ -279,12 +326,12 @@ describe('getNextCard', () => {
             },
         ]
 
-        const result = CardManager.getNextCard(mockedItems, playlist, [])
+        const result = CardManager.getNextCard(mockedItems, playlist, new Set(), new Set())
         expect(result).toBeNull()
     })
 
     it('should ignore duplicate cards', () => {
-        const result = CardManager.getNextCard([], [{ cards: [mockedItems[0], mockedItems[0]] }], new Set())
+        const result = CardManager.getNextCard([], [{ cards: [mockedItems[0], mockedItems[0]] }], new Set(), new Set())
         expect(result.id).toBe('1')
     })
 })

@@ -2,7 +2,6 @@ import { Category, CategoryManager } from '@/lib/CategoryManager'
 import { FontStyles, Styles } from '@/constants/Styles'
 import { Image } from 'expo-image'
 import { LinearGradient } from 'expo-linear-gradient'
-import { LocalizedText } from '../utils/LocalizedText'
 import { PackManager } from '@/lib/PackManager'
 import { PlayedCard } from '@/lib/CardManager'
 import { Text } from '../utils/Themed'
@@ -13,6 +12,8 @@ import Color from '@/types/Color'
 import Colors from '@/constants/Colors'
 import Sizes from '@/constants/Sizes'
 import useColorScheme from '../utils/useColorScheme'
+import { Link } from 'expo-router'
+import { LocalizationManager } from '@/lib/LocalizationManager'
 
 export type CardViewProps = {
     card: PlayedCard
@@ -24,7 +25,8 @@ export function CardView(props: Readonly<CardViewProps>) {
     const { card, category } = props
 
     const padding = 24
-    const showTarget = !card.is_group && card.players.length > 0
+    const target = card.is_group || card.players.length === 0 ? null : card.players[0]
+    const content = card.formattedContent ?? card.content
     const { data: image, error } = useQuery(PackManager.getImageQuery(card.pack.image))
 
     if (error) console.warn(error)
@@ -32,7 +34,14 @@ export function CardView(props: Readonly<CardViewProps>) {
     return (
         <>
             <LinearGradient
-                colors={category?.gradient ?? [Color.hex('#370A00').string, Colors[colorScheme].accentColor]}
+                colors={
+                    category?.gradient ?? [
+                        Color.hex('#370A00').string,
+                        Color.hex('#a14316').string,
+                        Colors[colorScheme].accentColor,
+                        'white',
+                    ]
+                }
                 start={{ x: 0, y: 1 }}
                 end={{ x: 1, y: 0 }}
                 style={Styles.absoluteFill}
@@ -43,16 +52,70 @@ export function CardView(props: Readonly<CardViewProps>) {
                 source={require('@/assets/images/noise.png')}
                 style={{
                     ...Styles.absoluteFill,
-                    opacity: 0.05,
+                    opacity: 0.1,
                 }}
             />
 
+            {/* Pack & Category */}
+            <View
+                style={{
+                    position: 'absolute',
+                    width: '100%',
+                    height: '100%',
+                    padding: padding,
+                    ...Styles.shadow,
+                }}
+            >
+                {category && (
+                    <Link href={`/category/${card.category}`} asChild>
+                        <TouchableOpacity
+                            style={{
+                                flexDirection: 'row',
+                                justifyContent: 'flex-end',
+                                alignItems: 'center',
+                                gap: 8,
+                            }}
+                        >
+                            <Text style={FontStyles.Title}>
+                                {LocalizationManager.get(CategoryManager.getTitleLocaleKey(category))?.value ?? ''}
+                            </Text>
+                            <Text style={{ fontSize: 48 }}>{category?.icon}</Text>
+                        </TouchableOpacity>
+                    </Link>
+                )}
+
+                <View style={{ flex: 1 }} />
+
+                <Link href={`/pack/${card.pack.id}`} asChild>
+                    <TouchableOpacity
+                        style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            gap: 8,
+                        }}
+                    >
+                        <Image
+                            source={image ?? Assets[colorScheme].pack_placeholder}
+                            style={{
+                                height: 48,
+                                aspectRatio: 1,
+                                backgroundColor: Color.black.alpha(0.5).string,
+                                borderColor: Colors[colorScheme].stroke,
+                                borderWidth: Sizes.thin,
+                                borderRadius: 12,
+                            }}
+                        />
+                        <Text style={FontStyles.Title}>{card.pack.name}</Text>
+                    </TouchableOpacity>
+                </Link>
+            </View>
+
             {/* Content */}
             <>
-                {showTarget && (
+                {target && (
                     <Text
                         style={{
-                            fontSize: 28,
+                            fontSize: 32,
                             fontWeight: '900',
                             ...Styles.shadow,
                             textAlign: 'center',
@@ -63,85 +126,16 @@ export function CardView(props: Readonly<CardViewProps>) {
                 )}
                 <Text
                     style={{
-                        fontSize: 28,
+                        fontSize: Math.max(18, 28 / Math.max(1, content.length / 150)),
                         fontWeight: '900',
                         ...Styles.shadow,
                         textAlign: 'center',
                         paddingHorizontal: 32,
                     }}
                 >
-                    {card.formattedContent ?? card.content}
+                    {content}
                 </Text>
             </>
-
-            {/* Overlay */}
-            <View
-                style={{
-                    position: 'absolute',
-                    justifyContent: 'space-between',
-                    width: '100%',
-                    height: '100%',
-                    padding: padding,
-                    ...Styles.shadow,
-                }}
-            >
-                {category ? (
-                    <TouchableOpacity
-                        onPress={() => {
-                            console.log('Category tapped')
-                        }}
-                        style={{
-                            flexDirection: 'row',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            gap: 4,
-                        }}
-                    >
-                        <Text style={FontStyles.LargeTitle}>{category?.icon}</Text>
-                        <LocalizedText
-                            id={CategoryManager.getTitleLocaleKey(category)}
-                            style={FontStyles.Title}
-                            placeHolderStyle={{ width: 128, height: 24 }}
-                        />
-                    </TouchableOpacity>
-                ) : (
-                    <View />
-                )}
-
-                <View
-                    style={{
-                        flexDirection: 'row',
-                        alignItems: 'flex-end',
-                        justifyContent: 'space-between',
-                    }}
-                >
-                    <TouchableOpacity
-                        onPress={() => {
-                            // TODO: [BUG] Implement missing navigation to pack screen
-                            console.log('Pack tapped')
-                        }}
-                        style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                        }}
-                    >
-                        <Image
-                            source={image ?? Assets[colorScheme].pack_placeholder}
-                            cachePolicy={'none'}
-                            style={{
-                                height: 40,
-                                aspectRatio: 1,
-                                backgroundColor: Color.black.alpha(0.5).string,
-                                borderColor: Colors[colorScheme].stroke,
-                                borderWidth: Sizes.thin,
-                                borderRadius: 12,
-                                marginRight: 8,
-                            }}
-                        />
-                        <Text style={FontStyles.Title}>{card.pack.name}</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
         </>
     )
 }

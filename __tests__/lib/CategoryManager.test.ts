@@ -4,7 +4,6 @@ import { Category, CategoryManager } from '@/lib/CategoryManager'
 import { supabase } from '@/lib/supabase'
 import { NotFoundError } from '@/types/Errors'
 
-
 const mockedItems: Category[] = [
     {
         id: '1',
@@ -52,10 +51,28 @@ describe('getFetchAllQuery', () => {
     })
 })
 
+describe('items', () => {
+    beforeEach(() => {
+        CategoryManager['cache'] = null
+    })
+
+    it('should return the correct items', () => {
+        CategoryManager.set(mockedItems)
+        expect(CategoryManager.items).toEqual(new Set(mockedItems))
+    })
+
+    it('should throw NotFoundError if categories have not been fetched yet', () => {
+        expect(() => CategoryManager.items).toThrow(NotFoundError)
+    })
+})
+
 describe('get', () => {
-    it('should return null if id is falsy', () => {
-        const result = CategoryManager.get(null)
-        expect(result).toBeNull()
+    beforeEach(() => {
+        CategoryManager['cache'] = null
+    })
+
+    it('should throw if id is invalid', () => {
+        expect(() => CategoryManager.get(null)).toThrow(NotFoundError)
     })
 
     it('should throw NotFoundError if categories have not been fetched yet', () => {
@@ -82,17 +99,23 @@ describe('get', () => {
 })
 
 describe('set', () => {
+    beforeEach(() => {
+        CategoryManager['cache'] = null
+    })
+
     it('should set categories correctly', () => {
         const categories: Category[] = [{ id: '1' }, { id: '2' }] as Category[]
         CategoryManager.set(categories)
-        expect(CategoryManager['categories']).toEqual({
-            '1': categories[0],
-            '2': categories[1],
-        })
+        expect(CategoryManager['cache']).toContain(categories[0])
+        expect(CategoryManager['cache']).toContain(categories[1])
     })
 })
 
 describe('fetchAll', () => {
+    beforeEach(() => {
+        CategoryManager['cache'] = null
+    })
+    
     it('should fetch all categories successfully', async () => {
         const categories = await CategoryManager['fetchAll']()
         expect(categories).toEqual(mockedItems)

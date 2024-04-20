@@ -3,12 +3,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { createClient } from '@supabase/supabase-js'
 import { Database } from '@/types/supabase'
 
-let supabaseUrl = process.env.EXPO_PUBLIC_SB_URL
-let supabaseAnon = process.env.EXPO_PUBLIC_SB_ANON
-
-if (!supabaseUrl || !supabaseAnon) {
-    throw new Error('Missing Supabase URL or Anon Key')
-}
+let supabaseUrl = process.env.EXPO_PUBLIC_SB_URL!
+let supabaseAnon = process.env.EXPO_PUBLIC_SB_ANON!
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnon, {
     auth: {

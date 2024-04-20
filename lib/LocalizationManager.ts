@@ -6,6 +6,27 @@ export type Localization = Awaited<ReturnType<typeof LocalizationManager.fetch>>
 
 export abstract class LocalizationManager {
     static readonly tableName = 'localizations'
+    private static cache: Set<Localization> | null = null
+
+    static get items() {
+        if (!this.cache) throw new NotFoundError(`${this.tableName} have not been fetched yet`)
+        return this.cache
+    }
+
+    static get(id: string): Localization | null {
+        for (const item of this.items) {
+            if (item.id === id) return item
+        }
+        return null
+    }
+
+    static set(items: Iterable<Localization>) {
+        if (this.cache) console.warn(`${this.tableName} have already been set`)
+        this.cache = new Set()
+        for (const item of items) {
+            this.cache.add(item)
+        }
+    }
 
     static getFetchQuery(id: string) {
         return {
@@ -44,6 +65,7 @@ export abstract class LocalizationManager {
             .eq('language', LanguageManager.getLanguage().id)
             .throwOnError()
         if (!data || data.length === 0) throw new NotFoundError(`No data found in table '${this.tableName}'`)
+        this.set(data)
         return data
     }
 }

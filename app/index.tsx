@@ -2,9 +2,7 @@ import GameView from '@/components/GameView'
 import MenuView from '@/components/MenuView'
 import useColorScheme from '@/components/utils/useColorScheme'
 import Colors from '@/constants/Colors'
-import { CategoryManager } from '@/lib/CategoryManager'
 import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet'
-import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo, useRef } from 'react'
 import { StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -14,9 +12,6 @@ export default function App() {
     const insets = useSafeAreaInsets()
     const bottomSheetRef = useRef<BottomSheet>(null)
     const snapPoints = useMemo(() => [insets.bottom + 64], [bottomSheetRef, insets])
-
-    const { data: categories } = useQuery(CategoryManager.getFetchAllQuery())
-    if (categories) CategoryManager.set(categories)
 
     const backdrop = useCallback(
         (props: any) => (
@@ -40,8 +35,8 @@ export default function App() {
                 snapPoints={snapPoints}
                 enableDynamicSizing
                 backdropComponent={backdrop}
-                keyboardBehavior='extend'
-                keyboardBlurBehavior='restore'
+                keyboardBehavior="extend"
+                keyboardBlurBehavior="restore"
                 backgroundStyle={{
                     borderRadius: 16,
                     borderColor: Colors[colorScheme].stroke,
@@ -62,8 +57,7 @@ export default function App() {
 const styles = StyleSheet.create({
     shadow: {
         shadowColor: 'black',
-        shadowOpacity: 0.1,
+        shadowOpacity: 0.5,
         shadowRadius: 32,
-        elevation: 24,
     },
 })

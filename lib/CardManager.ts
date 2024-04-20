@@ -2,6 +2,7 @@ import { InsufficientCountError, NotFoundError } from '@/types/Errors'
 import { supabase } from './supabase'
 import { getRandom, shuffled } from './utils'
 import { Pack } from './PackManager'
+import { Category } from './CategoryManager'
 
 export type Card = Awaited<ReturnType<typeof CardManager.fetch>>
 export type PlayedCard = {
@@ -20,14 +21,24 @@ export abstract class CardManager {
      *
      * @param playedCards - An array of previously played cards.
      * @param playlist - An array of packs containing cards.
-     * @param players - A set of players.
+     * @param players - A set of strings representing player names.
+     * @param categoryFilter - A set of categories to exclude from the card selection.
      * @returns The next card to be played, or null if no valid card is available.
      */
-    static getNextCard(playedCards: PlayedCard[], playlist: Pack[], players: Set<string>): PlayedCard | null {
-        const cards = playlist.map((p) => p.cards).flat()
+    static getNextCard(
+        playedCards: PlayedCard[],
+        playlist: Set<Pack>,
+        players: Set<string>,
+        categoryFilter: Set<Category>
+    ): PlayedCard | null {
+        const cards = [...playlist].map((p) => p.cards).flat()
         const playedIDs = playedCards.map((c) => c.id)
+        const categoryFilterIDs = [...categoryFilter].map((c) => c.id)
         const candidates = cards.filter(
-            (c) => !playedIDs.includes(c.id) && players.size >= this.getRequiredPlayerCount(c)
+            (c) =>
+                !playedIDs.includes(c.id) &&
+                players.size >= this.getRequiredPlayerCount(c) &&
+                !categoryFilterIDs.includes(c.category ?? '')
         )
 
         if (candidates.length === 0) return null
@@ -39,7 +50,7 @@ export abstract class CardManager {
             ...card,
             formattedContent: this.insertPlayers(card.content, shuffledPlayers),
             minPlayers: this.getRequiredPlayerCount(card),
-            pack: playlist.find((p) => p.cards.includes(card))!,
+            pack: [...playlist].find((p) => p.cards.includes(card))!,
             players: shuffledPlayers,
         }
     }
