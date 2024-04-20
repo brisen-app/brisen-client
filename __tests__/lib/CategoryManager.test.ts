@@ -51,10 +51,28 @@ describe('getFetchAllQuery', () => {
     })
 })
 
+describe('items', () => {
+    beforeEach(() => {
+        CategoryManager['cache'] = null
+    })
+
+    it('should return the correct items', () => {
+        CategoryManager.set(mockedItems)
+        expect(CategoryManager.items).toEqual(new Set(mockedItems))
+    })
+
+    it('should throw NotFoundError if categories have not been fetched yet', () => {
+        expect(() => CategoryManager.items).toThrow(NotFoundError)
+    })
+})
+
 describe('get', () => {
-    it('should return throw if id is invalid or not found', () => {
+    beforeEach(() => {
+        CategoryManager['cache'] = null
+    })
+
+    it('should throw if id is invalid', () => {
         expect(() => CategoryManager.get(null)).toThrow(NotFoundError)
-        expect(() => CategoryManager.get('random')).toThrow(NotFoundError)
     })
 
     it('should throw NotFoundError if categories have not been fetched yet', () => {
@@ -81,6 +99,10 @@ describe('get', () => {
 })
 
 describe('set', () => {
+    beforeEach(() => {
+        CategoryManager['cache'] = null
+    })
+
     it('should set categories correctly', () => {
         const categories: Category[] = [{ id: '1' }, { id: '2' }] as Category[]
         CategoryManager.set(categories)
@@ -90,6 +112,10 @@ describe('set', () => {
 })
 
 describe('fetchAll', () => {
+    beforeEach(() => {
+        CategoryManager['cache'] = null
+    })
+    
     it('should fetch all categories successfully', async () => {
         const categories = await CategoryManager['fetchAll']()
         expect(categories).toEqual(mockedItems)

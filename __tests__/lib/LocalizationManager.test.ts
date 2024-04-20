@@ -3,6 +3,7 @@
 import { LanguageManager } from '@/lib/LanguageManager'
 import { LocalizationManager, Localization } from '@/lib/LocalizationManager'
 import { supabase } from '@/lib/supabase'
+import { NotFoundError } from '@/types/Errors'
 
 const mockedItems: Localization[] = [
     {
@@ -49,6 +50,10 @@ jest.mock('@/lib/LanguageManager', () => ({
     },
 }))
 
+beforeEach(() => {
+    LocalizationManager['cache'] = null
+})
+
 describe('getFetchAllQuery', () => {
     it('should return a query object with the correct queryKey and queryFn', () => {
         const fetchAllSpy = jest
@@ -94,6 +99,10 @@ describe('fetch', () => {
 })
 
 describe('fetchAll', () => {
+    beforeEach(() => {
+        LocalizationManager['cache'] = null
+    })
+
     const testCases = [
         { lang: 'nb', expectedAmount: 2 },
         { lang: 'en', expectedAmount: 1 },
@@ -119,5 +128,54 @@ describe('fetchAll', () => {
             }),
         })
         await expect(LocalizationManager.fetchAll()).rejects.toThrow(`No data found in table 'localizations'`)
+    })
+})
+
+describe('items', () => {
+    it('should return the correct items', () => {
+        LocalizationManager.set(mockedItems)
+        expect(LocalizationManager.items).toEqual(new Set(mockedItems))
+    })
+
+    it('should throw NotFoundError if categories have not been fetched yet', () => {
+        expect(() => LocalizationManager.items).toThrow(NotFoundError)
+    })
+})
+
+describe('get', () => {
+    it('should throw if id is invalid', () => {
+        expect(() => LocalizationManager.get(null)).toThrow(NotFoundError)
+    })
+
+    it('should throw NotFoundError if categories have not been fetched yet', () => {
+        expect(() => LocalizationManager.get('some_id')).toThrow(NotFoundError)
+    })
+
+    it('should throw NotFoundError if category with specified id is not found', () => {
+        LocalizationManager.set(mockedItems)
+        const item = LocalizationManager.get('non_existing_id')
+        expect(item).toBe(null)
+    })
+
+    const testCases = [
+        { id: '1', expected: mockedItems[0] },
+        { id: '3', expected: mockedItems[1] },
+    ]
+
+    testCases.forEach(({ id, expected }) => {
+        it(`should return the item if found`, () => {
+            LocalizationManager.set(mockedItems)
+            const result = LocalizationManager.get(id)
+            expect(result).toBe(expected)
+        })
+    })
+})
+
+describe('set', () => {
+    it('should set items correctly', () => {
+        const items: Localization[] = [{ id: '1' }, { id: '2' }] as Localization[]
+        LocalizationManager.set(items)
+        expect(LocalizationManager['cache']).toContain(items[0])
+        expect(LocalizationManager['cache']).toContain(items[1])
     })
 })

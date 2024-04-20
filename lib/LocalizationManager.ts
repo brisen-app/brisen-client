@@ -20,10 +20,10 @@ export abstract class LocalizationManager {
         return null
     }
 
-    static set(categories: Iterable<Localization>) {
+    static set(items: Iterable<Localization>) {
         if (this.cache) console.warn(`${this.tableName} have already been set`)
         this.cache = new Set()
-        for (const item of categories) {
+        for (const item of items) {
             this.cache.add(item)
         }
     }
