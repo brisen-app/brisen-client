@@ -6,6 +6,7 @@ import { ActivityIndicator, View } from 'react-native'
 import useColorScheme from './useColorScheme'
 import Colors from '@/constants/Colors'
 import { LanguageManager } from '@/lib/LanguageManager'
+import { PackManager } from '@/lib/PackManager'
 
 export default function AppDataProvider(props: Readonly<{ children: ReactNode }>) {
     const colorScheme = useColorScheme()
@@ -30,6 +31,14 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
     })
     if (errorCategories) console.warn(errorCategories)
 
+    const { error: errorPacks, isLoading: isLoadingPacks } = useQuery({
+        queryKey: [PackManager.tableName],
+        queryFn: async () => {
+            return await PackManager.fetchAll()
+        },
+    })
+    if (errorPacks) console.warn(errorPacks)
+
     const { error: errorLocalizations, isLoading: isLoadingLocalizatons } = useQuery({
         queryKey: [LocalizationManager.tableName],
         queryFn: async () => {
@@ -39,7 +48,7 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
     })
     if (errorLocalizations) console.warn(errorLocalizations)
 
-    if (isLoadingLanguages || isLoadingCategories || isLoadingLocalizatons)
+    if (isLoadingLanguages || isLoadingCategories || isLoadingPacks || isLoadingLocalizatons)
         return (
             <View
                 style={{

@@ -10,7 +10,6 @@ import { ScrollView, StyleSheet, View, ViewProps } from 'react-native'
 import { Text } from './utils/Themed'
 import { useAppContext, useAppDispatchContext } from './utils/AppContextProvider'
 import { useMemo, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Color from '@/types/Color'
 import Colors from '@/constants/Colors'
@@ -108,8 +107,7 @@ function Header(props: Readonly<{ titleKey: string; descriptionKey?: string }>) 
 function PackSection(props: Readonly<ViewProps>) {
     const colorScheme = useColorScheme()
 
-    const { data: packs, error } = useQuery(PackManager.getFetchAllQuery())
-    if (error) console.warn(error)
+    const packs = useMemo(() => PackManager.items, [PackManager.items])
 
     return (
         <View {...props}>

@@ -42,10 +42,6 @@ export default function GameView(props: Readonly<GameViewProps>) {
         addCard()
     }, [playlist, players])
 
-    useEffect(() => {
-        console.debug('Rendering GameView')
-    }, [])
-
     if (playedCards.length === 0) return <NoCardsView />
 
     return (
