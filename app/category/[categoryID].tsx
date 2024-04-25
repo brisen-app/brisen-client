@@ -8,8 +8,8 @@ export default function CategoryView() {
     const { categoryID } = useLocalSearchParams()
 
     const category = CategoryManager.get(categoryID as string)
-    const title = LocalizationManager.get(CategoryManager.getTitleLocaleKey(category))?.value
-    const description = LocalizationManager.get(CategoryManager.getDescLocaleKey(category))?.value
+    const title = LocalizationManager.get(CategoryManager.getTitle(category))?.value
+    const description = LocalizationManager.get(CategoryManager.getDescription(category))?.value
 
     return (
         <View>

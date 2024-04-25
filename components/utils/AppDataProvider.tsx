@@ -1,6 +1,6 @@
 import { CategoryManager } from '@/lib/CategoryManager'
 import { LocalizationManager } from '@/lib/LocalizationManager'
-import { useIsFetching, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { ReactNode } from 'react'
 import { ActivityIndicator, View } from 'react-native'
 import useColorScheme from './useColorScheme'
@@ -9,9 +9,12 @@ import { LanguageManager } from '@/lib/LanguageManager'
 
 export default function AppDataProvider(props: Readonly<{ children: ReactNode }>) {
     const colorScheme = useColorScheme()
-    const isFetching = useIsFetching()
 
-    const { error: errorLanguages, isFetched: isFetchedLanguages } = useQuery({
+    const {
+        error: errorLanguages,
+        isLoading: isLoadingLanguages,
+        isFetched: hasFetchedLanguages,
+    } = useQuery({
         queryKey: [LanguageManager.tableName],
         queryFn: async () => {
             return await LanguageManager.fetchAll()
@@ -19,7 +22,7 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
     })
     if (errorLanguages) console.warn(errorLanguages)
 
-    const { error: errorCategories } = useQuery({
+    const { error: errorCategories, isLoading: isLoadingCategories } = useQuery({
         queryKey: [CategoryManager.tableName],
         queryFn: async () => {
             return await CategoryManager.fetchAll()
@@ -27,16 +30,16 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
     })
     if (errorCategories) console.warn(errorCategories)
 
-    const { error: errorLocalizations } = useQuery({
+    const { error: errorLocalizations, isLoading: isLoadingLocalizatons } = useQuery({
         queryKey: [LocalizationManager.tableName],
         queryFn: async () => {
             return await LocalizationManager.fetchAll()
         },
-        enabled: isFetchedLanguages,
+        enabled: hasFetchedLanguages,
     })
     if (errorLocalizations) console.warn(errorLocalizations)
 
-    if (isFetching)
+    if (isLoadingLanguages || isLoadingCategories || isLoadingLocalizatons)
         return (
             <View
                 style={{

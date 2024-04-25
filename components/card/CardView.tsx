@@ -77,7 +77,7 @@ export function CardView(props: Readonly<CardViewProps>) {
                             }}
                         >
                             <Text style={FontStyles.Title}>
-                                {LocalizationManager.get(CategoryManager.getTitleLocaleKey(category))?.value ?? ''}
+                                {LocalizationManager.get(CategoryManager.getTitle(category))?.value ?? ''}
                             </Text>
                             <Text style={{ fontSize: 48 }}>{category?.icon}</Text>
                         </TouchableOpacity>

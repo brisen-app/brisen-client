@@ -17,7 +17,7 @@ class LocalizationManagerSingleton extends SupabaseManager<Localization> {
             .from(tableName)
             .select()
             .eq('id', id)
-            .eq('language', LanguageManager.getDisplayLanguage().id)
+            .eq('language', LanguageManager.getDisplayLanguage()!.id)
             .single()
             .throwOnError()
         if (!data) throw new NotFoundError(`No data found in table '${this.tableName}'`)
@@ -29,7 +29,7 @@ class LocalizationManagerSingleton extends SupabaseManager<Localization> {
         const { data } = await supabase
             .from(this.tableName)
             .select()
-            .eq('language', LanguageManager.getDisplayLanguage().id)
+            .eq('language', LanguageManager.getDisplayLanguage()!.id)
             .throwOnError()
         if (!data || data.length === 0) throw new NotFoundError(`No data found in table '${this.tableName}'`)
         this.set(data)

@@ -5,12 +5,6 @@ import SupabaseManager from './SupabaseManager'
 const tableName = 'languages'
 export type Language = Omit<Locale, 'languageCode'> & Tables<typeof tableName>
 
-export class LanguageNotSetError extends Error {
-    constructor() {
-        super('Language not set')
-    }
-}
-
 const defaultLanguage = {
     currencyCode: 'NOK',
     currencySymbol: 'kr',
@@ -37,12 +31,11 @@ class LanguageManagerSingleton extends SupabaseManager<Language> {
     }
 
     getDisplayLanguage() {
-        if (!this.displayLanguage) throw new LanguageNotSetError()
         return this.displayLanguage
     }
 
     protected set(items: Iterable<Language>) {
-        if (this._items) throw new Error(`${this.tableName} have already been set`)
+        if (this._items) console.warn(`${this.tableName} have already been set`)
 
         this._items = new Map()
         for (const locale of getLocales()) {

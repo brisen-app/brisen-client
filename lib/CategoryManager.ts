@@ -1,5 +1,6 @@
 import { Tables } from '@/types/supabase'
 import SupabaseManager from './SupabaseManager'
+import { LocalizationManager } from './LocalizationManager'
 
 const tableName = 'categories'
 export type Category = Tables<typeof tableName>
@@ -9,12 +10,19 @@ class CategoryManagerSingleton extends SupabaseManager<Category> {
         super(tableName)
     }
 
-    getTitleLocaleKey(category: Category) {
-        return `${tableName}_${category.id}_title`
+    get items() {
+        if (!this._items) return undefined
+        return [...this._items.values()]?.sort((a, b) =>
+            (this.getTitle(a) ?? a.id).localeCompare(this.getTitle(b) ?? b.id)
+        )
     }
 
-    getDescLocaleKey(category: Category) {
-        return `${tableName}_${category.id}_desc`
+    getTitle(category: Category) {
+        return LocalizationManager.get(`${tableName}_${category.id}_title`)?.value
+    }
+
+    getDescription(category: Category) {
+        return LocalizationManager.get(`${tableName}_${category.id}_desc`)?.value
     }
 }
 

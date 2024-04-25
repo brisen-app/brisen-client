@@ -16,9 +16,8 @@ export default abstract class SupabaseManager<T extends SupabaseItem> {
         this.tableName = tableName
     }
 
-    get items() {
-        if (!this._items) throw new NotFoundError(`${this.tableName} have not been fetched yet`)
-        return new Set(this._items.values())
+    get items(): Iterable<T> | undefined {
+        return this._items?.values()
     }
 
     get(id: string) {
@@ -26,7 +25,7 @@ export default abstract class SupabaseManager<T extends SupabaseItem> {
     }
 
     protected set(items: Iterable<T>) {
-        if (this._items) throw new Error(`${this.tableName} have already been set`)
+        if (this._items) console.warn(`${this.tableName} have already been set`)
         this._items = new Map()
         for (const item of items) {
             this._items.set(item.id, item)
@@ -40,7 +39,7 @@ export default abstract class SupabaseManager<T extends SupabaseItem> {
 
     /**
      * Fetches a record from the table based on the provided ID.
-     * 
+     *
      * @param id - The ID of the record to fetch.
      * @returns The fetched record.
      * @throws {NotFoundError} If no data is found in the table.
@@ -54,7 +53,7 @@ export default abstract class SupabaseManager<T extends SupabaseItem> {
 
     /**
      * Fetches all records from the table.
-     * 
+     *
      * @returns {Promise<T[]>} A promise that resolves to an array of records.
      * @throws {NotFoundError} If no data is found in the table.
      */
