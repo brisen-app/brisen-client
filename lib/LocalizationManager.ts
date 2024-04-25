@@ -1,64 +1,31 @@
 import { supabase } from './supabase'
 import { LanguageManager } from './LanguageManager'
 import { NotFoundError } from '@/types/Errors'
+import SupabaseManager from './SupabaseManager'
+import { Tables } from '@/types/supabase'
 
-export type Localization = Awaited<ReturnType<typeof LocalizationManager.fetch>>
+const tableName = 'localizations'
+export type Localization = Tables<typeof tableName>
 
-export abstract class LocalizationManager {
-    static readonly tableName = 'localizations'
-    private static cache: Set<Localization> | null = null
-
-    static get items() {
-        if (!this.cache) throw new NotFoundError(`${this.tableName} have not been fetched yet`)
-        return this.cache
+class LocalizationManagerSingleton extends SupabaseManager<Localization> {
+    constructor() {
+        super(tableName)
     }
 
-    static get(id: string): Localization | null {
-        for (const item of this.items) {
-            if (item.id === id) return item
-        }
-        return null
-    }
-
-    static set(items: Iterable<Localization>) {
-        if (this.cache) console.warn(`${this.tableName} have already been set`)
-        this.cache = new Set()
-        for (const item of items) {
-            this.cache.add(item)
-        }
-    }
-
-    static getFetchQuery(id: string) {
-        return {
-            queryKey: [this.tableName, id, LanguageManager.getLanguage().id],
-            queryFn: async () => {
-                return await this.fetch(id)
-            },
-        }
-    }
-
-    static getFetchAllQuery() {
-        return {
-            queryKey: [this.tableName, LanguageManager.getLanguage().id],
-            queryFn: async () => {
-                return await this.fetchAll()
-            },
-        }
-    }
-
-    static async fetch(id: string) {
+    async fetch(id: string) {
         const { data } = await supabase
-            .from(this.tableName)
+            .from(tableName)
             .select()
             .eq('id', id)
             .eq('language', LanguageManager.getLanguage().id)
             .single()
             .throwOnError()
         if (!data) throw new NotFoundError(`No data found in table '${this.tableName}'`)
+        this.push(data)
         return data
     }
 
-    static async fetchAll() {
+    async fetchAll() {
         const { data } = await supabase
             .from(this.tableName)
             .select()
@@ -69,3 +36,5 @@ export abstract class LocalizationManager {
         return data
     }
 }
+
+export const LocalizationManager = new LocalizationManagerSingleton()

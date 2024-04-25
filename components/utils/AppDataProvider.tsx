@@ -17,9 +17,13 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
     })
     if (errorCategories) console.warn(errorCategories)
 
-    const { isLoading: isLoadingLocalizations, error: errorLocalizations } = useQuery(
-        LocalizationManager.getFetchAllQuery()
-    )
+    const { isLoading: isLoadingLocalizations, error: errorLocalizations } = useQuery({
+        queryKey: [LocalizationManager.tableName],
+        queryFn: async () => {
+            return await LocalizationManager.fetchAll()
+        },
+        enabled: true
+    })
     if (errorLocalizations) console.warn(errorLocalizations)
 
     if (isLoadingCategories || isLoadingLocalizations)
