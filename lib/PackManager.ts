@@ -4,7 +4,7 @@ import { blobToBase64, emptyQuery } from './utils'
 import SupabaseManager from './SupabaseManager'
 
 const tableName = 'packs'
-const select = '*, cards(*)'
+const select = '*, cards(id)'
 export type Pack = Awaited<ReturnType<typeof fetch>>
 
 async function fetch(id: string) {

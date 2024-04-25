@@ -7,6 +7,7 @@ import useColorScheme from './useColorScheme'
 import Colors from '@/constants/Colors'
 import { LanguageManager } from '@/lib/LanguageManager'
 import { PackManager } from '@/lib/PackManager'
+import { CardManager } from '@/lib/CardManager'
 
 export default function AppDataProvider(props: Readonly<{ children: ReactNode }>) {
     const colorScheme = useColorScheme()
@@ -39,6 +40,14 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
     })
     if (errorPacks) console.warn(errorPacks)
 
+    const { error: errorCards, isLoading: isLoadingCards } = useQuery({
+        queryKey: [CardManager.tableName],
+        queryFn: async () => {
+            return await CardManager.fetchAll()
+        },
+    })
+    if (errorCards) console.warn(errorCards)
+
     const { error: errorLocalizations, isLoading: isLoadingLocalizatons } = useQuery({
         queryKey: [LocalizationManager.tableName],
         queryFn: async () => {
@@ -48,7 +57,7 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
     })
     if (errorLocalizations) console.warn(errorLocalizations)
 
-    if (isLoadingLanguages || isLoadingCategories || isLoadingPacks || isLoadingLocalizatons)
+    if (isLoadingLanguages || isLoadingCategories || isLoadingPacks || isLoadingCards || isLoadingLocalizatons)
         return (
             <View
                 style={{
