@@ -1,72 +1,67 @@
-import { Tables } from '@/types/supabase';
-import { supabase } from './supabase';
-import { NativeModules, Platform } from 'react-native';
-import { NotFoundError } from '@/types/Errors'
+import { getLocales, Locale } from 'expo-localization'
+import { Tables } from '@/types/supabase'
+import SupabaseManager from './SupabaseManager'
 
-
-export type Language = Tables<'languages'>;
+const tableName = 'languages'
+export type Language = Omit<Locale, 'languageCode'> & Tables<typeof tableName>
 
 export class LanguageNotSetError extends Error {
-    constructor() { super("Language not set. Use 'findDeviceLanguage' to set a language.") }
+    constructor() {
+        super('Language not set')
+    }
 }
 
-const defaultLanguage: Language = {
-    id: "nb",
-    icon: "🇳🇴",
-    name: "Norsk",
+const defaultLanguage = {
+    currencyCode: 'NOK',
+    currencySymbol: 'kr',
+    decimalSeparator: ',',
+    digitGroupingSeparator: ' ',
+    icon: '🇳🇴',
+    id: 'nb',
+    languageTag: 'nb-NO',
+    measurementSystem: 'metric' as const,
+    name: 'Norsk',
     public: true,
+    regionCode: 'NO',
+    temperatureUnit: 'celsius' as const,
+    textDirection: 'ltr' as const,
     created_at: new Date().toISOString(),
     modified_at: new Date().toISOString(),
 }
 
-export abstract class LanguageManager {
-    static readonly tableName = 'languages'
-    private static displayLanguage: Language = defaultLanguage
+class LanguageManagerSingleton extends SupabaseManager<Language> {
+    protected displayLanguage: Language | undefined
 
-    static setLanguage(language: Language) {
-        this.displayLanguage = language
+    constructor() {
+        super(tableName)
     }
 
-    static getLanguage() {
+    getDisplayLanguage() {
         if (!this.displayLanguage) throw new LanguageNotSetError()
         return this.displayLanguage
     }
 
-    static getFetchAllQuery() {
-        return {
-            queryKey: [this.tableName],
-            queryFn: async () => {
-                return await this.fetchAll()
-            },
+    protected set(items: Iterable<Language>) {
+        if (this._items) throw new Error(`${this.tableName} have already been set`)
+
+        this._items = new Map()
+        for (const locale of getLocales()) {
+            for (const item of items) {
+                if (locale.languageCode === item.id && item.public) {
+                    const language = {
+                        ...locale,
+                        ...item,
+                    }
+                    this._items.set(locale.languageCode, language)
+                    if (!this.displayLanguage) this.displayLanguage = language
+                }
+            }
+        }
+
+        if (!this.displayLanguage || this._items.size === 0) {
+            this.displayLanguage = defaultLanguage
         }
     }
-
-    static async fetchAll() {
-        const { data } = await supabase.from(this.tableName).select().eq('public', true).throwOnError()
-        if (!data) throw new NotFoundError(`No data found in table '${this.tableName}'`)
-        return data
-    }
-
-    // static findDeviceLanguage(languages: Language[]): Language {
-    //     // if (this.displayLanguage) return this.displayLanguage
-
-    //     const deviceLanguageCode = (Platform.OS === 'ios'
-    //         ? (NativeModules.SettingsManager?.settings?.AppleLocale as string | null)?.slice(0, 2).toLowerCase()
-    //         : (NativeModules.I18nManager?.localeIdentifier as string | null));
-
-    //     if (!deviceLanguageCode) {
-    //         console.debug(`Unable to determine device language. Defaulting to '${this.defaultLanguage.id}'.`);
-    //         return this.defaultLanguage
-    //     }
-
-    //     const language = languages.find(l => l.id === deviceLanguageCode)
-
-    //     if (!language) {
-    //         console.debug(`Device language '${deviceLanguageCode}' not supported. Defaulting to '${this.defaultLanguage.id}'.`);
-    //         return this.defaultLanguage
-    //     }
-
-    //     console.debug(`Device language is '${language.name}' (${language.id})`);
-    //     return language
-    // }
 }
+
+export const LanguageManager = new LanguageManagerSingleton()
