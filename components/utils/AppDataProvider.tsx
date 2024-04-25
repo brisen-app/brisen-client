@@ -9,7 +9,12 @@ import Colors from '@/constants/Colors'
 export default function AppDataProvider(props: Readonly<{ children: ReactNode }>) {
     const colorScheme = useColorScheme()
 
-    const { isLoading: isLoadingCategories, error: errorCategories } = useQuery(CategoryManager.getFetchAllQuery())
+    const { isLoading: isLoadingCategories, error: errorCategories } = useQuery({
+        queryKey: [CategoryManager.tableName],
+        queryFn: async () => {
+            return await CategoryManager.fetchAll()
+        }
+    })
     if (errorCategories) console.warn(errorCategories)
 
     const { isLoading: isLoadingLocalizations, error: errorLocalizations } = useQuery(
