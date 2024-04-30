@@ -1,21 +1,22 @@
-// @ts-nocheck
-
 import { LanguageManager } from '@/lib/LanguageManager'
 import { LocalizationManager, Localization } from '@/lib/LocalizationManager'
 import { supabase } from '@/lib/supabase'
 import { NotFoundError } from '@/types/Errors'
 
 const mockedItems: Localization[] = [
+    // @ts-ignore
     {
         id: '1',
         language: 'nb',
         value: 'Content of Localization 1',
     },
+    // @ts-ignore
     {
         id: '3',
         language: 'en',
         value: 'Content of Localization 3',
     },
+    // @ts-ignore
     {
         id: '2',
         language: 'nb',
@@ -46,27 +47,13 @@ jest.mock('@/lib/supabase', () => ({
 
 jest.mock('@/lib/LanguageManager', () => ({
     LanguageManager: {
-        getLanguage: () => ({ id: 'nb' }),
+        getDisplayLanguage: () => ({ id: 'nb' }),
     },
 }))
 
 beforeEach(() => {
-    LocalizationManager['cache'] = null
-})
-
-describe('getFetchAllQuery', () => {
-    it('should return a query object with the correct queryKey and queryFn', () => {
-        const fetchAllSpy = jest
-            .spyOn(LocalizationManager, 'fetchAll')
-            .mockReturnValueOnce(Promise.resolve(mockedItems))
-        const query = LocalizationManager.getFetchAllQuery()
-        expect(query.queryKey).toEqual(['localizations', 'nb'])
-        expect(query.queryFn).toBeDefined()
-        // Call the queryFn
-        query.queryFn()
-        // Assert that LocalizationManager.fetchAll has been called
-        expect(fetchAllSpy).toHaveBeenCalled()
-    })
+    // @ts-ignore
+    LocalizationManager['_items'] = null
 })
 
 describe('fetch', () => {
@@ -84,13 +71,14 @@ describe('fetch', () => {
 
     it('should throw a NotFoundError if the Localization does not exist', async () => {
         const id = '0'
-        await expect(LocalizationManager.fetch(id)).rejects.toThrow(`No data found in table 'localizations'`)
+        await expect(LocalizationManager.fetch(id)).rejects.toThrow(NotFoundError)
     })
 
     it('should throw if an error occurs', async () => {
         const LocalizationID = '1'
         jest.spyOn(supabase, 'from').mockReturnValueOnce({
             select: () => ({
+                // @ts-ignore
                 throwOnError: () => ({ error: new Error() }),
             }),
         })
@@ -99,10 +87,6 @@ describe('fetch', () => {
 })
 
 describe('fetchAll', () => {
-    beforeEach(() => {
-        LocalizationManager['cache'] = null
-    })
-
     const testCases = [
         { lang: 'nb', expectedAmount: 2 },
         { lang: 'en', expectedAmount: 1 },
@@ -110,7 +94,8 @@ describe('fetchAll', () => {
 
     testCases.forEach((language) => {
         it(`should return all Localizations with language ${language}`, async () => {
-            jest.spyOn(LanguageManager, 'getLanguage').mockReturnValueOnce({ id: language.lang })
+            // @ts-ignore
+            jest.spyOn(LanguageManager, 'getDisplayLanguage').mockReturnValueOnce({ id: language.lang })
             const localizations = await LocalizationManager.fetchAll()
             expect(localizations.length).toEqual(language.expectedAmount)
             localizations.forEach((localization) => {
@@ -123,59 +108,11 @@ describe('fetchAll', () => {
         jest.spyOn(supabase, 'from').mockReturnValueOnce({
             select: () => ({
                 eq: () => ({
+                    // @ts-ignore
                     throwOnError: () => ({ data: [] }),
                 }),
             }),
         })
-        await expect(LocalizationManager.fetchAll()).rejects.toThrow(`No data found in table 'localizations'`)
-    })
-})
-
-describe('items', () => {
-    it('should return the correct items', () => {
-        LocalizationManager.set(mockedItems)
-        expect(LocalizationManager.items).toEqual(new Set(mockedItems))
-    })
-
-    it('should throw NotFoundError if categories have not been fetched yet', () => {
-        expect(() => LocalizationManager.items).toThrow(NotFoundError)
-    })
-})
-
-describe('get', () => {
-    it('should throw if id is invalid', () => {
-        expect(() => LocalizationManager.get(null)).toThrow(NotFoundError)
-    })
-
-    it('should throw NotFoundError if categories have not been fetched yet', () => {
-        expect(() => LocalizationManager.get('some_id')).toThrow(NotFoundError)
-    })
-
-    it('should throw NotFoundError if category with specified id is not found', () => {
-        LocalizationManager.set(mockedItems)
-        const item = LocalizationManager.get('non_existing_id')
-        expect(item).toBe(null)
-    })
-
-    const testCases = [
-        { id: '1', expected: mockedItems[0] },
-        { id: '3', expected: mockedItems[1] },
-    ]
-
-    testCases.forEach(({ id, expected }) => {
-        it(`should return the item if found`, () => {
-            LocalizationManager.set(mockedItems)
-            const result = LocalizationManager.get(id)
-            expect(result).toBe(expected)
-        })
-    })
-})
-
-describe('set', () => {
-    it('should set items correctly', () => {
-        const items: Localization[] = [{ id: '1' }, { id: '2' }] as Localization[]
-        LocalizationManager.set(items)
-        expect(LocalizationManager['cache']).toContain(items[0])
-        expect(LocalizationManager['cache']).toContain(items[1])
+        await expect(LocalizationManager.fetchAll()).rejects.toThrow(NotFoundError)
     })
 })
