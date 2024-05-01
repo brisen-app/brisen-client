@@ -16,7 +16,7 @@ export type GameViewProps = {
 export default function GameView(props: Readonly<GameViewProps>) {
     const { bottomSheetRef } = props
     const flatListRef = React.useRef<FlatList>(null)
-    const { playlist, players, playedCards, categoryFilter } = useAppContext()
+    const { playlist, players, playedCards, playedIds, categoryFilter } = useAppContext()
     const setContext = useAppDispatchContext()
 
     const onPressCard = useCallback(
@@ -33,7 +33,8 @@ export default function GameView(props: Readonly<GameViewProps>) {
 
     const addCard = () => {
         if (playlist.size === 0) return
-        const newCard = CardManager.getNextCard(playedCards, playlist, players, categoryFilter)
+        const newCard = CardManager.getNextCard(playedIds, playlist, players, categoryFilter)
+        console.log(newCard)
         if (newCard === null) return
         setContext({ type: 'addPlayedCard', payload: newCard })
     }
@@ -49,20 +50,14 @@ export default function GameView(props: Readonly<GameViewProps>) {
             ref={flatListRef}
             pagingEnabled
             showsVerticalScrollIndicator={false}
-            initialNumToRender={2}
-            maxToRenderPerBatch={1}
+            // initialNumToRender={2}
+            // maxToRenderPerBatch={1}
             data={playedCards}
             // onEndReachedThreshold={0}
-            ListFooterComponent={<OutOfCardsView onPress={onPressNoCard} />}
-            onEndReached={addCard}
+            // onEndReached={addCard}
             ListEmptyComponent={<NoCardsView onPress={onPressNoCard} />}
-            renderItem={({ item, index }) =>
-                item ? (
-                    <CardScreen card={item} onPress={() => onPressCard(index)} />
-                ) : (
-                    <OutOfCardsView onPress={onPressNoCard} />
-                )
-            }
+            ListFooterComponent={<OutOfCardsView onPress={onPressNoCard} />}
+            renderItem={({ item, index }) => <CardScreen card={item} onPress={() => onPressCard(index)} />}
         />
     )
 }

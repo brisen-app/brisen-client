@@ -17,10 +17,12 @@ export default abstract class SupabaseManager<T extends SupabaseItem> {
     }
 
     get items(): Iterable<T> | undefined {
+        if (!this._items) console.warn(`${this.tableName} has not been set`)
         return this._items?.values()
     }
 
     get(id: string) {
+        if (!this._items) console.warn(`${this.tableName} has not been set`)
         return this._items?.get(id)
     }
 

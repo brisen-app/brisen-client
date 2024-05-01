@@ -37,7 +37,7 @@ export default function MenuView() {
             {players.size > 0 && (
                 <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginHorizontal: 16 }}>
                     {sortedPlayers.map((tag) => (
-                        <Tag key={tag} text={tag} onPress={() => setContext({ type: 'removePlayer', payload: tag })} />
+                        <Tag key={tag} text={tag} onPress={() => setContext({ type: 'togglePlayer', payload: tag })} />
                     ))}
                 </View>
             )}
@@ -53,7 +53,7 @@ export default function MenuView() {
                     <CategoryTag
                         key={category.id}
                         category={category}
-                        isSelected={!categoryFilter.has(category)}
+                        isSelected={!categoryFilter.has(category.id)}
                         onPress={onPressCategory}
                     />
                 ))}
@@ -151,7 +151,7 @@ function AddPlayerField() {
 
         const formattedText = prettifyString(text)
         if (players.has(formattedText)) console.warn('Player already exists') // TODO: [BUG] Show error message to user
-        else setContext({ type: 'addPlayer', payload: formattedText })
+        else setContext({ type: 'togglePlayer', payload: formattedText })
         setText('')
     }
 

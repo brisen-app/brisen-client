@@ -23,12 +23,8 @@ class PackManagerSingleton extends SupabaseManager<Pack> {
         return [...this._items.values()]?.sort((a, b) => a.name.localeCompare(b.name))
     }
 
-    async fetch(id: string) {
-        return await fetch(id)
-    }
-
     async fetchAll(): Promise<Pack[]> {
-        const { data } = await supabase.from(tableName).select(select).throwOnError()
+        const { data } = await supabase.from(tableName).select(select).order('name').throwOnError()
         if (!data || data.length === 0) throw new NotFoundError(`No data found in table '${this.tableName}'`)
         this.set(data)
         return data

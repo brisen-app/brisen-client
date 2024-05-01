@@ -1,27 +1,18 @@
-import { Category } from './CategoryManager'
 import { getRandom, shuffled } from './utils'
-import { InsufficientCountError, NotFoundError } from '@/types/Errors'
+import { InsufficientCountError } from '@/types/Errors'
 import { Pack } from './PackManager'
 import { Tables } from '@/types/supabase'
 import SupabaseManager from './SupabaseManager'
-import { supabase } from './supabase'
 
 const tableName = 'cards'
-const select = '*, cards(id)'
 const playerTemplateRegex = /\{player\W*(\d+)\}/gi
-export type Card = Awaited<ReturnType<typeof fetch>>
+export type Card = Tables<typeof tableName>
 export type PlayedCard = {
     formattedContent: string | null
     minPlayers: number
     pack: Pack
     players: string[]
 } & Card
-
-async function fetch(id: string) {
-    const { data } = await supabase.from(tableName).select(select).eq('id', id).single().throwOnError()
-    if (!data) throw new NotFoundError(`No data found in table '${tableName}'`)
-    return data
-}
 
 class CardManagerSingleton extends SupabaseManager<Card> {
     constructor() {
@@ -31,42 +22,43 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     /**
      * Retrieves the next card to be played based on the given parameters.
      *
-     * @param playedCards - An array of previously played cards.
-     * @param playlist - An array of packs containing cards.
+     * @param playedIds - An array of previously played card ids.
+     * @param playlist - A set of selected packs.
      * @param players - A set of strings representing player names.
-     * @param categoryFilter - A set of categories to exclude from the card selection.
+     * @param categoryFilterIds - A set of categories to exclude from the card selection.
      * @returns The next card to be played, or null if no valid card is available.
      */
     getNextCard(
-        playedCards: PlayedCard[],
+        playedIds: Set<string>,
         playlist: Set<Pack>,
         players: Set<string>,
-        categoryFilter: Set<Category>
+        categoryFilterIds: Set<string>
     ): PlayedCard | null {
-        const cards = [...playlist]
-            .map((p) => p.cards)
-            .flat()
-            .map((c) => this.get(c.id)!)
+        const candidates = new Set<{ card: Card; pack: Pack }>()
 
-        const playedIDs = playedCards.map((c) => c.id)
-        const categoryFilterIDs = [...categoryFilter].map((c) => c.id)
-        const candidates = cards.filter(
-            (c) =>
-                !playedIDs.includes(c.id) &&
-                players.size >= this.getRequiredPlayerCount(c) &&
-                !categoryFilterIDs.includes(c.category ?? '')
-        )
+        for (const pack of playlist) {
+            for (const cardId of pack.cards) {
+                const card = this.get(cardId.id)!
+                if (
+                    card &&
+                    !playedIds.has(card.id) &&
+                    (!card.category || !categoryFilterIds.has(card.category)) &&
+                    players.size >= this.getRequiredPlayerCount(card)
+                )
+                    candidates.add({ card, pack })
+            }
+        }
 
-        if (candidates.length === 0) return null
+        if (candidates.size === 0) return null
 
         const shuffledPlayers = shuffled(players)
-        const card = getRandom(candidates)
+        const { card, pack } = getRandom(candidates)
 
         return {
             ...card,
             formattedContent: this.insertPlayers(card.content, shuffledPlayers),
             minPlayers: this.getRequiredPlayerCount(card),
-            pack: [...playlist].find((p) => p.cards.includes(card))!,
+            pack: pack,
             players: shuffledPlayers,
         }
     }
@@ -120,19 +112,6 @@ class CardManagerSingleton extends SupabaseManager<Card> {
         const requiredPlayerCount = highestIndex + 1
         this.cachedPlayerCounts.set(card.id, requiredPlayerCount)
         return requiredPlayerCount
-    }
-
-    async fetch(id: string) {
-        const item = await fetch(id)
-        this.push(item)
-        return item
-    }
-
-    async fetchAll(): Promise<Card[]> {
-        const { data } = await supabase.from(tableName).select(select).throwOnError()
-        if (!data || data.length === 0) throw new NotFoundError(`No data found in table '${this.tableName}'`)
-        this.set(data)
-        return data
     }
 }
 
