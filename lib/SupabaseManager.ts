@@ -6,7 +6,7 @@ import { Language } from './LanguageManager'
 import { NotFoundError } from '@/types/Errors'
 import { supabase } from './supabase'
 
-type SupabaseItem = Category | Pack | Card | Localization | Language
+export type SupabaseItem = Category | Pack | Card | Localization | Language
 
 export default abstract class SupabaseManager<T extends SupabaseItem> {
     readonly tableName: string
@@ -16,9 +16,9 @@ export default abstract class SupabaseManager<T extends SupabaseItem> {
         this.tableName = tableName
     }
 
-    get items(): Iterable<T> | undefined {
+    get items(): Set<T> | Array<T> | undefined {
         if (!this._items) console.warn(`${this.tableName} has not been set`)
-        return this._items?.values()
+        return new Set(this._items?.values())
     }
 
     get(id: string) {
