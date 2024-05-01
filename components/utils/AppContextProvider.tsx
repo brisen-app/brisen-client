@@ -44,7 +44,7 @@ function contextReducer(state: AppContextType, action: AppContextAction): AppCon
             }
 
         case 'restartGame':
-            return { ...state, playlist: new Set(), playedCards: [] }
+            return { ...state, playlist: new Set(), playedCards: [], playedIds: new Set() }
 
         default:
             throw new Error(`Unhandled action type: ${type}`)

@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect } from 'react'
-import { Button, Dimensions, FlatList, Pressable, PressableProps } from 'react-native'
+import React, { useCallback, useEffect, useState } from 'react'
+import { Button, Dimensions, FlatList, Pressable, PressableProps, ViewToken } from 'react-native'
 import CardScreen from '@/components/card/CardScreen'
 import Colors from '@/constants/Colors'
 import useColorScheme from './utils/useColorScheme'
@@ -18,6 +18,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
     const flatListRef = React.useRef<FlatList>(null)
     const { playlist, players, playedCards, playedIds, categoryFilter } = useAppContext()
     const setContext = useAppDispatchContext()
+    const [isShowingCard, setIsShowingCard] = useState(false)
 
     const onPressCard = useCallback(
         (index: number) => {
@@ -34,13 +35,18 @@ export default function GameView(props: Readonly<GameViewProps>) {
     const addCard = () => {
         if (playlist.size === 0) return
         const newCard = CardManager.getNextCard(playedIds, playlist, players, categoryFilter)
-        console.log(newCard)
         if (newCard === null) return
         setContext({ type: 'addPlayedCard', payload: newCard })
+        console.log(`Added card ${playedCards.length + 1}:`, newCard.formattedContent ?? newCard.content)
+    }
+
+    const onViewableItemsChanged = ({ viewableItems }: { viewableItems: ViewToken[] }) => {
+        if (viewableItems.length === 0) setIsShowingCard(false)
+        else setIsShowingCard(true)
     }
 
     useEffect(() => {
-        addCard()
+        if (!isShowingCard) addCard()
     }, [playlist, players])
 
     if (playedCards.length === 0) return <NoCardsView />
@@ -49,12 +55,13 @@ export default function GameView(props: Readonly<GameViewProps>) {
         <FlatList
             ref={flatListRef}
             pagingEnabled
+            onViewableItemsChanged={onViewableItemsChanged}
             showsVerticalScrollIndicator={false}
-            // initialNumToRender={2}
-            // maxToRenderPerBatch={1}
+            initialNumToRender={1}
+            maxToRenderPerBatch={1}
             data={playedCards}
-            // onEndReachedThreshold={0}
-            // onEndReached={addCard}
+            onEndReachedThreshold={0.99}
+            onEndReached={addCard}
             ListEmptyComponent={<NoCardsView onPress={onPressNoCard} />}
             ListFooterComponent={<OutOfCardsView onPress={onPressNoCard} />}
             renderItem={({ item, index }) => <CardScreen card={item} onPress={() => onPressCard(index)} />}
