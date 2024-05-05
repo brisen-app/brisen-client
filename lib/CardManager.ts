@@ -76,6 +76,8 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     private insertPlayers(cardContent: string, players: string[]) {
         const matches = cardContent.matchAll(playerTemplateRegex)
 
+        // TODO: [BUG] Implement balanced selection of players
+
         let replacedContent = cardContent
         for (const match of matches) {
             const matchedString = match[0]
