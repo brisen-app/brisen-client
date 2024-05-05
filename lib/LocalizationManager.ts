@@ -22,7 +22,7 @@ class LocalizationManagerSingleton extends SupabaseManager<Localization> {
             .throwOnError()
         if (!data) throw new NotFoundError(`No data found in table '${this.tableName}'`)
         this.push(data)
-        return data
+        return data as Localization
     }
 
     async fetchAll() {
@@ -33,7 +33,7 @@ class LocalizationManagerSingleton extends SupabaseManager<Localization> {
             .throwOnError()
         if (!data || data.length === 0) throw new NotFoundError(`No data found in table '${this.tableName}'`)
         this.set(data)
-        return data
+        return data as Localization[]
     }
 }
 
