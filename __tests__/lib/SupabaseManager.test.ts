@@ -1,4 +1,6 @@
+import { Card } from '@/lib/CardManager'
 import SupabaseManager, { SupabaseItem } from '@/lib/SupabaseManager'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const mockedItems: SupabaseItem[] = [
     // @ts-ignore
@@ -17,6 +19,10 @@ const mockedItems: SupabaseItem[] = [
         name: 'Item 3',
     },
 ]
+
+jest.mock('@react-native-async-storage/async-storage', () =>
+    require('@react-native-async-storage/async-storage/jest/async-storage-mock')
+)
 
 jest.mock('@/lib/supabase', () => ({
     supabase: {
@@ -46,6 +52,9 @@ const SupabaseManagerMock = new SupabaseManagerMockSingleton('mock')
 beforeEach(() => {
     // @ts-ignore
     SupabaseManagerMock._items = null
+    for (var key in AsyncStorage.getAllKeys()) {
+        AsyncStorage.removeItem(key)
+    }
 })
 
 describe('tableName', () => {
@@ -121,8 +130,71 @@ describe('fetchAll', () => {
         expect(items).toEqual(mockedItems)
     })
 
+    it('should store the fetched items', async () => {
+        // @ts-ignore
+        const storeSpy = jest.spyOn(SupabaseManagerMock, 'store')
+        const items = await SupabaseManagerMock.fetchAll()
+        expect(storeSpy).toHaveBeenCalledWith(items)
+    })
+
     it('should throw an error if no data is found', async () => {
-        mockedItems.length = 0
+        const supabase = require('@/lib/supabase').supabase
+
+        supabase.from = jest.fn(() => ({
+            select: jest.fn(() => ({
+                throwOnError: jest.fn(() => ({ data: null })),
+            })),
+        }))
+
         await expect(SupabaseManagerMock.fetchAll()).rejects.toThrow("No data found in table 'mock'")
+    })
+})
+
+describe('store & retrieve', () => {
+    const stringedItems = JSON.stringify(mockedItems)
+
+    it('should store items in AsyncStorage and retrieve them', async () => {
+        AsyncStorage.getItem = jest.fn().mockResolvedValueOnce(stringedItems)
+
+        // @ts-ignore
+        await SupabaseManagerMock.store(mockedItems)
+        // @ts-ignore
+        const items = await SupabaseManagerMock.retrieve()
+
+        expect(AsyncStorage.getItem).toHaveBeenCalledWith('mock')
+        expect(AsyncStorage.setItem).toHaveBeenCalledWith('mock', stringedItems)
+        expect(items).not.toBeNull()
+        expect(items).toEqual(mockedItems)
+    })
+
+    it('should log an error if storing fails', async () => {
+        const error = new Error('Failed to store')
+
+        // @ts-ignore
+        AsyncStorage.setItem.mockRejectedValueOnce(error)
+        console.error = jest.fn()
+
+        // @ts-ignore
+        await SupabaseManagerMock.store(mockedItems)
+        expect(console.error).toHaveBeenCalledWith(`Failed to store mock in AsyncStorage:`, error)
+    })
+
+    it('should return null if no data is retrieved', async () => {
+        AsyncStorage.getItem = jest.fn().mockResolvedValueOnce(null)
+        // @ts-ignore
+        const items = await SupabaseManagerMock.retrieve()
+        expect(items).toBeNull()
+    })
+
+    it('should log an error if retrieving fails', async () => {
+        const error = new Error('Failed to retrieve')
+
+        // @ts-ignore
+        AsyncStorage.getItem.mockRejectedValueOnce(error)
+        console.error = jest.fn()
+
+        // @ts-ignore
+        await SupabaseManagerMock.retrieve()
+        expect(console.error).toHaveBeenCalledWith(`Failed to retrieve mock from AsyncStorage:`, error)
     })
 })
