@@ -1,16 +1,20 @@
 import { CategoryManager } from '@/lib/CategoryManager'
 import { LocalizationManager } from '@/lib/LocalizationManager'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { ReactNode } from 'react'
-import { ActivityIndicator, View } from 'react-native'
+import { ActivityIndicator, Button, View } from 'react-native'
 import useColorScheme from './useColorScheme'
 import Colors from '@/constants/Colors'
 import { LanguageManager } from '@/lib/LanguageManager'
 import { PackManager } from '@/lib/PackManager'
 import { CardManager } from '@/lib/CardManager'
+import { Text } from './Themed'
 
 export default function AppDataProvider(props: Readonly<{ children: ReactNode }>) {
     const colorScheme = useColorScheme()
+    const queryClient = useQueryClient()
+
+    const failedQueries = Array<string>()
 
     const {
         error: errorLanguages,
@@ -19,43 +23,58 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
     } = useQuery({
         queryKey: [LanguageManager.tableName],
         queryFn: async () => {
-            return await LanguageManager.fetchAll()
+            return await LanguageManager.fetchAllOrRetrieve()
         },
     })
-    if (errorLanguages) console.warn(errorLanguages)
+    if (errorLanguages) {
+        failedQueries.push(LanguageManager.tableName)
+        console.warn(errorLanguages)
+    }
 
     const { error: errorCategories, isLoading: isLoadingCategories } = useQuery({
         queryKey: [CategoryManager.tableName],
         queryFn: async () => {
-            return await CategoryManager.fetchAll()
+            return await CategoryManager.fetchAllOrRetrieve()
         },
     })
-    if (errorCategories) console.warn(errorCategories)
+    if (errorCategories) {
+        failedQueries.push(CategoryManager.tableName)
+        console.warn(errorCategories)
+    }
 
     const { error: errorPacks, isLoading: isLoadingPacks } = useQuery({
         queryKey: [PackManager.tableName],
         queryFn: async () => {
-            return await PackManager.fetchAll()
+            return await PackManager.fetchAllOrRetrieve()
         },
     })
-    if (errorPacks) console.warn(errorPacks)
+    if (errorPacks) {
+        failedQueries.push(PackManager.tableName)
+        console.warn(errorPacks)
+    }
 
     const { error: errorCards, isLoading: isLoadingCards } = useQuery({
         queryKey: [CardManager.tableName],
         queryFn: async () => {
-            return await CardManager.fetchAll()
+            return await CardManager.fetchAllOrRetrieve()
         },
     })
-    if (errorCards) console.warn(errorCards)
+    if (errorCards) {
+        failedQueries.push(CardManager.tableName)
+        console.warn(errorCards)
+    }
 
     const { error: errorLocalizations, isLoading: isLoadingLocalizatons } = useQuery({
         queryKey: [LocalizationManager.tableName],
         queryFn: async () => {
-            return await LocalizationManager.fetchAll()
+            return await LocalizationManager.fetchAllOrRetrieve()
         },
         enabled: hasFetchedLanguages,
     })
-    if (errorLocalizations) console.warn(errorLocalizations)
+    if (errorLocalizations) {
+        failedQueries.push(LocalizationManager.tableName)
+        console.warn(errorLocalizations)
+    }
 
     if (isLoadingLanguages || isLoadingCategories || isLoadingPacks || isLoadingCards || isLoadingLocalizatons)
         return (
@@ -72,6 +91,28 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
         )
 
     // TODO: Display error if any data is null
+    if (failedQueries.length > 0)
+        return (
+            <View
+                style={{
+                    flex: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    backgroundColor: Colors[colorScheme].background,
+                }}
+            >
+                <Text>Failed to fetch data</Text>
+                <Button
+                    title={'Retry'}
+                    color={Colors[colorScheme].accentColor}
+                    onPress={() =>
+                        queryClient.refetchQueries({
+                            queryKey: failedQueries,
+                        })
+                    }
+                />
+            </View>
+        )
 
     return props.children
 }
