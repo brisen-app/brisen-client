@@ -5,7 +5,7 @@ import SupabaseManager from './SupabaseManager'
 const tableName = 'languages'
 export type Language = Omit<Locale, 'languageCode'> & Tables<typeof tableName>
 
-const defaultLanguage = {
+const defaultLanguage: Language = {
     currencyCode: 'NOK',
     currencySymbol: 'kr',
     decimalSeparator: ',',
