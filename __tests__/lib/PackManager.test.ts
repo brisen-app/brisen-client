@@ -70,6 +70,23 @@ jest.mock('@/lib/utils', () => ({
     blobToBase64: (blob: string) => blob + '-base64data',
 }))
 
+beforeEach(() => {
+    // @ts-ignore
+    PackManager._items = null
+})
+
+describe('items', () => {
+    it('should return all packs sorted by name', () => {
+        PackManager.set(mockedPacks)
+        expect(PackManager.items).toEqual(mockedSortedPacks)
+    })
+
+    it('should return undefined if _items is null', () => {
+        // @ts-ignore
+        expect(PackManager.items).toBeUndefined()
+    })
+})
+
 describe('fetchAll', () => {
     it('should return all packs sorted by name', async () => {
         const packs = await PackManager.fetchAll()
