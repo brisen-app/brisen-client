@@ -150,6 +150,43 @@ describe('fetchAll', () => {
     })
 })
 
+describe('fetchAllOrRetrieve', () => {
+    it('should return items if fetching succeeds', async () => {
+        // @ts-ignore
+        const items = await SupabaseManagerMock.fetchAllOrRetrieve()
+        expect(items).toEqual(mockedItems)
+    })
+
+    it('should try to retrieve if fetching fails', async () => {
+        const error = new Error('Failed to fetch')
+
+        // @ts-ignore
+        const fetchAllSpy = jest.spyOn(SupabaseManagerMock, 'fetchAll').mockRejectedValueOnce(error)
+        // @ts-ignore
+        const retrieveSpy = jest.spyOn(SupabaseManagerMock, 'retrieve').mockResolvedValueOnce(mockedItems)
+        // @ts-ignore
+        SupabaseManagerMock.set(mockedItems)
+
+        // @ts-ignore
+        const items = await SupabaseManagerMock.fetchAllOrRetrieve()
+
+        expect(fetchAllSpy).toHaveBeenCalledTimes(1)
+        expect(retrieveSpy).toHaveBeenCalledTimes(1)
+        expect(items).toEqual(mockedItems)
+    })
+
+    it('should throw an error if both fetching and retrieving fails', async () => {
+        const error = new Error('Failed to fetch')
+
+        // @ts-ignore
+        jest.spyOn(SupabaseManagerMock, 'fetchAll').mockRejectedValueOnce(error)
+        // @ts-ignore
+        jest.spyOn(SupabaseManagerMock, 'retrieve').mockResolvedValueOnce(null)
+
+        await expect(SupabaseManagerMock.fetchAllOrRetrieve()).rejects.toThrow(error)
+    })
+})
+
 describe('store & retrieve', () => {
     const stringedItems = JSON.stringify(mockedItems)
 
@@ -196,5 +233,30 @@ describe('store & retrieve', () => {
         // @ts-ignore
         await SupabaseManagerMock.retrieve()
         expect(console.error).toHaveBeenCalledWith(`Failed to retrieve mock from AsyncStorage:`, error)
+    })
+})
+
+describe('push', () => {
+    it('should push an item if items have been set', () => {
+        console.warn = jest.fn()
+        console.error = jest.fn()
+        // @ts-ignore
+        SupabaseManagerMock.set(mockedItems)
+
+        // @ts-ignore
+        SupabaseManagerMock.push(mockedItems[0])
+
+        expect(console.warn).not.toHaveBeenCalled()
+        expect(console.error).not.toHaveBeenCalled()
+        expect(SupabaseManagerMock.items).toContain(mockedItems[0])
+    })
+
+    it('should create a new Map if items have not been set', () => {
+        // @ts-ignore
+        SupabaseManagerMock._items = null
+        // @ts-ignore
+        SupabaseManagerMock.push(mockedItems[0])
+        // @ts-ignore
+        expect(SupabaseManagerMock._items).toBeInstanceOf(Map)
     })
 })
