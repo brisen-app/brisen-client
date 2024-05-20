@@ -1,8 +1,14 @@
 // @ts-nocheck
 
 import { Category, CategoryManager } from '@/lib/CategoryManager'
-import { supabase } from '@/lib/supabase'
-import { NotFoundError } from '@/types/Errors'
+import { Localization, LocalizationManager } from '@/lib/LocalizationManager'
+
+const mockedLocalizations: Localization[] = [
+    { id: 'categories_1_title', value: 'Alice' },
+    { id: 'categories_2_title', value: 'Bob' },
+    { id: 'categories_3_title', value: 'Charlie' },
+    { id: 'categories_1_desc',  value: 'Alice description' },
+]
 
 const mockedItems: Category[] = [
     {
@@ -38,111 +44,38 @@ jest.mock('@/lib/supabase', () => ({
     },
 }))
 
-describe('getFetchAllQuery', () => {
-    it('should return a query object with the correct queryKey and queryFn', () => {
-        const fetchAllSpy = jest.spyOn(CategoryManager, 'fetchAll')
-        const query = CategoryManager.getFetchAllQuery()
-        expect(query.queryKey).toEqual(['categories'])
-        expect(query.queryFn).toBeDefined()
-        // Call the queryFn
-        query.queryFn()
-        // Assert that CategoryManager.fetchAll has been called
-        expect(fetchAllSpy).toHaveBeenCalled()
-    })
+jest.mock('@/lib/LocalizationManager', () => ({
+    LocalizationManager: {
+        get: (id: string) => mockedLocalizations.find((title) => title.id === id),
+    },
+}))
+
+beforeEach(() => {
+    CategoryManager['_items'] = null
 })
 
 describe('items', () => {
-    beforeEach(() => {
-        CategoryManager['cache'] = null
-    })
-
-    it('should return the correct items', () => {
+    it('should return categories sorted by localized title', () => {
         CategoryManager.set(mockedItems)
-        expect(CategoryManager.items).toEqual(new Set(mockedItems))
+        expect(CategoryManager.items).toEqual([mockedItems[0], mockedItems[2], mockedItems[1]])
     })
 
-    it('should throw NotFoundError if categories have not been fetched yet', () => {
-        expect(() => CategoryManager.items).toThrow(NotFoundError)
-    })
-})
-
-describe('get', () => {
-    beforeEach(() => {
-        CategoryManager['cache'] = null
-    })
-
-    it('should throw if id is invalid', () => {
-        expect(() => CategoryManager.get(null)).toThrow(NotFoundError)
-    })
-
-    it('should throw NotFoundError if categories have not been fetched yet', () => {
-        expect(() => CategoryManager.get('some_id')).toThrow(NotFoundError)
-    })
-
-    it('should throw NotFoundError if category with specified id is not found', () => {
-        CategoryManager.set([{ id: 'existing_id' } as Category])
-        expect(() => CategoryManager.get('non_existing_id')).toThrow(NotFoundError)
-    })
-
-    const testCases = [
-        { id: '1', expected: mockedItems[0] },
-        { id: '3', expected: mockedItems[1] },
-    ]
-
-    testCases.forEach(({ id, expected }) => {
-        it(`should return the category if found`, () => {
-            CategoryManager.set(mockedItems)
-            const result = CategoryManager.get(id)
-            expect(result).toBe(expected)
-        })
+    it('should return undefined if categories havent been fetched yet', () => {
+        const result = CategoryManager.items
+        expect(result).toBeUndefined()
     })
 })
 
-describe('set', () => {
-    beforeEach(() => {
-        CategoryManager['cache'] = null
-    })
-
-    it('should set categories correctly', () => {
-        const categories: Category[] = [{ id: '1' }, { id: '2' }] as Category[]
-        CategoryManager.set(categories)
-        expect(CategoryManager['cache']).toContain(categories[0])
-        expect(CategoryManager['cache']).toContain(categories[1])
+describe('getTitle', () => {
+    it('should return the correct title', () => {
+        const result = CategoryManager.getTitle(mockedItems[0])
+        expect(result).toEqual('Alice')
     })
 })
 
-describe('fetchAll', () => {
-    beforeEach(() => {
-        CategoryManager['cache'] = null
-    })
-    
-    it('should fetch all categories successfully', async () => {
-        const categories = await CategoryManager['fetchAll']()
-        expect(categories).toEqual(mockedItems)
-    })
-
-    it('should throw NotFoundError if no data found', async () => {
-        jest.spyOn(supabase, 'from').mockReturnValueOnce({
-            select: () => ({
-                throwOnError: () => ({ data: [] }),
-            }),
-        })
-        await expect(CategoryManager.fetchAll()).rejects.toThrow(`No data found in table 'categories'`)
-    })
-})
-
-describe('getTitleLocaleKey', () => {
-    it('should return the correct title locale key', () => {
-        const category: Category = { id: 'category_id' } as Category
-        const result = CategoryManager.getTitleLocaleKey(category)
-        expect(result).toBe(`${CategoryManager.tableName}_${category.id}_title`)
-    })
-})
-
-describe('getDescLocaleKey', () => {
-    it('should return the correct description locale key', () => {
-        const category: Category = { id: 'category_id' } as Category
-        const result = CategoryManager.getDescLocaleKey(category)
-        expect(result).toBe(`${CategoryManager.tableName}_${category.id}_desc`)
+describe('getDescription', () => {
+    it('should return the correct description', () => {
+        const result = CategoryManager.getDescription(mockedItems[0])
+        expect(result).toEqual('Alice description')
     })
 })

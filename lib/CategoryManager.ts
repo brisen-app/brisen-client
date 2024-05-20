@@ -1,56 +1,29 @@
-// @ts-nocheck
-
 import { Tables } from '@/types/supabase'
-import { supabase } from './supabase'
-import { NotFoundError } from '@/types/Errors'
+import SupabaseManager from './SupabaseManager'
+import { LocalizationManager } from './LocalizationManager'
 
-export type Category = Tables<'categories'>
+const tableName = 'categories'
+export type Category = Tables<typeof tableName>
 
-export abstract class CategoryManager {
-    static readonly tableName = 'categories'
-    private static cache: Set<Category> | null = null
-
-    static get items() {
-        if (!this.cache) throw new NotFoundError(`${this.tableName} have not been fetched yet`)
-        return this.cache
+class CategoryManagerSingleton extends SupabaseManager<Category> {
+    constructor() {
+        super(tableName)
     }
 
-    static get(id: string): Category {
-        for (const item of this.items) {
-            if (item.id === id) return item
-        }
-        throw new NotFoundError(`Item with id '${id}' not found in ${this.tableName}`)
+    get items() {
+        if (!this._items) return undefined
+        return [...this._items.values()]?.sort((a, b) =>
+            (this.getTitle(a) ?? a.id).localeCompare(this.getTitle(b) ?? b.id)
+        )
     }
 
-    static set(categories: Iterable<Category>) {
-        if (this.cache) console.warn(`${this.tableName} have already been set`)
-        this.cache = new Set()
-        for (const item of categories) {
-            this.cache.add(item)
-        }
+    getTitle(category: Category) {
+        return LocalizationManager.get(`${tableName}_${category.id}_title`)?.value
     }
 
-    static getFetchAllQuery() {
-        return {
-            queryKey: [this.tableName],
-            queryFn: async () => {
-                return await this.fetchAll()
-            },
-        }
-    }
-
-    private static async fetchAll() {
-        const { data } = await supabase.from(this.tableName).select().throwOnError()
-        if (!data || data.length === 0) throw new NotFoundError(`No data found in table '${this.tableName}'`)
-        this.set(data)
-        return data
-    }
-
-    static getTitleLocaleKey(category: Category) {
-        return `${this.tableName}_${category.id}_title`
-    }
-
-    static getDescLocaleKey(category: Category) {
-        return `${this.tableName}_${category.id}_desc`
+    getDescription(category: Category) {
+        return LocalizationManager.get(`${tableName}_${category.id}_desc`)?.value
     }
 }
+
+export const CategoryManager = new CategoryManagerSingleton()

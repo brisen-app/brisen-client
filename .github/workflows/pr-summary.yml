@@ -29,8 +29,8 @@ jobs:
               with:
                   debug: false
                   review_simple_changes: false
-                  review_comment_lgtm: false
                   disable_review: true
+                  openai_heavy_model: 'gpt-4o'
                   summarize: |
                       Provide your final response in markdown with the following content:
 
@@ -38,8 +38,8 @@ jobs:
                         specific files within 80 words.
                       - **Changes**: A markdown table of files and their summaries. Group files 
                         with similar changes together into a single row to save space.
-                      - **Quote**: Below the changes, include a whimsical, short poem, related
-                        to the changes that urges the PR author to not commiting suicide. Format the poem as a quote using 
+                      - **Quote**: Below the changes, include a short quote, urging the PR author
+                        to not commiting suicide even though the PR is pure trash. Format it as a quote using 
                         the ">" symbol and feel free to use emojis where relevant.
 
                       Avoid additional commentary as this summary will be added as a comment on the 

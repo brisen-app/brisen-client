@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { Pack, PackManager } from '@/lib/PackManager'
 import { supabase } from '@/lib/supabase'
 
@@ -11,8 +13,6 @@ const mockedPacks: Pack[] = [
             { id: '1', category: 'cat1' },
             { id: '2', category: 'cat2' },
         ],
-        created_at: '2021-01-01T00:00:00.000Z',
-        modified_at: '2021-01-01T00:00:00.000Z',
     },
     {
         id: 'pack3',
@@ -23,8 +23,6 @@ const mockedPacks: Pack[] = [
             { id: '3', category: 'cat3' },
             { id: '4', category: 'cat4' },
         ],
-        created_at: '2021-01-01T00:00:00.000Z',
-        modified_at: '2021-01-01T00:00:00.000Z',
     },
     {
         id: 'pack2',
@@ -35,8 +33,6 @@ const mockedPacks: Pack[] = [
             { id: '2', category: 'cat2' },
             { id: '3', category: 'cat3' },
         ],
-        created_at: '2021-01-01T00:00:00.000Z',
-        modified_at: '2021-01-01T00:00:00.000Z',
     },
 ]
 
@@ -74,62 +70,20 @@ jest.mock('@/lib/utils', () => ({
     blobToBase64: (blob: string) => blob + '-base64data',
 }))
 
-describe('getFetchQuery', () => {
-    it('should return a query object with the correct queryKey and queryFn', () => {
-        const packID = 'pack1'
-        const fetchSpy = jest.spyOn(PackManager, 'fetch')
-        const query = PackManager.getFetchQuery(packID)
-        expect(query.queryKey).toEqual(['packs', packID])
-        expect(query.queryFn).toBeDefined()
-        // Call the queryFn
-        query.queryFn()
-        // Assert that PackManager.fetch has been called
-        expect(fetchSpy).toHaveBeenCalledWith(packID)
-    })
+beforeEach(() => {
+    // @ts-ignore
+    PackManager._items = null
 })
 
-describe('getFetchAllQuery', () => {
-    it('should return a query object with the correct queryKey and queryFn', () => {
-        const fetchAllSpy = jest.spyOn(PackManager, 'fetchAll')
-        const query = PackManager.getFetchAllQuery()
-        expect(query.queryKey).toEqual(['packs'])
-        expect(query.queryFn).toBeDefined()
-        // Call the queryFn
-        query.queryFn()
-        // Assert that PackManager.fetchAll has been called
-        expect(fetchAllSpy).toHaveBeenCalled()
-    })
-})
-
-describe('fetch', () => {
-    const testCases = [
-        { id: 'pack1', expectedPack: mockedPacks[0] },
-        { id: 'pack3', expectedPack: mockedPacks[1] },
-    ]
-
-    testCases.forEach(({ id, expectedPack }) => {
-        it(`should return the correct pack for ID ${id}`, async () => {
-            const pack = await PackManager.fetch(id)
-            expect(pack).toEqual(expectedPack)
-        })
+describe('items', () => {
+    it('should return all packs sorted by name', () => {
+        PackManager.set(mockedPacks)
+        expect(PackManager.items).toEqual(mockedSortedPacks)
     })
 
-    it('should throw a NotFoundError if the pack does not exist', async () => {
-        const packID = 'pack0'
-        await expect(PackManager.fetch(packID)).rejects.toThrow(`No data found in table 'packs'`)
-    })
-
-    it('should throw if an error occurs', async () => {
-        const packID = 'pack1'
-        jest.spyOn(supabase, 'from').mockReturnValueOnce({
-            select: () => ({
-                order: () => ({
-                    // @ts-ignore
-                    throwOnError: () => ({ error: new Error() }),
-                }),
-            }),
-        })
-        await expect(PackManager.fetch(packID)).rejects.toThrow()
+    it('should return undefined if _items is null', () => {
+        // @ts-ignore
+        expect(PackManager.items).toBeUndefined()
     })
 })
 

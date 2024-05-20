@@ -1,10 +1,12 @@
-import { InsufficientCountError, NotFoundError } from '@/types/Errors'
-import { supabase } from './supabase'
 import { getRandom, shuffled } from './utils'
+import { InsufficientCountError } from '@/types/Errors'
 import { Pack } from './PackManager'
-import { Category } from './CategoryManager'
+import { Tables } from '@/types/supabase'
+import SupabaseManager from './SupabaseManager'
 
-export type Card = Awaited<ReturnType<typeof CardManager.fetch>>
+const tableName = 'cards'
+const playerTemplateRegex = /\{player\W*(\d+)\}/gi
+export type Card = Tables<typeof tableName>
 export type PlayedCard = {
     formattedContent: string | null
     minPlayers: number
@@ -12,45 +14,51 @@ export type PlayedCard = {
     players: string[]
 } & Card
 
-export abstract class CardManager {
-    static readonly tableName = 'cards'
-    static readonly playerTemplateRegex = /\{player\W*(\d+)\}/gi
+class CardManagerSingleton extends SupabaseManager<Card> {
+    constructor() {
+        super(tableName)
+    }
 
     /**
      * Retrieves the next card to be played based on the given parameters.
      *
-     * @param playedCards - An array of previously played cards.
-     * @param playlist - An array of packs containing cards.
+     * @param playedIds - An array of previously played card ids.
+     * @param playlist - A set of selected packs.
      * @param players - A set of strings representing player names.
-     * @param categoryFilter - A set of categories to exclude from the card selection.
+     * @param categoryFilterIds - A set of categories to exclude from the card selection.
      * @returns The next card to be played, or null if no valid card is available.
      */
-    static getNextCard(
-        playedCards: PlayedCard[],
+    getNextCard(
+        playedIds: Set<string>,
         playlist: Set<Pack>,
         players: Set<string>,
-        categoryFilter: Set<Category>
+        categoryFilterIds: Set<string>
     ): PlayedCard | null {
-        const cards = [...playlist].map((p) => p.cards).flat()
-        const playedIDs = playedCards.map((c) => c.id)
-        const categoryFilterIDs = [...categoryFilter].map((c) => c.id)
-        const candidates = cards.filter(
-            (c) =>
-                !playedIDs.includes(c.id) &&
-                players.size >= this.getRequiredPlayerCount(c) &&
-                !categoryFilterIDs.includes(c.category ?? '')
-        )
+        const candidates = new Set<{ card: Card; pack: Pack }>()
 
-        if (candidates.length === 0) return null
+        for (const pack of playlist) {
+            for (const cardId of pack.cards) {
+                const card = this.get(cardId.id)!
+                if (
+                    card &&
+                    !playedIds.has(card.id) &&
+                    (!card.category || !categoryFilterIds.has(card.category)) &&
+                    players.size >= this.getRequiredPlayerCount(card)
+                )
+                    candidates.add({ card, pack })
+            }
+        }
+
+        if (candidates.size === 0) return null
 
         const shuffledPlayers = shuffled(players)
-        const card = getRandom(candidates)
+        const { card, pack } = getRandom(candidates)
 
         return {
             ...card,
             formattedContent: this.insertPlayers(card.content, shuffledPlayers),
             minPlayers: this.getRequiredPlayerCount(card),
-            pack: [...playlist].find((p) => p.cards.includes(card))!,
+            pack: pack,
             players: shuffledPlayers,
         }
     }
@@ -65,8 +73,10 @@ export abstract class CardManager {
      * @returns The modified card content with player names inserted, or `null` if no replacements were made.
      * @throws InsufficientCountError if there are not enough players to insert into the card.
      */
-    private static insertPlayers(cardContent: string, players: string[]) {
-        const matches = cardContent.matchAll(this.playerTemplateRegex)
+    private insertPlayers(cardContent: string, players: string[]) {
+        const matches = cardContent.matchAll(playerTemplateRegex)
+
+        // TODO: [BUG] Implement balanced selection of players
 
         let replacedContent = cardContent
         for (const match of matches) {
@@ -82,7 +92,7 @@ export abstract class CardManager {
         return replacedContent === cardContent ? null : replacedContent
     }
 
-    private static cachedPlayerCounts: Map<string, number> = new Map()
+    private cachedPlayerCounts: Map<string, number> = new Map()
     /**
      * Calculates the required player count based on the card's content.
      * The method is memoized to avoid recalculating the same card multiple times.
@@ -90,12 +100,12 @@ export abstract class CardManager {
      * @param card - The card for which to retrieve the required player count.
      * @returns The required player count for the card.
      */
-    static getRequiredPlayerCount(card: Card) {
+    getRequiredPlayerCount(card: Card) {
         if (this.cachedPlayerCounts.has(card.id)) {
             return this.cachedPlayerCounts.get(card.id)!
         }
 
-        const matches = card.content.matchAll(this.playerTemplateRegex)
+        const matches = card.content.matchAll(playerTemplateRegex)
         let highestIndex = -1
         for (const match of matches) {
             const index = parseInt(match[1])
@@ -105,34 +115,6 @@ export abstract class CardManager {
         this.cachedPlayerCounts.set(card.id, requiredPlayerCount)
         return requiredPlayerCount
     }
-
-    static getFetchQuery(id: string) {
-        return {
-            queryKey: [this.tableName, id],
-            queryFn: async () => {
-                return await this.fetch(id)
-            },
-        }
-    }
-
-    static getFetchAllQuery() {
-        return {
-            queryKey: [this.tableName],
-            queryFn: async () => {
-                return await this.fetchAll()
-            },
-        }
-    }
-
-    static async fetch(id: string) {
-        const { data } = await supabase.from(this.tableName).select().eq('id', id).single().throwOnError()
-        if (!data) throw new NotFoundError(`No data found in table '${this.tableName}'`)
-        return data
-    }
-
-    static async fetchAll() {
-        const { data } = await supabase.from(this.tableName).select().throwOnError()
-        if (!data || data.length === 0) throw new NotFoundError(`No data found in table '${this.tableName}'`)
-        return data
-    }
 }
+
+export const CardManager = new CardManagerSingleton()

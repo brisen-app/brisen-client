@@ -13,7 +13,6 @@ import Colors from '@/constants/Colors'
 import Sizes from '@/constants/Sizes'
 import useColorScheme from '../utils/useColorScheme'
 import { Link } from 'expo-router'
-import { LocalizationManager } from '@/lib/LocalizationManager'
 
 export type CardViewProps = {
     card: PlayedCard
@@ -77,7 +76,7 @@ export function CardView(props: Readonly<CardViewProps>) {
                             }}
                         >
                             <Text style={FontStyles.Title}>
-                                {LocalizationManager.get(CategoryManager.getTitleLocaleKey(category))?.value ?? ''}
+                                {CategoryManager.getTitle(category)}
                             </Text>
                             <Text style={{ fontSize: 48 }}>{category?.icon}</Text>
                         </TouchableOpacity>

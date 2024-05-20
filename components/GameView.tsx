@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect } from 'react'
-import { Button, Dimensions, FlatList, Pressable, PressableProps } from 'react-native'
+import React, { useCallback, useEffect, useState } from 'react'
+import { Button, Dimensions, FlatList, Pressable, PressableProps, ViewToken } from 'react-native'
 import CardScreen from '@/components/card/CardScreen'
 import Colors from '@/constants/Colors'
 import useColorScheme from './utils/useColorScheme'
@@ -16,8 +16,9 @@ export type GameViewProps = {
 export default function GameView(props: Readonly<GameViewProps>) {
     const { bottomSheetRef } = props
     const flatListRef = React.useRef<FlatList>(null)
-    const { playlist, players, playedCards, categoryFilter } = useAppContext()
+    const { playlist, players, playedCards, playedIds, categoryFilter } = useAppContext()
     const setContext = useAppDispatchContext()
+    const [isShowingCard, setIsShowingCard] = useState(false)
 
     const onPressCard = useCallback(
         (index: number) => {
@@ -33,18 +34,20 @@ export default function GameView(props: Readonly<GameViewProps>) {
 
     const addCard = () => {
         if (playlist.size === 0) return
-        const newCard = CardManager.getNextCard(playedCards, playlist, players, categoryFilter)
+        const newCard = CardManager.getNextCard(playedIds, playlist, players, categoryFilter)
         if (newCard === null) return
         setContext({ type: 'addPlayedCard', payload: newCard })
+        console.log(`Added card ${playedCards.length + 1}:`, newCard.formattedContent ?? newCard.content)
+    }
+
+    const onViewableItemsChanged = ({ viewableItems }: { viewableItems: ViewToken[] }) => {
+        if (viewableItems.length === 0) setIsShowingCard(false)
+        else setIsShowingCard(true)
     }
 
     useEffect(() => {
-        addCard()
+        if (!isShowingCard) addCard()
     }, [playlist, players])
-
-    useEffect(() => {
-        console.debug('Rendering GameView')
-    }, [])
 
     if (playedCards.length === 0) return <NoCardsView />
 
@@ -52,21 +55,16 @@ export default function GameView(props: Readonly<GameViewProps>) {
         <FlatList
             ref={flatListRef}
             pagingEnabled
+            onViewableItemsChanged={onViewableItemsChanged}
             showsVerticalScrollIndicator={false}
-            initialNumToRender={2}
+            initialNumToRender={1}
             maxToRenderPerBatch={1}
             data={playedCards}
-            // onEndReachedThreshold={0}
-            ListFooterComponent={<OutOfCardsView onPress={onPressNoCard} />}
+            onEndReachedThreshold={0.99}
             onEndReached={addCard}
             ListEmptyComponent={<NoCardsView onPress={onPressNoCard} />}
-            renderItem={({ item, index }) =>
-                item ? (
-                    <CardScreen card={item} onPress={() => onPressCard(index)} />
-                ) : (
-                    <OutOfCardsView onPress={onPressNoCard} />
-                )
-            }
+            ListFooterComponent={<OutOfCardsView onPress={onPressNoCard} />}
+            renderItem={({ item, index }) => <CardScreen card={item} onPress={() => onPressCard(index)} />}
         />
     )
 }

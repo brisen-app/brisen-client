@@ -23,8 +23,7 @@ export default function PackView() {
 
     if (packID instanceof Array) throw new Error('packID is an array')
 
-    const { data: pack, isLoading: isLoadingPack, error: errorPack } = useQuery(PackManager.getFetchQuery(packID))
-    if (errorPack) console.error(errorPack)
+    const pack = PackManager.get(packID)
 
     const {
         data: image,
@@ -33,7 +32,18 @@ export default function PackView() {
     } = useQuery(PackManager.getImageQuery(pack?.image, !!pack?.image))
     if (errorImage) console.warn(errorImage)
 
-    if (isLoadingPack || isLoadingImage) return <ActivityIndicator size="large" />
+    if (isLoadingImage)
+        return (
+            <View
+                style={{
+                    flex: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}
+            >
+                <ActivityIndicator size="large" />
+            </View>
+        )
     if (!pack) throw new Error('Pack not found')
 
     // TODO: [BUG] Add loading view skeleton for PackView

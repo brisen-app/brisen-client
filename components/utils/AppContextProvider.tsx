@@ -5,38 +5,55 @@ import { PlayedCard } from '@/lib/CardManager'
 
 type AppContextType = {
     playedCards: PlayedCard[]
+    playedIds: Set<string>
     playlist: Set<Pack>
     players: Set<string>
-    categoryFilter: Set<Category>
+    categoryFilter: Set<string>
 }
 
 type AppContextAction = {
-    type: 'togglePack' | 'addPlayer' | 'removePlayer' | 'toggleCategory' | 'addPlayedCard' | 'restartGame'
+    type: 'togglePack' | 'togglePlayer' | 'toggleCategory' | 'addPlayedCard' | 'restartGame'
     payload?: any
+}
+
+function toggleSet<T>(set: Set<T>, value: T): Set<T> {
+    if (set.has(value)) return new Set([...set].filter((v) => v !== value))
+    return new Set([...set, value])
 }
 
 function contextReducer(state: AppContextType, action: AppContextAction): AppContextType {
     const { type, payload } = action
 
     switch (type) {
-        case 'togglePack':
-            if (state.playlist.has(payload))
-                return { ...state, playlist: new Set([...state.playlist].filter((p) => p !== payload)) }
-            return { ...state, playlist: new Set([...state.playlist, payload]) }
-        case 'addPlayer':
-            return { ...state, players: new Set([...state.players, payload]) }
-        case 'removePlayer':
-            return { ...state, players: new Set([...state.players].filter((p) => p !== payload)) }
-        case 'toggleCategory':
-            if (state.categoryFilter.has(payload))
-                return { ...state, categoryFilter: new Set([...state.categoryFilter].filter((c) => c !== payload)) }
-            return { ...state, categoryFilter: new Set([...state.categoryFilter, payload]) }
-        case 'addPlayedCard':
-            return { ...state, playedCards: [...state.playedCards, payload] }
-        case 'restartGame':
-            return { ...state, playlist: new Set(), playedCards: [] }
-        default:
+        case 'togglePack': {
+            return { ...state, playlist: toggleSet(state.playlist, payload) }
+        }
+
+        case 'togglePlayer': {
+            return { ...state, players: toggleSet(state.players, payload) }
+        }
+
+        case 'toggleCategory': {
+            const category = payload as Category
+            return { ...state, categoryFilter: toggleSet(state.categoryFilter, category.id) }
+        }
+
+        case 'addPlayedCard': {
+            const playedCard = payload as PlayedCard
+            return {
+                ...state,
+                playedCards: [...state.playedCards, playedCard],
+                playedIds: new Set([...state.playedIds, playedCard.id]),
+            }
+        }
+
+        case 'restartGame': {
+            return { ...state, playlist: new Set(), playedCards: [], playedIds: new Set() }
+        }
+
+        default: {
             throw new Error(`Unhandled action type: ${type}`)
+        }
     }
 }
 
@@ -58,6 +75,7 @@ export function useAppDispatchContext() {
 export function AppContextProvider(props: Readonly<{ children: ReactNode }>) {
     const [context, setContext] = useReducer(contextReducer, {
         playedCards: [],
+        playedIds: new Set(),
         playlist: new Set(),
         players: new Set(),
         categoryFilter: new Set(),

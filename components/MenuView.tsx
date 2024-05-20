@@ -1,23 +1,22 @@
 import { AntDesign } from '@expo/vector-icons'
 import { BottomSheetScrollView, BottomSheetTextInput } from '@gorhom/bottom-sheet'
+import { Category, CategoryManager } from '@/lib/CategoryManager'
 import { FontStyles } from '@/constants/Styles'
 import { formatName as prettifyString } from '@/lib/utils'
 import { LocalizationManager } from '@/lib/LocalizationManager'
 import { PackManager } from '@/lib/PackManager'
-import { useAppContext, useAppDispatchContext } from './utils/AppContextProvider'
+import { router } from 'expo-router'
 import { ScrollView, StyleSheet, View, ViewProps } from 'react-native'
+import { Text } from './utils/Themed'
+import { useAppContext, useAppDispatchContext } from './utils/AppContextProvider'
 import { useMemo, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Color from '@/types/Color'
 import Colors from '@/constants/Colors'
 import PackFeaturedView from './pack/PackFeaturedView'
 import PackListView from './pack/PackListView'
-import useColorScheme from './utils/useColorScheme'
 import Tag from './utils/Tag'
-import { Category, CategoryManager } from '@/lib/CategoryManager'
-import { router } from 'expo-router'
-import { Text } from './utils/Themed'
+import useColorScheme from './utils/useColorScheme'
 
 export default function MenuView() {
     const insets = useSafeAreaInsets()
@@ -26,14 +25,7 @@ export default function MenuView() {
     const setContext = useAppDispatchContext()
 
     const sortedPlayers = useMemo(() => [...players].sort((a, b) => a.localeCompare(b)), [players])
-    const sortedCategories = useMemo(
-        () => [...CategoryManager.items]?.sort((a, b) => getCategoryTitle(a).localeCompare(getCategoryTitle(b))),
-        [CategoryManager.items]
-    )
-
-    function getCategoryTitle(category: Category) {
-        return LocalizationManager.get(CategoryManager.getTitleLocaleKey(category))?.value ?? category.id
-    }
+    const sortedCategories = useMemo(() => CategoryManager.items, [CategoryManager.items])
 
     const onPressCategory = (category: Category) => {
         setContext({ type: 'toggleCategory', payload: category })
@@ -45,7 +37,7 @@ export default function MenuView() {
             {players.size > 0 && (
                 <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginHorizontal: 16 }}>
                     {sortedPlayers.map((tag) => (
-                        <Tag key={tag} text={tag} onPress={() => setContext({ type: 'removePlayer', payload: tag })} />
+                        <Tag key={tag} text={tag} onPress={() => setContext({ type: 'togglePlayer', payload: tag })} />
                     ))}
                 </View>
             )}
@@ -61,7 +53,7 @@ export default function MenuView() {
                     <CategoryTag
                         key={category.id}
                         category={category}
-                        isSelected={!categoryFilter.has(category)}
+                        isSelected={!categoryFilter.has(category.id)}
                         onPress={onPressCategory}
                     />
                 ))}
@@ -79,8 +71,7 @@ function CategoryTag(
     const { category, isSelected, onPress } = props
     const colorScheme = useColorScheme()
 
-    const titleKey = CategoryManager.getTitleLocaleKey(category)
-    const title = LocalizationManager.get(titleKey)?.value
+    const title = CategoryManager.getTitle(category)
 
     return (
         <Tag
@@ -116,8 +107,7 @@ function Header(props: Readonly<{ titleKey: string; descriptionKey?: string }>) 
 function PackSection(props: Readonly<ViewProps>) {
     const colorScheme = useColorScheme()
 
-    const { data: packs, error } = useQuery(PackManager.getFetchAllQuery())
-    if (error) console.warn(error)
+    const packs = useMemo(() => PackManager.items, [PackManager.items])
 
     return (
         <View {...props}>
@@ -161,7 +151,7 @@ function AddPlayerField() {
 
         const formattedText = prettifyString(text)
         if (players.has(formattedText)) console.warn('Player already exists') // TODO: [BUG] Show error message to user
-        else setContext({ type: 'addPlayer', payload: formattedText })
+        else setContext({ type: 'togglePlayer', payload: formattedText })
         setText('')
     }
 
