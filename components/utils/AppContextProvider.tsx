@@ -25,29 +25,35 @@ function contextReducer(state: AppContextType, action: AppContextAction): AppCon
     const { type, payload } = action
 
     switch (type) {
-        case 'togglePack':
+        case 'togglePack': {
             return { ...state, playlist: toggleSet(state.playlist, payload) }
+        }
 
-        case 'togglePlayer':
+        case 'togglePlayer': {
             return { ...state, players: toggleSet(state.players, payload) }
+        }
 
-        case 'toggleCategory':
+        case 'toggleCategory': {
             const category = payload as Category
             return { ...state, categoryFilter: toggleSet(state.categoryFilter, category.id) }
+        }
 
-        case 'addPlayedCard':
+        case 'addPlayedCard': {
             const playedCard = payload as PlayedCard
             return {
                 ...state,
                 playedCards: [...state.playedCards, playedCard],
                 playedIds: new Set([...state.playedIds, playedCard.id]),
             }
+        }
 
-        case 'restartGame':
+        case 'restartGame': {
             return { ...state, playlist: new Set(), playedCards: [], playedIds: new Set() }
+        }
 
-        default:
+        default: {
             throw new Error(`Unhandled action type: ${type}`)
+        }
     }
 }
 
