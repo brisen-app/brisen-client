@@ -11,27 +11,27 @@ export type Database = {
     Tables: {
       card_dependencies: {
         Row: {
-          card: string
+          child: string
           created_at: string
           modified_at: string
           parent: string
         }
         Insert: {
-          card: string
+          child: string
           created_at?: string
           modified_at?: string
           parent: string
         }
         Update: {
-          card?: string
+          child?: string
           created_at?: string
           modified_at?: string
           parent?: string
         }
         Relationships: [
           {
-            foreignKeyName: "card_dependencies_card_fkey"
-            columns: ["card"]
+            foreignKeyName: "card_dependencies_child_fkey"
+            columns: ["child"]
             isOneToOne: false
             referencedRelation: "cards"
             referencedColumns: ["id"]
