@@ -1,12 +1,13 @@
 import {
     DimensionValue,
     View,
-    TouchableOpacity,
     StyleSheet,
     Pressable,
     PressableProps,
-    TouchableOpacityProps,
     ActivityIndicator,
+    Switch,
+    ViewProps,
+    TouchableOpacity,
 } from 'react-native'
 import { Image, ImageProps } from 'expo-image'
 import { Text } from '../utils/Themed'
@@ -17,10 +18,10 @@ import { PackManager } from '@/lib/PackManager'
 import Color from '@/types/Color'
 import { useQuery } from '@tanstack/react-query'
 import { PackViewProps } from '@/app/pack/[packID]'
-import { Link } from 'expo-router'
-import { MaterialIcons, Octicons } from '@expo/vector-icons'
+import { MaterialIcons } from '@expo/vector-icons'
 import Placeholder from '../utils/Placeholder'
 import { useAppContext, useAppDispatchContext } from '../utils/AppContextProvider'
+import { Link } from 'expo-router'
 
 export type PackListViewProps = {
     hideImage?: boolean
@@ -28,8 +29,8 @@ export type PackListViewProps = {
 
 const height: DimensionValue = 80
 
-export default function PackListView(props: Readonly<PackListViewProps & PackViewProps & TouchableOpacityProps>) {
-    const { pack, hideImage } = props
+export default function PackListView(props: Readonly<PackListViewProps & PackViewProps & ViewProps>) {
+    const { pack, hideImage, style } = props
     const colorScheme = useColorScheme()
     const { playlist } = useAppContext()
     const setContext = useAppDispatchContext()
@@ -43,50 +44,59 @@ export default function PackListView(props: Readonly<PackListViewProps & PackVie
     if (isLoading) return <PackListViewPlaceholder hideImage={hideImage} {...props} />
 
     return (
-        <TouchableOpacity
-            style={{
-                height: height,
-                borderRadius: 16,
-            }}
+        <View
             {...props}
-            onPress={() => setContext({ type: 'togglePack', payload: pack })}
+            style={[
+                {
+                    height: height,
+                    borderRadius: 16,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 8,
+                },
+                style,
+            ]}
         >
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                {!hideImage && (
-                    <PackImage
-                        style={{
-                            aspectRatio: 1,
-                            height: '100%',
-                            borderRadius: 16,
-                            borderColor: Colors[colorScheme].stroke,
-                            borderWidth: StyleSheet.hairlineWidth,
-                        }}
-                    />
-                )}
+            <Link href={`/pack/${pack.id}`} asChild>
+                <TouchableOpacity
+                    style={{
+                        flex: 1,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 8,
+                    }}
+                >
+                    {!hideImage && (
+                        <PackImage
+                            style={{
+                                aspectRatio: 1,
+                                height: '100%',
+                                borderRadius: 16,
+                                borderColor: Colors[colorScheme].stroke,
+                                borderWidth: StyleSheet.hairlineWidth,
+                            }}
+                        />
+                    )}
 
-                <View style={{ flex: 1 }}>
-                    <Text numberOfLines={1} style={[styles.text, styles.header]}>
-                        {pack.name}
-                    </Text>
+                    <View style={{ flex: 1 }}>
+                        <Text numberOfLines={1} style={[styles.text, styles.header]}>
+                            {pack.name}
+                        </Text>
 
-                    <Text numberOfLines={2} style={{ ...styles.text, color: Colors[colorScheme].secondaryText }}>
-                        {pack.description ? pack.description : pack.cards.length + ' cards'}
-                    </Text>
-                </View>
+                        <Text numberOfLines={2} style={{ ...styles.text, color: Colors[colorScheme].secondaryText }}>
+                            {pack.description ? pack.description : pack.cards.length + ' cards'}
+                        </Text>
+                    </View>
+                </TouchableOpacity>
+            </Link>
 
-                <Octicons
-                    size={18}
-                    name={'check-circle-fill'}
-                    color={isSelected ? Colors[colorScheme].accentColor : 'transparent'}
-                />
-
-                <Link href={`/pack/${pack.id}`} asChild>
-                    <TouchableOpacity>
-                        <MaterialIcons size={28} name={'more-horiz'} color={Colors[colorScheme].text} />
-                    </TouchableOpacity>
-                </Link>
-            </View>
-        </TouchableOpacity>
+            <Switch
+                value={isSelected}
+                onValueChange={() => setContext({ type: 'togglePack', payload: pack })}
+                trackColor={{ false: Colors[colorScheme].placeholder, true: Colors[colorScheme].accentColor }}
+                thumbColor={Colors[colorScheme].background}
+            />
+        </View>
     )
 }
 
