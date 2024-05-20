@@ -5,7 +5,7 @@ import SupabaseManager from './SupabaseManager'
 const tableName = 'languages'
 export type Language = Omit<Locale, 'languageCode'> & Tables<typeof tableName>
 
-const defaultLanguage: Language = {
+export const defaultLanguage: Language = {
     currencyCode: 'NOK',
     currencySymbol: 'kr',
     decimalSeparator: ',',
@@ -24,14 +24,14 @@ const defaultLanguage: Language = {
 }
 
 class LanguageManagerSingleton extends SupabaseManager<Language> {
-    protected displayLanguage: Language | undefined
+    protected _displayLanguage: Language | undefined
 
     constructor() {
         super(tableName)
     }
 
     getDisplayLanguage() {
-        return this.displayLanguage
+        return this._displayLanguage
     }
 
     protected set(items: Iterable<Language>) {
@@ -46,13 +46,13 @@ class LanguageManagerSingleton extends SupabaseManager<Language> {
                         ...item,
                     }
                     this._items.set(locale.languageCode, language)
-                    if (!this.displayLanguage) this.displayLanguage = language
+                    if (!this._displayLanguage) this._displayLanguage = language
                 }
             }
         }
 
-        if (!this.displayLanguage || this._items.size === 0) {
-            this.displayLanguage = defaultLanguage
+        if (!this._displayLanguage || this._items.size === 0) {
+            this._displayLanguage = defaultLanguage
         }
     }
 }
