@@ -1,6 +1,6 @@
 import Colors from '@/constants/Colors'
 import Sizes from '@/constants/Sizes'
-import Color from '@/types/Color'
+import Color from '@/models/Color'
 import { Image } from 'expo-image'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import useColorScheme from '../utils/useColorScheme'
@@ -89,7 +89,7 @@ export default function UserQuickView(props: Readonly<UserQuickViewProps>) {
 
             {showDetails && (
                 <View style={{ justifyContent: 'center' }}>
-                    <Text numberOfLines={1} lineBreakMode='tail' style={FontStyles.Title}>
+                    <Text numberOfLines={1} lineBreakMode="tail" style={FontStyles.Title}>
                         {user.name}
                     </Text>
                     <Text

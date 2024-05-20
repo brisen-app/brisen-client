@@ -1,5 +1,5 @@
 import { LanguageManager, defaultLanguage } from '@/lib/LanguageManager'
-import { Tables } from '@/types/supabase'
+import { Tables } from '@/models/supabase'
 
 const mockedItems: Partial<Tables<'languages'>>[] = [
     {

@@ -1,4 +1,4 @@
-import { NotFoundError } from '@/types/Errors'
+import { NotFoundError } from '@/models/Errors'
 import { supabase } from './supabase'
 import { blobToBase64, emptyQuery } from './utils'
 import SupabaseManager from './SupabaseManager'

@@ -1,7 +1,7 @@
 import { getRandom, shuffled } from './utils'
-import { InsufficientCountError } from '@/types/Errors'
+import { InsufficientCountError } from '@/models/Errors'
 import { Pack } from './PackManager'
-import { Tables } from '@/types/supabase'
+import { Tables } from '@/models/supabase'
 import SupabaseManager from './SupabaseManager'
 
 const tableName = 'cards'

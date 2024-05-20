@@ -4,7 +4,7 @@ import { CardManager, Card } from '@/lib/CardManager'
 import { Category } from '@/lib/CategoryManager'
 import { Pack } from '@/lib/PackManager'
 import * as utils from '@/lib/utils'
-import { InsufficientCountError } from '@/types/Errors'
+import { InsufficientCountError } from '@/models/Errors'
 
 enum MockedCards {
     Card_1 = { id: '1', category: 'cat1', content: 'Content of card 1' },

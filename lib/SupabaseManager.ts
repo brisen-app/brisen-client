@@ -3,7 +3,7 @@ import { Pack } from './PackManager'
 import { Card } from './CardManager'
 import { Localization } from './LocalizationManager'
 import { Language } from './LanguageManager'
-import { NotFoundError } from '@/types/Errors'
+import { NotFoundError } from '@/models/Errors'
 import { supabase } from './supabase'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 

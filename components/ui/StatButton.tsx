@@ -3,7 +3,7 @@ import { Feather } from '@expo/vector-icons'
 import { TouchableOpacity, TouchableOpacityProps } from 'react-native'
 import useColorScheme from '../utils/useColorScheme'
 import { Text } from '../utils/Themed'
-import Color from '@/types/Color'
+import Color from '@/models/Color'
 
 type ButtonProps = {
     icon: keyof typeof Feather.glyphMap
@@ -26,7 +26,9 @@ export function StatButton(props: StatButtonProps) {
 
     return (
         <TouchableOpacity
-            onPress={() => { console.log(`${icon} tapped`) }}
+            onPress={() => {
+                console.log(`${icon} tapped`)
+            }}
             style={{
                 alignItems: 'center',
                 justifyContent: 'center',

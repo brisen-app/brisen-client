@@ -1,4 +1,4 @@
-import { Tables } from '@/types/supabase'
+import { Tables } from '@/models/supabase'
 import SupabaseManager from './SupabaseManager'
 import { LocalizationManager } from './LocalizationManager'
 

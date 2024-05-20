@@ -8,7 +8,7 @@ import { Text } from '../utils/Themed'
 import { useQuery } from '@tanstack/react-query'
 import { View, TouchableOpacity } from 'react-native'
 import Assets from '@/constants/Assets'
-import Color from '@/types/Color'
+import Color from '@/models/Color'
 import Colors from '@/constants/Colors'
 import Sizes from '@/constants/Sizes'
 import useColorScheme from '../utils/useColorScheme'
@@ -75,9 +75,7 @@ export function CardView(props: Readonly<CardViewProps>) {
                                 gap: 8,
                             }}
                         >
-                            <Text style={FontStyles.Title}>
-                                {CategoryManager.getTitle(category)}
-                            </Text>
+                            <Text style={FontStyles.Title}>{CategoryManager.getTitle(category)}</Text>
                             <Text style={{ fontSize: 48 }}>{category?.icon}</Text>
                         </TouchableOpacity>
                     </Link>
