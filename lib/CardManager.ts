@@ -44,7 +44,7 @@ class CardManagerSingleton extends SupabaseManager<Card> {
         let card = getRandom(candidates.values())
 
         const parentId = CardRelationManager.getUnplayedParent(card.id, new Set(candidates.keys()))
-        if (parentId) card = candidates.get(parentId) ?? card
+        if (parentId && parentId != card.id) card = candidates.get(parentId) ?? card
 
         return {
             ...card,
