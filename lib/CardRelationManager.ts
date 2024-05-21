@@ -20,7 +20,7 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
         this.parents = new Map()
     }
 
-    protected set(items: Iterable<CardRelation>): void {
+    protected set(items: Iterable<CardRelation>) {
         for (const relation of items) {
             this.createEdge(this.children, relation.parent, relation.child)
             this.createEdge(this.parents, relation.child, relation.parent)

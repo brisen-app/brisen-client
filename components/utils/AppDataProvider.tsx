@@ -9,6 +9,7 @@ import { LanguageManager } from '@/lib/LanguageManager'
 import { PackManager } from '@/lib/PackManager'
 import { CardManager } from '@/lib/CardManager'
 import { Text } from './Themed'
+import { CardRelationManager } from '@/lib/CardRelationManager'
 
 export default function AppDataProvider(props: Readonly<{ children: ReactNode }>) {
     const colorScheme = useColorScheme()
@@ -64,6 +65,17 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
         console.warn(errorCards)
     }
 
+    const { error: errorCardRelations, isLoading: isLoadingCardRelations } = useQuery({
+        queryKey: [CardRelationManager.tableName],
+        queryFn: async () => {
+            return await CardRelationManager.fetchAllOrRetrieve()
+        },
+    })
+    if (errorCardRelations) {
+        failedQueries.push(CardRelationManager.tableName)
+        console.warn(errorCardRelations)
+    }
+
     const { error: errorLocalizations, isLoading: isLoadingLocalizatons } = useQuery({
         queryKey: [LocalizationManager.tableName],
         queryFn: async () => {
@@ -76,7 +88,7 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
         console.warn(errorLocalizations)
     }
 
-    if (isLoadingLanguages || isLoadingCategories || isLoadingPacks || isLoadingCards || isLoadingLocalizatons)
+    if (isLoadingLanguages || isLoadingCategories || isLoadingPacks || isLoadingCards || isLoadingCardRelations || isLoadingLocalizatons)
         return (
             <View
                 style={{
