@@ -84,7 +84,7 @@ export default function PackListView(props: Readonly<PackListViewProps & PackVie
                         </Text>
 
                         <Text numberOfLines={2} style={{ ...styles.text, color: Colors[colorScheme].secondaryText }}>
-                            {pack.description ? pack.description : pack.cards.length + ' cards'}
+                            {pack.description ? pack.description : pack.cards.size + ' cards'}
                         </Text>
                     </View>
                 </TouchableOpacity>
