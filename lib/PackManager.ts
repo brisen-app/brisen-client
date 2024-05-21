@@ -1,17 +1,12 @@
+import { blobToBase64, emptyQuery } from './utils'
 import { NotFoundError } from '@/models/Errors'
 import { supabase } from './supabase'
-import { blobToBase64, emptyQuery } from './utils'
+import { Tables } from '@/models/supabase'
 import SupabaseManager from './SupabaseManager'
 
 const tableName = 'packs'
 const select = '*, cards(id)'
-export type Pack = Awaited<ReturnType<typeof fetch>>
-
-async function fetch(id: string) {
-    const { data } = await supabase.from(tableName).select(select).eq('id', id).single().throwOnError()
-    if (!data) throw new NotFoundError(`No data found in table '${tableName}'`)
-    return data
-}
+export type Pack = Tables<typeof tableName> & { cards: Set<string> }
 
 class PackManagerSingleton extends SupabaseManager<Pack> {
     constructor() {
@@ -23,11 +18,27 @@ class PackManagerSingleton extends SupabaseManager<Pack> {
         return [...this._items.values()]?.sort((a, b) => a.name.localeCompare(b.name))
     }
 
+    getPackOf(cardId: string, playlist: Set<Pack>) {
+        for (const pack of playlist) {
+            if (pack.cards.has(cardId)) return pack
+        }
+        return null
+    }
+
     async fetchAll(): Promise<Pack[]> {
         const { data } = await supabase.from(tableName).select(select).order('name').throwOnError()
         if (!data || data.length === 0) throw new NotFoundError(`No data found in table '${this.tableName}'`)
-        this.set(data)
-        return data
+
+        const packs = Array<Pack>()
+        for (const pack of data) {
+            packs.push({
+                ...pack,
+                cards: new Set(pack.cards.map((card: any) => card.id)),
+            })
+        }
+
+        this.set(packs)
+        return packs
     }
 
     getImageQuery(imageName: string | null | undefined, enabled = true) {

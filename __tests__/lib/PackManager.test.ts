@@ -3,36 +3,51 @@
 import { Pack, PackManager } from '@/lib/PackManager'
 import { supabase } from '@/lib/supabase'
 
-const mockedPacks: Pack[] = [
+const mockedSupabasePacks = [
     {
         id: 'pack1',
         name: 'Pack 1',
         description: 'This is a pack',
         image: 'pack1.png',
-        cards: [
-            { id: '1', category: 'cat1' },
-            { id: '2', category: 'cat2' },
-        ],
+        cards: [{ id: '1' }, { id: '2' }],
     },
     {
         id: 'pack3',
         name: 'Pack 3',
         description: 'This is a third pack',
         image: 'pack3.png',
-        cards: [
-            { id: '3', category: 'cat3' },
-            { id: '4', category: 'cat4' },
-        ],
+        cards: [{ id: '3' }, { id: '4' }],
     },
     {
         id: 'pack2',
         name: 'Pack 2',
         description: 'This is another pack',
         image: 'pack2.png',
-        cards: [
-            { id: '2', category: 'cat2' },
-            { id: '3', category: 'cat3' },
-        ],
+        cards: [{ id: '2' }, { id: '3' }],
+    },
+]
+
+const mockedPacks: Pack[] = [
+    {
+        id: 'pack1',
+        name: 'Pack 1',
+        description: 'This is a pack',
+        image: 'pack1.png',
+        cards: new Set(['1', '2']),
+    },
+    {
+        id: 'pack3',
+        name: 'Pack 3',
+        description: 'This is a third pack',
+        image: 'pack3.png',
+        cards: new Set(['3', '4']),
+    },
+    {
+        id: 'pack2',
+        name: 'Pack 2',
+        description: 'This is another pack',
+        image: 'pack2.png',
+        cards: new Set(['2', '3']),
     },
 ]
 
@@ -44,12 +59,12 @@ jest.mock('@/lib/supabase', () => ({
             select: () => ({
                 eq: (columnName: keyof Pack, value: string) => ({
                     single: () => ({
-                        throwOnError: () => ({ data: mockedPacks.find((pack) => pack[columnName] === value) }),
+                        throwOnError: () => ({ data: mockedSupabasePacks.find((pack) => pack[columnName] === value) }),
                     }),
                 }),
                 order: (columnName: 'id' | 'name') => ({
                     throwOnError: () => ({
-                        data: [...mockedPacks].sort((a, b) => a[columnName].localeCompare(b[columnName])),
+                        data: [...mockedSupabasePacks].sort((a, b) => a[columnName].localeCompare(b[columnName])),
                     }),
                 }),
             }),
@@ -88,7 +103,7 @@ describe('items', () => {
 })
 
 describe('fetchAll', () => {
-    it('should return all packs sorted by name', async () => {
+    it('should return all packs', async () => {
         const packs = await PackManager.fetchAll()
         expect(packs).toEqual(mockedSortedPacks)
     })
