@@ -34,7 +34,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
 
     const addCard = () => {
         if (playlist.size === 0) return
-        const newCard = CardManager.getNextCard(playedIds, playlist, players, categoryFilter)
+        const newCard = CardManager.drawCard(playedCards, playedIds, playlist, players, categoryFilter)
         if (newCard === null) return
         setContext({ type: 'addPlayedCard', payload: newCard })
         console.log(`Added card ${playedCards.length + 1}:`, newCard.formattedContent ?? newCard.content)

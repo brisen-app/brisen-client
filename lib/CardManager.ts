@@ -1,13 +1,15 @@
 import { getRandom, shuffled } from './utils'
 import { InsufficientCountError } from '@/models/Errors'
-import { Pack } from './PackManager'
+import { Pack, PackManager } from './PackManager'
 import { Tables } from '@/models/supabase'
 import SupabaseManager from './SupabaseManager'
+import { CardRelationManager } from './CardRelationManager'
 
 const tableName = 'cards'
 const playerTemplateRegex = /\{player\W*(\d+)\}/gi
 export type Card = Tables<typeof tableName>
 export type PlayedCard = {
+    children: Set<string> | null
     formattedContent: string | null
     minPlayers: number
     pack: Pack
@@ -28,39 +30,54 @@ class CardManagerSingleton extends SupabaseManager<Card> {
      * @param categoryFilterIds - A set of categories to exclude from the card selection.
      * @returns The next card to be played, or null if no valid card is available.
      */
-    getNextCard(
+    drawCard(
+        playedCards: PlayedCard[],
         playedIds: Set<string>,
         playlist: Set<Pack>,
         players: Set<string>,
         categoryFilterIds: Set<string>
     ): PlayedCard | null {
-        const candidates = new Set<{ card: Card; pack: Pack }>()
+        const candidates = this.findCandidates(playlist, playedIds, players.size, categoryFilterIds)
+        if (candidates.size === 0) return null
+
+        const shuffledPlayers = shuffled(players)
+        let card = getRandom(candidates.values())
+
+        const parentId = CardRelationManager.getUnplayedParent(card.id, new Set(candidates.keys()))
+        if (parentId) card = candidates.get(parentId) ?? card
+
+        return {
+            ...card,
+            children: CardRelationManager.getChildren(card.id),
+            formattedContent: this.insertPlayers(card.content, shuffledPlayers),
+            minPlayers: this.getRequiredPlayerCount(card),
+            pack: PackManager.getPackOf(card.id, playlist)!,
+            players: shuffledPlayers,
+        }
+    }
+
+    private findCandidates(
+        playlist: Set<Pack>,
+        playedIds: Set<string>,
+        playerCount: number,
+        categoryFilterIds: Set<string>
+    ) {
+        const candidates = new Map<string, Card>()
 
         for (const pack of playlist) {
             for (const cardId of pack.cards) {
-                const card = this.get(cardId.id)!
+                const card = this.get(cardId)!
                 if (
                     card &&
                     !playedIds.has(card.id) &&
                     (!card.category || !categoryFilterIds.has(card.category)) &&
-                    players.size >= this.getRequiredPlayerCount(card)
+                    playerCount >= this.getRequiredPlayerCount(card)
                 )
-                    candidates.add({ card, pack })
+                    candidates.set(card.id, card)
             }
         }
 
-        if (candidates.size === 0) return null
-
-        const shuffledPlayers = shuffled(players)
-        const { card, pack } = getRandom(candidates)
-
-        return {
-            ...card,
-            formattedContent: this.insertPlayers(card.content, shuffledPlayers),
-            minPlayers: this.getRequiredPlayerCount(card),
-            pack: pack,
-            players: shuffledPlayers,
-        }
+        return candidates
     }
 
     /**

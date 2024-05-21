@@ -1,5 +1,4 @@
 import { Tables } from '@/models/supabase'
-import { CardManager } from './CardManager'
 import SupabaseManager from './SupabaseManager'
 
 const tableName = 'card_dependencies'
@@ -58,6 +57,8 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
     }
 
     getRequiredPlayerCount(cardId: string, visited: Set<string> = new Set<string>()): number {
+        const CardManager = require('./CardManager').CardManager
+
         const card = CardManager.get(cardId)
         if (!card || visited.has(cardId)) return 0
 
