@@ -49,9 +49,24 @@ describe('getRandom', () => {
         expect(mockedSet).toContain(result)
     })
 
-    it('should throw an error for unsupported collection types', () => {
-        const input = new Map()
-        expect(() => utils.getRandom(input)).toThrow('Unsupported collection type')
+    it('should return a random element from map values', () => {
+        const mockedMap = new Map([
+            ['a', 1],
+            ['b', 2],
+            ['c', 3],
+        ])
+        const result = utils.getRandom(mockedMap.values())
+        expect([1, 2, 3]).toContain(result)
+    })
+
+    it('should return a random element from map keys', () => {
+        const mockedMap = new Map([
+            ['a', 1],
+            ['b', 2],
+            ['c', 3],
+        ])
+        const result = utils.getRandom(mockedMap.keys())
+        expect(['a', 'b', 'c']).toContain(result)
     })
 })
 

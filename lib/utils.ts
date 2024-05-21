@@ -39,11 +39,12 @@ export function getRandom<T>(collection: Iterable<T>): T {
             Math.floor((Crypto.getRandomValues(new Uint32Array(1))[0] / 0xffffffff) * collection.length) %
                 collection.length
         ]
-    if (collection instanceof Set)
-        return Array.from(collection)[
-            Math.floor((Crypto.getRandomValues(new Uint32Array(1))[0] / 0xffffffff) * collection.size) % collection.size
-        ]
-    throw new TypeError('Unsupported collection type')
+    
+    let array = null
+    if (collection instanceof Array) array = collection
+    else array = Array.from(collection)
+
+    return array[Math.floor((Crypto.getRandomValues(new Uint32Array(1))[0] / 0xffffffff) * array.length) % array.length]
 }
 
 const emptyQuery = {
