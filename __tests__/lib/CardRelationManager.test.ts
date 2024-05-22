@@ -1,5 +1,6 @@
 import { Card, CardManager } from '@/lib/CardManager'
 import { CardRelation, CardRelationManager } from '@/lib/CardRelationManager'
+import { CycleError } from '@/models/Errors'
 
 const mockedRelations1 = [
     { parent: '1', child: '2' },
@@ -16,6 +17,16 @@ const mockedRelations2 = [
     { parent: '4', child: '3' },
     { parent: '4', child: '2' },
     { parent: '3', child: '1' },
+] as CardRelation[]
+
+const mockedRelationsWithCycle = [
+    { parent: '1', child: '2' },
+    { parent: '2', child: '3' },
+    { parent: '3', child: '4' },
+    { parent: '4', child: '1' },
+    { parent: '4', child: '5' },
+    { parent: '5', child: '6' },
+    { parent: '6', child: '3' },
 ] as CardRelation[]
 
 jest.mock('@/lib/supabase', () => ({
@@ -80,6 +91,17 @@ describe('set', () => {
             // @ts-ignore
             expect(CardRelationManager.parents).toEqual(expectedParents)
         })
+    })
+
+    it('should throw an error if there is a cycle', () => {
+        try {
+            // @ts-ignore
+            CardRelationManager.set(mockedRelationsWithCycle)
+        } catch (error) {
+            if (!(error instanceof CycleError)) throw error
+            expect(error.message.includes('1')).toBe(true)
+            expect(error.node).toBe('1')
+        }
     })
 })
 

@@ -1,5 +1,6 @@
 import { Tables } from '@/models/supabase'
 import SupabaseManager from './SupabaseManager'
+import { CycleError } from '@/models/Errors'
 
 const tableName = 'card_dependencies'
 export type CardRelation = { id: string } & Tables<typeof tableName>
@@ -25,6 +26,9 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
             this.createEdge(this.children, relation.parent, relation.child)
             this.createEdge(this.parents, relation.child, relation.parent)
         }
+        var nodeInCycle = this.hasCycle()
+        if (nodeInCycle)
+            throw new CycleError('The card dependency graph has a cycle including card: ' + nodeInCycle, nodeInCycle)
     }
 
     private createEdge(map: Map<string, Set<string>>, from: string, to: string) {
@@ -96,6 +100,32 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
                 id: relation.child + ':' + relation.parent,
             }
         })
+    }
+
+    private hasCycle(): string | null {
+        const visited = new Set<string>()
+        const recStack = new Set<string>()
+
+        const dfs = (node: string): string | null => {
+            if (!visited.has(node)) {
+                visited.add(node)
+                recStack.add(node)
+
+                const children = this.children.get(node)
+                if (children) {
+                    for (const child of children) {
+                        if (recStack.has(child) || (!visited.has(child) && dfs(child))) return child
+                    }
+                }
+            }
+            recStack.delete(node)
+            return null
+        }
+
+        for (const node of this.children.keys()) {
+            if (dfs(node)) return node
+        }
+        return null
     }
 }
 

@@ -18,3 +18,10 @@ export class NotImplementedError extends Error {
         this.name = 'NotImplementedError'
     }
 }
+
+export class CycleError extends Error {
+    constructor(message: string, public node: string) {
+        super(message)
+        this.name = 'CycleError'
+    }
+}
