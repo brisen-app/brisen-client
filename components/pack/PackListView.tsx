@@ -15,7 +15,7 @@ import { useCallback } from 'react'
 import Colors from '@/constants/Colors'
 import useColorScheme from '../utils/useColorScheme'
 import { PackManager } from '@/lib/PackManager'
-import Color from '@/types/Color'
+import Color from '@/models/Color'
 import { useQuery } from '@tanstack/react-query'
 import { PackViewProps } from '@/app/pack/[packID]'
 import { MaterialIcons } from '@expo/vector-icons'
@@ -84,7 +84,7 @@ export default function PackListView(props: Readonly<PackListViewProps & PackVie
                         </Text>
 
                         <Text numberOfLines={2} style={{ ...styles.text, color: Colors[colorScheme].secondaryText }}>
-                            {pack.description ? pack.description : pack.cards.length + ' cards'}
+                            {pack.description ? pack.description : pack.cards.size + ' cards'}
                         </Text>
                     </View>
                 </TouchableOpacity>

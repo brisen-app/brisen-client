@@ -1,13 +1,14 @@
-import { Category } from './CategoryManager'
-import { Pack } from './PackManager'
 import { Card } from './CardManager'
-import { Localization } from './LocalizationManager'
+import { CardRelation } from './CardRelationManager'
+import { Category } from './CategoryManager'
 import { Language } from './LanguageManager'
-import { NotFoundError } from '@/types/Errors'
+import { Localization } from './LocalizationManager'
+import { NotFoundError } from '@/models/Errors'
+import { Pack } from './PackManager'
 import { supabase } from './supabase'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-export type SupabaseItem = Category | Pack | Card | Localization | Language
+export type SupabaseItem = Category | Pack | Card | Localization | Language | CardRelation
 
 export default abstract class SupabaseManager<T extends SupabaseItem> {
     readonly tableName: string

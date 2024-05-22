@@ -1,5 +1,5 @@
 import { getLocales, Locale } from 'expo-localization'
-import { Tables } from '@/types/supabase'
+import { Tables } from '@/models/supabase'
 import SupabaseManager from './SupabaseManager'
 
 const tableName = 'languages'

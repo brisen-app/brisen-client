@@ -1,7 +1,7 @@
 import { LanguageManager } from '@/lib/LanguageManager'
 import { LocalizationManager, Localization } from '@/lib/LocalizationManager'
 import { supabase } from '@/lib/supabase'
-import { NotFoundError } from '@/types/Errors'
+import { NotFoundError } from '@/models/Errors'
 
 const mockedItems: Localization[] = [
     // @ts-ignore

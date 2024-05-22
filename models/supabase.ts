@@ -9,6 +9,42 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      card_dependencies: {
+        Row: {
+          child: string
+          created_at: string
+          modified_at: string
+          parent: string
+        }
+        Insert: {
+          child: string
+          created_at?: string
+          modified_at?: string
+          parent: string
+        }
+        Update: {
+          child?: string
+          created_at?: string
+          modified_at?: string
+          parent?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "card_dependencies_child_fkey"
+            columns: ["child"]
+            isOneToOne: false
+            referencedRelation: "cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "card_dependencies_parent_fkey"
+            columns: ["parent"]
+            isOneToOne: false
+            referencedRelation: "cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       card_pack_rel: {
         Row: {
           card: string

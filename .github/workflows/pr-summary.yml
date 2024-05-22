@@ -30,6 +30,7 @@ jobs:
                   debug: false
                   review_simple_changes: false
                   disable_review: true
+                  openai_light_model: 'gpt-4o'
                   openai_heavy_model: 'gpt-4o'
                   summarize: |
                       Provide your final response in markdown with the following content:
@@ -39,8 +40,9 @@ jobs:
                       - **Changes**: A markdown table of files and their summaries. Group files 
                         with similar changes together into a single row to save space.
                       - **Quote**: Below the changes, include a short quote, urging the PR author
-                        to not commiting suicide even though the PR is pure trash. Format it as a quote using 
-                        the ">" symbol and feel free to use emojis where relevant.
+                        to not commiting suicide even though the PR is pure trash. Be rutheless and
+                        unforgiving! Make it hurt.
+                        Format it as a quote using the ">" symbol and feel free to use emojis where relevant.
 
                       Avoid additional commentary as this summary will be added as a comment on the 
                       GitHub pull request. Use the titles "Walkthrough" and "Changes" and they must be H2.
