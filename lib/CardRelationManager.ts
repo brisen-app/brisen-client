@@ -26,7 +26,7 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
             this.createEdge(this.children, relation.parent, relation.child)
             this.createEdge(this.parents, relation.child, relation.parent)
         }
-        var nodeInCycle = this.hasCycle()
+        const nodeInCycle = this.hasCycle()
         if (nodeInCycle)
             throw new CycleError('The card dependency graph has a cycle including card: ' + nodeInCycle, nodeInCycle)
     }

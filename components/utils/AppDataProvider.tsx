@@ -12,7 +12,7 @@ import { CardRelationManager } from '@/lib/CardRelationManager'
 import SupabaseManager, { SupabaseItem } from '@/lib/SupabaseManager'
 
 function useSupabase(manager: SupabaseManager<SupabaseItem>, enabled = true): boolean {
-    var { data, error, isLoading, isPending, isFetched } = useQuery({
+    const { data, error, isLoading, isPending, isFetched } = useQuery({
         queryKey: [manager.tableName],
         queryFn: async () => {
             return await manager.fetchAllOrRetrieve()
