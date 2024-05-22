@@ -30,6 +30,7 @@ jobs:
                   debug: false
                   review_simple_changes: false
                   disable_review: true
+                  openai_light_model: 'gpt-4o'
                   openai_heavy_model: 'gpt-4o'
                   summarize: |
                       Provide your final response in markdown with the following content:
