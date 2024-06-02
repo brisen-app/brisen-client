@@ -4,7 +4,7 @@ import useColorScheme from '@/components/utils/useColorScheme'
 import Colors from '@/constants/Colors'
 import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet'
 import { useCallback, useMemo, useRef } from 'react'
-import { StyleSheet } from 'react-native'
+import { Keyboard, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export default function App() {
@@ -19,7 +19,8 @@ export default function App() {
         opacity={0.5}
         appearsOnIndex={1}
         disappearsOnIndex={0}
-        pressBehavior={'collapse'}
+        pressBehavior="collapse"
+        onPress={Keyboard.dismiss}
         {...props}
       />
     ),
@@ -36,7 +37,6 @@ export default function App() {
         enableDynamicSizing
         backdropComponent={backdrop}
         keyboardBehavior="extend"
-        keyboardBlurBehavior="restore"
         backgroundStyle={{
           borderRadius: 16,
           borderColor: Colors[colorScheme].stroke,
