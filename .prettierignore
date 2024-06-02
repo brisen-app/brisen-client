@@ -1,1 +1,5 @@
-package*
+package/**
+.expo/**
+coverage/**
+node_modules/**
+models/supabase.ts

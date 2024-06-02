@@ -12,49 +12,49 @@ import { CardRelationManager } from '@/lib/CardRelationManager'
 import SupabaseManager, { SupabaseItem } from '@/lib/SupabaseManager'
 
 function useSupabase(manager: SupabaseManager<SupabaseItem>, enabled = true): boolean {
-    const { data, error, isLoading, isPending, isFetched } = useQuery({
-        queryKey: [manager.tableName],
-        queryFn: async () => {
-            return await manager.fetchAllOrRetrieve()
-        },
-        enabled: enabled,
-    })
-    if (error) console.warn(error)
-    return !!data && !isLoading && !isPending && isFetched
+  const { data, error, isLoading, isPending, isFetched } = useQuery({
+    queryKey: [manager.tableName],
+    queryFn: async () => {
+      return await manager.fetchAllOrRetrieve()
+    },
+    enabled: enabled,
+  })
+  if (error) console.warn(error)
+  return !!data && !isLoading && !isPending && isFetched
 }
 
 export default function AppDataProvider(props: Readonly<{ children: ReactNode }>) {
-    const colorScheme = useColorScheme()
+  const colorScheme = useColorScheme()
 
-    const hasFetchedLanguages = useSupabase(LanguageManager)
-    const hasFetchedCategories = useSupabase(CategoryManager)
-    const hasFetchedPacks = useSupabase(PackManager)
-    const hasFetchedCards = useSupabase(CardManager)
-    const hasFetchedCardRelations = useSupabase(CardRelationManager)
-    const hasFetchedLocalizations = useSupabase(LocalizationManager, hasFetchedLanguages)
+  const hasFetchedLanguages = useSupabase(LanguageManager)
+  const hasFetchedCategories = useSupabase(CategoryManager)
+  const hasFetchedPacks = useSupabase(PackManager)
+  const hasFetchedCards = useSupabase(CardManager)
+  const hasFetchedCardRelations = useSupabase(CardRelationManager)
+  const hasFetchedLocalizations = useSupabase(LocalizationManager, hasFetchedLanguages)
 
-    if (
-        !hasFetchedLanguages ||
-        !hasFetchedCategories ||
-        !hasFetchedPacks ||
-        !hasFetchedCards ||
-        !hasFetchedCardRelations ||
-        !hasFetchedLocalizations
+  if (
+    !hasFetchedLanguages ||
+    !hasFetchedCategories ||
+    !hasFetchedPacks ||
+    !hasFetchedCards ||
+    !hasFetchedCardRelations ||
+    !hasFetchedLocalizations
+  )
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: Colors[colorScheme].background,
+        }}
+      >
+        <ActivityIndicator size={'large'} color={Colors[colorScheme].secondaryText} />
+      </View>
     )
-        return (
-            <View
-                style={{
-                    flex: 1,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    backgroundColor: Colors[colorScheme].background,
-                }}
-            >
-                <ActivityIndicator size={'large'} color={Colors[colorScheme].secondaryText} />
-            </View>
-        )
 
-    // TODO: Display error if any data is null
+  // TODO: Display error if any data is null
 
-    return props.children
+  return props.children
 }

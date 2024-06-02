@@ -1,48 +1,48 @@
 name: 📋 PR Summary
 
 permissions:
-    contents: read
-    pull-requests: write
+  contents: read
+  pull-requests: write
 
 on:
-    workflow_dispatch:
-    pull_request:
-        types:
-            - opened
-            - reopened
+  workflow_dispatch:
+  pull_request:
+    types:
+      - opened
+      - reopened
 
 concurrency:
-    group: ${{ github.repository }}-${{ github.event.number || github.head_ref ||
-        github.sha }}-${{ github.workflow }}-${{ github.event_name ==
-        'pull_request_review_comment' && 'pr_comment' || 'pr' }}
-    cancel-in-progress: ${{ github.event_name != 'pull_request_review_comment' }}
+  group: ${{ github.repository }}-${{ github.event.number || github.head_ref ||
+    github.sha }}-${{ github.workflow }}-${{ github.event_name ==
+    'pull_request_review_comment' && 'pr_comment' || 'pr' }}
+  cancel-in-progress: ${{ github.event_name != 'pull_request_review_comment' }}
 
 jobs:
-    summarize:
-        name: 🐰 CodeRabbit summary
-        runs-on: ubuntu-latest
-        steps:
-            - uses: coderabbitai/ai-pr-reviewer@latest
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-              with:
-                  debug: false
-                  review_simple_changes: false
-                  disable_review: true
-                  openai_light_model: 'gpt-4o'
-                  openai_heavy_model: 'gpt-4o'
-                  summarize: |
-                      Provide your final response in markdown with the following content:
+  summarize:
+    name: 🐰 CodeRabbit summary
+    runs-on: ubuntu-latest
+    steps:
+      - uses: coderabbitai/ai-pr-reviewer@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        with:
+          debug: false
+          review_simple_changes: false
+          disable_review: true
+          openai_light_model: 'gpt-4o'
+          openai_heavy_model: 'gpt-4o'
+          summarize: |
+            Provide your final response in markdown with the following content:
 
-                      - **Walkthrough**: A high-level summary of the overall change instead of 
-                        specific files within 80 words.
-                      - **Changes**: A markdown table of files and their summaries. Group files 
-                        with similar changes together into a single row to save space.
-                      - **Quote**: Below the changes, include a short quote, urging the PR author
-                        to not commiting suicide even though the PR is pure trash. Be rutheless and
-                        unforgiving! Make it hurt.
-                        Format it as a quote using the ">" symbol and feel free to use emojis where relevant.
+            - **Walkthrough**: A high-level summary of the overall change instead of 
+              specific files within 80 words.
+            - **Changes**: A markdown table of files and their summaries. Group files 
+              with similar changes together into a single row to save space.
+            - **Quote**: Below the changes, include a short quote, urging the PR author
+              to not commiting suicide even though the PR is pure trash. Be rutheless and
+              unforgiving! Make it hurt.
+              Format it as a quote using the ">" symbol and feel free to use emojis where relevant.
 
-                      Avoid additional commentary as this summary will be added as a comment on the 
-                      GitHub pull request. Use the titles "Walkthrough" and "Changes" and they must be H2.
+            Avoid additional commentary as this summary will be added as a comment on the 
+            GitHub pull request. Use the titles "Walkthrough" and "Changes" and they must be H2.

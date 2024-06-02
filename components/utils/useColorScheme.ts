@@ -1,6 +1,6 @@
-import { useColorScheme as defaultFunc } from 'react-native';
+import { useColorScheme as defaultFunc } from 'react-native'
 
-export type ColorSchemeName = 'light' | 'dark';
+export type ColorSchemeName = 'light' | 'dark'
 
 /**
  * A new useColorScheme hook is provided as the preferred way of accessing
@@ -8,6 +8,6 @@ export type ColorSchemeName = 'light' | 'dark';
  * Defaults to 'dark' if the user's preference is not available.
  */
 export default function useColorScheme(): ColorSchemeName {
-    // return defaultFunc() ?? 'dark';
-    return 'dark';
+  // return defaultFunc() ?? 'dark';
+  return 'dark'
 }

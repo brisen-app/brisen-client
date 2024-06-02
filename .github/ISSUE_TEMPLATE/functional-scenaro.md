@@ -1,18 +1,17 @@
 ---
 name: Functional Scenaro
 about: Description of how to implement a feature.
-title: "[FS] "
+title: '[FS] '
 labels: feature
 assignees: ''
-
 ---
 
-# User Story
-*As a [type of user], I want [an action] so that [a benefit/a reason].*
+# Description
+_Short description of the functionality to be implemented._
 
 # Detailed Design
-*Describe, in detail, how to implement the feature.*
+_Describe, in detail, how to implement the feature._
 - [] 
 
 # Visual Design
-*Insert Figma-images here to show the design of the feature if applicable.*
+_Insert Figma-screenshots here to show the design of the feature if applicable._

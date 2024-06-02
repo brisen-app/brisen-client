@@ -5,16 +5,16 @@ import { useLocalSearchParams } from 'expo-router'
 import { View } from 'react-native'
 
 export default function CategoryView() {
-    const { categoryID } = useLocalSearchParams()
+  const { categoryID } = useLocalSearchParams()
 
-    const category = CategoryManager.get(categoryID as string)
-    const title = LocalizationManager.get(CategoryManager.getTitle(category))?.value
-    const description = LocalizationManager.get(CategoryManager.getDescription(category))?.value
+  const category = CategoryManager.get(categoryID as string)
+  const title = LocalizationManager.get(CategoryManager.getTitle(category))?.value
+  const description = LocalizationManager.get(CategoryManager.getDescription(category))?.value
 
-    return (
-        <View>
-            <Text>{title}</Text>
-            <Text>{description}</Text>
-        </View>
-    )
+  return (
+    <View>
+      <Text>{title}</Text>
+      <Text>{description}</Text>
+    </View>
+  )
 }
