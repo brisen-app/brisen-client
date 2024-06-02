@@ -1,4 +1,4 @@
-name: Create Expo Preview
+name: Deploy Expo Preview
 
 on:
     push:
@@ -12,20 +12,16 @@ concurrency:
 jobs:
     publish-preview:
         runs-on: ubuntu-latest
+        environment: Beta
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             EXPO_PROJECT: ${{ vars.EXPO_PROJECT }}
-            EXPO_PUBLIC_SB_URL: ${{ vars.SUPABASE_URL_DEV }}
-            EXPO_PUBLIC_SB_ANON: ${{ secrets.SUPABASE_ANON_DEV }}
+            EXPO_PUBLIC_SB_URL: ${{ vars.SUPABASE_URL }}
+            EXPO_PUBLIC_SB_ANON: ${{ secrets.SUPABASE_ANON }}
         steps:
-            - name: 🏗 Setup repo
-              uses: actions/checkout@v3
-
-            - name: 🏗 Setup Node
-              uses: actions/setup-node@v3
-
-            - name: 🏗 Setup EAS
-              uses: expo/expo-github-action@v8
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
+            - uses: expo/expo-github-action@v8
               with:
                   eas-version: latest
                   packager: npm
