@@ -50,6 +50,7 @@ When the `develop`-branch is ready for deployment, follow these steps:
 🔗 [Documentation](https://docs.expo.dev/workflow/upgrading-expo-sdk-walkthrough/)
 
 ```bash
+npm update
 npm install expo@latest
 npx expo install --fix
 ```
