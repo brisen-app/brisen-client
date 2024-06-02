@@ -24,7 +24,8 @@ class CardManagerSingleton extends SupabaseManager<Card> {
   /**
    * Retrieves the next card to be played based on the given parameters.
    *
-   * @param playedIds - An array of previously played card ids.
+   * @param playedCards - An array of previously played cards.
+   * @param playedIds - A set of previously played card ids.
    * @param playlist - A set of selected packs.
    * @param players - A set of strings representing player names.
    * @param categoryFilterIds - A set of categories to exclude from the card selection.
@@ -40,19 +41,20 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     const candidates = this.findCandidates(playlist, playedIds, players.size, categoryFilterIds)
     if (candidates.size === 0) return null
 
-    const shuffledPlayers = shuffled(players)
     let card = getRandom(candidates.values())
 
     const parentId = CardRelationManager.getUnplayedParent(card.id, new Set(candidates.keys()))
     if (parentId && parentId != card.id) card = candidates.get(parentId) ?? card
 
+    const playerList = this.getParentPlayerList(card, playedCards, playedIds) ?? shuffled(players)
+
     return {
       ...card,
       children: CardRelationManager.getChildren(card.id),
-      formattedContent: this.insertPlayers(card.content, shuffledPlayers),
+      formattedContent: this.insertPlayers(card.content, playerList),
       minPlayers: this.getRequiredPlayerCount(card),
       pack: PackManager.getPackOf(card.id, playlist)!,
-      players: shuffledPlayers,
+      players: playerList,
     }
   }
 
@@ -71,13 +73,21 @@ class CardManagerSingleton extends SupabaseManager<Card> {
           card &&
           !playedIds.has(card.id) &&
           (!card.category || !categoryFilterIds.has(card.category)) &&
-          playerCount >= this.getRequiredPlayerCount(card)
+          playerCount >= CardRelationManager.getRequiredPlayerCount(card.id)
         )
           candidates.set(card.id, card)
       }
     }
 
     return candidates
+  }
+
+  private getParentPlayerList(card: Card, playedCards: PlayedCard[], playedIds: Set<string>) {
+    const playedParent = CardRelationManager.getPlayedParent(card.id, playedIds)
+    if (!playedParent) return null
+    for (const playedCard of playedCards) {
+      if (playedCard.id === playedParent) return playedCard.players
+    }
   }
 
   /**

@@ -60,6 +60,16 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
     return cardId
   }
 
+  getPlayedParent(cardId: string, playedIds: Set<string>): string | null {
+    const parents = this.parents.get(cardId)
+    if (!parents) return null
+
+    for (const parent of parents) {
+      if (playedIds.has(parent)) return parent
+    }
+    return null
+  }
+
   getRequiredPlayerCount(cardId: string, visited: Set<string> = new Set<string>()): number {
     const CardManager = require('./CardManager').CardManager
 
