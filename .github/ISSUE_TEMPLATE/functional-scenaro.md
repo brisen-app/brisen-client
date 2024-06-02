@@ -7,12 +7,12 @@ assignees: ''
 
 ---
 
-# User Story
-*As a [type of user], I want [an action] so that [a benefit/a reason].*
+# Description
+*Short description of the functionality to be implemented.*
 
 # Detailed Design
 *Describe, in detail, how to implement the feature.*
 - [] 
 
 # Visual Design
-*Insert Figma-images here to show the design of the feature if applicable.*
+*Insert Figma-screenshots here to show the design of the feature if applicable.*
