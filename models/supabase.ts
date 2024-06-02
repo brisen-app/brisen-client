@@ -191,7 +191,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "public_localizations_language_fkey"
+            foreignKeyName: "localizations_language_fkey"
             columns: ["language"]
             isOneToOne: false
             referencedRelation: "languages"
