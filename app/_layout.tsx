@@ -9,33 +9,33 @@ import useColorScheme from '@/components/utils/useColorScheme'
 import AppDataProvider from '@/components/utils/AppDataProvider'
 
 export default function Layout() {
-    const colorScheme = useColorScheme()
-    const queryClient = new QueryClient({
-        defaultOptions: {
-            queries: {
-                staleTime: Infinity,
-                refetchOnWindowFocus: false,
-                retry: false,
-                gcTime: Infinity,
-            },
-        },
-    })
+  const colorScheme = useColorScheme()
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: Infinity,
+        refetchOnWindowFocus: false,
+        retry: false,
+        gcTime: Infinity,
+      },
+    },
+  })
 
-    return (
-        <QueryClientProvider client={queryClient}>
-            <AppDataProvider>
-                <AppContextProvider>
-                    <GestureHandlerRootView style={{ flex: 1 }}>
-                        <Stack
-                            screenOptions={{
-                                headerShown: false,
-                                contentStyle: { backgroundColor: Colors[colorScheme].background },
-                            }}
-                        />
-                        {Platform.OS === 'web' && <ReactQueryDevtools initialIsOpen={true} />}
-                    </GestureHandlerRootView>
-                </AppContextProvider>
-            </AppDataProvider>
-        </QueryClientProvider>
-    )
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AppDataProvider>
+        <AppContextProvider>
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: Colors[colorScheme].background },
+              }}
+            />
+            {Platform.OS === 'web' && <ReactQueryDevtools initialIsOpen={true} />}
+          </GestureHandlerRootView>
+        </AppContextProvider>
+      </AppDataProvider>
+    </QueryClientProvider>
+  )
 }

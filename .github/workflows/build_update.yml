@@ -1,36 +1,36 @@
 name: Deploy Expo Preview
 
 on:
-    push:
-        branches:
-            - develop
+  push:
+    branches:
+      - develop
 
 concurrency:
-    group: ${{ github.workflow }}-${{ github.ref }}
-    cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-    publish-preview:
-        runs-on: ubuntu-latest
-        environment: Beta
-        env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            EXPO_PROJECT: ${{ vars.EXPO_PROJECT }}
-            EXPO_PUBLIC_SB_URL: ${{ vars.SUPABASE_URL }}
-            EXPO_PUBLIC_SB_ANON: ${{ secrets.SUPABASE_ANON }}
-        steps:
-            - uses: actions/checkout@v3
-            - uses: actions/setup-node@v3
-            - uses: expo/expo-github-action@v8
-              with:
-                  eas-version: latest
-                  packager: npm
-                  token: ${{ secrets.EXPO_TOKEN }}
+  publish-preview:
+    runs-on: ubuntu-latest
+    environment: Beta
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      EXPO_PROJECT: ${{ vars.EXPO_PROJECT }}
+      EXPO_PUBLIC_SB_URL: ${{ vars.SUPABASE_URL }}
+      EXPO_PUBLIC_SB_ANON: ${{ secrets.SUPABASE_ANON }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          packager: npm
+          token: ${{ secrets.EXPO_TOKEN }}
 
-            - name: 📦 Install dependencies
-              run: npm install
+      - name: 📦 Install dependencies
+        run: npm install
 
-            - name: 🚀 Create preview
-              uses: expo/expo-github-action/preview@v8
-              with:
-                  command: eas update --branch "${{ github.ref_name }}" --message "${{ github.event.head_commit.message }}"
+      - name: 🚀 Create preview
+        uses: expo/expo-github-action/preview@v8
+        with:
+          command: eas update --branch "${{ github.ref_name }}" --message "${{ github.event.head_commit.message }}"

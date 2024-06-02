@@ -7,10 +7,10 @@ let supabaseUrl = process.env.EXPO_PUBLIC_SB_URL!
 let supabaseAnon = process.env.EXPO_PUBLIC_SB_ANON!
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnon, {
-    auth: {
-        storage: AsyncStorage,
-        autoRefreshToken: false,
-        persistSession: false,
-        detectSessionInUrl: false,
-    },
+  auth: {
+    storage: AsyncStorage,
+    autoRefreshToken: false,
+    persistSession: false,
+    detectSessionInUrl: false,
+  },
 })
