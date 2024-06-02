@@ -26,7 +26,7 @@
 1. Make your changes in the client and the development environments [Supabase dashboard](https://supabase.com/dashboard/project/tlnldlywflpgvjepxwxz).
    - If you're making changes to the database schema, you'll need to regenerate the Supabase types
      ```bash
-     npx supabase gen types typescript --project-id tlnldlywflpgvjepxwxz --schema public > types/supabase.ts
+     npx supabase gen types typescript --project-id tlnldlywflpgvjepxwxz --schema public > models/supabase.ts
      ```
 1. Commit and push changes to the branch
 1. Create a pull request with `develop` as the target branch
