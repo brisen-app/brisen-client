@@ -49,7 +49,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
     if (!isShowingCard) addCard()
   }, [playlist, players])
 
-  if (playedCards.length === 0) return <NoCardsView />
+  if (playedCards.length === 0) return <NoCardsView onPress={onPressNoCard} />
 
   return (
     <FlatList
@@ -62,7 +62,6 @@ export default function GameView(props: Readonly<GameViewProps>) {
       data={playedCards}
       onEndReachedThreshold={0.99}
       onEndReached={addCard}
-      ListEmptyComponent={<NoCardsView onPress={onPressNoCard} />}
       ListFooterComponent={<OutOfCardsView onPress={onPressNoCard} />}
       renderItem={({ item, index }) => <CardScreen card={item} onPress={() => onPressCard(index)} />}
     />
