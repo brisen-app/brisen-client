@@ -1,19 +1,14 @@
-import React, { useEffect } from 'react'
-import { Text, TouchableOpacity, TouchableOpacityProps } from 'react-native'
-import { MaterialIcons } from '@expo/vector-icons'
-import Animated, {
-  useSharedValue,
-  FadeIn,
-  FadeOut,
-  EntryExitTransition,
-  FadeInUp,
-  Easing,
-  ZoomOutDown,
-  ZoomOut,
-} from 'react-native-reanimated'
 import Colors from '@/constants/Colors'
-import useColorScheme from './useColorScheme'
 import { FontStyles } from '@/constants/Styles'
+import { MaterialIcons } from '@expo/vector-icons'
+import React from 'react'
+import { Text, TouchableOpacity, TouchableOpacityProps } from 'react-native'
+import Animated, {
+  Easing,
+  FadeInUp,
+  ZoomOut
+} from 'react-native-reanimated'
+import useColorScheme from './useColorScheme'
 
 export type TagListProps = {
   text: string
