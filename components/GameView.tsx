@@ -129,6 +129,7 @@ function OutOfCardsView(props: Readonly<OutOfCardsViewProps>) {
           color={Colors[colorScheme].accentColor}
           disabled={playedCards.length === 0}
           onPress={() => {
+            props.onPress()
             setContext({ type: 'restartGame' })
           }}
         />
