@@ -1,9 +1,8 @@
-import { StyleSheet, Dimensions, PressableProps, Pressable, ViewToken } from 'react-native'
+import { Dimensions, PressableProps, Pressable, ViewToken } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Colors from '@/constants/Colors'
 import Sizes from '@/constants/Sizes'
 import useColorScheme from '../utils/useColorScheme'
-import Color from '@/models/Color'
 import { PlayedCard } from '@/lib/CardManager'
 import { CategoryManager } from '@/lib/CategoryManager'
 import { CardView } from './CardView'
@@ -70,28 +69,3 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
     </Pressable>
   )
 }
-
-export const styles = StyleSheet.create({
-  shadow: {
-    shadowColor: 'black',
-    shadowOpacity: 0.5,
-    shadowRadius: 1,
-    shadowOffset: { width: 0, height: 1 },
-  },
-  text: {
-    userSelect: 'none',
-    textShadowColor: Color.black.alpha(0.5).string,
-    textShadowRadius: 1,
-    textShadowOffset: { width: 0, height: 1 },
-    textAlign: 'center',
-    color: Color.white.string,
-  },
-  categoryTitle: {
-    fontSize: 20,
-    fontWeight: '900',
-  },
-  content: {
-    fontSize: 28,
-    fontWeight: '900',
-  },
-})
