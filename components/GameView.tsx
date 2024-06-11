@@ -1,14 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Button, Dimensions, FlatList, Pressable, PressableProps, ViewProps, ViewToken } from 'react-native'
+import { Button, Dimensions, FlatList, Pressable, PressableProps, ViewToken } from 'react-native'
 import CardScreen from '@/components/card/CardScreen'
 import Colors from '@/constants/Colors'
 import useColorScheme from './utils/useColorScheme'
 import BottomSheet from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet'
-import { CardManager, PlayedCard } from '@/lib/CardManager'
+import { CardManager } from '@/lib/CardManager'
 import { useAppContext, useAppDispatchContext } from './utils/AppContextProvider'
 import { Text } from './utils/Themed'
 import { LocalizationManager } from '@/lib/LocalizationManager'
-import Animated, { Easing, SharedValue, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 
 export type GameViewProps = {
   bottomSheetRef?: React.RefObject<BottomSheet>
@@ -19,7 +18,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
   const flatListRef = React.useRef<FlatList>(null)
   const { playlist, players, playedCards, playedIds, categoryFilter } = useAppContext()
   const setContext = useAppDispatchContext()
-  const visibleItems = useSharedValue<ViewToken[]>([])
+  const [isShowingCard, setIsShowingCard] = useState(false)
 
   const onPressCard = useCallback(
     (index: number) => {
@@ -42,11 +41,12 @@ export default function GameView(props: Readonly<GameViewProps>) {
   }
 
   const onViewableItemsChanged = ({ viewableItems }: { viewableItems: ViewToken[] }) => {
-    visibleItems.value = viewableItems
+    if (viewableItems.length === 0) setIsShowingCard(false)
+    else setIsShowingCard(true)
   }
 
   useEffect(() => {
-    if (visibleItems.value.length === 0) addCard()
+    if (!isShowingCard) addCard()
   }, [playlist, players])
 
   if (playedCards.length === 0) return <NoCardsView onPress={onPressNoCard} />
@@ -62,10 +62,8 @@ export default function GameView(props: Readonly<GameViewProps>) {
       data={playedCards}
       onEndReachedThreshold={0.99}
       onEndReached={addCard}
-      ListFooterComponent={<OutOfCardsView viewableItems={visibleItems} onPress={onPressNoCard} />}
-      renderItem={({ item, index }) => (
-        <CardScreen card={item} viewableItems={visibleItems} onPress={() => onPressCard(index)} />
-      )}
+      ListFooterComponent={<OutOfCardsView onPress={onPressNoCard} />}
+      renderItem={({ item, index }) => <CardScreen card={item} onPress={() => onPressCard(index)} />}
     />
   )
 }
@@ -87,53 +85,36 @@ function NoCardsView(props: Readonly<PressableProps>) {
   )
 }
 
-type OutOfCardsViewProps = { onPress: () => void; viewableItems: SharedValue<ViewToken<PlayedCard>[]> }
-function OutOfCardsView(props: Readonly<OutOfCardsViewProps>) {
-  const { viewableItems } = props
+function OutOfCardsView(props: Readonly<PressableProps>) {
   const colorScheme = useColorScheme()
   const { playedCards } = useAppContext()
   const setContext = useAppDispatchContext()
 
-  const animationConfig = { duration: 200, easing: Easing.bezier(0, 0, 0.5, 1) }
-
-  const animatedStyle = useAnimatedStyle(() => {
-    const isVisible = viewableItems.value.length === 0
-    return {
-      opacity: withTiming(isVisible ? 1 : 0, animationConfig),
-      transform: [{ scale: withTiming(isVisible ? 1 : 0.9, animationConfig) }],
-    }
-  }, [])
-
   return (
-    <Animated.View style={animatedStyle}>
-      <Pressable
+    <Pressable
+      style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: Dimensions.get('window').width,
+        height: Dimensions.get('window').height,
+      }}
+      {...props}
+    >
+      <Text
         style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          width: Dimensions.get('window').width,
-          height: Dimensions.get('window').height,
+          textAlign: 'center',
+          color: Colors[useColorScheme()].secondaryText,
         }}
-        {...props}
       >
-        <Text
-          style={{
-            textAlign: 'center',
-            color: Colors[useColorScheme()].secondaryText,
-          }}
-        >
-          {LocalizationManager.get('out_of_cards')?.value}
-        </Text>
-        <Button
-          title={LocalizationManager.get('restart_game')?.value ?? '-'}
-          color={Colors[colorScheme].accentColor}
-          disabled={playedCards.length === 0}
-          onPress={() => {
-            props.onPress()
-            setContext({ type: 'restartGame' })
-          }}
-        />
-      </Pressable>
-    </Animated.View>
+        {LocalizationManager.get('out_of_cards')?.value}
+      </Text>
+      <Button
+        title={LocalizationManager.get('restart_game')?.value ?? '-'}
+        color={Colors[colorScheme].accentColor}
+        disabled={playedCards.length === 0}
+        onPress={() => setContext({ type: 'restartGame' })}
+      />
+    </Pressable>
   )
 }
