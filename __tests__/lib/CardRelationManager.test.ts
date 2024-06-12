@@ -162,6 +162,8 @@ describe('getRequiredPlayerCount', () => {
     CardManager._items = null
     // @ts-ignore
     CardManager.cachedPlayerCounts = new Map()
+    // @ts-ignore
+    CardRelationManager.cachedPlayerCounts = new Map()
   })
 
   cardIds.forEach((id) => {

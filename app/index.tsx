@@ -1,11 +1,13 @@
 import GameView from '@/components/GameView'
 import MenuView from '@/components/MenuView'
 import useColorScheme from '@/components/utils/useColorScheme'
-import Colors from '@/constants/Colors'
-import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet'
+import BottomSheet, { BottomSheetBackdrop, BottomSheetBackgroundProps } from '@gorhom/bottom-sheet'
 import { useCallback, useMemo, useRef } from 'react'
-import { StyleSheet } from 'react-native'
+import { Keyboard, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { BlurView } from 'expo-blur'
+import Colors from '@/constants/Colors'
+import Color from '@/models/Color'
 
 export default function App() {
   const colorScheme = useColorScheme()
@@ -19,12 +21,15 @@ export default function App() {
         opacity={0.5}
         appearsOnIndex={1}
         disappearsOnIndex={0}
-        pressBehavior={'collapse'}
+        pressBehavior="collapse"
+        onPress={Keyboard.dismiss}
         {...props}
       />
     ),
     []
   )
+
+  const background = useCallback((props: BottomSheetBackgroundProps) => <BlurView intensity={100} {...props} />, [])
 
   return (
     <>
@@ -36,12 +41,13 @@ export default function App() {
         enableDynamicSizing
         backdropComponent={backdrop}
         keyboardBehavior="extend"
-        keyboardBlurBehavior="restore"
+        backgroundComponent={background}
         backgroundStyle={{
           borderRadius: 16,
           borderColor: Colors[colorScheme].stroke,
           borderWidth: StyleSheet.hairlineWidth,
-          backgroundColor: Colors[colorScheme].secondaryBackground,
+          overflow: 'hidden',
+          backgroundColor: Color.hex(Colors[colorScheme].background).alpha(0.8).string,
         }}
         handleIndicatorStyle={{
           backgroundColor: Colors[colorScheme].secondaryText,

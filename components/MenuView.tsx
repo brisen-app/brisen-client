@@ -1,22 +1,23 @@
-import { AntDesign } from '@expo/vector-icons'
+import React, { useMemo, useState } from 'react'
+import { ScrollView, StyleSheet, View, ViewProps } from 'react-native'
 import { BottomSheetScrollView, BottomSheetTextInput } from '@gorhom/bottom-sheet'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { AntDesign } from '@expo/vector-icons'
+import Animated, { LinearTransition } from 'react-native-reanimated'
 import { Category, CategoryManager } from '@/lib/CategoryManager'
 import { FontStyles } from '@/constants/Styles'
 import { formatName as prettifyString } from '@/lib/utils'
 import { LocalizationManager } from '@/lib/LocalizationManager'
 import { PackManager } from '@/lib/PackManager'
 import { router } from 'expo-router'
-import { ScrollView, StyleSheet, View, ViewProps } from 'react-native'
-import { Text } from './utils/Themed'
-import { useAppContext, useAppDispatchContext } from './utils/AppContextProvider'
-import { useMemo, useState } from 'react'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Color from '@/models/Color'
 import Colors from '@/constants/Colors'
 import PackFeaturedView from './pack/PackFeaturedView'
 import PackListView from './pack/PackListView'
 import Tag from './utils/Tag'
 import useColorScheme from './utils/useColorScheme'
+import { useAppContext, useAppDispatchContext } from './utils/AppContextProvider'
+import { Text } from './utils/Themed'
 
 export default function MenuView() {
   const insets = useSafeAreaInsets()
@@ -37,7 +38,9 @@ export default function MenuView() {
       {players.size > 0 && (
         <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginHorizontal: 16 }}>
           {sortedPlayers.map((tag) => (
-            <Tag key={tag} text={tag} onPress={() => setContext({ type: 'togglePlayer', payload: tag })} />
+            <Animated.View key={tag} layout={LinearTransition}>
+              <Tag text={tag} onPress={() => setContext({ type: 'togglePlayer', payload: tag })} />
+            </Animated.View>
           ))}
         </View>
       )}
@@ -146,7 +149,7 @@ function AddPlayerField() {
     if (text.trim().length === 0) return
 
     const formattedText = prettifyString(text)
-    if (players.has(formattedText)) console.warn('Player already exists') // TODO: [BUG] Show error message to user
+    if (players.has(formattedText)) console.warn('Player already exists')
     else setContext({ type: 'togglePlayer', payload: formattedText })
     setText('')
   }

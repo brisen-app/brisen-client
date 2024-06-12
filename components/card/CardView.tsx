@@ -30,21 +30,16 @@ export function CardView(props: Readonly<CardViewProps>) {
 
   if (error) console.warn(error)
 
+  function getGradient() {
+    if (!category?.gradient)
+      return [Color.hex('#370A00').string, Color.hex('#a14316').string, Colors[colorScheme].accentColor, 'white']
+    if (category.gradient.length === 1) return [category.gradient[0], category.gradient[0]]
+    return category.gradient
+  }
+
   return (
     <>
-      <LinearGradient
-        colors={
-          category?.gradient ?? [
-            Color.hex('#370A00').string,
-            Color.hex('#a14316').string,
-            Colors[colorScheme].accentColor,
-            'white',
-          ]
-        }
-        start={{ x: 0, y: 1 }}
-        end={{ x: 1, y: 0 }}
-        style={Styles.absoluteFill}
-      />
+      <LinearGradient colors={getGradient()} start={{ x: 0, y: 1 }} end={{ x: 1, y: 0 }} style={Styles.absoluteFill} />
 
       {/* Grain */}
       <Image

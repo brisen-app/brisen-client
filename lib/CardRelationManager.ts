@@ -60,7 +60,19 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
     return cardId
   }
 
+  getPlayedParent(cardId: string, playedIds: Set<string>): string | null {
+    const parents = this.parents.get(cardId)
+    if (!parents) return null
+
+    for (const parent of parents) {
+      if (playedIds.has(parent)) return parent
+    }
+    return null
+  }
+
+  private cachedPlayerCounts: Map<string, number> = new Map()
   getRequiredPlayerCount(cardId: string, visited: Set<string> = new Set<string>()): number {
+    if (this.cachedPlayerCounts.has(cardId)) return this.cachedPlayerCounts.get(cardId)!
     const CardManager = require('./CardManager').CardManager
 
     const card = CardManager.get(cardId)
@@ -80,6 +92,7 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
       highestRequiredPlayers = Math.max(highestRequiredPlayers, this.getRequiredPlayerCount(child, visited))
     }
 
+    this.cachedPlayerCounts.set(cardId, highestRequiredPlayers)
     return highestRequiredPlayers
   }
 

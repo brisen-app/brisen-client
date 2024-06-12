@@ -1,12 +1,12 @@
-import { StyleSheet, View, Dimensions, PressableProps, Pressable } from 'react-native'
+import { Dimensions, PressableProps, Pressable } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Colors from '@/constants/Colors'
 import Sizes from '@/constants/Sizes'
 import useColorScheme from '../utils/useColorScheme'
-import Color from '@/models/Color'
 import { PlayedCard } from '@/lib/CardManager'
 import { CategoryManager } from '@/lib/CategoryManager'
 import { CardView } from './CardView'
+import Animated, { Easing, withTiming } from 'react-native-reanimated'
 
 export type CardScreenProps = { card: PlayedCard } & PressableProps
 
@@ -25,6 +25,23 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
 
   const category = card.category ? CategoryManager.get(card.category) : null
 
+  const animationConfig = { duration: 300, easing: Easing.bezier(0, 0, 0.5, 1) }
+  const entering = () => {
+    'worklet'
+    const animations = {
+      opacity: withTiming(1, animationConfig),
+      transform: [{ scale: withTiming(1, animationConfig) }],
+    }
+    const initialValues = {
+      opacity: 0,
+      transform: [{ scale: 0.9 }],
+    }
+    return {
+      initialValues,
+      animations,
+    }
+  }
+
   return (
     <Pressable
       onPress={onPress}
@@ -37,7 +54,8 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
         paddingRight: insets.right,
       }}
     >
-      <View
+      <Animated.View
+        entering={entering}
         style={{
           flex: 1,
           justifyContent: 'center',
@@ -50,32 +68,7 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
         }}
       >
         <CardView card={card} category={category} />
-      </View>
+      </Animated.View>
     </Pressable>
   )
 }
-
-export const styles = StyleSheet.create({
-  shadow: {
-    shadowColor: 'black',
-    shadowOpacity: 0.5,
-    shadowRadius: 1,
-    shadowOffset: { width: 0, height: 1 },
-  },
-  text: {
-    userSelect: 'none',
-    textShadowColor: Color.black.alpha(0.5).string,
-    textShadowRadius: 1,
-    textShadowOffset: { width: 0, height: 1 },
-    textAlign: 'center',
-    color: Color.white.string,
-  },
-  categoryTitle: {
-    fontSize: 20,
-    fontWeight: '900',
-  },
-  content: {
-    fontSize: 28,
-    fontWeight: '900',
-  },
-})
