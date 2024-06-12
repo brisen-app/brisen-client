@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from 'react'
-import { Button, Dimensions, FlatList, Pressable, PressableProps, ViewProps, ViewToken } from 'react-native'
+import { Button, Dimensions, FlatList, Pressable, PressableProps, ViewToken } from 'react-native'
 import CardScreen from '@/components/card/CardScreen'
 import Colors from '@/constants/Colors'
 import useColorScheme from './utils/useColorScheme'

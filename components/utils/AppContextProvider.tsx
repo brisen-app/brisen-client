@@ -1,8 +1,7 @@
 import React, { createContext, Dispatch, ReactNode, useContext, useReducer } from 'react'
 import { Pack } from '@/lib/PackManager'
 import { Category } from '@/lib/CategoryManager'
-import { CardManager, PlayedCard } from '@/lib/CardManager'
-import { CardRelationManager } from '@/lib/CardRelationManager'
+import { PlayedCard } from '@/lib/CardManager'
 
 type AppContextType = {
   playedCards: PlayedCard[]
