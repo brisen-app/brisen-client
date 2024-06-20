@@ -48,13 +48,20 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
   getUnplayedParent(cardId: string, unplayedCards: Set<string>): string | null {
     try {
       this.traverse(cardId, 'parents', (item) => {
-        if (unplayedCards.has(item)) throw item
+        if (this.isPlayable(item, unplayedCards)) throw item
       })
     } catch (item) {
       if (typeof item !== 'string') throw item
       return item
     }
     return null
+  }
+
+  isPlayable(cardId: string, unplayedCards: Set<string>) {
+    for (const parent of this.parents.get(cardId) ?? []) {
+      if (unplayedCards.has(parent)) return false
+    }
+    return true
   }
 
   getPlayedParent(cardId: string, playedIds: Set<string>): string | null {
@@ -109,6 +116,12 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
     })
   }
 
+  /**
+   * Detects cycles in the card dependency graph.
+   *
+   * @param root - The ID of the root card.
+   * @throws CycleError if a cycle is detected.
+   */
   private detectCycle(root: string) {
     this.traverse(
       root,
@@ -120,6 +133,15 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
     )
   }
 
+  /**
+   * Traverses the card dependency graph.
+   *
+   * @param from - The ID of the card to start traversing from.
+   * @param direction - The direction to traverse the graph (either 'parents', 'children', or 'both').
+   * @param forEach - A function to be called for each card in the graph.
+   * @param onCycle - A function to be called if a cycle is detected.
+   * @param visited - A set of IDs representing the cards that have been visited.
+   */
   private traverse(
     from: string,
     direction: 'parents' | 'children' | 'both' = 'children',
