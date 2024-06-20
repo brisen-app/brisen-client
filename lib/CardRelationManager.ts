@@ -48,13 +48,22 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
   getUnplayedParent(cardId: string, unplayedCards: Set<string>): string | null {
     try {
       this.traverse(cardId, 'parents', (item) => {
+        if (!unplayedCards.has(item)) return false
         if (this.isPlayable(item, unplayedCards)) throw item
+        return true
       })
     } catch (item) {
       if (typeof item !== 'string') throw item
       return item
     }
     return null
+  }
+
+  hasUnplayedParent(cardId: string, unplayedCards: Set<string>) {
+    for (const parent of this.parents.get(cardId) ?? []) {
+      if (unplayedCards.has(parent)) return true
+    }
+    return false
   }
 
   isPlayable(cardId: string, unplayedCards: Set<string>) {
@@ -65,14 +74,10 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
   }
 
   getPlayedParent(cardId: string, playedIds: Set<string>): string | null {
-    try {
-      this.traverse(cardId, 'parents', (item) => {
-        if (cardId !== item && playedIds.has(item)) throw item
-      })
-    } catch (item) {
-      if (typeof item !== 'string') throw item
-      return item
-    }
+    this.traverse(cardId, 'parents', (item) => {
+      if (cardId !== item && playedIds.has(item)) throw item
+      return true
+    })
     return null
   }
 
@@ -86,9 +91,10 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
 
     this.traverse(cardId, 'both', (item) => {
       const card = CardManager.get(item)
-      if (!card) return
+      if (!card) return false
       visited.add(item)
       highest = Math.max(highest, CardManager.getRequiredPlayerCount(card))
+      return true
     })
 
     visited.forEach((item) => {
@@ -126,7 +132,7 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
     this.traverse(
       root,
       'children',
-      () => {},
+      () => true,
       (item) => {
         throw new CycleError(`The card dependency graph has a cycle including card: '${item}'`, item)
       }
@@ -145,11 +151,11 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
   private traverse(
     from: string,
     direction: 'parents' | 'children' | 'both' = 'children',
-    forEach: (item: string) => void = () => {},
+    forEach: (item: string) => boolean = () => true,
     onCycle: (item: string) => void = () => {},
     visited: Set<string> = new Set<string>()
   ) {
-    forEach(from)
+    if (!forEach(from)) return
     visited.add(from)
 
     if (direction === 'both' || direction === 'parents') {
