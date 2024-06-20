@@ -101,9 +101,12 @@ describe('set', () => {
     })
   })
 
-  it('should throw an error if there is a cycle', () => {
-    // @ts-ignore
-    expect(() => CardRelationManager.set(mockedRelationsWithCycle)).toThrow(CycleError)
+  const cycles = [mockedRelationsWithCycle, mockedRelationsWithCycleNoRoot]
+  cycles.forEach((relations) => {
+    it(`should throw an error if there is a cycle`, () => {
+      // @ts-ignore
+      expect(() => CardRelationManager.set(relations)).toThrow(CycleError)
+    })
   })
 })
 
@@ -136,6 +139,92 @@ describe('getUnplayedParent', () => {
     const result = CardRelationManager.getUnplayedParent('3', candidates)
 
     expect(result).toBe('3')
+  })
+})
+
+describe('hasUnplayedParent', () => {
+  it('should return true if the card has an unplayed parent', () => {
+    // @ts-ignore
+    CardRelationManager.set(mockedRelations1)
+    const candidates = new Set(['1', '2', '5', '6'])
+
+    const result = CardRelationManager.hasUnplayedParent('5', candidates)
+
+    expect(result).toBe(true)
+  })
+
+  it('should return false if the card has no unplayed parent', () => {
+    // @ts-ignore
+    CardRelationManager.set(mockedRelations1)
+    const candidates = new Set(['3', '4', '5', '6'])
+
+    const result = CardRelationManager.hasUnplayedParent('3', candidates)
+
+    expect(result).toBe(false)
+  })
+})
+
+describe('isPlayable', () => {
+  it('should return true if the card is playable', () => {
+    // @ts-ignore
+    CardRelationManager.set(mockedRelations1)
+    const candidates = new Set(['1', '5', '6'])
+
+    const result = CardRelationManager.isPlayable('5', candidates)
+
+    expect(result).toBe(true)
+  })
+
+  it('should return false if the card is not playable', () => {
+    // @ts-ignore
+    CardRelationManager.set(mockedRelations1)
+    const candidates = new Set(['1', '2', '5', '6'])
+
+    const result = CardRelationManager.isPlayable('5', candidates)
+
+    expect(result).toBe(false)
+  })
+
+  it('should return false if the card is bit a candidate', () => {
+    // @ts-ignore
+    CardRelationManager.set(mockedRelations1)
+    const candidates = new Set(['3', '4', '5', '6'])
+
+    const result = CardRelationManager.isPlayable('1', candidates)
+
+    expect(result).toBe(false)
+  })
+})
+
+describe('getPlayedParent', () => {
+  it('should return an unplayed parent', () => {
+    // @ts-ignore
+    CardRelationManager.set(mockedRelations1)
+    const candidates = new Set(['1', '2', '5', '6'])
+
+    const result = CardRelationManager.getPlayedParent('5', candidates)
+
+    expect(result).toBe('2')
+  })
+
+  it('should return an unplayed parent', () => {
+    // @ts-ignore
+    CardRelationManager.set(mockedRelations2)
+    const candidates = new Set(['1', '3', '4'])
+
+    const result = CardRelationManager.getPlayedParent('1', candidates)
+
+    expect(result).toBe('3')
+  })
+
+  it('should return null if there is no unplayed parent', () => {
+    // @ts-ignore
+    CardRelationManager.set(mockedRelations1)
+    const candidates = new Set(['3', '4', '5', '6'])
+
+    const result = CardRelationManager.getPlayedParent('3', candidates)
+
+    expect(result).toBe(null)
   })
 })
 
@@ -187,5 +276,14 @@ describe('getRequiredPlayerCount', () => {
       const result = CardRelationManager.getRequiredPlayerCount(id)
       expect(result).toBe(5)
     })
+  })
+})
+
+describe('getChildren', () => {
+  it('should return an array of children', () => {
+    // @ts-ignore
+    CardRelationManager.set(mockedRelations1)
+    const result = CardRelationManager.getChildren('1')
+    expect(result).toEqual(new Set(['2', '3']))
   })
 })
