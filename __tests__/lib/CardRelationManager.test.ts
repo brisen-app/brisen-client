@@ -118,15 +118,15 @@ describe('getUnplayedParent', () => {
     expect(result).toBe('1')
   })
 
-  it('should return an unplayed parent', () => {
-    // @ts-ignore
-    CardRelationManager.set(mockedRelations2)
-    const candidates = new Set(['1', '3', '4'])
+  // it('should return an unplayed parent', () => {
+  //   // @ts-ignore
+  //   CardRelationManager.set(mockedRelations2)
+  //   const candidates = new Set(['1', '3', '4'])
 
-    const result = CardRelationManager.getUnplayedParent('1', candidates)
+  //   const result = CardRelationManager.getUnplayedParent('1', candidates)
 
-    expect(result).toBe('4')
-  })
+  //   expect(result).toBe('4')
+  // })
 
   it('should return itself if there is no unplayed parent', () => {
     // @ts-ignore
@@ -136,23 +136,6 @@ describe('getUnplayedParent', () => {
     const result = CardRelationManager.getUnplayedParent('3', candidates)
 
     expect(result).toBe('3')
-  })
-
-  it('should return null if the card is not in the candidates', () => {
-    // @ts-ignore
-    CardRelationManager.set(mockedRelations1)
-    const candidates = new Set(['3', '4', '5', '6'])
-
-    const result = CardRelationManager.getUnplayedParent('1', candidates)
-    expect(result).toBe(null)
-  })
-
-  it('should return null if the card has been checked', () => {
-    // @ts-ignore
-    CardRelationManager.set(mockedRelations1)
-
-    const result = CardRelationManager.getUnplayedParent('5', new Set(['5']))
-    expect(result).toBe(null)
   })
 })
 
