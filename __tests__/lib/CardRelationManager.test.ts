@@ -21,6 +21,14 @@ const mockedRelations2 = [
 
 const mockedRelationsWithCycle = [
   { parent: '1', child: '2' },
+  { parent: '1', child: '3' },
+  { parent: '3', child: '4' },
+  { parent: '4', child: '5' },
+  { parent: '5', child: '3' },
+] as CardRelation[]
+
+const mockedRelationsWithCycleNoRoot = [
+  { parent: '1', child: '2' },
   { parent: '2', child: '3' },
   { parent: '3', child: '4' },
   { parent: '4', child: '1' },
@@ -94,14 +102,8 @@ describe('set', () => {
   })
 
   it('should throw an error if there is a cycle', () => {
-    try {
-      // @ts-ignore
-      CardRelationManager.set(mockedRelationsWithCycle)
-    } catch (error) {
-      if (!(error instanceof CycleError)) throw error
-      expect(error.message.includes('1')).toBe(true)
-      expect(error.node).toBe('1')
-    }
+    // @ts-ignore
+    expect(() => CardRelationManager.set(mockedRelationsWithCycle)).toThrow(CycleError)
   })
 })
 
@@ -149,7 +151,7 @@ describe('getUnplayedParent', () => {
     // @ts-ignore
     CardRelationManager.set(mockedRelations1)
 
-    const result = CardRelationManager.getUnplayedParent('5', new Set(['5']), new Set(['5']))
+    const result = CardRelationManager.getUnplayedParent('5', new Set(['5']))
     expect(result).toBe(null)
   })
 })

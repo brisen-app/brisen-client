@@ -21,14 +21,15 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
     this.parents = new Map()
   }
 
-  protected set(items: Iterable<CardRelation>) {
+  protected set(items: Array<CardRelation>) {
     for (const relation of items) {
       this.createEdge(this.children, relation.parent, relation.child)
       this.createEdge(this.parents, relation.child, relation.parent)
     }
-    const nodeInCycle = this.hasCycle()
-    if (nodeInCycle)
-      throw new CycleError('The card dependency graph has a cycle including card: ' + nodeInCycle, nodeInCycle)
+
+    for (const root of this.parents.keys()) {
+      this.detectCycle(root)
+    }
   }
 
   private createEdge(map: Map<string, Set<string>>, from: string, to: string) {
@@ -44,56 +45,49 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
    * @param checkedCards - A set of IDs representing the cards that have been checked.
    * @returns The ID of the unplayed parent card, or `null` if there is no unplayed parent.
    */
-  getUnplayedParent(cardId: string, candidates: Set<string>, checkedCards: Set<string> = new Set()): string | null {
-    if (!candidates.has(cardId) || checkedCards.has(cardId)) return null
-    checkedCards.add(cardId)
-
-    const parents = this.parents.get(cardId)
-    if (!parents) return cardId
-
-    const unmetParents = [...parents].filter((parent) => candidates.has(parent) && !checkedCards.has(parent))
-
-    for (const parent of unmetParents) {
-      const result = this.getUnplayedParent(parent, candidates, checkedCards)
-      if (result) return result
+  getUnplayedParent(cardId: string, unplayedCards: Set<string>): string | null {
+    try {
+      this.traverse(cardId, 'parents', (item) => {
+        if (unplayedCards.has(item)) throw item
+      })
+    } catch (item) {
+      if (typeof item !== 'string') throw item
+      return item
     }
-    return cardId
+    return null
   }
 
   getPlayedParent(cardId: string, playedIds: Set<string>): string | null {
-    const parents = this.parents.get(cardId)
-    if (!parents) return null
-
-    for (const parent of parents) {
-      if (playedIds.has(parent)) return parent
+    try {
+      this.traverse(cardId, 'parents', (item) => {
+        if (cardId !== item && playedIds.has(item)) throw item
+      })
+    } catch (item) {
+      if (typeof item !== 'string') throw item
+      return item
     }
     return null
   }
 
   private cachedPlayerCounts: Map<string, number> = new Map()
-  getRequiredPlayerCount(cardId: string, visited: Set<string> = new Set<string>()): number {
+  getRequiredPlayerCount(cardId: string): number {
     if (this.cachedPlayerCounts.has(cardId)) return this.cachedPlayerCounts.get(cardId)!
     const CardManager = require('./CardManager').CardManager
 
-    const card = CardManager.get(cardId)
-    if (!card || visited.has(cardId)) return 0
+    const visited = new Set<string>()
+    let highest = 0
 
-    visited.add(cardId)
-    let highestRequiredPlayers = CardManager.getRequiredPlayerCount(card)
+    this.traverse(cardId, 'both', (item) => {
+      const card = CardManager.get(item)
+      if (!card) return
+      visited.add(item)
+      highest = Math.max(highest, CardManager.getRequiredPlayerCount(card))
+    })
 
-    const parents = this.parents.get(cardId) ?? []
-    const children = this.children.get(cardId) ?? []
-
-    for (const parent of parents) {
-      highestRequiredPlayers = Math.max(highestRequiredPlayers, this.getRequiredPlayerCount(parent, visited))
-    }
-
-    for (const child of children) {
-      highestRequiredPlayers = Math.max(highestRequiredPlayers, this.getRequiredPlayerCount(child, visited))
-    }
-
-    this.cachedPlayerCounts.set(cardId, highestRequiredPlayers)
-    return highestRequiredPlayers
+    visited.forEach((item) => {
+      this.cachedPlayerCounts.set(item, highest)
+    })
+    return highest
   }
 
   /**
@@ -115,30 +109,46 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
     })
   }
 
-  private hasCycle(): string | null {
-    const visited = new Set<string>()
-    const recStack = new Set<string>()
-
-    const dfs = (node: string): string | null => {
-      if (!visited.has(node)) {
-        visited.add(node)
-        recStack.add(node)
-
-        const children = this.children.get(node)
-        if (children) {
-          for (const child of children) {
-            if (recStack.has(child) || (!visited.has(child) && dfs(child))) return child
-          }
-        }
+  private detectCycle(root: string) {
+    this.traverse(
+      root,
+      'children',
+      () => {},
+      (item) => {
+        throw new CycleError(`The card dependency graph has a cycle including card: '${item}'`, item)
       }
-      recStack.delete(node)
-      return null
+    )
+  }
+
+  private traverse(
+    from: string,
+    direction: 'parents' | 'children' | 'both' = 'children',
+    forEach: (item: string) => void = () => {},
+    onCycle: (item: string) => void = () => {},
+    visited: Set<string> = new Set<string>()
+  ) {
+    forEach(from)
+    visited.add(from)
+
+    if (direction === 'both' || direction === 'parents') {
+      for (const parent of this.parents.get(from) ?? []) {
+        if (visited.has(parent)) {
+          if (direction !== 'both') onCycle(from)
+          continue
+        }
+        this.traverse(parent, direction, forEach, onCycle, visited)
+      }
     }
 
-    for (const node of this.children.keys()) {
-      if (dfs(node)) return node
+    if (direction === 'both' || direction === 'children') {
+      for (const child of this.children.get(from) ?? []) {
+        if (visited.has(child)) {
+          if (direction !== 'both') onCycle(from)
+          continue
+        }
+        this.traverse(child, direction, forEach, onCycle, visited)
+      }
     }
-    return null
   }
 }
 
