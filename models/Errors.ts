@@ -20,8 +20,8 @@ export class NotImplementedError extends Error {
 }
 
 export class CycleError extends Error {
-  constructor(message: string, public node: string) {
-    super(message)
+  constructor(public nodes: Array<string>) {
+    super(`Cycle detected: ${nodes.join(' -> ')}`)
     this.name = 'CycleError'
   }
 }

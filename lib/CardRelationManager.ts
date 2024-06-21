@@ -139,8 +139,8 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
       root,
       'children',
       () => true,
-      (item) => {
-        throw new CycleError(`The card dependency graph has a cycle including card: '${item}'`, item)
+      (path) => {
+        throw new CycleError(path)
       }
     )
   }
@@ -150,41 +150,41 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
    *
    * @param from - The ID of the card to start traversing from.
    * @param direction - The direction to traverse the graph (either 'parents', 'children', or 'both').
-   * @param forEach - A function to be called for each card in the graph.
+   * @param forEach - A function to be called for each card in the graph. The function should return true to continue traversing the graph, or false to stop. Throw and cath to get item.
    * @param onCycle - A function to be called if a cycle is detected.
-   * @param visited - A set of IDs representing the cards that have been visited.
+   * @param path - A set of IDs representing the cards that have been visited.
    */
   private traverse(
     from: string,
     direction: 'parents' | 'children' | 'both' = 'children',
     forEach: (item: string) => boolean = () => true,
-    onCycle: (item: string) => void = () => {},
-    visited: Set<string> = new Set<string>()
+    onCycle: (path: Array<string>) => void = () => {},
+    path: Array<string> = new Array<string>()
   ) {
     if (!forEach(from)) return
-    visited.add(from)
+    path.push(from)
 
     if (direction === 'both' || direction === 'parents') {
       for (const parent of this.parents.get(from) ?? []) {
-        if (visited.has(parent)) {
-          if (direction !== 'both') onCycle(from)
+        if (path.includes(parent)) {
+          if (direction !== 'both') onCycle([...path, parent])
           continue
         }
-        this.traverse(parent, direction, forEach, onCycle, visited)
+        this.traverse(parent, direction, forEach, onCycle, path)
       }
     }
 
     if (direction === 'both' || direction === 'children') {
       for (const child of this.children.get(from) ?? []) {
-        if (visited.has(child)) {
-          if (direction !== 'both') onCycle(from)
+        if (path.includes(child)) {
+          if (direction !== 'both') onCycle([...path, child])
           continue
         }
-        this.traverse(child, direction, forEach, onCycle, visited)
+        this.traverse(child, direction, forEach, onCycle, path)
       }
     }
 
-    visited.delete(from)
+    path.pop()
   }
 }
 
