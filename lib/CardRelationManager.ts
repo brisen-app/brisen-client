@@ -183,6 +183,8 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
         this.traverse(child, direction, forEach, onCycle, visited)
       }
     }
+
+    visited.delete(from)
   }
 }
 

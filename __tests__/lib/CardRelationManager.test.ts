@@ -19,6 +19,14 @@ const mockedRelations2 = [
   { parent: '3', child: '1' },
 ] as CardRelation[]
 
+const mockedRelations3 = [
+  { parent: '1', child: '2' },
+  { parent: '2', child: '3' },
+  { parent: '2', child: '4' },
+  { parent: '3', child: '5' },
+  { parent: '4', child: '5' },
+] as CardRelation[]
+
 const mockedRelationsWithCycle = [
   { parent: '1', child: '2' },
   { parent: '1', child: '3' },
@@ -99,6 +107,13 @@ describe('set', () => {
       // @ts-ignore
       expect(CardRelationManager.parents).toEqual(expectedParents)
     })
+  })
+
+  it('should not throw an error if there is no cycle', () => {
+    // @ts-ignore
+    CardRelationManager.set(mockedRelations3)
+    // @ts-ignore
+    expect(() => CardRelationManager.set(skiturStoryRelation)).not.toThrow(CycleError)
   })
 
   const cycles = [mockedRelationsWithCycle, mockedRelationsWithCycleNoRoot]
