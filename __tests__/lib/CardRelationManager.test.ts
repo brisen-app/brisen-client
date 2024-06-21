@@ -116,11 +116,19 @@ describe('set', () => {
     expect(() => CardRelationManager.set(skiturStoryRelation)).not.toThrow(CycleError)
   })
 
-  const cycles = [mockedRelationsWithCycle, mockedRelationsWithCycleNoRoot]
+  const cycles = [
+    { graph: mockedRelationsWithCycle, cycle: ['3', '4', '5', '3'] },
+    { graph: mockedRelationsWithCycleNoRoot, cycle: ['2', '3', '4', '1', '2'] },
+  ]
   cycles.forEach((relations) => {
     it(`should throw an error if there is a cycle`, () => {
-      // @ts-ignore
-      expect(() => CardRelationManager.set(relations)).toThrow(CycleError)
+      try {
+        // @ts-ignore
+        CardRelationManager.set(relations.graph)
+      } catch (error) {
+        expect(error).toBeInstanceOf(CycleError)
+        expect((error as CycleError).nodes).toEqual(relations.cycle)
+      }
     })
   })
 })
