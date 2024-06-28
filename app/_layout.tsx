@@ -1,4 +1,4 @@
-import { Stack } from 'expo-router'
+import { SplashScreen, Stack } from 'expo-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
@@ -21,6 +21,8 @@ export default function Layout() {
     },
   })
 
+  SplashScreen.preventAutoHideAsync()
+  
   return (
     <QueryClientProvider client={queryClient}>
       <AppDataProvider>
