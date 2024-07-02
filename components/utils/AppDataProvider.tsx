@@ -6,11 +6,7 @@ import { LocalizationManager } from '@/lib/LocalizationManager'
 import { PackManager } from '@/lib/PackManager'
 import SupabaseManager, { SupabaseItem } from '@/lib/SupabaseManager'
 import { useQuery } from '@tanstack/react-query'
-import { SplashScreen } from 'expo-router'
 import { ReactNode } from 'react'
-import useColorScheme from './useColorScheme'
-import { View } from 'react-native'
-import Colors from '@/constants/Colors'
 
 function useSupabase(manager: SupabaseManager<SupabaseItem>, enabled = true): boolean {
   const { data, error, isLoading, isPending, isFetched } = useQuery({
