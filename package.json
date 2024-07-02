@@ -22,12 +22,14 @@
     ]
   },
   "prettier": {
-    "trailingComma": "es5",
-    "tabWidth": 2,
-    "useTabs": false,
+    "arrowParens": "avoid",
+    "jsxSingleQuote": true,
+    "printWidth": 120,
     "semi": false,
     "singleQuote": true,
-    "printWidth": 120
+    "tabWidth": 2,
+    "trailingComma": "es5",
+    "useTabs": false
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.0",
