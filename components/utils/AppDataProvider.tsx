@@ -9,6 +9,8 @@ import { useQuery } from '@tanstack/react-query'
 import { SplashScreen } from 'expo-router'
 import { ReactNode } from 'react'
 import useColorScheme from './useColorScheme'
+import { View } from 'react-native'
+import Colors from '@/constants/Colors'
 
 function useSupabase(manager: SupabaseManager<SupabaseItem>, enabled = true): boolean {
   const { data, error, isLoading, isPending, isFetched } = useQuery({
@@ -23,8 +25,6 @@ function useSupabase(manager: SupabaseManager<SupabaseItem>, enabled = true): bo
 }
 
 export default function AppDataProvider(props: Readonly<{ children: ReactNode }>) {
-  const colorScheme = useColorScheme()
-
   const hasFetchedLanguages = useSupabase(LanguageManager)
   const hasFetchedCategories = useSupabase(CategoryManager)
   const hasFetchedPacks = useSupabase(PackManager)
@@ -33,16 +33,15 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
   const hasFetchedLocalizations = useSupabase(LocalizationManager, hasFetchedLanguages)
 
   if (
-    hasFetchedLanguages &&
-    hasFetchedCategories &&
-    hasFetchedPacks &&
-    hasFetchedCards &&
-    hasFetchedCardRelations &&
-    hasFetchedLocalizations
-  ) {
-    SplashScreen.hideAsync()
-    return props.children
-  }
+    !hasFetchedLanguages ||
+    !hasFetchedCategories ||
+    !hasFetchedPacks ||
+    !hasFetchedCards ||
+    !hasFetchedCardRelations ||
+    !hasFetchedLocalizations
+  )
+    return null
 
   // TODO: Display error if any data is null
+  return props.children
 }

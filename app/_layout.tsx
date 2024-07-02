@@ -9,6 +9,7 @@ import useColorScheme from '@/components/utils/useColorScheme'
 import AppDataProvider from '@/components/utils/AppDataProvider'
 
 export default function Layout() {
+  SplashScreen.preventAutoHideAsync()
   const colorScheme = useColorScheme()
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -21,8 +22,6 @@ export default function Layout() {
     },
   })
 
-  SplashScreen.preventAutoHideAsync()
-  
   return (
     <QueryClientProvider client={queryClient}>
       <AppDataProvider>
