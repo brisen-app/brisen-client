@@ -1,7 +1,19 @@
 {
-    "typescript.tsdk": "node_modules/typescript/lib",
-    "sonarlint.connectedMode.project": {
-        "connectionId": "sonarqube-kallerud-no",
-        "projectKey": "brisen-app_brisen-client_26c99873-d531-464d-a9a9-0ea569442bdd"
-    }
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "sonarlint.connectedMode.project": {
+    "connectionId": "sonarqube-kallerud-no",
+    "projectKey": "brisen-app_brisen-client_26c99873-d531-464d-a9a9-0ea569442bdd"
+  },
+  "editor.tabSize": 2,
+  "editor.detectIndentation": false,
+  "files.exclude": {
+    "*.d.ts": true,
+    "**/.expo": true,
+    "**/coverage": true,
+    "**/node_modules": true
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }
