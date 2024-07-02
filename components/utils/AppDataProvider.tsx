@@ -1,15 +1,12 @@
-import { CategoryManager } from '@/lib/CategoryManager'
-import { LocalizationManager } from '@/lib/LocalizationManager'
-import { useQuery } from '@tanstack/react-query'
-import { ReactNode } from 'react'
-import { ActivityIndicator, View } from 'react-native'
-import useColorScheme from './useColorScheme'
-import Colors from '@/constants/Colors'
-import { LanguageManager } from '@/lib/LanguageManager'
-import { PackManager } from '@/lib/PackManager'
 import { CardManager } from '@/lib/CardManager'
 import { CardRelationManager } from '@/lib/CardRelationManager'
+import { CategoryManager } from '@/lib/CategoryManager'
+import { LanguageManager } from '@/lib/LanguageManager'
+import { LocalizationManager } from '@/lib/LocalizationManager'
+import { PackManager } from '@/lib/PackManager'
 import SupabaseManager, { SupabaseItem } from '@/lib/SupabaseManager'
+import { useQuery } from '@tanstack/react-query'
+import { ReactNode } from 'react'
 
 function useSupabase(manager: SupabaseManager<SupabaseItem>, enabled = true): boolean {
   const { data, error, isLoading, isPending, isFetched } = useQuery({
@@ -24,8 +21,6 @@ function useSupabase(manager: SupabaseManager<SupabaseItem>, enabled = true): bo
 }
 
 export default function AppDataProvider(props: Readonly<{ children: ReactNode }>) {
-  const colorScheme = useColorScheme()
-
   const hasFetchedLanguages = useSupabase(LanguageManager)
   const hasFetchedCategories = useSupabase(CategoryManager)
   const hasFetchedPacks = useSupabase(PackManager)
@@ -41,20 +36,8 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
     !hasFetchedCardRelations ||
     !hasFetchedLocalizations
   )
-    return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: Colors[colorScheme].background,
-        }}
-      >
-        <ActivityIndicator size={'large'} color={Colors[colorScheme].secondaryText} />
-      </View>
-    )
+    return null
 
   // TODO: Display error if any data is null
-
   return props.children
 }

@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { BlurView } from 'expo-blur'
 import Colors from '@/constants/Colors'
 import Color from '@/models/Color'
+import { SplashScreen } from 'expo-router'
 
 export default function App() {
   const colorScheme = useColorScheme()
@@ -30,6 +31,8 @@ export default function App() {
   )
 
   const background = useCallback((props: BottomSheetBackgroundProps) => <BlurView intensity={100} {...props} />, [])
+
+  SplashScreen.hideAsync()
 
   return (
     <>
