@@ -48,20 +48,26 @@ export default function FetchErrorView(props: Readonly<ErrorViewProps>) {
       >
         Ooops...
       </Text>
-      <Text
-        style={{
-          textAlign: 'center',
-          color: Colors[colorScheme].secondaryText,
-        }}
-      >
-        Mistakes were made
-      </Text>
+
+      {errors.map(error => (
+        <Text
+          key={error.message}
+          style={{
+            textAlign: 'center',
+            color: Colors[colorScheme].secondaryText,
+          }}
+        >
+          {error.message}
+        </Text>
+      ))}
+
       <Image
         source={require('@/assets/images/bug-fix.png')}
         transition={200}
         contentFit='scale-down'
         style={{ aspectRatio: 1, width: '75%', marginTop: 16 }}
       />
+
       <TouchableOpacity
         onPress={() => queryClient.invalidateQueries()}
         style={{

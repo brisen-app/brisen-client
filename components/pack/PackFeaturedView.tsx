@@ -15,8 +15,7 @@ import Sizes from '@/constants/Sizes'
 import useColorScheme from '../utils/useColorScheme'
 import { PackManager } from '@/lib/PackManager'
 import { useQuery } from '@tanstack/react-query'
-import { PackViewProps } from '@/app/pack/[packID]'
-import PackListView, { PackListViewPlaceholder } from './PackListView'
+import PackListView, { PackListViewPlaceholder, PackViewProps } from './PackListView'
 import { useAppContext, useAppDispatchContext } from '../utils/AppContextProvider'
 
 const borderRadius = 16
@@ -69,7 +68,7 @@ export function PackFeaturedViewPlaceholder(props: Readonly<PressableProps>) {
         }}
       >
         <View style={{ height: height, justifyContent: 'center' }}>
-          <ActivityIndicator size="large" color={Colors[colorScheme].placeholder} />
+          <ActivityIndicator size='large' color={Colors[colorScheme].placeholder} />
         </View>
       </View>
       <PackListViewPlaceholder

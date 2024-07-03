@@ -1,6 +1,5 @@
-import { PackViewProps } from '@/app/pack/[packID]'
 import Colors from '@/constants/Colors'
-import { PackManager } from '@/lib/PackManager'
+import { Pack, PackManager } from '@/lib/PackManager'
 import Color from '@/models/Color'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useQuery } from '@tanstack/react-query'
@@ -21,6 +20,10 @@ import { useAppContext, useAppDispatchContext } from '../utils/AppContextProvide
 import Placeholder from '../utils/Placeholder'
 import { Text } from '../utils/Themed'
 import useColorScheme from '../utils/useColorScheme'
+
+export type PackViewProps = {
+  pack: Pack
+}
 
 export type PackListViewProps = {
   hideImage?: boolean

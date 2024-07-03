@@ -9,8 +9,8 @@ export default {
     text: Color.black.string,
     secondaryText: Color.brightness(0.5).string,
 
-    background: Color.brightness(0.9).string,
-    secondaryBackground: Color.white.string,
+    background: Color.white.string,
+    secondaryBackground: Color.brightness(0.9).string,
 
     stroke: Color.black.alpha(0.2).string,
     placeholder: Color.black.alpha(0.1).string,

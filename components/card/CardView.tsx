@@ -79,29 +79,26 @@ export function CardView(props: Readonly<CardViewProps>) {
         )}
 
         <View style={{ flex: 1 }} />
-
-        <Link href={`/pack/${card.pack.id}`} asChild>
-          <TouchableOpacity
+        <TouchableOpacity
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 8,
+          }}
+        >
+          <Image
+            source={image}
             style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 8,
+              height: 48,
+              aspectRatio: 1,
+              backgroundColor: Color.black.alpha(0.5).string,
+              borderColor: Colors[colorScheme].stroke,
+              borderWidth: Sizes.thin,
+              borderRadius: 12,
             }}
-          >
-            <Image
-              source={image}
-              style={{
-                height: 48,
-                aspectRatio: 1,
-                backgroundColor: Color.black.alpha(0.5).string,
-                borderColor: Colors[colorScheme].stroke,
-                borderWidth: Sizes.thin,
-                borderRadius: 12,
-              }}
-            />
-            <Text style={{ ...FontStyles.Title, color: Color.white.string }}>{card.pack.name}</Text>
-          </TouchableOpacity>
-        </Link>
+          />
+          <Text style={{ ...FontStyles.Title, color: Color.white.string }}>{card.pack.name}</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Content */}
