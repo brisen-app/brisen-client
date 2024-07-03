@@ -1,27 +1,26 @@
-import {
-  DimensionValue,
-  View,
-  StyleSheet,
-  Pressable,
-  PressableProps,
-  ActivityIndicator,
-  Switch,
-  ViewProps,
-  TouchableOpacity,
-} from 'react-native'
-import { Image, ImageProps } from 'expo-image'
-import { Text } from '../utils/Themed'
-import { useCallback } from 'react'
+import { PackViewProps } from '@/app/pack/[packID]'
 import Colors from '@/constants/Colors'
-import useColorScheme from '../utils/useColorScheme'
 import { PackManager } from '@/lib/PackManager'
 import Color from '@/models/Color'
-import { useQuery } from '@tanstack/react-query'
-import { PackViewProps } from '@/app/pack/[packID]'
 import { MaterialIcons } from '@expo/vector-icons'
-import Placeholder from '../utils/Placeholder'
+import { useQuery } from '@tanstack/react-query'
+import { Image, ImageProps } from 'expo-image'
+import { useCallback } from 'react'
+import {
+  ActivityIndicator,
+  DimensionValue,
+  Pressable,
+  PressableProps,
+  StyleSheet,
+  Switch,
+  TouchableOpacity,
+  View,
+  ViewProps,
+} from 'react-native'
 import { useAppContext, useAppDispatchContext } from '../utils/AppContextProvider'
-import { Link } from 'expo-router'
+import Placeholder from '../utils/Placeholder'
+import { Text } from '../utils/Themed'
+import useColorScheme from '../utils/useColorScheme'
 
 export type PackListViewProps = {
   hideImage?: boolean
@@ -57,38 +56,36 @@ export default function PackListView(props: Readonly<PackListViewProps & PackVie
         style,
       ]}
     >
-      <Link href={`/pack/${pack.id}`} asChild>
-        <TouchableOpacity
-          style={{
-            flex: 1,
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 8,
-          }}
-        >
-          {!hideImage && (
-            <PackImage
-              style={{
-                aspectRatio: 1,
-                height: '100%',
-                borderRadius: 16,
-                borderColor: Colors[colorScheme].stroke,
-                borderWidth: StyleSheet.hairlineWidth,
-              }}
-            />
-          )}
+      <TouchableOpacity
+        style={{
+          flex: 1,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 8,
+        }}
+      >
+        {!hideImage && (
+          <PackImage
+            style={{
+              aspectRatio: 1,
+              height: '100%',
+              borderRadius: 16,
+              borderColor: Colors[colorScheme].stroke,
+              borderWidth: StyleSheet.hairlineWidth,
+            }}
+          />
+        )}
 
-          <View style={{ flex: 1 }}>
-            <Text numberOfLines={1} style={[styles.text, styles.header]}>
-              {pack.name}
-            </Text>
+        <View style={{ flex: 1 }}>
+          <Text numberOfLines={1} style={[styles.text, styles.header]}>
+            {pack.name}
+          </Text>
 
-            <Text numberOfLines={2} style={{ ...styles.text, color: Colors[colorScheme].secondaryText }}>
-              {pack.description ? pack.description : pack.cards.size + ' cards'}
-            </Text>
-          </View>
-        </TouchableOpacity>
-      </Link>
+          <Text numberOfLines={2} style={{ ...styles.text, color: Colors[colorScheme].secondaryText }}>
+            {pack.description ? pack.description : pack.cards.size + ' cards'}
+          </Text>
+        </View>
+      </TouchableOpacity>
 
       <Switch
         value={isSelected}
@@ -130,8 +127,8 @@ export function PackListViewPlaceholder(props: PackListViewProps & PressableProp
         )}
 
         <View style={{ flex: 1, gap: 4, justifyContent: 'center' }}>
-          <Placeholder width="25%" height={18} />
-          <Placeholder width="75%" height={18} />
+          <Placeholder width='25%' height={18} />
+          <Placeholder width='75%' height={18} />
         </View>
         <MaterialIcons size={28} name={'more-horiz'} color={Colors[colorScheme].placeholder} />
       </View>
@@ -142,9 +139,6 @@ export function PackListViewPlaceholder(props: PackListViewProps & PressableProp
 const styles = StyleSheet.create({
   text: {
     userSelect: 'none',
-    textShadowColor: Color.black.alpha(0.25).string,
-    textShadowRadius: 1,
-    textShadowOffset: { width: 0, height: 1 },
   },
   header: {
     fontSize: 16,

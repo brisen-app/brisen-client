@@ -1,12 +1,12 @@
-import { Dimensions, PressableProps, Pressable } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Colors from '@/constants/Colors'
 import Sizes from '@/constants/Sizes'
-import useColorScheme from '../utils/useColorScheme'
 import { PlayedCard } from '@/lib/CardManager'
 import { CategoryManager } from '@/lib/CategoryManager'
-import { CardView } from './CardView'
+import { Dimensions, Pressable, PressableProps } from 'react-native'
 import Animated, { Easing, withTiming } from 'react-native-reanimated'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import useColorScheme from '../utils/useColorScheme'
+import { CardView } from './CardView'
 
 export type CardScreenProps = { card: PlayedCard } & PressableProps
 

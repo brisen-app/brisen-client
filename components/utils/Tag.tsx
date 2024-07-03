@@ -1,13 +1,10 @@
 import Colors from '@/constants/Colors'
 import { FontStyles } from '@/constants/Styles'
+import Color from '@/models/Color'
 import { MaterialIcons } from '@expo/vector-icons'
 import React from 'react'
 import { Text, TouchableOpacity, TouchableOpacityProps } from 'react-native'
-import Animated, {
-  Easing,
-  FadeInUp,
-  ZoomOut
-} from 'react-native-reanimated'
+import Animated, { Easing, FadeInUp, ZoomOut } from 'react-native-reanimated'
 import useColorScheme from './useColorScheme'
 
 export type TagListProps = {
@@ -29,7 +26,7 @@ export default function Tag(props: Readonly<TagListProps>) {
         style={[
           {
             flexDirection: 'row',
-            backgroundColor: Colors[colorScheme].background,
+            backgroundColor: colorScheme === 'dark' ? Color.black.string : Color.white.string,
             paddingVertical: 6,
             paddingHorizontal: 10,
             borderRadius: 8,
@@ -41,7 +38,7 @@ export default function Tag(props: Readonly<TagListProps>) {
         ]}
         onPress={onPress}
       >
-        {!hideIcon ? <MaterialIcons name="close" size={16} color={Colors[colorScheme].secondaryText} /> : null}
+        {!hideIcon ? <MaterialIcons name='close' size={16} color={Colors[colorScheme].secondaryText} /> : null}
         <Text style={[FontStyles.AccentuatedBody, { color: Colors[colorScheme].text }]}>{text}</Text>
       </TouchableOpacity>
     </Animated.View>

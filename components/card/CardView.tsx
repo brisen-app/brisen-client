@@ -1,18 +1,17 @@
-import { Category, CategoryManager } from '@/lib/CategoryManager'
-import { FontStyles, Styles } from '@/constants/Styles'
-import { Image } from 'expo-image'
-import { LinearGradient } from 'expo-linear-gradient'
-import { PackManager } from '@/lib/PackManager'
-import { PlayedCard } from '@/lib/CardManager'
-import { Text } from '../utils/Themed'
-import { useQuery } from '@tanstack/react-query'
-import { View, TouchableOpacity } from 'react-native'
-import Assets from '@/constants/Assets'
-import Color from '@/models/Color'
 import Colors from '@/constants/Colors'
 import Sizes from '@/constants/Sizes'
-import useColorScheme from '../utils/useColorScheme'
+import { FontStyles, Styles } from '@/constants/Styles'
+import { PlayedCard } from '@/lib/CardManager'
+import { Category, CategoryManager } from '@/lib/CategoryManager'
+import { PackManager } from '@/lib/PackManager'
+import Color from '@/models/Color'
+import { useQuery } from '@tanstack/react-query'
+import { Image } from 'expo-image'
+import { LinearGradient } from 'expo-linear-gradient'
 import { Link } from 'expo-router'
+import { TouchableOpacity, View } from 'react-native'
+import { Text } from '../utils/Themed'
+import useColorScheme from '../utils/useColorScheme'
 
 export type CardViewProps = {
   card: PlayedCard
@@ -61,19 +60,22 @@ export function CardView(props: Readonly<CardViewProps>) {
         }}
       >
         {category && (
-          <Link href={`/category/${card.category}`} asChild>
-            <TouchableOpacity
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'flex-end',
-                alignItems: 'center',
-                gap: 8,
-              }}
+          <TouchableOpacity
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'flex-end',
+              alignItems: 'center',
+              gap: 8,
+            }}
+          >
+            <Text
+              style={{ flex: 1, ...FontStyles.Title, color: Color.white.string, textAlign: 'right' }}
+              numberOfLines={1}
             >
-              <Text style={FontStyles.Title}>{CategoryManager.getTitle(category)}</Text>
-              <Text style={{ fontSize: 48 }}>{category?.icon}</Text>
-            </TouchableOpacity>
-          </Link>
+              {CategoryManager.getTitle(category)}
+            </Text>
+            <Text style={{ fontSize: 48 }}>{category?.icon}</Text>
+          </TouchableOpacity>
         )}
 
         <View style={{ flex: 1 }} />
@@ -87,7 +89,7 @@ export function CardView(props: Readonly<CardViewProps>) {
             }}
           >
             <Image
-              source={image ?? Assets[colorScheme].pack_placeholder}
+              source={image}
               style={{
                 height: 48,
                 aspectRatio: 1,
@@ -97,7 +99,7 @@ export function CardView(props: Readonly<CardViewProps>) {
                 borderRadius: 12,
               }}
             />
-            <Text style={FontStyles.Title}>{card.pack.name}</Text>
+            <Text style={{ ...FontStyles.Title, color: Color.white.string }}>{card.pack.name}</Text>
           </TouchableOpacity>
         </Link>
       </View>
@@ -110,6 +112,7 @@ export function CardView(props: Readonly<CardViewProps>) {
               fontSize: 32,
               fontWeight: '900',
               ...Styles.shadow,
+              color: Color.white.string,
               textAlign: 'center',
             }}
           >
@@ -121,6 +124,7 @@ export function CardView(props: Readonly<CardViewProps>) {
             fontSize: Math.max(18, 28 / Math.max(1, content.length / 150)),
             fontWeight: '900',
             ...Styles.shadow,
+            color: Color.white.string,
             textAlign: 'center',
             paddingHorizontal: 32,
           }}

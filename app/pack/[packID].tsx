@@ -41,7 +41,7 @@ export default function PackView() {
           alignItems: 'center',
         }}
       >
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size='large' />
       </View>
     )
   if (!pack) throw new Error('Pack not found')
@@ -70,7 +70,7 @@ export default function PackView() {
             marginTop: top ?? 16,
           }}
         >
-          <Link href=".." asChild>
+          <Link href='..' asChild>
             <TouchableOpacity style={{ alignItems: 'flex-start' }}>
               <View
                 style={{
@@ -82,9 +82,9 @@ export default function PackView() {
                   backgroundColor: Colors[colorScheme].background,
                 }}
               >
-                <MaterialIcons name="chevron-left" size={24} color={Colors[colorScheme].accentColor} />
+                <MaterialIcons name='chevron-left' size={24} color={Colors[colorScheme].accentColor} />
                 <Text style={{ paddingRight: 10, color: Colors[colorScheme].accentColor }}>
-                  {LocalizationManager.get('back')?.value}
+                  {LocalizationManager.get('back')?.value ?? 'back'}
                 </Text>
               </View>
             </TouchableOpacity>

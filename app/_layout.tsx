@@ -1,15 +1,14 @@
-import { SplashScreen, Stack } from 'expo-router'
+import { AppContextProvider } from '@/components/utils/AppContextProvider'
+import AppDataProvider from '@/components/utils/AppDataProvider'
+import useColorScheme from '@/components/utils/useColorScheme'
+import Colors from '@/constants/Colors'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { GestureHandlerRootView } from 'react-native-gesture-handler'
+import { Stack } from 'expo-router'
 import { Platform } from 'react-native'
-import { AppContextProvider } from '@/components/utils/AppContextProvider'
-import Colors from '@/constants/Colors'
-import useColorScheme from '@/components/utils/useColorScheme'
-import AppDataProvider from '@/components/utils/AppDataProvider'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 export default function Layout() {
-  SplashScreen.preventAutoHideAsync()
   const colorScheme = useColorScheme()
   const queryClient = new QueryClient({
     defaultOptions: {

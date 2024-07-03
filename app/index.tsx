@@ -1,14 +1,16 @@
 import GameView from '@/components/GameView'
 import MenuView from '@/components/MenuView'
 import useColorScheme from '@/components/utils/useColorScheme'
-import BottomSheet, { BottomSheetBackdrop, BottomSheetBackgroundProps } from '@gorhom/bottom-sheet'
-import { useCallback, useMemo, useRef } from 'react'
-import { Keyboard, StyleSheet } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { BlurView } from 'expo-blur'
 import Colors from '@/constants/Colors'
 import Color from '@/models/Color'
+import BottomSheet, { BottomSheetBackdrop, BottomSheetBackgroundProps } from '@gorhom/bottom-sheet'
+import { BlurView } from 'expo-blur'
 import { SplashScreen } from 'expo-router'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { Keyboard, StyleSheet } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+
+SplashScreen.preventAutoHideAsync()
 
 export default function App() {
   const colorScheme = useColorScheme()
@@ -32,7 +34,9 @@ export default function App() {
 
   const background = useCallback((props: BottomSheetBackgroundProps) => <BlurView intensity={100} {...props} />, [])
 
-  SplashScreen.hideAsync()
+  useEffect(() => {
+    SplashScreen.hideAsync()
+  }, [])
 
   return (
     <>
@@ -50,7 +54,7 @@ export default function App() {
           borderColor: Colors[colorScheme].stroke,
           borderWidth: StyleSheet.hairlineWidth,
           overflow: 'hidden',
-          backgroundColor: Color.hex(Colors[colorScheme].background).alpha(0.8).string,
+          backgroundColor: Color.hex(Colors[colorScheme].background).alpha(0.9).string,
         }}
         handleIndicatorStyle={{
           backgroundColor: Colors[colorScheme].secondaryText,
