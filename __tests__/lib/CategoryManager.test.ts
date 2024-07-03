@@ -1,7 +1,7 @@
 // @ts-nocheck
 
-import { Category, CategoryManager } from '@/lib/CategoryManager'
-import { Localization, LocalizationManager } from '@/lib/LocalizationManager'
+import { Category, CategoryManager } from '@/managers/CategoryManager'
+import { Localization, LocalizationManager } from '@/managers/LocalizationManager'
 
 const mockedLocalizations: Localization[] = [
   { id: 'categories_1_title', value: 'Alice' },
@@ -46,7 +46,7 @@ jest.mock('@/lib/supabase', () => ({
 
 jest.mock('@/lib/LocalizationManager', () => ({
   LocalizationManager: {
-    get: (id: string) => mockedLocalizations.find((title) => title.id === id),
+    get: (id: string) => mockedLocalizations.find(title => title.id === id),
   },
 }))
 

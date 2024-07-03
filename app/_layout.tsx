@@ -1,5 +1,5 @@
-import { AppContextProvider } from '@/components/utils/AppContextProvider'
-import AppDataProvider from '@/components/utils/AppDataProvider'
+import { AppContextProvider } from '@/providers/AppContextProvider'
+import AppDataProvider from '@/providers/AppDataProvider'
 import useColorScheme from '@/components/utils/useColorScheme'
 import Colors from '@/constants/Colors'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'

@@ -1,7 +1,7 @@
 import React, { createContext, Dispatch, ReactNode, useContext, useReducer } from 'react'
-import { Pack } from '@/lib/PackManager'
-import { Category } from '@/lib/CategoryManager'
-import { PlayedCard } from '@/lib/CardManager'
+import { Pack } from '@/managers/PackManager'
+import { Category } from '@/managers/CategoryManager'
+import { PlayedCard } from '@/managers/CardManager'
 
 type AppContextType = {
   playedCards: PlayedCard[]
@@ -17,7 +17,7 @@ type AppContextAction = {
 }
 
 function toggleSet<T>(set: Set<T>, value: T): Set<T> {
-  if (set.has(value)) return new Set([...set].filter((v) => v !== value))
+  if (set.has(value)) return new Set([...set].filter(v => v !== value))
   return new Set([...set, value])
 }
 

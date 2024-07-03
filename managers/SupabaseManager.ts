@@ -5,7 +5,7 @@ import { Language } from './LanguageManager'
 import { Localization } from './LocalizationManager'
 import { NotFoundError } from '@/models/Errors'
 import { Pack } from './PackManager'
-import { supabase } from './supabase'
+import { supabase } from '../lib/supabase'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export type SupabaseItem = Category | Pack | Card | Localization | Language | CardRelation

@@ -1,8 +1,8 @@
 import Colors from '@/constants/Colors'
 import { FontStyles } from '@/constants/Styles'
-import { Category, CategoryManager } from '@/lib/CategoryManager'
-import { LocalizationManager } from '@/lib/LocalizationManager'
-import { PackManager } from '@/lib/PackManager'
+import { Category, CategoryManager } from '@/managers/CategoryManager'
+import { LocalizationManager } from '@/managers/LocalizationManager'
+import { PackManager } from '@/managers/PackManager'
 import { formatName as prettifyString } from '@/lib/utils'
 import Color from '@/models/Color'
 import { AntDesign } from '@expo/vector-icons'
@@ -12,9 +12,8 @@ import React, { useMemo, useState } from 'react'
 import { ScrollView, StyleSheet, View, ViewProps } from 'react-native'
 import Animated, { LinearTransition } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import PackFeaturedView from './pack/PackFeaturedView'
+import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import PackListView from './pack/PackListView'
-import { useAppContext, useAppDispatchContext } from './utils/AppContextProvider'
 import Tag from './utils/Tag'
 import { Text } from './utils/Themed'
 import useColorScheme from './utils/useColorScheme'
@@ -115,25 +114,21 @@ function PackSection(props: Readonly<ViewProps>) {
   return (
     <View {...props}>
       {packs
-        ? packs.map((pack, index) =>
-            index === -1 ? (
-              <PackFeaturedView key={pack.id} pack={pack} style={{ marginHorizontal: 16, marginBottom: 16 }} />
-            ) : (
-              <View key={pack.id}>
-                <PackListView pack={pack} style={{ height: 80, marginHorizontal: 16 }} />
-                {index < packs.length - 1 ? (
-                  <View
-                    style={{
-                      borderTopColor: Colors[colorScheme].stroke,
-                      borderTopWidth: StyleSheet.hairlineWidth,
-                      marginVertical: 8,
-                      marginLeft: 80 + 8 + 16,
-                    }}
-                  />
-                ) : null}
-              </View>
-            )
-          )
+        ? packs.map((pack, index) => (
+            <View key={pack.id}>
+              <PackListView pack={pack} style={{ height: 80, marginHorizontal: 16 }} />
+              {index < packs.length - 1 ? (
+                <View
+                  style={{
+                    borderTopColor: Colors[colorScheme].stroke,
+                    borderTopWidth: StyleSheet.hairlineWidth,
+                    marginVertical: 8,
+                    marginLeft: 80 + 8 + 16,
+                  }}
+                />
+              ) : null}
+            </View>
+          ))
         : null}
     </View>
   )

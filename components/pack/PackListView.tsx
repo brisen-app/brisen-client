@@ -1,5 +1,5 @@
 import Colors from '@/constants/Colors'
-import { Pack, PackManager } from '@/lib/PackManager'
+import { Pack, PackManager } from '@/managers/PackManager'
 import Color from '@/models/Color'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useQuery } from '@tanstack/react-query'
@@ -16,8 +16,7 @@ import {
   View,
   ViewProps,
 } from 'react-native'
-import { useAppContext, useAppDispatchContext } from '../utils/AppContextProvider'
-import Placeholder from '../utils/Placeholder'
+import { useAppContext, useAppDispatchContext } from '../../providers/AppContextProvider'
 import { Text } from '../utils/Themed'
 import useColorScheme from '../utils/useColorScheme'
 
@@ -129,10 +128,7 @@ export function PackListViewPlaceholder(props: PackListViewProps & PressableProp
           </View>
         )}
 
-        <View style={{ flex: 1, gap: 4, justifyContent: 'center' }}>
-          <Placeholder width='25%' height={18} />
-          <Placeholder width='75%' height={18} />
-        </View>
+        <View style={{ flex: 1, gap: 4, justifyContent: 'center' }} />
         <MaterialIcons size={28} name={'more-horiz'} color={Colors[colorScheme].placeholder} />
       </View>
     </Pressable>

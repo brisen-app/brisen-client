@@ -1,13 +1,13 @@
 import CardScreen from '@/components/card/CardScreen'
 import Colors from '@/constants/Colors'
-import { CardManager, PlayedCard } from '@/lib/CardManager'
-import { LocalizationManager } from '@/lib/LocalizationManager'
+import { CardManager, PlayedCard } from '@/managers/CardManager'
+import { LocalizationManager } from '@/managers/LocalizationManager'
 import BottomSheet from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet'
 import { Image } from 'expo-image'
 import React, { useCallback, useEffect } from 'react'
 import { Button, Dimensions, FlatList, Pressable, PressableProps, ViewToken } from 'react-native'
 import Animated, { Easing, SharedValue, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
-import { useAppContext, useAppDispatchContext } from './utils/AppContextProvider'
+import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import { Text } from './utils/Themed'
 import useColorScheme from './utils/useColorScheme'
 
@@ -80,12 +80,6 @@ function NoCardsView(props: Readonly<PressableProps>) {
         gap: 32,
       }}
     >
-      <Image
-        source={require('@/assets/images/drinking.png')}
-        transition={200}
-        contentFit='scale-down'
-        style={{ aspectRatio: 1, width: '50%', marginTop: 16 }}
-      />
       <Text style={{ color: Colors[useColorScheme()].secondaryText }}>
         {LocalizationManager.get('select_pack')?.value ?? 'select_pack'}
       </Text>

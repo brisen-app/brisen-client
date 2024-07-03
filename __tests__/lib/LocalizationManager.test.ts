@@ -1,5 +1,5 @@
-import { LanguageManager } from '@/lib/LanguageManager'
-import { LocalizationManager, Localization } from '@/lib/LocalizationManager'
+import { LanguageManager } from '@/managers/LanguageManager'
+import { LocalizationManager, Localization } from '@/managers/LocalizationManager'
 import { supabase } from '@/lib/supabase'
 import { NotFoundError } from '@/models/Errors'
 
@@ -29,11 +29,11 @@ jest.mock('@/lib/supabase', () => ({
     from: () => ({
       select: () => ({
         eq: (columnName1: keyof Localization, value1: string) => ({
-          throwOnError: () => ({ data: mockedItems.filter((item) => item[columnName1] === value1) }),
+          throwOnError: () => ({ data: mockedItems.filter(item => item[columnName1] === value1) }),
           eq: (columnName2: keyof Localization, value2: string) => ({
             single: () => ({
               throwOnError: () => ({
-                data: mockedItems.find((item) => item[columnName1] === value1 && item[columnName2] === value2),
+                data: mockedItems.find(item => item[columnName1] === value1 && item[columnName2] === value2),
               }),
             }),
           }),
@@ -90,13 +90,13 @@ describe('fetchAll', () => {
     { lang: 'en', expectedAmount: 1 },
   ]
 
-  testCases.forEach((language) => {
+  testCases.forEach(language => {
     it(`should return all Localizations with language ${language}`, async () => {
       // @ts-ignore
       jest.spyOn(LanguageManager, 'getDisplayLanguage').mockReturnValueOnce({ id: language.lang })
       const localizations = await LocalizationManager.fetchAll()
       expect(localizations.length).toEqual(language.expectedAmount)
-      localizations.forEach((localization) => {
+      localizations.forEach(localization => {
         expect(localization.language).toEqual(language.lang)
       })
     })

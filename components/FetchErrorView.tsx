@@ -61,13 +61,6 @@ export default function FetchErrorView(props: Readonly<ErrorViewProps>) {
         </Text>
       ))}
 
-      <Image
-        source={require('@/assets/images/bug-fix.png')}
-        transition={200}
-        contentFit='scale-down'
-        style={{ aspectRatio: 1, width: '75%', marginTop: 16 }}
-      />
-
       <TouchableOpacity
         onPress={() => queryClient.invalidateQueries()}
         style={{

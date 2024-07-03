@@ -1,4 +1,4 @@
-import { getRandom, shuffled } from './utils'
+import { getRandom, shuffled } from '../lib/utils'
 import { InsufficientCountError } from '@/models/Errors'
 import { Pack, PackManager } from './PackManager'
 import { Tables } from '@/models/supabase'

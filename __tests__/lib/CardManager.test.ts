@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import { CardManager, Card } from '@/lib/CardManager'
+import { CardManager, Card } from '@/managers/CardManager'
 import * as utils from '@/lib/utils'
 import { InsufficientCountError } from '@/models/Errors'
 
@@ -42,7 +42,7 @@ enum MockedPacks {
     cards: new Set(['8']),
   },
   Pack_with_all_cards = {
-    cards: new Set(MockedCards.all.map((card) => card.id)),
+    cards: new Set(MockedCards.all.map(card => card.id)),
   },
 }
 
@@ -81,7 +81,7 @@ jest.mock('@/lib/supabase', () => ({
         throwOnError: () => ({ data: MockedCards.all }),
         eq: (columnName: keyof Card, value: string) => ({
           single: () => ({
-            throwOnError: () => ({ data: MockedCards.all.find((item) => item[columnName] === value) }),
+            throwOnError: () => ({ data: MockedCards.all.find(item => item[columnName] === value) }),
           }),
         }),
       }),
@@ -213,7 +213,7 @@ describe('getNextCard', () => {
 
   it('should return the correct card based on arguments', () => {
     const playedCards = [MockedCards.Card_1, MockedCards.Card_3, MockedCards.Card_4_no_category]
-    const playedIds = new Set(playedCards.map((card) => card.id))
+    const playedIds = new Set(playedCards.map(card => card.id))
     const playlist = new Set([MockedPacks.Pack_with_all_cards])
     const players = new Set([MockedPlayers.Alice, MockedPlayers.Bob])
     const categoryFilter = new Set(['cat1', 'cat2', 'cat3', 'cat8'])
@@ -228,7 +228,7 @@ describe('getNextCard', () => {
 
   it('should return null if no cards are available', () => {
     const playedCards = [MockedCards.Card_1, MockedCards.Card_3, MockedCards.Card_4_no_category]
-    const playedIds = new Set(playedCards.map((card) => card.id))
+    const playedIds = new Set(playedCards.map(card => card.id))
     const playlist = new Set([MockedPacks.Pack_with_all_cards])
     const players = new Set([MockedPlayers.Alice])
     const categoryFilter = new Set(['cat1', 'cat2', 'cat3', 'cat8'])

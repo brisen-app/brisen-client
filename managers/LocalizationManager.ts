@@ -1,4 +1,4 @@
-import { supabase } from './supabase'
+import { supabase } from '../lib/supabase'
 import { LanguageManager } from './LanguageManager'
 import { NotFoundError } from '@/models/Errors'
 import SupabaseManager from './SupabaseManager'
