@@ -43,7 +43,7 @@ jest.mock('@/lib/supabase', () => ({
   },
 }))
 
-jest.mock('@/lib/LanguageManager', () => ({
+jest.mock('@/managers/LanguageManager', () => ({
   LanguageManager: {
     getDisplayLanguage: () => ({ id: 'nb' }),
   },
