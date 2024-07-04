@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import { Pack, PackManager } from '@/lib/PackManager'
+import { Pack, PackManager } from '@/managers/PackManager'
 import { supabase } from '@/lib/supabase'
 
 const mockedSupabasePacks = [
@@ -59,7 +59,7 @@ jest.mock('@/lib/supabase', () => ({
       select: () => ({
         eq: (columnName: keyof Pack, value: string) => ({
           single: () => ({
-            throwOnError: () => ({ data: mockedSupabasePacks.find((pack) => pack[columnName] === value) }),
+            throwOnError: () => ({ data: mockedSupabasePacks.find(pack => pack[columnName] === value) }),
           }),
         }),
         order: (columnName: 'id' | 'name') => ({

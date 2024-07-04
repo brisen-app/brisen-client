@@ -1,6 +1,6 @@
-import { blobToBase64, emptyQuery } from './utils'
+import { blobToBase64, emptyQuery } from '../lib/utils'
 import { NotFoundError } from '@/models/Errors'
-import { supabase } from './supabase'
+import { supabase } from '../lib/supabase'
 import { Tables } from '@/models/supabase'
 import SupabaseManager from './SupabaseManager'
 

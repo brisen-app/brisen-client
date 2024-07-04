@@ -1,5 +1,5 @@
-import { Card, CardManager } from '@/lib/CardManager'
-import { CardRelation, CardRelationManager } from '@/lib/CardRelationManager'
+import { Card, CardManager } from '@/managers/CardManager'
+import { CardRelation, CardRelationManager } from '@/managers/CardRelationManager'
 import { CycleError } from '@/models/Errors'
 
 const mockedRelations1 = [
@@ -120,7 +120,7 @@ describe('set', () => {
     { graph: mockedRelationsWithCycle, cycle: ['3', '4', '5', '3'] },
     { graph: mockedRelationsWithCycleNoRoot, cycle: ['2', '3', '4', '1', '2'] },
   ]
-  cycles.forEach((relations) => {
+  cycles.forEach(relations => {
     it(`should throw an error if there is a cycle`, () => {
       try {
         // @ts-ignore
@@ -263,7 +263,7 @@ describe('getRequiredPlayerCount', () => {
     CardRelationManager.cachedPlayerCounts = new Map()
   })
 
-  cardIds.forEach((id) => {
+  cardIds.forEach(id => {
     it('should return the highest required player count', () => {
       // @ts-ignore
       CardRelationManager.set(mockedRelations1)
@@ -282,7 +282,7 @@ describe('getRequiredPlayerCount', () => {
     })
   })
 
-  cardIds.forEach((id) => {
+  cardIds.forEach(id => {
     it('should return the highest required player count', () => {
       // @ts-ignore
       CardRelationManager.set(mockedRelations2)

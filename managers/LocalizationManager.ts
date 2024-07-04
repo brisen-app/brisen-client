@@ -1,4 +1,4 @@
-import { supabase } from './supabase'
+import { supabase } from '../lib/supabase'
 import { LanguageManager } from './LanguageManager'
 import { NotFoundError } from '@/models/Errors'
 import SupabaseManager from './SupabaseManager'
@@ -22,7 +22,7 @@ class LocalizationManagerSingleton extends SupabaseManager<Localization> {
       .throwOnError()
     if (!data) throw new NotFoundError(`No data found in table '${this.tableName}'`)
     this.push(data)
-    return data as Localization
+    return data
   }
 
   async fetchAll() {
@@ -32,8 +32,9 @@ class LocalizationManagerSingleton extends SupabaseManager<Localization> {
       .eq('language', LanguageManager.getDisplayLanguage()!.id)
       .throwOnError()
     if (!data || data.length === 0) throw new NotFoundError(`No data found in table '${this.tableName}'`)
+    if (!this.isSupabaseItemList(data)) throw new Error(`Invalid data type: ${typeof data}`)
     this.set(data)
-    return data as Localization[]
+    return data
   }
 }
 

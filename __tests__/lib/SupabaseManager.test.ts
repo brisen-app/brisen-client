@@ -1,5 +1,5 @@
-import { Card } from '@/lib/CardManager'
-import SupabaseManager, { SupabaseItem } from '@/lib/SupabaseManager'
+import { Card } from '@/managers/CardManager'
+import SupabaseManager, { SupabaseItem } from '@/managers/SupabaseManager'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const mockedItems: SupabaseItem[] = [
@@ -32,7 +32,7 @@ jest.mock('@/lib/supabase', () => ({
         eq: (key: 'id', value: string) => ({
           single: () => ({
             throwOnError: () => ({
-              data: mockedItems.find((item) => item[key] === value),
+              data: mockedItems.find(item => item[key] === value),
             }),
           }),
         }),

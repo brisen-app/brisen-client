@@ -5,16 +5,18 @@ import { Language } from './LanguageManager'
 import { Localization } from './LocalizationManager'
 import { NotFoundError } from '@/models/Errors'
 import { Pack } from './PackManager'
-import { supabase } from './supabase'
+import { supabase } from '../lib/supabase'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { Database } from '@/models/supabase'
 
 export type SupabaseItem = Category | Pack | Card | Localization | Language | CardRelation
+type SupabaseTableName = keyof Database['public']['Tables']
 
 export default abstract class SupabaseManager<T extends SupabaseItem> {
-  readonly tableName: string
+  readonly tableName: SupabaseTableName
   protected _items: Map<string, T> | undefined
 
-  constructor(tableName: string) {
+  constructor(tableName: SupabaseTableName) {
     this.tableName = tableName
   }
 
@@ -72,8 +74,9 @@ export default abstract class SupabaseManager<T extends SupabaseItem> {
   async fetch(id: string) {
     const { data } = await supabase.from(this.tableName).select().eq('id', id).single().throwOnError()
     if (!data) throw new NotFoundError(`No data found in table '${this.tableName}'`)
+    if (!this.isSupabaseItem(data)) throw new Error(`Invalid data type: ${typeof data}`)
     this.push(data)
-    return data as T
+    return data
   }
 
   /**
@@ -82,12 +85,13 @@ export default abstract class SupabaseManager<T extends SupabaseItem> {
    * @returns {Promise<T[]>} A promise that resolves to an array of records.
    * @throws {NotFoundError} If no data is found in the table.
    */
-  async fetchAll() {
+  async fetchAll(): Promise<T[]> {
     const { data } = await supabase.from(this.tableName).select().throwOnError()
     if (!data || data.length === 0) throw new NotFoundError(`No data found in table '${this.tableName}'`)
+    if (!this.isSupabaseItemList(data)) throw new Error(`Invalid data type: ${typeof data}`)
     this.set(data)
     await this.store(data)
-    return data as T[]
+    return data
   }
 
   async fetchAllOrRetrieve() {
@@ -99,5 +103,13 @@ export default abstract class SupabaseManager<T extends SupabaseItem> {
       if (!items) throw error
       return items
     }
+  }
+
+  isSupabaseItem(item: object): item is T {
+    return (item as T).id !== undefined
+  }
+
+  isSupabaseItemList(item: object): item is T[] {
+    return (item as T[]).every(item => this.isSupabaseItem(item))
   }
 }

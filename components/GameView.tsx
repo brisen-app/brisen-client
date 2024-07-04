@@ -1,14 +1,14 @@
-import React, { useCallback, useEffect } from 'react'
-import { Button, Dimensions, FlatList, Pressable, PressableProps, ViewToken } from 'react-native'
 import CardScreen from '@/components/card/CardScreen'
 import Colors from '@/constants/Colors'
-import useColorScheme from './utils/useColorScheme'
+import { CardManager, PlayedCard } from '@/managers/CardManager'
+import { LocalizationManager } from '@/managers/LocalizationManager'
 import BottomSheet from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet'
-import { CardManager, PlayedCard } from '@/lib/CardManager'
-import { useAppContext, useAppDispatchContext } from './utils/AppContextProvider'
-import { Text } from './utils/Themed'
-import { LocalizationManager } from '@/lib/LocalizationManager'
+import React, { useCallback, useEffect } from 'react'
+import { Button, Dimensions, FlatList, Pressable, PressableProps, ViewToken } from 'react-native'
 import Animated, { Easing, SharedValue, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
+import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
+import { Text } from './utils/Themed'
+import useColorScheme from './utils/useColorScheme'
 
 export type GameViewProps = {
   bottomSheetRef?: React.RefObject<BottomSheet>
@@ -76,10 +76,11 @@ function NoCardsView(props: Readonly<PressableProps>) {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        gap: 32,
       }}
     >
       <Text style={{ color: Colors[useColorScheme()].secondaryText }}>
-        {LocalizationManager.get('select_pack')?.value}
+        {LocalizationManager.get('select_pack')?.value ?? 'select_pack'}
       </Text>
     </Pressable>
   )
@@ -120,10 +121,10 @@ function OutOfCardsView(props: Readonly<OutOfCardsViewProps>) {
             color: Colors[useColorScheme()].secondaryText,
           }}
         >
-          {LocalizationManager.get('out_of_cards')?.value}
+          {LocalizationManager.get('out_of_cards')?.value ?? 'out_of_cards'}
         </Text>
         <Button
-          title={LocalizationManager.get('restart_game')?.value ?? '-'}
+          title={LocalizationManager.get('restart_game')?.value ?? 'restart_game'}
           color={Colors[colorScheme].accentColor}
           disabled={playedCards.length === 0}
           onPress={() => {

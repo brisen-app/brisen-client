@@ -47,7 +47,7 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
    */
   getUnplayedParent(cardId: string, unplayedCards: Set<string>): string | null {
     try {
-      this.traverse(cardId, 'parents', (item) => {
+      this.traverse(cardId, 'parents', item => {
         if (!unplayedCards.has(item)) return false
         if (this.isPlayable(item, unplayedCards)) throw item
         return true
@@ -76,7 +76,7 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
 
   getPlayedParent(cardId: string, playedIds: Set<string>): string | null {
     try {
-      this.traverse(cardId, 'parents', (item) => {
+      this.traverse(cardId, 'parents', item => {
         if (cardId !== item && playedIds.has(item)) throw item
         return true
       })
@@ -95,7 +95,7 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
     const visited = new Set<string>()
     let highest = 0
 
-    this.traverse(cardId, 'both', (item) => {
+    this.traverse(cardId, 'both', item => {
       const card = CardManager.get(item)
       if (!card) return false
       visited.add(item)
@@ -103,7 +103,7 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
       return true
     })
 
-    visited.forEach((item) => {
+    visited.forEach(item => {
       this.cachedPlayerCounts.set(item, highest)
     })
     return highest
@@ -120,7 +120,7 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
   }
 
   async fetchAll() {
-    return (await super.fetchAll()).map((relation) => {
+    return (await super.fetchAll()).map(relation => {
       return {
         ...relation,
         id: relation.child + ':' + relation.parent,
@@ -139,7 +139,7 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
       root,
       'children',
       () => true,
-      (path) => {
+      path => {
         throw new CycleError(path)
       }
     )

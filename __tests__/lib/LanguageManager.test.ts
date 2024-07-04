@@ -1,4 +1,4 @@
-import { LanguageManager, defaultLanguage } from '@/lib/LanguageManager'
+import { LanguageManager, defaultLanguage } from '@/managers/LanguageManager'
 import { Tables } from '@/models/supabase'
 
 const mockedItems: Partial<Tables<'languages'>>[] = [
@@ -40,7 +40,7 @@ jest.mock('@/lib/supabase', () => ({
         eq: (key: 'id', value: string) => ({
           single: () => ({
             throwOnError: () => ({
-              data: mockedItems.find((item) => item[key] === value),
+              data: mockedItems.find(item => item[key] === value),
             }),
           }),
         }),

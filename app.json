@@ -4,21 +4,44 @@
     "slug": "brisen-client",
     "version": "0.0.1",
     "orientation": "default",
-    "icon": "./assets/images/app-icon-1.png",
     "scheme": "no.kallerud",
     "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./assets/images/splash-screen.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#000000"
-    },
     "assetBundlePatterns": ["**/*"],
+    "primaryColor": "#f3a000",
+    "backgroundColor": "#000000",
+    "platforms": ["ios", "android"],
+    "icon": "./assets/images/app-icon/icon.jpeg",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "no.kallerud.brisen"
+      "bundleIdentifier": "no.kallerud.brisen",
+      "splash": {
+        "image": "./assets/images/splash-screen/splash-screen-static.jpeg",
+        "resizeMode": "contain",
+        "backgroundColor": "#ffffff",
+        "dark": {
+          "image": "./assets/images/splash-screen/splash-screen-dynamic.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#000000"
+        }
+      }
     },
     "android": {
-      "package": "no.kallerud.brisen"
+      "package": "no.kallerud.brisen",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/app-icon/foreground.png",
+        "monochromeImage": "./assets/images/app-icon/mono.png",
+        "backgroundImage": "./assets/images/app-icon/background.jpeg"
+      },
+      "splash": {
+        "image": "./assets/images/splash-screen/splash-screen-static.jpeg",
+        "resizeMode": "contain",
+        "backgroundColor": "#ffffff",
+        "dark": {
+          "image": "./assets/images/splash-screen/splash-screen-dynamic.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#000000"
+        }
+      }
     },
     "plugins": ["expo-router", "expo-localization", "expo-font"],
     "experiments": {
