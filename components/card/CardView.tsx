@@ -32,7 +32,7 @@ export function CardView(props: Readonly<CardViewProps>) {
     if (!category?.gradient)
       return [Color.hex('#370A00').string, Color.hex('#a14316').string, Colors[colorScheme].accentColor, 'white']
     if (category.gradient.length === 1) return [category.gradient[0], category.gradient[0]]
-    return category.gradient
+    return category.gradient.map(color => Color.hex(color).string)
   }
 
   return (

@@ -16,12 +16,12 @@ class CategoryManagerSingleton extends SupabaseManager<Category> {
   }
 
   getTitle(category: Category) {
-    const key = `${tableName}_${category.id}_title`
+    const key = `${tableName}_${category.id.replaceAll('-', '')}_title`
     return LocalizationManager.get(key)?.value ?? key
   }
 
   getDescription(category: Category) {
-    const key = `${tableName}_${category.id}_desc`
+    const key = `${tableName}_${category.id.replaceAll('-', '')}_desc`
     return LocalizationManager.get(key)?.value ?? key
   }
 }

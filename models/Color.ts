@@ -22,6 +22,7 @@ export default class Color {
 
   protected constructor(string: string) {
     string = string.toLowerCase()
+    if (!string.startsWith('#')) string = `#${string}`
     if (!Color.hexPattern.test(string)) throw new TypeError(`Invalid hex pattern: '${string}'`)
     switch (string.length) {
       case 4:

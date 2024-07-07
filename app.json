@@ -3,7 +3,7 @@
     "name": "Brisen",
     "slug": "brisen-client",
     "version": "0.0.1",
-    "orientation": "default",
+    "orientation": "portrait",
     "scheme": "no.kallerud",
     "userInterfaceStyle": "automatic",
     "assetBundlePatterns": ["**/*"],
@@ -16,11 +16,11 @@
       "bundleIdentifier": "no.kallerud.brisen",
       "splash": {
         "image": "./assets/images/splash-screen/splash-screen-static.jpeg",
-        "resizeMode": "contain",
+        "resizeMode": "cover",
         "backgroundColor": "#ffffff",
         "dark": {
           "image": "./assets/images/splash-screen/splash-screen-dynamic.png",
-          "resizeMode": "contain",
+          "resizeMode": "cover",
           "backgroundColor": "#000000"
         }
       }
@@ -34,11 +34,11 @@
       },
       "splash": {
         "image": "./assets/images/splash-screen/splash-screen-static.jpeg",
-        "resizeMode": "contain",
+        "resizeMode": "cover",
         "backgroundColor": "#ffffff",
         "dark": {
           "image": "./assets/images/splash-screen/splash-screen-dynamic.png",
-          "resizeMode": "contain",
+          "resizeMode": "cover",
           "backgroundColor": "#000000"
         }
       }
