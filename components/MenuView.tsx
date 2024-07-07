@@ -17,7 +17,6 @@ import PackListView from './pack/PackListView'
 import Tag from './utils/Tag'
 import { Text } from './utils/Themed'
 import useColorScheme from './utils/useColorScheme'
-import { Image } from 'expo-image'
 
 export default function MenuView() {
   const insets = useSafeAreaInsets()
