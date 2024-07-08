@@ -44,7 +44,7 @@ export default function MenuView() {
         </View>
       )}
 
-      <Header titleKey='packs' descriptionKey='no_pack_selected_description' />
+      <Header titleKey='packs' descriptionKey='packs_subtitle' />
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -80,7 +80,9 @@ function CategoryTag(
       text={category.icon + (title ? ` ${title}` : '')}
       style={{
         opacity: isSelected ? 1 : 0.25,
-        backgroundColor: category.gradient?.[0] ?? Colors[colorScheme].accentColor,
+        borderColor: Color.hex(Colors[colorScheme].secondaryText).alpha(0.5).string,
+        borderWidth: StyleSheet.hairlineWidth,
+        backgroundColor: Color.transparent.string,
       }}
       hideIcon
       onPress={() => onPress(category)}
