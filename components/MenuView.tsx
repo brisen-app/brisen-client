@@ -9,7 +9,7 @@ import { AntDesign } from '@expo/vector-icons'
 import { BottomSheetScrollView, BottomSheetTextInput } from '@gorhom/bottom-sheet'
 import { router } from 'expo-router'
 import React, { useMemo, useState } from 'react'
-import { ScrollView, StyleSheet, View, ViewProps } from 'react-native'
+import { Dimensions, ScrollView, StyleSheet, View, ViewProps } from 'react-native'
 import Animated, { LinearTransition } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
@@ -17,6 +17,7 @@ import PackListView from './pack/PackListView'
 import Tag from './utils/Tag'
 import { Text } from './utils/Themed'
 import useColorScheme from './utils/useColorScheme'
+import PackPosterView from './pack/PackPosterView'
 
 export default function MenuView() {
   const insets = useSafeAreaInsets()
@@ -60,6 +61,7 @@ export default function MenuView() {
           />
         ))}
       </ScrollView>
+
       <PackSection />
 
       <View style={{ height: insets.bottom ?? 16 }} />
@@ -110,25 +112,15 @@ function Header(props: Readonly<{ titleKey: string; descriptionKey?: string }>) 
 
 function PackSection(props: Readonly<ViewProps>) {
   const colorScheme = useColorScheme()
-
+  const packWidth = Dimensions.get('window').width
   const packs = useMemo(() => PackManager.items, [PackManager.items])
 
   return (
-    <View {...props}>
+    <View style={{ flexWrap: 'wrap', flexDirection: 'row', marginHorizontal: 16, gap: 16 }} {...props}>
       {packs
-        ? packs.map((pack, index) => (
+        ? packs.map(pack => (
             <View key={pack.id}>
-              <PackListView pack={pack} style={{ height: 80, marginHorizontal: 16 }} />
-              {index < packs.length - 1 ? (
-                <View
-                  style={{
-                    borderTopColor: Colors[colorScheme].stroke,
-                    borderTopWidth: StyleSheet.hairlineWidth,
-                    marginVertical: 8,
-                    marginLeft: 80 + 8 + 16,
-                  }}
-                />
-              ) : null}
+              <PackPosterView width={(packWidth - 48) / 2} pack={pack} />
             </View>
           ))
         : null}

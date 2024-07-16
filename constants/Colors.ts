@@ -24,7 +24,8 @@ export default {
     background: Color.black.string,
     secondaryBackground: Color.brightness(0.05).string,
 
-    stroke: Color.white.alpha(0.1).string,
+    stroke: Color.white.alpha(0.2).string,
+
     placeholder: Color.white.alpha(0.1).string,
   },
 }
