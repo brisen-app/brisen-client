@@ -1,23 +1,22 @@
 import Colors from '@/constants/Colors'
 import { FontStyles } from '@/constants/Styles'
+import { formatName as prettifyString } from '@/lib/utils'
 import { Category, CategoryManager } from '@/managers/CategoryManager'
 import { LocalizationManager } from '@/managers/LocalizationManager'
 import { PackManager } from '@/managers/PackManager'
-import { formatName as prettifyString } from '@/lib/utils'
 import Color from '@/models/Color'
 import { AntDesign } from '@expo/vector-icons'
 import { BottomSheetScrollView, BottomSheetTextInput } from '@gorhom/bottom-sheet'
 import { router } from 'expo-router'
 import React, { useMemo, useState } from 'react'
-import { Dimensions, ScrollView, StyleSheet, View, ViewProps } from 'react-native'
+import { Dimensions, StyleSheet, View, ViewProps } from 'react-native'
 import Animated, { LinearTransition } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
-import PackListView from './pack/PackListView'
+import PackPosterView from './pack/PackPosterView'
 import Tag from './utils/Tag'
 import { Text } from './utils/Themed'
 import useColorScheme from './utils/useColorScheme'
-import PackPosterView from './pack/PackPosterView'
 
 export default function MenuView() {
   const insets = useSafeAreaInsets()
@@ -46,7 +45,7 @@ export default function MenuView() {
       )}
 
       <Header titleKey='packs' descriptionKey='packs_subtitle' />
-      <ScrollView
+      {/* <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ gap: 8 }}
@@ -60,7 +59,7 @@ export default function MenuView() {
             onPress={onPressCategory}
           />
         ))}
-      </ScrollView>
+      </ScrollView> */}
 
       <PackSection />
 
@@ -95,23 +94,28 @@ function CategoryTag(
 
 function Header(props: Readonly<{ titleKey: string; descriptionKey?: string }>) {
   const { titleKey, descriptionKey } = props
+  const colorScheme = useColorScheme()
 
   return (
-    <View style={{ marginHorizontal: 16, paddingTop: 16 }}>
+    <View style={{ marginHorizontal: 16, paddingTop: 16, gap: 4 }}>
       <Text id={titleKey} style={FontStyles.Header}>
         {LocalizationManager.get(titleKey)?.value ?? titleKey}
       </Text>
+
       {descriptionKey && (
         <Text id={descriptionKey} style={FontStyles.Subheading}>
           {LocalizationManager.get(descriptionKey)?.value ?? descriptionKey}
         </Text>
       )}
+
+      <View
+        style={{ marginVertical: 4, borderTopWidth: StyleSheet.hairlineWidth, borderColor: Colors[colorScheme].stroke }}
+      />
     </View>
   )
 }
 
 function PackSection(props: Readonly<ViewProps>) {
-  const colorScheme = useColorScheme()
   const packWidth = Dimensions.get('window').width
   const packs = useMemo(() => PackManager.items, [PackManager.items])
 
