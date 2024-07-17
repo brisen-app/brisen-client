@@ -10,6 +10,7 @@ import { BottomSheetScrollView, BottomSheetTextInput } from '@gorhom/bottom-shee
 import { router } from 'expo-router'
 import React, { useMemo, useState } from 'react'
 import { Dimensions, StyleSheet, View, ViewProps } from 'react-native'
+import { ScrollView } from 'react-native-gesture-handler'
 import Animated, { LinearTransition } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
@@ -45,7 +46,7 @@ export default function MenuView() {
       )}
 
       <Header titleKey='packs' descriptionKey='packs_subtitle' />
-      {/* <ScrollView
+      <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ gap: 8 }}
@@ -59,7 +60,7 @@ export default function MenuView() {
             onPress={onPressCategory}
           />
         ))}
-      </ScrollView> */}
+      </ScrollView>
 
       <PackSection />
 
@@ -94,7 +95,6 @@ function CategoryTag(
 
 function Header(props: Readonly<{ titleKey: string; descriptionKey?: string }>) {
   const { titleKey, descriptionKey } = props
-  const colorScheme = useColorScheme()
 
   return (
     <View style={{ marginHorizontal: 16, paddingTop: 16, gap: 4 }}>
@@ -107,10 +107,6 @@ function Header(props: Readonly<{ titleKey: string; descriptionKey?: string }>) 
           {LocalizationManager.get(descriptionKey)?.value ?? descriptionKey}
         </Text>
       )}
-
-      <View
-        style={{ marginVertical: 4, borderTopWidth: StyleSheet.hairlineWidth, borderColor: Colors[colorScheme].stroke }}
-      />
     </View>
   )
 }
