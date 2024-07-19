@@ -1,7 +1,7 @@
 import * as Crypto from 'expo-crypto'
 
 export function blobToBase64(blob: Blob): Promise<string | null> {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const reader = new FileReader()
     reader.onloadend = () => resolve(<string | null>reader.result)
     reader.readAsDataURL(blob)
@@ -31,6 +31,14 @@ export function shuffled<T>(collection: Iterable<T>): T[] {
     ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
   }
   return shuffled
+}
+
+/**
+ * Generates a random percentage.
+ * @returns A random value between 0 and 1.
+ */
+export function getRandomPercent(): number {
+  return Crypto.getRandomValues(new Uint32Array(1))[0] / 0xffffffff
 }
 
 export function getRandom<T>(collection: Iterable<T>): T {
