@@ -37,6 +37,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
     if (playlist.size === 0) return
     const newCard = CardManager.drawCard(playedCards, playedIds, playlist, players, categoryFilter)
     if (newCard === null) return
+    setContext({ type: 'addPlayCount', payload: newCard.players })
     setContext({ type: 'addPlayedCard', payload: newCard })
     console.log(`Added card ${playedCards.length + 1}:`, newCard.formattedContent ?? newCard.content)
   }

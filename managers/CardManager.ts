@@ -4,6 +4,8 @@ import { Pack, PackManager } from './PackManager'
 import { Tables } from '@/models/supabase'
 import SupabaseManager from './SupabaseManager'
 import { CardRelationManager } from './CardRelationManager'
+import { Player } from '@/models/Player'
+import { useAppDispatchContext } from '@/providers/AppContextProvider'
 
 const tableName = 'cards'
 const playerTemplateRegex = /\{player\W*(\d+)\}/gi
@@ -13,7 +15,7 @@ export type PlayedCard = {
   formattedContent: string | null
   minPlayers: number
   pack: Pack
-  players: string[]
+  players: Player[]
 } & Card
 
 class CardManagerSingleton extends SupabaseManager<Card> {
@@ -35,7 +37,7 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     playedCards: PlayedCard[],
     playedIds: Set<string>,
     playlist: Set<Pack>,
-    players: Set<string>,
+    players: Set<Player>,
     categoryFilterIds: Set<string>
   ): PlayedCard | null {
     const candidates = this.findCandidates(playlist, playedIds, players.size, categoryFilterIds)
@@ -52,6 +54,10 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     if (parentId) card = candidates.get(parentId) ?? card
 
     const playerList = this.getParentPlayerList(card, playedCards, playedIds) ?? shuffled(players)
+
+    for (const player of playerList) {
+      console.log(player.name, player.playCount)
+    }
 
     return {
       ...card,
@@ -125,10 +131,11 @@ class CardManagerSingleton extends SupabaseManager<Card> {
    * @returns The modified card content with player names inserted, or `null` if no replacements were made.
    * @throws InsufficientCountError if there are not enough players to insert into the card.
    */
-  private insertPlayers(cardContent: string, players: string[]) {
+  private insertPlayers(cardContent: string, players: Player[]) {
     const matches = cardContent.matchAll(playerTemplateRegex)
 
     // TODO: [BUG] Implement balanced selection of players
+    const sortedPlayers = [...players].sort((a, b) => a.playCount - b.playCount)
 
     let replacedContent = cardContent
     for (const match of matches) {
@@ -136,7 +143,7 @@ class CardManagerSingleton extends SupabaseManager<Card> {
       const index = parseInt(match[1])
       if (index >= players.length)
         throw new InsufficientCountError(`Not enough players (${players.length}) to insert ${matchedString} into card.`)
-      replacedContent = replacedContent.replace(matchedString, players[index])
+      replacedContent = replacedContent.replace(matchedString, sortedPlayers[index].name)
     }
 
     return replacedContent === cardContent ? null : replacedContent

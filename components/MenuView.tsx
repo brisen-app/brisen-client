@@ -25,7 +25,7 @@ export default function MenuView() {
   const { players, categoryFilter } = useAppContext()
   const setContext = useAppDispatchContext()
 
-  const sortedPlayers = useMemo(() => [...players].sort((a, b) => a.localeCompare(b)), [players])
+  const sortedPlayers = useMemo(() => [...players].sort((a, b) => a.name.localeCompare(b.name)), [players])
   const sortedCategories = useMemo(() => CategoryManager.items, [CategoryManager.items])
 
   const onPressCategory = (category: Category) => {
@@ -38,8 +38,8 @@ export default function MenuView() {
       {players.size > 0 && (
         <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginHorizontal: 16 }}>
           {sortedPlayers.map(tag => (
-            <Animated.View key={tag} layout={LinearTransition}>
-              <Tag text={tag} onPress={() => setContext({ type: 'togglePlayer', payload: tag })} />
+            <Animated.View key={tag.name} layout={LinearTransition}>
+              <Tag text={tag.name} onPress={() => setContext({ type: 'togglePlayer', payload: tag })} />
             </Animated.View>
           ))}
         </View>
@@ -138,8 +138,8 @@ function AddPlayerField() {
     if (text.trim().length === 0) return
 
     const formattedText = prettifyString(text)
-    if (players.has(formattedText)) console.warn('Player already exists')
-    else setContext({ type: 'togglePlayer', payload: formattedText })
+    if (new Set([...players].map(p => p.name)).has(formattedText)) console.warn('Player already exists')
+    else setContext({ type: 'togglePlayer', payload: { name: formattedText, playCount: 0 } })
     setText('')
   }
 

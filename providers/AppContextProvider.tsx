@@ -2,17 +2,18 @@ import React, { createContext, Dispatch, ReactNode, useContext, useReducer } fro
 import { Pack } from '@/managers/PackManager'
 import { Category } from '@/managers/CategoryManager'
 import { PlayedCard } from '@/managers/CardManager'
+import { Player } from '@/models/Player'
 
 type AppContextType = {
   playedCards: PlayedCard[]
   playedIds: Set<string>
   playlist: Set<Pack>
-  players: Set<string>
+  players: Set<Player>
   categoryFilter: Set<string>
 }
 
 type AppContextAction = {
-  type: 'togglePack' | 'togglePlayer' | 'toggleCategory' | 'addPlayedCard' | 'restartGame'
+  type: 'togglePack' | 'togglePlayer' | 'addPlayCount' | 'toggleCategory' | 'addPlayedCard' | 'restartGame'
   payload?: any
 }
 
@@ -31,6 +32,13 @@ function contextReducer(state: AppContextType, action: AppContextAction): AppCon
 
     case 'togglePlayer': {
       return { ...state, players: toggleSet(state.players, payload) }
+    }
+
+    case 'addPlayCount': {
+      for (const player of state.players) {
+        if (player.name === payload) player.playCount++
+      }
+      return { ...state, players: new Set(state.players) }
     }
 
     case 'toggleCategory': {
