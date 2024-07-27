@@ -41,16 +41,18 @@ export function getRandomPercent(): number {
   return Crypto.getRandomValues(new Uint32Array(1))[0] / 0xffffffff
 }
 
-export function getRandom<T>(collection: Iterable<T>): T {
-  if (collection instanceof Array)
+export function getRandom<T>(collection: Iterable<T>): T | null {
+  if (collection instanceof Array) {
+    if (collection.length === 0) return null
     return collection[
       Math.floor((Crypto.getRandomValues(new Uint32Array(1))[0] / 0xffffffff) * collection.length) % collection.length
     ]
+  }
 
   let array = null
   if (collection instanceof Array) array = collection
   else array = Array.from(collection)
-
+  if (array.length === 0) return null
   return array[Math.floor((Crypto.getRandomValues(new Uint32Array(1))[0] / 0xffffffff) * array.length) % array.length]
 }
 

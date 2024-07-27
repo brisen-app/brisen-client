@@ -139,6 +139,10 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
     })
   }
 
+  isItem(item: object): item is CardRelation {
+    return (item as CardRelation).child !== undefined && (item as CardRelation).parent !== undefined
+  }
+
   /**
    * Detects cycles in the card dependency graph.
    *

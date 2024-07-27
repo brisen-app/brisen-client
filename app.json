@@ -55,6 +55,12 @@
         "projectId": "ea66c9bc-ab42-4370-b12b-b6db5bf784c8"
       }
     },
-    "owner": "brisen"
+    "owner": "brisen",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/ea66c9bc-ab42-4370-b12b-b6db5bf784c8"
+    }
   }
 }

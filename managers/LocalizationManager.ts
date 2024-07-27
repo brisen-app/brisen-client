@@ -32,7 +32,7 @@ class LocalizationManagerSingleton extends SupabaseManager<Localization> {
       .eq('language', LanguageManager.getDisplayLanguage()!.id)
       .throwOnError()
     if (!data || data.length === 0) throw new NotFoundError(`No data found in table '${this.tableName}'`)
-    if (!this.isSupabaseItemList(data)) throw new Error(`Invalid data type: ${typeof data}`)
+    if (!this.isItemList(data)) throw new Error(`Invalid data type: ${typeof data}`)
     this.set(data)
     return data
   }

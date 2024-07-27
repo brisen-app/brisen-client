@@ -43,13 +43,11 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     const candidates = this.findCandidates(playlist, playedIds, players.size, categoryFilterIds)
     if (candidates.size === 0) return null
 
-    let card = null
-
-    const unclosedCardId = this.findClosingCard(playedCards, playedIds)?.id
-    if (unclosedCardId)
-      card = candidates.get(CardRelationManager.getUnplayedChild(unclosedCardId, new Set(candidates.keys()))!)
+    let card = this.drawClosingCard(playedCards, playedIds)
 
     card = card ?? getRandom(candidates.values())
+    if (card === null) return null
+
     const parentId = CardRelationManager.getUnplayedParent(card.id, new Set(candidates.keys()))
     if (parentId) card = candidates.get(parentId) ?? card
 
@@ -69,22 +67,23 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     }
   }
 
-  private findClosingCard(playedCards: PlayedCard[], playedIds: Set<string>): Card | null {
-    const unclosedPlayedCards: { card: Card; age: number }[] = playedCards
-      .filter(card => CardRelationManager.hasUnplayedChild(card.id, playedIds))
-      .map(card => ({ card: card, age: 7 }))
+  private drawClosingCard(playedCards: PlayedCard[], playedIds: Set<string>, maxAge = 12) {
+    const unclosedPlayedCards = new Map<number, Card>()
 
-    console.log(
-      'unclosedPlayedCards',
-      unclosedPlayedCards.map(card => card.age),
-      unclosedPlayedCards.map(card => card.card.content)
-    )
+    for (let i = 0; i < playedCards.length; i++) {
+      const card = playedCards[i]
+      const unplayedChildId = CardRelationManager.getUnplayedChild(card.id, playedIds)
+      if (!unplayedChildId) continue
+      const unplayedChild = CardManager.get(unplayedChildId)
+      if (!unplayedChild) continue
+      unclosedPlayedCards.set(playedCards.length - i, unplayedChild)
+    }
 
-    for (const unclosedCard of unclosedPlayedCards) {
-      const chance = getRandomPercent()
-      // if (unclosedCard.age < 5) continue
-      console.log(unclosedCard.age / 10, '<', chance, '=', unclosedCard.age / 10 < chance)
-      if (unclosedCard.age / 10 < chance) return unclosedCard.card
+    const chance = getRandomPercent() * maxAge
+    for (const [age, card] of unclosedPlayedCards) {
+      if (age < 3) continue
+      console.log(age, '>', chance, '=', age > chance)
+      if (age > chance) return card
     }
     return null
   }

@@ -32,7 +32,7 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
   const packResponse = useSupabase(PackManager)
   const cardResponse = useSupabase(CardManager)
   const cardRelationResponse = useSupabase(CardRelationManager)
-  const Response = useSupabase(LocalizationManager, languageResponse.hasFetched)
+  const localizationResponse = useSupabase(LocalizationManager, languageResponse.hasFetched)
 
   const hasFetched =
     languageResponse.hasFetched &&
@@ -40,7 +40,7 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
     packResponse.hasFetched &&
     cardResponse.hasFetched &&
     cardRelationResponse.hasFetched &&
-    Response.hasFetched
+    localizationResponse.hasFetched
 
   const errors = [
     languageResponse.error,
@@ -48,7 +48,7 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
     packResponse.error,
     cardResponse.error,
     cardRelationResponse.error,
-    Response.error,
+    localizationResponse.error,
   ].filter(e => !!e) as Error[]
 
   if (errors.length > 0) return <FetchErrorView errors={errors} />
@@ -64,7 +64,7 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
         backgroundColor: Colors[colorScheme].background,
       }}
     >
-      <ActivityIndicator size='large' color={Colors[colorScheme].accentColor} />
+      <ActivityIndicator size='large' color={Colors[colorScheme].text} />
     </View>
   )
 }
