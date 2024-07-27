@@ -131,12 +131,18 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
   }
 
   async fetchAll() {
-    return (await super.fetchAll()).map(relation => {
+    const data = await super.fetchAll()
+    console.log()
+    return data.map(relation => {
       return {
         ...relation,
         id: relation.child + ':' + relation.parent,
       }
     })
+  }
+
+  isSupabaseItem(item: object): item is CardRelation {
+    return (item as CardRelation).child !== undefined && (item as CardRelation).parent !== undefined
   }
 
   /**
