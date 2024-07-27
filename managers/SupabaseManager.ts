@@ -89,7 +89,6 @@ export default abstract class SupabaseManager<T extends SupabaseItem> {
     const { data } = await supabase.from(this.tableName).select().throwOnError()
     if (!data || data.length === 0) throw new NotFoundError(`No data found in table '${this.tableName}'`)
     if (!this.isSupabaseItemList(data)) throw new Error(`Got list of invalid '${this.tableName}' objects.`)
-    console.log('Fetched', data.length, this.tableName)
     this.set(data)
     await this.store(data)
     return data
