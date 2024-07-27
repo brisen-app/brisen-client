@@ -59,11 +59,22 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
     return null
   }
 
+  getUnplayedChild(cardId: string, unplayedCards: Set<string>): string | null {
+    for (const child of this.children.get(cardId) ?? []) {
+      if (!unplayedCards.has(child)) return child
+    }
+    return null
+  }
+
   hasUnplayedParent(cardId: string, unplayedCards: Set<string>) {
     for (const parent of this.parents.get(cardId) ?? []) {
       if (unplayedCards.has(parent)) return true
     }
     return false
+  }
+
+  hasUnplayedChild(cardId: string, unplayedCards: Set<string>) {
+    return !!this.getUnplayedChild(cardId, unplayedCards)
   }
 
   isPlayable(cardId: string, unplayedCards: Set<string>) {
@@ -126,6 +137,10 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
         id: relation.child + ':' + relation.parent,
       }
     })
+  }
+
+  isItem(item: object): item is CardRelation {
+    return (item as CardRelation).child !== undefined && (item as CardRelation).parent !== undefined
   }
 
   /**

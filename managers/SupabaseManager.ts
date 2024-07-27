@@ -74,7 +74,7 @@ export default abstract class SupabaseManager<T extends SupabaseItem> {
   async fetch(id: string) {
     const { data } = await supabase.from(this.tableName).select().eq('id', id).single().throwOnError()
     if (!data) throw new NotFoundError(`No data found in table '${this.tableName}'`)
-    if (!this.isSupabaseItem(data)) throw new Error(`Invalid data type: ${typeof data}`)
+    if (!this.isItem(data)) throw new Error(`Got invalid ${this.tableName} object: ${JSON.stringify(data)}`)
     this.push(data)
     return data
   }
@@ -88,7 +88,7 @@ export default abstract class SupabaseManager<T extends SupabaseItem> {
   async fetchAll(): Promise<T[]> {
     const { data } = await supabase.from(this.tableName).select().throwOnError()
     if (!data || data.length === 0) throw new NotFoundError(`No data found in table '${this.tableName}'`)
-    if (!this.isSupabaseItemList(data)) throw new Error(`Invalid data type: ${typeof data}`)
+    if (!this.isItemList(data)) throw new Error(`Got list of invalid '${this.tableName}' objects.`)
     this.set(data)
     await this.store(data)
     return data
@@ -99,17 +99,19 @@ export default abstract class SupabaseManager<T extends SupabaseItem> {
       // TODO: [IMPROVEMENT] Implement cache invalidation
       return await this.fetchAll()
     } catch (error) {
+      console.log(`Fetching ${this.tableName} from cache.`)
+      console.warn(error)
       const items = await this.retrieve()
       if (!items) throw error
       return items
     }
   }
 
-  isSupabaseItem(item: object): item is T {
+  isItem(item: object): item is T {
     return (item as T).id !== undefined
   }
 
-  isSupabaseItemList(item: object): item is T[] {
-    return (item as T[]).every(item => this.isSupabaseItem(item))
+  isItemList(item: object): item is T[] {
+    return (item as T[]).every(item => this.isItem(item))
   }
 }

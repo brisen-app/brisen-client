@@ -1,4 +1,4 @@
-import { getRandom, shuffled } from '../lib/utils'
+import { getRandom, getRandomPercent, shuffled } from '../lib/utils'
 import { InsufficientCountError } from '@/models/Errors'
 import { Pack, PackManager } from './PackManager'
 import { Tables } from '@/models/supabase'
@@ -41,7 +41,11 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     const candidates = this.findCandidates(playlist, playedIds, players.size, categoryFilterIds)
     if (candidates.size === 0) return null
 
-    let card = getRandom(candidates.values())
+    let card = this.drawClosingCard(playedCards, playedIds)
+
+    card = card ?? getRandom(candidates.values())
+    if (card === null) return null
+
     const parentId = CardRelationManager.getUnplayedParent(card.id, new Set(candidates.keys()))
     if (parentId) card = candidates.get(parentId) ?? card
 
@@ -55,6 +59,27 @@ class CardManagerSingleton extends SupabaseManager<Card> {
       pack: PackManager.getPackOf(card.id, playlist)!,
       players: playerList,
     }
+  }
+
+  private drawClosingCard(playedCards: PlayedCard[], playedIds: Set<string>, maxAge = 12) {
+    const unclosedPlayedCards = new Map<number, Card>()
+
+    for (let i = 0; i < playedCards.length; i++) {
+      const card = playedCards[i]
+      const unplayedChildId = CardRelationManager.getUnplayedChild(card.id, playedIds)
+      if (!unplayedChildId) continue
+      const unplayedChild = CardManager.get(unplayedChildId)
+      if (!unplayedChild) continue
+      unclosedPlayedCards.set(playedCards.length - i, unplayedChild)
+    }
+
+    const chance = getRandomPercent() * maxAge
+    for (const [age, card] of unclosedPlayedCards) {
+      if (age < 3) continue
+      console.log(age, '>', chance, '=', age > chance)
+      if (age > chance) return card
+    }
+    return null
   }
 
   private findCandidates(
