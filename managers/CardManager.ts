@@ -41,13 +41,11 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     const candidates = this.findCandidates(playlist, playedIds, players.size, categoryFilterIds)
     if (candidates.size === 0) return null
 
-    let card = null
-
-    const unclosedCardId = this.drawClosingCard(playedCards, playedIds)?.id
-    if (unclosedCardId)
-      card = candidates.get(CardRelationManager.getUnplayedChild(unclosedCardId, new Set(candidates.keys()))!)
+    let card = this.drawClosingCard(playedCards, playedIds)
 
     card = card ?? getRandom(candidates.values())
+    if (card === null) return null
+
     const parentId = CardRelationManager.getUnplayedParent(card.id, new Set(candidates.keys()))
     if (parentId) card = candidates.get(parentId) ?? card
 
@@ -63,15 +61,17 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     }
   }
 
-  private drawClosingCard(playedCards: PlayedCard[], playedIds: Set<string>, maxAge = 10): Card | null {
+  private drawClosingCard(playedCards: PlayedCard[], playedIds: Set<string>, maxAge = 12) {
     const unclosedPlayedCards = new Map<number, Card>()
+
     for (let i = 0; i < playedCards.length; i++) {
       const card = playedCards[i]
-      if (!CardRelationManager.hasUnplayedChild(card.id, playedIds)) continue
-      unclosedPlayedCards.set(i, card)
+      const unplayedChildId = CardRelationManager.getUnplayedChild(card.id, playedIds)
+      if (!unplayedChildId) continue
+      const unplayedChild = CardManager.get(unplayedChildId)
+      if (!unplayedChild) continue
+      unclosedPlayedCards.set(playedCards.length - i, unplayedChild)
     }
-
-    console.log('unclosedPlayedCards', unclosedPlayedCards)
 
     const chance = getRandomPercent() * maxAge
     for (const [age, card] of unclosedPlayedCards) {
