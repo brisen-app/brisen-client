@@ -47,17 +47,17 @@ enum MockedPacks {
 }
 
 enum MockedPlayers {
-  Alice = 'Alice',
-  Bob = 'Bob',
-  Charlie = 'Charlie',
-  David = 'David',
-  Earl = 'Earl',
-  Frank = 'Frank',
-  George = 'George',
-  Hank = 'Hank',
-  Igor = 'Igor',
-  John = 'John',
-  Kevin = 'Kevin',
+  Alice = { name: 'Alice', playCount: 0 },
+  Bob = { name: 'Bob', playCount: 0 },
+  Charlie = { name: 'Charlie', playCount: 0 },
+  David = { name: 'David', playCount: 0 },
+  Earl = { name: 'Earl', playCount: 0 },
+  Frank = { name: 'Frank', playCount: 0 },
+  George = { name: 'George', playCount: 0 },
+  Hank = { name: 'Hank', playCount: 0 },
+  Igor = { name: 'Igor', playCount: 0 },
+  John = { name: 'John', playCount: 0 },
+  Kevin = { name: 'Kevin', playCount: 0 },
 
   all = [
     MockedPlayers.Alice,
@@ -109,13 +109,13 @@ describe('insertPlayers', () => {
       expected: 'Hello Alice, how are you Earl? (Earl is testing Alice)',
     },
     { cardContent: 'Hello {player-10}', players: MockedPlayers.all, expected: 'Hello Kevin' },
-    { cardContent: 'Hello {plopper-0}', players: MockedPlayers.all, expected: null },
+    { cardContent: 'Hello {plopper-0}', players: MockedPlayers.all, expected: undefined },
   ]
 
   testCases.forEach(({ cardContent, players, expected }) => {
     it(`should return '${expected}' for "${cardContent}"`, () => {
       const result = CardManager.insertPlayers(cardContent, players)
-      expect(result).toEqual(expected)
+      expect(result.formattedContent).toEqual(expected)
     })
   })
 
@@ -216,7 +216,7 @@ describe('getNextCard', () => {
     const playedIds = new Set(playedCards.map(card => card.id))
     const playlist = new Set([MockedPacks.Pack_with_all_cards])
     const players = new Set([MockedPlayers.Alice, MockedPlayers.Bob])
-    const categoryFilter = new Set(['cat1', 'cat2', 'cat3', 'cat8'])
+    const categoryFilter = new Set(['cat1', 'cat2', 'cat3', 'cat8', 'cat9'])
 
     const spyOnShuffled = jest.spyOn(utils, 'shuffled').mockReturnValueOnce(MockedPlayers.all)
 

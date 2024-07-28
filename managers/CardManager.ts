@@ -149,6 +149,7 @@ class CardManagerSingleton extends SupabaseManager<Card> {
       featuredPlayers.set(player.name, player)
     }
 
+    if (formattedContent === cardContent) return { featuredPlayers }
     return { formattedContent, featuredPlayers }
   }
 
