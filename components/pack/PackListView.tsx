@@ -91,7 +91,7 @@ export default function PackListView(props: Readonly<PackListViewProps & PackVie
 
       <Switch
         value={isSelected}
-        onValueChange={() => setContext({ type: 'togglePack', payload: pack })}
+        onValueChange={() => setContext({ action: 'togglePack', payload: pack })}
         trackColor={{ false: Colors[colorScheme].placeholder, true: Colors[colorScheme].accentColor }}
         thumbColor={Colors[colorScheme].background}
       />

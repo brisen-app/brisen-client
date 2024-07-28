@@ -112,7 +112,7 @@ export function CardView(props: Readonly<CardViewProps>) {
               textAlign: 'center',
             }}
           >
-            {card.players[0].name}
+            {target.name},
           </Text>
         )}
         <Text

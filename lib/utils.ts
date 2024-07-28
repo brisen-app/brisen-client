@@ -15,7 +15,7 @@ export function blobToBase64(blob: Blob): Promise<string | null> {
  * @returns The formatted name.
  */
 export function formatName(name: string) {
-  return name.trim().replace(/\s+/g, ' ')
+  return name.trim().replace(/\s{2,}/g, ' ')
 }
 
 /**

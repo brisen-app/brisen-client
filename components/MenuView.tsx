@@ -29,7 +29,7 @@ export default function MenuView() {
   const sortedCategories = useMemo(() => CategoryManager.items, [CategoryManager.items])
 
   const onPressCategory = (category: Category) => {
-    setContext({ type: 'toggleCategory', payload: category })
+    setContext({ action: 'toggleCategory', payload: category })
   }
 
   return (
@@ -39,7 +39,7 @@ export default function MenuView() {
         <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginHorizontal: 16 }}>
           {sortedPlayers.map(tag => (
             <Animated.View key={tag.name} layout={LinearTransition}>
-              <Tag text={tag.name} onPress={() => setContext({ type: 'togglePlayer', payload: tag })} />
+              <Tag text={tag.name} onPress={() => setContext({ action: 'togglePlayer', payload: tag })} />
             </Animated.View>
           ))}
         </View>
@@ -139,7 +139,7 @@ function AddPlayerField() {
 
     const formattedText = prettifyString(text)
     if (new Set([...players].map(p => p.name)).has(formattedText)) console.warn('Player already exists')
-    else setContext({ type: 'togglePlayer', payload: { name: formattedText, playCount: 0 } })
+    else setContext({ action: 'togglePlayer', payload: { name: formattedText, playCount: 0 } })
     setText('')
   }
 

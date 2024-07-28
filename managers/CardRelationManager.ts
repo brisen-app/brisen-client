@@ -1,6 +1,7 @@
 import { Tables } from '@/models/supabase'
 import SupabaseManager from './SupabaseManager'
 import { CycleError } from '@/models/Errors'
+import { shuffled } from '@/lib/utils'
 
 const tableName = 'card_dependencies'
 export type CardRelation = { id: string } & Tables<typeof tableName>
@@ -59,13 +60,6 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
     return null
   }
 
-  getUnplayedChild(cardId: string, unplayedCards: Set<string>): string | null {
-    for (const child of this.children.get(cardId) ?? []) {
-      if (!unplayedCards.has(child)) return child
-    }
-    return null
-  }
-
   hasUnplayedParent(cardId: string, unplayedCards: Set<string>) {
     for (const parent of this.parents.get(cardId) ?? []) {
       if (unplayedCards.has(parent)) return true
@@ -73,8 +67,17 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
     return false
   }
 
+  getUnplayedChild(cardId: string, unplayedCards: Set<string>): string | null {
+    for (const child of shuffled(this.children.get(cardId) ?? [])) {
+      if (!unplayedCards.has(child)) return child
+    }
+    return null
+  }
+
   hasUnplayedChild(cardId: string, unplayedCards: Set<string>) {
-    return !!this.getUnplayedChild(cardId, unplayedCards)
+    for (const child of this.children.get(cardId) ?? []) {
+      if (unplayedCards.has(child)) return true
+    }
   }
 
   isPlayable(cardId: string, unplayedCards: Set<string>) {

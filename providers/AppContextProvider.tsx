@@ -5,17 +5,20 @@ import { PlayedCard } from '@/managers/CardManager'
 import { Player } from '@/models/Player'
 
 type AppContextType = {
+  categoryFilter: Set<string>
   playedCards: PlayedCard[]
   playedIds: Set<string>
-  playlist: Set<Pack>
   players: Set<Player>
-  categoryFilter: Set<string>
+  playlist: Set<Pack>
 }
 
-type AppContextAction = {
-  type: 'togglePack' | 'togglePlayer' | 'addPlayCount' | 'toggleCategory' | 'addPlayedCard' | 'restartGame'
-  payload?: any
-}
+type AppContextAction =
+  | { action: 'addPlayedCard'; payload: PlayedCard }
+  | { action: 'restartGame'; payload?: never }
+  | { action: 'toggleCategory'; payload: Category }
+  | { action: 'togglePack'; payload: Pack }
+  | { action: 'togglePlayer'; payload: Player }
+  | { action: 'incrementPlayCounts'; payload: Set<Player> }
 
 function toggleSet<T>(set: Set<T>, value: T): Set<T> {
   if (set.has(value)) return new Set([...set].filter(v => v !== value))
@@ -23,7 +26,7 @@ function toggleSet<T>(set: Set<T>, value: T): Set<T> {
 }
 
 function contextReducer(state: AppContextType, action: AppContextAction): AppContextType {
-  const { type, payload } = action
+  const { action: type, payload } = action
 
   switch (type) {
     case 'togglePack': {
@@ -34,28 +37,38 @@ function contextReducer(state: AppContextType, action: AppContextAction): AppCon
       return { ...state, players: toggleSet(state.players, payload) }
     }
 
-    case 'addPlayCount': {
+    case 'incrementPlayCounts': {
+      var playersToUpdate = [...payload].map(player => player.name)
+      var players = new Set<Player>()
       for (const player of state.players) {
-        if (player.name === payload) player.playCount++
+        if (!playersToUpdate.includes(player.name)) {
+          players.add(player)
+          console.log(player)
+        } else {
+          players.add({ ...player, playCount: player.playCount + 1 })
+          console.log({ ...player, playCount: player.playCount + 1 })
+        }
       }
-      return { ...state, players: new Set(state.players) }
+      return { ...state, players: players }
     }
 
     case 'toggleCategory': {
-      const category = payload as Category
-      return { ...state, categoryFilter: toggleSet(state.categoryFilter, category.id) }
+      return { ...state, categoryFilter: toggleSet(state.categoryFilter, payload.id) }
     }
 
     case 'addPlayedCard': {
-      const playedCard = payload as PlayedCard
       return {
         ...state,
-        playedCards: [...state.playedCards, playedCard],
-        playedIds: new Set([...state.playedIds, playedCard.id]),
+        playedCards: [...state.playedCards, payload],
+        playedIds: new Set([...state.playedIds, payload.id]),
       }
     }
 
     case 'restartGame': {
+      var players = new Set<Player>()
+      for (const player of state.players) {
+        players.add({ ...player, playCount: 0 })
+      }
       return { ...state, playlist: new Set(), playedCards: [], playedIds: new Set() }
     }
 

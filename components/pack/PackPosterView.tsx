@@ -58,7 +58,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
   return (
     <Animated.View style={animatedStyle}>
       <Pressable
-        onPress={() => setContext({ type: 'togglePack', payload: pack })}
+        onPress={() => setContext({ action: 'togglePack', payload: pack })}
         {...props}
         style={[
           {
