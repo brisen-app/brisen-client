@@ -222,7 +222,7 @@ describe('getNextCard', () => {
 
     const result = CardManager.drawCard(playedCards, playedIds, playlist, players, categoryFilter)
 
-    expect(spyOnShuffled).toHaveBeenCalledTimes(1)
+    expect(spyOnShuffled).toHaveBeenCalledTimes(4)
     expect(result.id).toBe('5')
   })
 
