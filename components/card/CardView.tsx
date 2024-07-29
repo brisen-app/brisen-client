@@ -11,6 +11,7 @@ import { LinearGradient } from 'expo-linear-gradient'
 import { TouchableOpacity, View } from 'react-native'
 import { Text } from '../utils/Themed'
 import useColorScheme from '../utils/useColorScheme'
+import { ConfigurationManager } from '@/managers/ConfigurationManager'
 
 export type CardViewProps = {
   card: PlayedCard
@@ -30,7 +31,7 @@ export function CardView(props: Readonly<CardViewProps>) {
 
   function getGradient() {
     if (!category?.gradient)
-      return [Color.hex('#370A00').string, Color.hex('#a14316').string, Colors[colorScheme].accentColor, 'white']
+      return ConfigurationManager.get('default_gradient')?.list ?? [Colors[colorScheme].accentColor]
     if (category.gradient.length === 1) return [category.gradient[0], category.gradient[0]]
     return category.gradient.map(color => Color.hex(color).string)
   }
