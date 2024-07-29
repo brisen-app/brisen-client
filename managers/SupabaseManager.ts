@@ -8,8 +8,9 @@ import { Pack } from './PackManager'
 import { supabase } from '../lib/supabase'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Database } from '@/models/supabase'
+import { Configuration } from './ConfigurationManager'
 
-export type SupabaseItem = Category | Pack | Card | Localization | Language | CardRelation
+export type SupabaseItem = Category | Pack | Card | Localization | Language | Configuration | CardRelation
 type SupabaseTableName = keyof Database['public']['Tables']
 
 export default abstract class SupabaseManager<T extends SupabaseItem> {
@@ -25,8 +26,8 @@ export default abstract class SupabaseManager<T extends SupabaseItem> {
     return new Set(this._items?.values())
   }
 
-  get(id: string) {
-    if (!this._items) console.warn(`${this.tableName} has not been set`)
+  get(id: T['id']) {
+    if (!this._items) console.warn(`${this.tableName} with id '${id}' has not been set`)
     return this._items?.get(id)
   }
 

@@ -5,6 +5,7 @@ import { Tables } from '@/models/supabase'
 import SupabaseManager from './SupabaseManager'
 import { CardRelationManager } from './CardRelationManager'
 import { Player } from '@/models/Player'
+import { ConfigurationManager } from './ConfigurationManager'
 
 const tableName = 'cards'
 const playerTemplateRegex = /\{player\W*(\d+)\}/gi
@@ -66,8 +67,9 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     }
   }
 
-  private drawClosingCard(playedCards: PlayedCard[], playedIds: Set<string>, maxAge = 12) {
+  private drawClosingCard(playedCards: PlayedCard[], playedIds: Set<string>) {
     const unplayedChildren = new Map<number, Card>()
+    const maxAge = ConfigurationManager.get('max_unclosed_card_age')?.number ?? 10
 
     for (let i = 0; i < playedCards.length; i++) {
       const card = playedCards[i]

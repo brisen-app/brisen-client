@@ -11,6 +11,7 @@ import { useQuery } from '@tanstack/react-query'
 import { ReactNode } from 'react'
 import { ActivityIndicator, View } from 'react-native'
 import useColorScheme from '../components/utils/useColorScheme'
+import { ConfigurationManager } from '@/managers/ConfigurationManager'
 
 function useSupabase(manager: SupabaseManager<SupabaseItem>, enabled = true) {
   const { data, error, isLoading, isPending, isFetched } = useQuery({
@@ -27,6 +28,7 @@ function useSupabase(manager: SupabaseManager<SupabaseItem>, enabled = true) {
 export default function AppDataProvider(props: Readonly<{ children: ReactNode }>) {
   const colorScheme = useColorScheme()
 
+  const configResonse = useSupabase(ConfigurationManager)
   const languageResponse = useSupabase(LanguageManager)
   const categoryResponse = useSupabase(CategoryManager)
   const packResponse = useSupabase(PackManager)
@@ -35,6 +37,7 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
   const localizationResponse = useSupabase(LocalizationManager, languageResponse.hasFetched)
 
   const hasFetched =
+    configResonse.hasFetched &&
     languageResponse.hasFetched &&
     categoryResponse.hasFetched &&
     packResponse.hasFetched &&
@@ -43,6 +46,7 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
     localizationResponse.hasFetched
 
   const errors = [
+    configResonse.error,
     languageResponse.error,
     categoryResponse.error,
     packResponse.error,

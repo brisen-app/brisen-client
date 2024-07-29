@@ -51,6 +51,12 @@ const MockedPlayers = {
   Kevin: { name: 'Kevin', playCount: 0 } as Player,
 }
 
+jest.mock('@/managers/ConfigurationManager', () => ({
+  ConfigurationManager: {
+    get: () => ({ number: 10 }),
+  },
+}))
+
 jest.mock('@/lib/supabase', () => ({
   supabase: {
     from: () => ({
