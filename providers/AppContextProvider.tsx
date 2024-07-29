@@ -4,7 +4,7 @@ import { Category } from '@/managers/CategoryManager'
 import { PlayedCard } from '@/managers/CardManager'
 import { Player } from '@/models/Player'
 
-type AppContextType = {
+export type AppContextType = {
   categoryFilter: Set<string>
   playedCards: PlayedCard[]
   playedIds: Set<string>
@@ -12,7 +12,7 @@ type AppContextType = {
   playlist: Set<Pack>
 }
 
-type AppContextAction =
+export type AppContextAction =
   | { action: 'addPlayedCard'; payload: PlayedCard }
   | { action: 'restartGame'; payload?: never }
   | { action: 'toggleCategory'; payload: Category }
@@ -25,7 +25,7 @@ function toggleSet<T>(set: Set<T>, value: T): Set<T> {
   return new Set([...set, value])
 }
 
-function contextReducer(state: AppContextType, action: AppContextAction): AppContextType {
+export function contextReducer(state: AppContextType, action: AppContextAction): AppContextType {
   const { action: type, payload } = action
 
   switch (type) {
@@ -73,7 +73,7 @@ function contextReducer(state: AppContextType, action: AppContextAction): AppCon
     }
 
     default: {
-      throw new Error(`Unhandled action type: ${type}`)
+      throw new Error(`Unhandled action type: '${type}'`)
     }
   }
 }
