@@ -59,24 +59,22 @@ export function CardView(props: Readonly<CardViewProps>) {
           ...Styles.shadow,
         }}
       >
-        {category && (
-          <TouchableOpacity
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'flex-end',
-              alignItems: 'center',
-              gap: 8,
-            }}
+        <TouchableOpacity
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+            gap: 8,
+          }}
+        >
+          <Text
+            style={{ flex: 1, ...FontStyles.Title, color: Color.white.string, textAlign: 'right' }}
+            numberOfLines={1}
           >
-            <Text
-              style={{ flex: 1, ...FontStyles.Title, color: Color.white.string, textAlign: 'right' }}
-              numberOfLines={1}
-            >
-              {CategoryManager.getTitle(category)}
-            </Text>
-            <Text style={{ fontSize: 48 }}>{category?.icon}</Text>
-          </TouchableOpacity>
-        )}
+            {category ? card.header ?? CategoryManager.getTitle(category) : card.header}
+          </Text>
+          <Text style={{ fontSize: 48 }}>{category?.icon}</Text>
+        </TouchableOpacity>
 
         <View style={{ flex: 1 }} />
         <TouchableOpacity
