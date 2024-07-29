@@ -140,6 +140,39 @@ export type Database = {
         }
         Relationships: []
       }
+      configurations: {
+        Row: {
+          bool: boolean | null
+          created_at: string
+          data_type: string
+          id: string
+          list: string[] | null
+          modified_at: string
+          number: number | null
+          string: string | null
+        }
+        Insert: {
+          bool?: boolean | null
+          created_at?: string
+          data_type: string
+          id: string
+          list?: string[] | null
+          modified_at?: string
+          number?: number | null
+          string?: string | null
+        }
+        Update: {
+          bool?: boolean | null
+          created_at?: string
+          data_type?: string
+          id?: string
+          list?: string[] | null
+          modified_at?: string
+          number?: number | null
+          string?: string | null
+        }
+        Relationships: []
+      }
       languages: {
         Row: {
           created_at: string
