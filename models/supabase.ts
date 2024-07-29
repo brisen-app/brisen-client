@@ -86,6 +86,7 @@ export type Database = {
           category: string | null
           content: string
           created_at: string
+          header: string | null
           id: string
           is_group: boolean
           modified_at: string
@@ -94,6 +95,7 @@ export type Database = {
           category?: string | null
           content: string
           created_at?: string
+          header?: string | null
           id?: string
           is_group?: boolean
           modified_at?: string
@@ -102,6 +104,7 @@ export type Database = {
           category?: string | null
           content?: string
           created_at?: string
+          header?: string | null
           id?: string
           is_group?: boolean
           modified_at?: string
