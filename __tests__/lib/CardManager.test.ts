@@ -259,7 +259,7 @@ describe('drawClosingCard', () => {
     // @ts-ignore
     const result = CardManager.drawClosingCard(playedCards, playedIds, 10)
 
-    expect(getUnplayedChildSpy).toHaveBeenCalledTimes(4)
+    expect(getUnplayedChildSpy).toHaveBeenCalledTimes(5)
     expect(getRandomPercentSpy).toHaveBeenCalledTimes(1)
     expect(result?.id).toBe('8')
   })
