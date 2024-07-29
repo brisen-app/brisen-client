@@ -27,7 +27,7 @@ export default abstract class SupabaseManager<T extends SupabaseItem> {
   }
 
   get(id: T['id']) {
-    if (!this._items) console.warn(`${this.tableName} has not been set`)
+    if (!this._items) console.warn(`${this.tableName} with id '${id}' has not been set`)
     return this._items?.get(id)
   }
 
