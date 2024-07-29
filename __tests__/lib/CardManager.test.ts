@@ -3,6 +3,7 @@ import * as utils from '@/lib/utils'
 import { InsufficientCountError } from '@/models/Errors'
 import { Pack } from '@/managers/PackManager'
 import { Player } from '@/models/Player'
+import { CardRelationManager } from '@/managers/CardRelationManager'
 
 const MockedCards = {
   Card_1: { id: '1', category: 'cat1', content: 'Content of card 1' } as Card,
@@ -225,6 +226,61 @@ describe('getNextCard', () => {
     const _ = jest.spyOn(utils, 'shuffled').mockReturnValueOnce(Object.values(MockedPlayers))
 
     const result = CardManager.drawCard(playedCards, playedIds, playlist, players, categoryFilter)
+    expect(result).toBeNull()
+  })
+})
+
+describe('drawClosingCard', () => {
+  beforeEach(() => {
+    // @ts-ignore
+    CardManager.set(Object.values(MockedCards))
+    jest.clearAllMocks()
+  })
+
+  it('should return the correct card based on arguments', () => {
+    const playedCards = [
+      MockedCards.Card_1,
+      { id: '-1' },
+      MockedCards.Card_2,
+      MockedCards.Card_3,
+      MockedCards.Card_4_no_category,
+    ] as PlayedCard[]
+    const playedIds = new Set(playedCards.map(card => card.id))
+
+    const getUnplayedChildSpy = jest
+      .spyOn(CardRelationManager, 'getUnplayedChild')
+      .mockReturnValueOnce('8')
+      .mockReturnValueOnce('7')
+      .mockReturnValueOnce('6')
+      .mockReturnValueOnce('5')
+
+    const getRandomPercentSpy = jest.spyOn(utils, 'getRandomPercent').mockReturnValue(0)
+
+    // @ts-ignore
+    const result = CardManager.drawClosingCard(playedCards, playedIds, 10)
+
+    expect(getUnplayedChildSpy).toHaveBeenCalledTimes(4)
+    expect(getRandomPercentSpy).toHaveBeenCalledTimes(1)
+    expect(result?.id).toBe('8')
+  })
+
+  it('should return null if no cards are available', () => {
+    const playedCards = [
+      MockedCards.Card_1,
+      MockedCards.Card_2,
+      MockedCards.Card_3,
+      MockedCards.Card_4_no_category,
+    ] as PlayedCard[]
+    const playedIds = new Set(playedCards.map(card => card.id))
+
+    const getUnplayedChildSpy = jest.spyOn(CardRelationManager, 'getUnplayedChild').mockReturnValue(null)
+    const getRandomPercentSpy = jest.spyOn(utils, 'getRandomPercent').mockReturnValue(0.2)
+
+    // @ts-ignore
+    const result = CardManager.drawClosingCard(playedCards, playedIds, 0)
+
+    expect(getUnplayedChildSpy).toHaveBeenCalledTimes(4)
+    expect(getRandomPercentSpy).toHaveBeenCalledTimes(1)
     expect(result).toBeNull()
   })
 })
