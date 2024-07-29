@@ -99,8 +99,7 @@ export default abstract class SupabaseManager<T extends SupabaseItem> {
       // TODO: [IMPROVEMENT] Implement cache invalidation
       return await this.fetchAll()
     } catch (error) {
-      console.log(`Fetching ${this.tableName} from cache.`)
-      console.warn(error)
+      console.warn(`Fetching ${this.tableName} from cache.`, error)
       const items = await this.retrieve()
       if (!items) throw error
       return items
