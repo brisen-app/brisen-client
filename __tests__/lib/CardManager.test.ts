@@ -284,3 +284,51 @@ describe('drawClosingCard', () => {
     expect(result).toBeNull()
   })
 })
+
+describe('getParentPlayerList', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it('should return the players of the parent card', () => {
+    const playedCards = [
+      { ...MockedCards.Card_1, players: new Set([MockedPlayers.Alice, MockedPlayers.Bob]) },
+      { ...MockedCards.Card_2, players: new Set([MockedPlayers.Charlie, MockedPlayers.David]) },
+    ]
+    const playedIds = new Set(playedCards.map(card => card.id))
+
+    const spyOnGetPlayedParent = jest.spyOn(CardRelationManager, 'getPlayedParent').mockReturnValue('2')
+
+    // @ts-ignore
+    const result = CardManager.getParentPlayerList(MockedCards.Card_3, playedCards, playedIds)
+
+    expect(spyOnGetPlayedParent).toHaveBeenCalledTimes(1)
+    expect(result).toEqual(playedCards[1].players)
+  })
+
+  it('should return null if the parent card has not been played', () => {
+    const playedCards = [MockedCards.Card_1, MockedCards.Card_2, MockedCards.Card_3] as PlayedCard[]
+    const playedIds = new Set(playedCards.map(card => card.id))
+
+    const spyOnGetPlayedParent = jest.spyOn(CardRelationManager, 'getPlayedParent').mockReturnValue('-1')
+
+    // @ts-ignore
+    const result = CardManager.getParentPlayerList(MockedCards.Card_1, playedCards, playedIds)
+
+    expect(spyOnGetPlayedParent).toHaveBeenCalledTimes(1)
+    expect(result).toBeNull()
+  })
+
+  it('should return null if the parent card has not been played', () => {
+    const playedCards = [MockedCards.Card_1, MockedCards.Card_2, MockedCards.Card_3] as PlayedCard[]
+    const playedIds = new Set(playedCards.map(card => card.id))
+
+    const spyOnGetPlayedParent = jest.spyOn(CardRelationManager, 'getPlayedParent').mockReturnValue(null)
+
+    // @ts-ignore
+    const result = CardManager.getParentPlayerList(MockedCards.Card_1, playedCards, playedIds)
+
+    expect(spyOnGetPlayedParent).toHaveBeenCalledTimes(1)
+    expect(result).toBeNull()
+  })
+})

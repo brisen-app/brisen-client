@@ -115,6 +115,7 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     for (const playedCard of playedCards) {
       if (playedCard.id === playedParent) return playedCard.players
     }
+    return null
   }
 
   /**
