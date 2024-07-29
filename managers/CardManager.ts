@@ -5,7 +5,6 @@ import { Tables } from '@/models/supabase'
 import SupabaseManager from './SupabaseManager'
 import { CardRelationManager } from './CardRelationManager'
 import { Player } from '@/models/Player'
-import { CategoryManager } from './CategoryManager'
 
 const tableName = 'cards'
 const playerTemplateRegex = /\{player\W*(\d+)\}/gi
@@ -144,7 +143,7 @@ class CardManagerSingleton extends SupabaseManager<Card> {
       const index = parseInt(match[1])
       if (index >= players.length)
         throw new InsufficientCountError(`Not enough players (${players.length}) to insert ${matchedString} into card.`)
-      var player = players[index]
+      const player = players[index]
       formattedContent = formattedContent.replace(matchedString, player.name)
       featuredPlayers.set(player.name, player)
     }

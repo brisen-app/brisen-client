@@ -38,8 +38,8 @@ function contextReducer(state: AppContextType, action: AppContextAction): AppCon
     }
 
     case 'incrementPlayCounts': {
-      var playersToUpdate = [...payload].map(player => player.name)
-      var players = new Set<Player>()
+      const playersToUpdate = [...payload].map(player => player.name)
+      const players = new Set<Player>()
       for (const player of state.players) {
         if (!playersToUpdate.includes(player.name)) {
           players.add(player)
@@ -65,7 +65,7 @@ function contextReducer(state: AppContextType, action: AppContextAction): AppCon
     }
 
     case 'restartGame': {
-      var players = new Set<Player>()
+      const players = new Set<Player>()
       for (const player of state.players) {
         players.add({ ...player, playCount: 0 })
       }
