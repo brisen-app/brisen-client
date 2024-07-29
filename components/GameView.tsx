@@ -35,9 +35,16 @@ export default function GameView(props: Readonly<GameViewProps>) {
 
   const addCard = () => {
     if (playlist.size === 0) return
+
     const newCard = CardManager.drawCard(playedCards, playedIds, playlist, players, categoryFilter)
     if (newCard === null) return
-    setContext({ type: 'addPlayedCard', payload: newCard })
+
+    setContext({ action: 'addPlayedCard', payload: newCard })
+    setContext({
+      action: 'incrementPlayCounts',
+      payload: newCard.featuredPlayers,
+    })
+
     console.log(`Added card ${playedCards.length + 1}:`, newCard.formattedContent ?? newCard.content)
   }
 
@@ -47,7 +54,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
 
   useEffect(() => {
     if (visibleItems.value.length === 0) addCard()
-  }, [playlist, players])
+  }, [playlist])
 
   if (playedCards.length === 0) return <NoCardsView onPress={onPressNoCard} />
 
@@ -129,7 +136,7 @@ function OutOfCardsView(props: Readonly<OutOfCardsViewProps>) {
           disabled={playedCards.length === 0}
           onPress={() => {
             props.onPress()
-            setContext({ type: 'restartGame' })
+            setContext({ action: 'restartGame' })
           }}
         />
       </Pressable>

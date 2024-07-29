@@ -1,4 +1,3 @@
-import { Card } from '@/managers/CardManager'
 import SupabaseManager, { SupabaseItem } from '@/managers/SupabaseManager'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
@@ -42,7 +41,8 @@ jest.mock('@/lib/supabase', () => ({
 }))
 
 class SupabaseManagerMockSingleton extends SupabaseManager<SupabaseItem> {
-  constructor(tableName: string) {
+  constructor(tableName: 'mock') {
+    // @ts-ignore
     super(tableName)
   }
 }
@@ -52,7 +52,7 @@ const SupabaseManagerMock = new SupabaseManagerMockSingleton('mock')
 beforeEach(() => {
   // @ts-ignore
   SupabaseManagerMock._items = null
-  for (var key in AsyncStorage.getAllKeys()) {
+  for (const key in AsyncStorage.getAllKeys()) {
     AsyncStorage.removeItem(key)
   }
 })
@@ -94,7 +94,7 @@ describe('push', () => {
 describe('items', () => {
   it('should warn if items have not been set', () => {
     console.warn = jest.fn()
-    SupabaseManagerMock.items
+    const _ = SupabaseManagerMock.items
     expect(console.warn).toHaveBeenCalledTimes(1)
   })
 })

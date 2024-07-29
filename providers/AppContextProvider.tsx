@@ -2,27 +2,31 @@ import React, { createContext, Dispatch, ReactNode, useContext, useReducer } fro
 import { Pack } from '@/managers/PackManager'
 import { Category } from '@/managers/CategoryManager'
 import { PlayedCard } from '@/managers/CardManager'
+import { Player } from '@/models/Player'
 
-type AppContextType = {
+export type AppContextType = {
+  categoryFilter: Set<string>
   playedCards: PlayedCard[]
   playedIds: Set<string>
+  players: Set<Player>
   playlist: Set<Pack>
-  players: Set<string>
-  categoryFilter: Set<string>
 }
 
-type AppContextAction = {
-  type: 'togglePack' | 'togglePlayer' | 'toggleCategory' | 'addPlayedCard' | 'restartGame'
-  payload?: any
-}
+export type AppContextAction =
+  | { action: 'addPlayedCard'; payload: PlayedCard }
+  | { action: 'restartGame'; payload?: never }
+  | { action: 'toggleCategory'; payload: Category }
+  | { action: 'togglePack'; payload: Pack }
+  | { action: 'togglePlayer'; payload: Player }
+  | { action: 'incrementPlayCounts'; payload: Set<Player> }
 
 function toggleSet<T>(set: Set<T>, value: T): Set<T> {
   if (set.has(value)) return new Set([...set].filter(v => v !== value))
   return new Set([...set, value])
 }
 
-function contextReducer(state: AppContextType, action: AppContextAction): AppContextType {
-  const { type, payload } = action
+export function contextReducer(state: AppContextType, action: AppContextAction): AppContextType {
+  const { action: type, payload } = action
 
   switch (type) {
     case 'togglePack': {
@@ -33,26 +37,43 @@ function contextReducer(state: AppContextType, action: AppContextAction): AppCon
       return { ...state, players: toggleSet(state.players, payload) }
     }
 
+    case 'incrementPlayCounts': {
+      const playersToUpdate = [...payload].map(player => player.name)
+      const players = new Set<Player>()
+      for (const player of state.players) {
+        if (!playersToUpdate.includes(player.name)) {
+          players.add(player)
+          console.log(player)
+        } else {
+          players.add({ ...player, playCount: player.playCount + 1 })
+          console.log({ ...player, playCount: player.playCount + 1 })
+        }
+      }
+      return { ...state, players: players }
+    }
+
     case 'toggleCategory': {
-      const category = payload as Category
-      return { ...state, categoryFilter: toggleSet(state.categoryFilter, category.id) }
+      return { ...state, categoryFilter: toggleSet(state.categoryFilter, payload.id) }
     }
 
     case 'addPlayedCard': {
-      const playedCard = payload as PlayedCard
       return {
         ...state,
-        playedCards: [...state.playedCards, playedCard],
-        playedIds: new Set([...state.playedIds, playedCard.id]),
+        playedCards: [...state.playedCards, payload],
+        playedIds: new Set([...state.playedIds, payload.id]),
       }
     }
 
     case 'restartGame': {
-      return { ...state, playlist: new Set(), playedCards: [], playedIds: new Set() }
+      const players = new Set<Player>()
+      for (const player of state.players) {
+        players.add({ ...player, playCount: 0 })
+      }
+      return { ...state, players: players, playlist: new Set(), playedCards: [], playedIds: new Set() }
     }
 
     default: {
-      throw new Error(`Unhandled action type: ${type}`)
+      throw new Error(`Unhandled action type: '${type}'`)
     }
   }
 }

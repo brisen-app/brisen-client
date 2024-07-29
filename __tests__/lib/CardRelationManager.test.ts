@@ -3,47 +3,52 @@ import { CardRelation, CardRelationManager } from '@/managers/CardRelationManage
 import { CycleError } from '@/models/Errors'
 
 const mockedRelations1 = [
-  { parent: '1', child: '2' },
-  { parent: '1', child: '3' },
-  { parent: '3', child: '4' },
-  { parent: '2', child: '5' },
-  { parent: '4', child: '5' },
-  { parent: '4', child: '6' },
+  { id: '2:1', parent: '1', child: '2' },
+  { id: '3:1', parent: '1', child: '3' },
+  { id: '4:3', parent: '3', child: '4' },
+  { id: '5:2', parent: '2', child: '5' },
+  { id: '5:4', parent: '4', child: '5' },
+  { id: '6:4', parent: '4', child: '6' },
 ] as CardRelation[]
 
 const mockedRelations2 = [
-  { parent: '6', child: '3' },
-  { parent: '5', child: '3' },
-  { parent: '4', child: '3' },
-  { parent: '4', child: '2' },
-  { parent: '3', child: '1' },
+  { id: '3:6', parent: '6', child: '3' },
+  { id: '3:5', parent: '5', child: '3' },
+  { id: '3:4', parent: '4', child: '3' },
+  { id: '2:4', parent: '4', child: '2' },
+  { id: '1:3', parent: '3', child: '1' },
 ] as CardRelation[]
 
 const mockedRelations3 = [
-  { parent: '1', child: '2' },
-  { parent: '2', child: '3' },
-  { parent: '2', child: '4' },
-  { parent: '3', child: '5' },
-  { parent: '4', child: '5' },
+  { id: '2:1', parent: '1', child: '2' },
+  { id: '3:2', parent: '2', child: '3' },
+  { id: '4:2', parent: '2', child: '4' },
+  { id: '5:3', parent: '3', child: '5' },
+  { id: '5:4', parent: '4', child: '5' },
+  { id: '5:4', parent: '5', child: '6' },
 ] as CardRelation[]
 
 const mockedRelationsWithCycle = [
-  { parent: '1', child: '2' },
-  { parent: '1', child: '3' },
-  { parent: '3', child: '4' },
-  { parent: '4', child: '5' },
-  { parent: '5', child: '3' },
+  { id: '2:1', parent: '1', child: '2' },
+  { id: '3:1', parent: '1', child: '3' },
+  { id: '4:3', parent: '3', child: '4' },
+  { id: '5:4', parent: '4', child: '5' },
+  { id: '3:5', parent: '5', child: '3' },
 ] as CardRelation[]
 
 const mockedRelationsWithCycleNoRoot = [
-  { parent: '1', child: '2' },
-  { parent: '2', child: '3' },
-  { parent: '3', child: '4' },
-  { parent: '4', child: '1' },
-  { parent: '4', child: '5' },
-  { parent: '5', child: '6' },
-  { parent: '6', child: '3' },
+  { id: '2:1', parent: '1', child: '2' },
+  { id: '3:2', parent: '2', child: '3' },
+  { id: '4:3', parent: '3', child: '4' },
+  { id: '1:4', parent: '4', child: '1' },
+  { id: '5:4', parent: '4', child: '5' },
+  { id: '6:5', parent: '5', child: '6' },
+  { id: '3:6', parent: '6', child: '3' },
 ] as CardRelation[]
+
+jest.mock('@react-native-async-storage/async-storage', () =>
+  require('@react-native-async-storage/async-storage/jest/async-storage-mock')
+)
 
 jest.mock('@/lib/supabase', () => ({
   supabase: {
@@ -163,6 +168,16 @@ describe('getUnplayedParent', () => {
 
     expect(result).toBe('3')
   })
+
+  it('should return null if there is no unplayed parent', () => {
+    // @ts-ignore
+    CardRelationManager.set(mockedRelations1)
+    const candidates = new Set(['1'])
+
+    const result = CardRelationManager.getUnplayedParent('2', candidates)
+
+    expect(result).toBe(null)
+  })
 })
 
 describe('hasUnplayedParent', () => {
@@ -182,6 +197,44 @@ describe('hasUnplayedParent', () => {
     const candidates = new Set(['3', '4', '5', '6'])
 
     const result = CardRelationManager.hasUnplayedParent('3', candidates)
+
+    expect(result).toBe(false)
+  })
+
+  it('should return false if the card has no parent', () => {
+    // @ts-ignore
+    CardRelationManager.set(mockedRelations1)
+    const result = CardRelationManager.hasUnplayedParent('1', new Set<string>())
+
+    expect(result).toBe(false)
+  })
+})
+
+describe('hasUnplayedChild', () => {
+  it('should return true if the card has an unplayed child', () => {
+    // @ts-ignore
+    CardRelationManager.set(mockedRelations1)
+    const candidates = new Set(['1', '2', '5', '6'])
+
+    const result = CardRelationManager.hasUnplayedChild('1', candidates)
+
+    expect(result).toBe(true)
+  })
+
+  it('should return false if the card has no unplayed child', () => {
+    // @ts-ignore
+    CardRelationManager.set(mockedRelations1)
+    const candidates = new Set(['1', '3', '4'])
+
+    const result = CardRelationManager.hasUnplayedChild('4', candidates)
+
+    expect(result).toBe(false)
+  })
+
+  it('should return false if the card has no child', () => {
+    // @ts-ignore
+    CardRelationManager.set(mockedRelations1)
+    const result = CardRelationManager.hasUnplayedChild('1', new Set<string>())
 
     expect(result).toBe(false)
   })
@@ -308,5 +361,101 @@ describe('getChildren', () => {
     CardRelationManager.set(mockedRelations1)
     const result = CardRelationManager.getChildren('1')
     expect(result).toEqual(new Set(['2', '3']))
+  })
+})
+
+describe('fetchAll', () => {
+  it('should return an array of relations', async () => {
+    const result = await CardRelationManager.fetchAll()
+    expect(result).toEqual(mockedRelations1)
+  })
+})
+
+describe('isItem', () => {
+  it('should return true if the object is a CardRelation', () => {
+    const item = { id: '1', parent: '2', child: '3' }
+    const result = CardRelationManager.isItem(item)
+    expect(result).toBe(true)
+  })
+
+  it('should return false if the object is not a CardRelation', () => {
+    const item = { id: '1', parent: '2' }
+    const result = CardRelationManager.isItem(item)
+    expect(result).toBe(false)
+  })
+})
+
+describe('traverse', () => {
+  const allNodes = ['1', '2', '3', '4', '5', '6']
+  const graphs = [
+    { name: 'Mocked Relations 1', graph: mockedRelations1 },
+    { name: 'Mocked Relations 2', graph: mockedRelations2 },
+    { name: 'Mocked Relations 3', graph: mockedRelations3 },
+  ]
+
+  const graphsWithCycles = [
+    { name: 'Mocked Relations with Cycle', graph: mockedRelationsWithCycle },
+    { name: 'Mocked Relations with Cycle No Root', graph: mockedRelationsWithCycleNoRoot },
+  ]
+
+  allNodes.forEach(node => {
+    graphs.forEach(testCase => {
+      it(`should traverse '${testCase.name}' both directions correctly from '${node}'`, () => {
+        // @ts-ignore
+        CardRelationManager.set(testCase.graph)
+        const visited: string[] = []
+
+        // @ts-ignore
+        CardRelationManager.traverse(
+          node,
+          'both',
+          id => !!visited.push(id),
+          _ => {
+            throw new Error('There should be no cycles')
+          }
+        )
+
+        expect(new Set(visited)).toEqual(new Set(allNodes))
+      })
+    })
+  })
+
+  it('should stop traversal if forEach returns false', () => {
+    // @ts-ignore
+    CardRelationManager.set(mockedRelations1)
+    const visited: string[] = []
+
+    // @ts-ignore
+    CardRelationManager.traverse('1', 'children', id => {
+      visited.push(id)
+      return id !== '3'
+    })
+
+    expect(visited).toEqual(['1', '2', '5', '3'])
+  })
+
+  graphsWithCycles.forEach(testCase => {
+    it(`should detect cycles and call onCycle in '${testCase.name}'`, () => {
+      try {
+        // @ts-ignore
+        CardRelationManager.set(testCase.graph)
+      } catch (error) {
+        expect(error).toBeInstanceOf(CycleError)
+      }
+      const visited: string[] = []
+      const cycles: string[][] = []
+
+      const spy = jest.fn()
+
+      // @ts-ignore
+      CardRelationManager.traverse(
+        '1',
+        'children',
+        id => !!visited.push(id),
+        _ => spy()
+      )
+
+      expect(spy).toHaveBeenCalled()
+    })
   })
 })

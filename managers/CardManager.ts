@@ -4,16 +4,17 @@ import { Pack, PackManager } from './PackManager'
 import { Tables } from '@/models/supabase'
 import SupabaseManager from './SupabaseManager'
 import { CardRelationManager } from './CardRelationManager'
+import { Player } from '@/models/Player'
 
 const tableName = 'cards'
 const playerTemplateRegex = /\{player\W*(\d+)\}/gi
 export type Card = Tables<typeof tableName>
 export type PlayedCard = {
-  children: Set<string> | null
-  formattedContent: string | null
-  minPlayers: number
-  pack: Pack
-  players: string[]
+  featuredPlayers: Set<Player> // The players featured in the card content
+  formattedContent: string | undefined // The card content with player names inserted
+  minPlayers: number // Minimum number of players required to play the card
+  pack: Pack // The pack to which the card belongs
+  players: Player[] // The order of all players in this series of cards
 } & Card
 
 class CardManagerSingleton extends SupabaseManager<Card> {
@@ -35,34 +36,38 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     playedCards: PlayedCard[],
     playedIds: Set<string>,
     playlist: Set<Pack>,
-    players: Set<string>,
+    players: Set<Player>,
     categoryFilterIds: Set<string>
   ): PlayedCard | null {
     const candidates = this.findCandidates(playlist, playedIds, players.size, categoryFilterIds)
     if (candidates.size === 0) return null
 
     let card = this.drawClosingCard(playedCards, playedIds)
-
     card = card ?? getRandom(candidates.values())
     if (card === null) return null
 
     const parentId = CardRelationManager.getUnplayedParent(card.id, new Set(candidates.keys()))
     if (parentId) card = candidates.get(parentId) ?? card
 
-    const playerList = this.getParentPlayerList(card, playedCards, playedIds) ?? shuffled(players)
+    const playerList =
+      this.getParentPlayerList(card, playedCards, playedIds) ??
+      shuffled(players).sort((a, b) => a.playCount - b.playCount)
+
+    const { formattedContent, featuredPlayers } = this.insertPlayers(card.content, playerList)
+    if (!card.is_group && playerList.length > 0) featuredPlayers.set(playerList[0].name, playerList[0])
 
     return {
       ...card,
-      children: CardRelationManager.getChildren(card.id),
-      formattedContent: this.insertPlayers(card.content, playerList),
       minPlayers: this.getRequiredPlayerCount(card),
       pack: PackManager.getPackOf(card.id, playlist)!,
       players: playerList,
+      featuredPlayers: new Set(featuredPlayers.values()),
+      formattedContent,
     }
   }
 
   private drawClosingCard(playedCards: PlayedCard[], playedIds: Set<string>, maxAge = 12) {
-    const unclosedPlayedCards = new Map<number, Card>()
+    const unplayedChildren = new Map<number, Card>()
 
     for (let i = 0; i < playedCards.length; i++) {
       const card = playedCards[i]
@@ -70,14 +75,12 @@ class CardManagerSingleton extends SupabaseManager<Card> {
       if (!unplayedChildId) continue
       const unplayedChild = CardManager.get(unplayedChildId)
       if (!unplayedChild) continue
-      unclosedPlayedCards.set(playedCards.length - i, unplayedChild)
+      unplayedChildren.set(playedCards.length - i, unplayedChild)
     }
 
     const chance = getRandomPercent() * maxAge
-    for (const [age, card] of unclosedPlayedCards) {
-      if (age < 3) continue
-      console.log(age, '>', chance, '=', age > chance)
-      if (age > chance) return card
+    for (const [age, child] of unplayedChildren) {
+      if (age > 3 && age > chance) return child
     }
     return null
   }
@@ -112,6 +115,7 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     for (const playedCard of playedCards) {
       if (playedCard.id === playedParent) return playedCard.players
     }
+    return null
   }
 
   /**
@@ -124,21 +128,27 @@ class CardManagerSingleton extends SupabaseManager<Card> {
    * @returns The modified card content with player names inserted, or `null` if no replacements were made.
    * @throws InsufficientCountError if there are not enough players to insert into the card.
    */
-  private insertPlayers(cardContent: string, players: string[]) {
+  private insertPlayers(
+    cardContent: string,
+    players: Player[]
+  ): { formattedContent?: string; featuredPlayers: Map<string, Player> } {
+    let featuredPlayers = new Map<string, Player>()
     const matches = cardContent.matchAll(playerTemplateRegex)
+    if (!matches) return { featuredPlayers }
 
-    // TODO: [BUG] Implement balanced selection of players
-
-    let replacedContent = cardContent
+    let formattedContent = cardContent
     for (const match of matches) {
       const matchedString = match[0]
       const index = parseInt(match[1])
       if (index >= players.length)
         throw new InsufficientCountError(`Not enough players (${players.length}) to insert ${matchedString} into card.`)
-      replacedContent = replacedContent.replace(matchedString, players[index])
+      const player = players[index]
+      formattedContent = formattedContent.replace(matchedString, player.name)
+      featuredPlayers.set(player.name, player)
     }
 
-    return replacedContent === cardContent ? null : replacedContent
+    if (formattedContent === cardContent) return { featuredPlayers }
+    return { formattedContent, featuredPlayers }
   }
 
   private cachedPlayerCounts: Map<string, number> = new Map()

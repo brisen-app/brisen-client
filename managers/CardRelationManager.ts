@@ -1,6 +1,7 @@
 import { Tables } from '@/models/supabase'
 import SupabaseManager from './SupabaseManager'
 import { CycleError } from '@/models/Errors'
+import { shuffled } from '@/lib/utils'
 
 const tableName = 'card_dependencies'
 export type CardRelation = { id: string } & Tables<typeof tableName>
@@ -59,13 +60,6 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
     return null
   }
 
-  getUnplayedChild(cardId: string, unplayedCards: Set<string>): string | null {
-    for (const child of this.children.get(cardId) ?? []) {
-      if (!unplayedCards.has(child)) return child
-    }
-    return null
-  }
-
   hasUnplayedParent(cardId: string, unplayedCards: Set<string>) {
     for (const parent of this.parents.get(cardId) ?? []) {
       if (unplayedCards.has(parent)) return true
@@ -73,8 +67,18 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
     return false
   }
 
+  getUnplayedChild(cardId: string, unplayedCards: Set<string>): string | null {
+    for (const child of shuffled(this.children.get(cardId) ?? [])) {
+      if (!unplayedCards.has(child)) return child
+    }
+    return null
+  }
+
   hasUnplayedChild(cardId: string, unplayedCards: Set<string>) {
-    return !!this.getUnplayedChild(cardId, unplayedCards)
+    for (const child of this.children.get(cardId) ?? []) {
+      if (unplayedCards.has(child)) return true
+    }
+    return false
   }
 
   isPlayable(cardId: string, unplayedCards: Set<string>) {
@@ -174,10 +178,12 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
     direction: 'parents' | 'children' | 'both' = 'children',
     forEach: (item: string) => boolean = () => true,
     onCycle: (path: Array<string>) => void = () => {},
-    path: Array<string> = new Array<string>()
+    path: Array<string> = new Array<string>(),
+    visited: Set<string> = new Set<string>()
   ) {
     if (!forEach(from)) return
     path.push(from)
+    visited.add(from)
 
     if (direction === 'both' || direction === 'parents') {
       for (const parent of this.parents.get(from) ?? []) {
@@ -185,7 +191,8 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
           if (direction !== 'both') onCycle([...path, parent])
           continue
         }
-        this.traverse(parent, direction, forEach, onCycle, path)
+        if (visited.has(parent)) continue
+        this.traverse(parent, direction, forEach, onCycle, path, visited)
       }
     }
 
@@ -195,7 +202,8 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
           if (direction !== 'both') onCycle([...path, child])
           continue
         }
-        this.traverse(child, direction, forEach, onCycle, path)
+        if (visited.has(child)) continue
+        this.traverse(child, direction, forEach, onCycle, path, visited)
       }
     }
 
