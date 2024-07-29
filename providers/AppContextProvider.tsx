@@ -69,7 +69,7 @@ function contextReducer(state: AppContextType, action: AppContextAction): AppCon
       for (const player of state.players) {
         players.add({ ...player, playCount: 0 })
       }
-      return { ...state, playlist: new Set(), playedCards: [], playedIds: new Set() }
+      return { ...state, players: players, playlist: new Set(), playedCards: [], playedIds: new Set() }
     }
 
     default: {
