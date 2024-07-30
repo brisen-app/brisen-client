@@ -42,15 +42,15 @@ export default function MenuView() {
       <AddPlayerField />
 
       <Animated.View style={[{ gap: 8 }, hideOnBottomStyle]}>
-        <View style={{ flexDirection: 'row', marginTop: 8, gap: 8, flexWrap: 'wrap', marginHorizontal: 16 }}>
-          {sortedPlayers.map(tag => (
-            <Animated.View key={tag.name} layout={LinearTransition}>
-              <Tag text={tag.name} onPress={() => setContext({ action: 'togglePlayer', payload: tag })} />
-            </Animated.View>
-          ))}
-        </View>
-        {/* {players.size > 0 && (
-        )} */}
+        {players.size > 0 && (
+          <View style={{ flexDirection: 'row', marginTop: 8, gap: 8, flexWrap: 'wrap', marginHorizontal: 16 }}>
+            {sortedPlayers.map(tag => (
+              <Animated.View key={tag.name} layout={LinearTransition}>
+                <Tag text={tag.name} onPress={() => setContext({ action: 'togglePlayer', payload: tag })} />
+              </Animated.View>
+            ))}
+          </View>
+        )}
 
         <Header titleKey='packs' descriptionKey='packs_subtitle' />
         <ScrollView
