@@ -166,6 +166,7 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
           shadowOffset: { width: 0, height: 32 },
           shadowRadius: 32,
           shadowOpacity: 1 / 4,
+          elevation: 48,
         }}
       >
         <View

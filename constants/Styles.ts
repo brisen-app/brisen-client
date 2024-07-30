@@ -12,9 +12,9 @@ export const Styles = StyleSheet.create({
       width: 0,
       height: 1,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 1,
-    elevation: 1,
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
   },
 })
 

@@ -41,6 +41,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
       shadowOffset: { width: 0, height: shadowSize },
       shadowRadius: shadowSize,
       shadowOpacity: 1 / 5,
+      elevation: 24,
       opacity: withTiming(isSelected || isNoneSelected ? 1 : 0.5, animationConfig),
       transform: [{ scale: withTiming(isSelected || isNoneSelected ? 1 : 0.98, animationConfig) }],
     }
@@ -90,9 +91,10 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
                   position: 'absolute',
                   bottom: 8,
                   right: 8,
-                  shadowOffset: { width: 0, height: 8 },
-                  shadowRadius: 8,
-                  shadowOpacity: 0.5,
+                  shadowOffset: { width: 0, height: 6 },
+                  shadowRadius: 7.49,
+                  shadowOpacity: 0.37,
+                  elevation: 12,
                 },
                 checkmarkStyle,
               ]}
