@@ -9,8 +9,9 @@ export default {
     text: Color.black.string,
     secondaryText: Color.brightness(0.5).string,
 
-    background: Color.white.string,
-    secondaryBackground: Color.brightness(0.9).string,
+    background: Color.brightness(0.95).string,
+    secondaryBackground: Color.white.string,
+    sheetAtBottom: Color.brightness(0.95).string,
 
     stroke: Color.black.alpha(0.2).string,
     placeholder: Color.black.alpha(0.1).string,
@@ -22,7 +23,8 @@ export default {
     secondaryText: Color.brightness(0.5).string,
 
     background: Color.black.string,
-    secondaryBackground: Color.brightness(0.05).string,
+    secondaryBackground: Color.brightness(0.1).string,
+    sheetAtBottom: Color.brightness(0.05).string,
 
     stroke: Color.white.alpha(0.1).string,
 

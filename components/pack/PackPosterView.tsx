@@ -1,5 +1,4 @@
 import Colors from '@/constants/Colors'
-import { Styles } from '@/constants/Styles'
 import { Pack, PackManager } from '@/managers/PackManager'
 import { Ionicons } from '@expo/vector-icons'
 import { useQuery } from '@tanstack/react-query'
@@ -37,7 +36,12 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
   const animationConfig = { duration: 150, easing: Easing.bezier(0, 0, 0.5, 1) }
 
   const animatedStyle = useAnimatedStyle(() => {
+    const shadowSize = 16
     return {
+      shadowOffset: { width: 0, height: shadowSize },
+      shadowRadius: shadowSize,
+      shadowOpacity: 1 / 5,
+      elevation: 24,
       opacity: withTiming(isSelected || isNoneSelected ? 1 : 0.5, animationConfig),
       transform: [{ scale: withTiming(isSelected || isNoneSelected ? 1 : 0.98, animationConfig) }],
     }
@@ -45,11 +49,6 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
 
   const checkmarkStyle = useAnimatedStyle(() => {
     return {
-      position: 'absolute',
-      top: 8,
-      right: 8,
-      ...Styles.shadow,
-      shadowOpacity: 0.5,
       opacity: withTiming(isSelected ? 1 : 0, animationConfig),
       transform: [{ scale: withTiming(isSelected ? 1 : 0.75, animationConfig) }],
     }
@@ -74,6 +73,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
             flex: 1,
             alignItems: 'center',
             gap: 8,
+            shadowColor: 'black',
           }}
         >
           <PackImage
@@ -84,7 +84,24 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
               borderColor: Colors[colorScheme].stroke,
               borderWidth: StyleSheet.hairlineWidth,
             }}
-          />
+          >
+            <Animated.View
+              style={[
+                {
+                  position: 'absolute',
+                  bottom: 8,
+                  right: 8,
+                  shadowOffset: { width: 0, height: 6 },
+                  shadowRadius: 7.49,
+                  shadowOpacity: 0.37,
+                  elevation: 12,
+                },
+                checkmarkStyle,
+              ]}
+            >
+              <Ionicons name='checkmark-circle' size={32 + 16 + 8} style={{ color: Colors[colorScheme].accentColor }} />
+            </Animated.View>
+          </PackImage>
 
           <View style={{ width: width }}>
             <Text numberOfLines={1} style={[styles.text, styles.header]}>
@@ -96,10 +113,6 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
             </Text>
           </View>
         </View>
-
-        <Animated.View style={checkmarkStyle}>
-          <Ionicons name='checkmark-circle' size={32} style={{ color: Colors[colorScheme].accentColor }} />
-        </Animated.View>
       </Pressable>
     </Animated.View>
   )

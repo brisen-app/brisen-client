@@ -31,7 +31,8 @@ class LanguageManagerSingleton extends SupabaseManager<Language> {
   }
 
   getDisplayLanguage() {
-    return this._displayLanguage
+    if (!this._displayLanguage) console.warn('Display language has not been set')
+    return this._displayLanguage ?? defaultLanguage
   }
 
   protected set(items: Iterable<Language>) {

@@ -11,12 +11,10 @@ import {
   Pressable,
   PressableProps,
   StyleSheet,
-  Switch,
   TouchableOpacity,
   View,
   ViewProps,
 } from 'react-native'
-import { useAppContext, useAppDispatchContext } from '../../providers/AppContextProvider'
 import { Text } from '../utils/Themed'
 import useColorScheme from '../utils/useColorScheme'
 
@@ -33,9 +31,6 @@ const height: DimensionValue = 80
 export default function PackListView(props: Readonly<PackListViewProps & PackViewProps & ViewProps>) {
   const { pack, hideImage, style } = props
   const colorScheme = useColorScheme()
-  const { playlist } = useAppContext()
-  const setContext = useAppDispatchContext()
-  const isSelected = playlist.has(pack)
 
   const { data: image, isLoading, error } = useQuery(PackManager.getImageQuery(pack.image, !hideImage))
   if (error) console.warn(error)
@@ -89,12 +84,12 @@ export default function PackListView(props: Readonly<PackListViewProps & PackVie
         </View>
       </TouchableOpacity>
 
-      <Switch
+      {/* <Switch
         value={isSelected}
         onValueChange={() => setContext({ action: 'togglePack', payload: pack })}
         trackColor={{ false: Colors[colorScheme].placeholder, true: Colors[colorScheme].accentColor }}
         thumbColor={Colors[colorScheme].background}
-      />
+      /> */}
     </View>
   )
 }

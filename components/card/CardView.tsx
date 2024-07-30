@@ -8,7 +8,7 @@ import Color from '@/models/Color'
 import { useQuery } from '@tanstack/react-query'
 import { Image } from 'expo-image'
 import { LinearGradient } from 'expo-linear-gradient'
-import { TouchableOpacity, View } from 'react-native'
+import { Pressable, TouchableOpacity, View } from 'react-native'
 import { Text } from '../utils/Themed'
 import useColorScheme from '../utils/useColorScheme'
 import { ConfigurationManager } from '@/managers/ConfigurationManager'
@@ -16,6 +16,8 @@ import { ConfigurationManager } from '@/managers/ConfigurationManager'
 export type CardViewProps = {
   card: PlayedCard
   category?: Category | null
+  onPressCategory: () => void
+  onPressPack: () => void
 }
 
 export function CardView(props: Readonly<CardViewProps>) {
@@ -37,7 +39,7 @@ export function CardView(props: Readonly<CardViewProps>) {
   }
 
   return (
-    <>
+    <Pressable style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <LinearGradient colors={getGradient()} start={{ x: 0, y: 1 }} end={{ x: 1, y: 0 }} style={Styles.absoluteFill} />
 
       {/* Grain */}
@@ -60,6 +62,7 @@ export function CardView(props: Readonly<CardViewProps>) {
         }}
       >
         <TouchableOpacity
+          onPress={props.onPressCategory}
           style={{
             flexDirection: 'row',
             justifyContent: 'flex-end',
@@ -78,6 +81,7 @@ export function CardView(props: Readonly<CardViewProps>) {
 
         <View style={{ flex: 1 }} />
         <TouchableOpacity
+          onPress={props.onPressPack}
           style={{
             flexDirection: 'row',
             alignItems: 'center',
@@ -127,6 +131,6 @@ export function CardView(props: Readonly<CardViewProps>) {
           {content}
         </Text>
       </>
-    </>
+    </Pressable>
   )
 }
