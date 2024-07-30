@@ -3,7 +3,7 @@ import Sizes from '@/constants/Sizes'
 import { PlayedCard } from '@/managers/CardManager'
 import { CategoryManager } from '@/managers/CategoryManager'
 import { Dimensions, PressableProps, ScrollView, StyleSheet, View } from 'react-native'
-import Animated, { Easing, withDelay, withTiming } from 'react-native-reanimated'
+import Animated, { Easing, interpolate, useAnimatedStyle, withDelay, withTiming } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import useColorScheme from '../utils/useColorScheme'
 import { CardView } from './CardView'
@@ -14,7 +14,6 @@ import { Image } from 'expo-image'
 import { useQuery } from '@tanstack/react-query'
 import { PackManager } from '@/managers/PackManager'
 import { useRef } from 'react'
-import Color from '@/models/Color'
 
 export type CardScreenProps = { card: PlayedCard } & PressableProps
 
@@ -128,7 +127,6 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
             backgroundColor: Colors[colorScheme].secondaryBackground,
             padding: 16,
             borderRadius: 16,
-            marginBottom: 8,
             gap: 8,
           }}
         >

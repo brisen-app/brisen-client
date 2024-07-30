@@ -33,54 +33,47 @@ export default function MenuView() {
     setContext({ action: 'toggleCategory', payload: category })
   }
 
-  // const topInsetStyle = useAnimatedStyle(() => ({
-  //   paddingTop: interpolate(bottomSheet.animatedIndex.value, [1, 2], [0, insets.top]),
-  // }))
-
   const hideOnBottomStyle = useAnimatedStyle(() => ({
     opacity: interpolate(bottomSheet.animatedIndex.value, [0, 1], [0, 1]),
   }))
 
   return (
-    // <Animated.View style={[topInsetStyle, { flex: 1 }]}>
-      <BottomSheetScrollView showsVerticalScrollIndicator={false} style={{ overflow: 'visible' }}>
-        <AddPlayerField />
+    <BottomSheetScrollView showsVerticalScrollIndicator={false} style={{ overflow: 'visible' }}>
+      <AddPlayerField />
 
-        <Animated.View style={[hideOnBottomStyle, { gap: 8 }]}>
-          {players.size > 0 && (
-            <View style={{ flexDirection: 'row', marginTop: 8, gap: 8, flexWrap: 'wrap', marginHorizontal: 16 }}>
-              {sortedPlayers.map(tag => (
-                <Animated.View key={tag.name} layout={LinearTransition}>
-                  <Tag text={tag.name} onPress={() => setContext({ action: 'togglePlayer', payload: tag })} />
-                </Animated.View>
-              ))}
-            </View>
-          )}
+      <Animated.View style={[{ gap: 8 }, hideOnBottomStyle]}>
+        <View style={{ flexDirection: 'row', marginTop: 8, gap: 8, flexWrap: 'wrap', marginHorizontal: 16 }}>
+          {sortedPlayers.map(tag => (
+            <Animated.View key={tag.name} layout={LinearTransition}>
+              <Tag text={tag.name} onPress={() => setContext({ action: 'togglePlayer', payload: tag })} />
+            </Animated.View>
+          ))}
+        </View>
+        {/* {players.size > 0 && (
+        )} */}
 
-          <Header titleKey='packs' descriptionKey='packs_subtitle' />
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ gap: 8 }}
-            style={{ flexDirection: 'row', overflow: 'visible', marginHorizontal: 16, marginTop: 8 }}
-          >
-            {sortedCategories?.map(category => (
-              <CategoryTag
-                key={category.id}
-                category={category}
-                isSelected={!categoryFilter.has(category.id)}
-                onPress={onPressCategory}
-              />
-            ))}
-          </ScrollView>
+        <Header titleKey='packs' descriptionKey='packs_subtitle' />
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ gap: 8 }}
+          style={{ flexDirection: 'row', overflow: 'visible', marginHorizontal: 16, marginTop: 8 }}
+        >
+          {sortedCategories?.map(category => (
+            <CategoryTag
+              key={category.id}
+              category={category}
+              isSelected={!categoryFilter.has(category.id)}
+              onPress={onPressCategory}
+            />
+          ))}
+        </ScrollView>
 
-          <PackSection />
-          <PackSection />
+        <PackSection />
 
-          <View style={{ height: insets.bottom ?? 16 }} />
-        </Animated.View>
-      </BottomSheetScrollView>
-    // </Animated.View>
+        <View style={{ height: insets.bottom ?? 16 }} />
+      </Animated.View>
+    </BottomSheetScrollView>
   )
 }
 
@@ -155,7 +148,7 @@ function AddPlayerField(props: Readonly<ViewProps>) {
   }
 
   return (
-    <Animated.View
+    <View
       {...props}
       style={[
         {
@@ -172,7 +165,7 @@ function AddPlayerField(props: Readonly<ViewProps>) {
         style,
       ]}
     >
-      <AntDesign name='plus' size={18} color={Color.brightness(1 / 3).string} />
+      <AntDesign name='plus' size={18} color={Colors[colorScheme].secondaryText} />
       <BottomSheetTextInput
         value={text}
         onChangeText={setText}
@@ -189,6 +182,6 @@ function AddPlayerField(props: Readonly<ViewProps>) {
         selectionColor={Colors[colorScheme].accentColor}
         style={{ flex: 1, fontSize: 18, color: Colors[colorScheme].text }}
       />
-    </Animated.View>
+    </View>
   )
 }

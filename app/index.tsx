@@ -16,7 +16,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 SplashScreen.preventAutoHideAsync()
 
 export default function App() {
-  const colorScheme = useColorScheme()
   const insets = useSafeAreaInsets()
   const bottomSheetRef = useRef<BottomSheet>(null)
   const snapPoints = useMemo(() => [insets.bottom + 64, '45%', '100%'], [bottomSheetRef, insets])
@@ -79,8 +78,13 @@ const SheetHandle: React.FC<BottomSheetHandleProps & ViewProps> = ({ style, anim
   const colorScheme = useColorScheme()
   const insets = useSafeAreaInsets()
 
+  const handleHeight = 24
+
   const containerAnimatedStyle = useAnimatedStyle(() => ({
-    height: interpolate(animatedIndex.value, [1, 2], [24, insets.top], Extrapolation.CLAMP),
+    height:
+      insets.top === 0
+        ? handleHeight
+        : interpolate(animatedIndex.value, [1, 2], [handleHeight, insets.top], Extrapolation.CLAMP),
     opacity: interpolate(animatedPosition.value, [insets.top, 0], [1 / 3, 0], Extrapolation.CLAMP),
   }))
 
