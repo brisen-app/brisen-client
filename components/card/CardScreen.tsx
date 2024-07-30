@@ -2,32 +2,23 @@ import Colors from '@/constants/Colors'
 import Sizes from '@/constants/Sizes'
 import { PlayedCard } from '@/managers/CardManager'
 import { CategoryManager } from '@/managers/CategoryManager'
-import {
-  Dimensions,
-  FlatList,
-  NativeScrollEvent,
-  Pressable,
-  PressableProps,
-  ScrollView,
-  StyleSheet,
-  View,
-} from 'react-native'
-import Animated, { Easing, withTiming } from 'react-native-reanimated'
+import { Button, Dimensions, PressableProps, ScrollView, StyleSheet, View } from 'react-native'
+import Animated, { Easing, withDelay, withTiming } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import useColorScheme from '../utils/useColorScheme'
 import { CardView } from './CardView'
-import { RefObject, useRef } from 'react'
 import { Text } from '../utils/Themed'
 import { FontStyles, Styles } from '@/constants/Styles'
 import { LocalizationManager } from '@/managers/LocalizationManager'
 import { Image } from 'expo-image'
 import { useQuery } from '@tanstack/react-query'
 import { PackManager } from '@/managers/PackManager'
+import { useRef } from 'react'
 
 export type CardScreenProps = { card: PlayedCard } & PressableProps
 
 export default function CardScreen(props: Readonly<CardScreenProps>) {
-  const { card, onPress } = props
+  const { card } = props
   const colorScheme = useColorScheme()
   const horizontalScroll = useRef<ScrollView>(null)
   let scrollPosition = 0
@@ -44,7 +35,7 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
   const category = card.category ? CategoryManager.get(card.category) : null
   const categoryDescription = category ? CategoryManager.getDescription(category) : null
 
-  const { data: image, isLoading, error } = useQuery(PackManager.getImageQuery(card.pack.image))
+  const { data: image, error } = useQuery(PackManager.getImageQuery(card.pack.image))
   if (error) console.warn(error)
 
   const animationConfig = { duration: 300, easing: Easing.bezier(0, 0, 0.5, 1) }
@@ -64,10 +55,23 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
     }
   }
 
+  const enteringSlow = () => {
+    'worklet'
+    const animations = {
+      opacity: withDelay(300, withTiming(1, animationConfig)),
+    }
+    const initialValues = {
+      opacity: 0,
+    }
+    return {
+      initialValues,
+      animations,
+    }
+  }
+
   return (
-    <Pressable
-      onPress={onPress}
-      onTouchEnd={() => scrollPosition >= 1 && horizontalScroll.current?.scrollToEnd()}
+    <View
+      onTouchEnd={() => scrollPosition >= 0.95 && horizontalScroll.current?.scrollToEnd()}
       style={{
         height: Dimensions.get('window').height,
         paddingBottom: insets.bottom + Sizes.big + Sizes.normal,
@@ -86,7 +90,7 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
           justifyContent: 'flex-end',
           gap: 8,
         }}
-        entering={entering}
+        entering={enteringSlow}
       >
         {category && (
           <>
@@ -165,7 +169,10 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
           shadowOpacity: 1 / 4,
         }}
       >
-        <Pressable style={{ width: Dimensions.get('window').width * 0.8 }} />
+        <View
+          onTouchStart={() => horizontalScroll.current?.scrollToEnd()}
+          style={{ width: Dimensions.get('window').width * 0.8 }}
+        />
 
         <Animated.View
           entering={entering}
@@ -181,6 +188,6 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
           <CardView card={card} category={category} />
         </Animated.View>
       </ScrollView>
-    </Pressable>
+    </View>
   )
 }
