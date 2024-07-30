@@ -11,7 +11,6 @@ import {
   Pressable,
   PressableProps,
   StyleSheet,
-  Switch,
   TouchableOpacity,
   View,
   ViewProps,
@@ -34,8 +33,6 @@ export default function PackListView(props: Readonly<PackListViewProps & PackVie
   const { pack, hideImage, style } = props
   const colorScheme = useColorScheme()
   const { playlist } = useAppContext()
-  const setContext = useAppDispatchContext()
-  const isSelected = playlist.has(pack)
 
   const { data: image, isLoading, error } = useQuery(PackManager.getImageQuery(pack.image, !hideImage))
   if (error) console.warn(error)
