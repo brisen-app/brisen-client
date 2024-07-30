@@ -69,7 +69,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
       initialNumToRender={1}
       maxToRenderPerBatch={1}
       data={playedCards}
-      onEndReachedThreshold={0.99}
+      onEndReachedThreshold={1}
       onEndReached={addCard}
       ListFooterComponent={<OutOfCardsView viewableItems={visibleItems} onPress={onPressNoCard} />}
       renderItem={({ item, index }) => <CardScreen card={item} onPress={() => onPressCard(index)} />}
