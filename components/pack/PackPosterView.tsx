@@ -38,7 +38,8 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
   const animatedStyle = useAnimatedStyle(() => {
     const shadowSize = 16
     return {
-      shadowOffset: { width: 0, height: shadowSize },
+      shadowColor: 'black',
+      // shadowOffset: { width: 0, height: shadowSize },
       shadowRadius: shadowSize,
       shadowOpacity: 1 / 5,
       elevation: 24,
@@ -91,7 +92,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
                   position: 'absolute',
                   bottom: 8,
                   right: 8,
-                  shadowOffset: { width: 0, height: 6 },
+                  // shadowOffset: { width: 0, height: 6 },
                   shadowRadius: 7.49,
                   shadowOpacity: 0.37,
                   elevation: 12,
