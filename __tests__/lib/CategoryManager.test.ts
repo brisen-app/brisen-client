@@ -7,7 +7,7 @@ const mockedLocalizations: Localization[] = [
   { id: 'categories_1_title', value: 'Alice' },
   { id: 'categories_2_title', value: 'Bob' },
   { id: 'categories_3_title', value: 'Charlie' },
-  { id: 'categories_1_desc', value: 'Alice description' },
+  { id: 'categories_1_description', value: 'Alice description' },
 ]
 
 const mockedItems: Category[] = [
