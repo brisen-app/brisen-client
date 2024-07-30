@@ -93,7 +93,7 @@ function CategoryTag(
   )
 }
 
-function Header(props: Readonly<{ titleKey: string; descriptionKey?: string }>) {
+export function Header(props: Readonly<{ titleKey: string; descriptionKey?: string }>) {
   const { titleKey, descriptionKey } = props
 
   return (

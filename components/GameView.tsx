@@ -3,12 +3,13 @@ import Colors from '@/constants/Colors'
 import { CardManager, PlayedCard } from '@/managers/CardManager'
 import { LocalizationManager } from '@/managers/LocalizationManager'
 import BottomSheet from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet'
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { Button, Dimensions, FlatList, Pressable, PressableProps, ViewToken } from 'react-native'
 import Animated, { Easing, SharedValue, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import { Text } from './utils/Themed'
 import useColorScheme from './utils/useColorScheme'
+import { ScrollView } from 'react-native-gesture-handler'
 
 export type GameViewProps = {
   bottomSheetRef?: React.RefObject<BottomSheet>
@@ -20,6 +21,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
   const { playlist, players, playedCards, playedIds, categoryFilter } = useAppContext()
   const setContext = useAppDispatchContext()
   const visibleItems = useSharedValue<ViewToken[]>([])
+  const horizontalScroll = useRef<ScrollView>(null)
 
   const onPressCard = useCallback(
     (index: number) => {

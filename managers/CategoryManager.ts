@@ -21,8 +21,8 @@ class CategoryManagerSingleton extends SupabaseManager<Category> {
   }
 
   getDescription(category: Category) {
-    const key = `${tableName}_${category.id.replaceAll('-', '')}_desc`
-    return LocalizationManager.get(key)?.value ?? key
+    const key = `${tableName}_${category.id.replaceAll('-', '')}_description`
+    return LocalizationManager.get(key)?.value ?? null
   }
 }
 

@@ -8,7 +8,7 @@ import Color from '@/models/Color'
 import { useQuery } from '@tanstack/react-query'
 import { Image } from 'expo-image'
 import { LinearGradient } from 'expo-linear-gradient'
-import { TouchableOpacity, View } from 'react-native'
+import { Pressable, TouchableOpacity, View } from 'react-native'
 import { Text } from '../utils/Themed'
 import useColorScheme from '../utils/useColorScheme'
 import { ConfigurationManager } from '@/managers/ConfigurationManager'
@@ -37,7 +37,7 @@ export function CardView(props: Readonly<CardViewProps>) {
   }
 
   return (
-    <>
+    <Pressable style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <LinearGradient colors={getGradient()} start={{ x: 0, y: 1 }} end={{ x: 1, y: 0 }} style={Styles.absoluteFill} />
 
       {/* Grain */}
@@ -127,6 +127,6 @@ export function CardView(props: Readonly<CardViewProps>) {
           {content}
         </Text>
       </>
-    </>
+    </Pressable>
   )
 }

@@ -25,6 +25,10 @@ class PackManagerSingleton extends SupabaseManager<Pack> {
     return null
   }
 
+  getPacksOf(cardId: string) {
+    return this.items?.filter(pack => pack.cards.has(cardId)) ?? []
+  }
+
   async fetchAll(): Promise<Pack[]> {
     const { data } = await supabase.from(tableName).select(select).order('name').throwOnError()
     if (!data || data.length === 0) throw new NotFoundError(`No data found in table '${this.tableName}'`)
