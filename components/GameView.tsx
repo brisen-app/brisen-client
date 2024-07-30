@@ -1,14 +1,14 @@
 import CardScreen from '@/components/card/CardScreen'
 import Colors from '@/constants/Colors'
-import { CardManager, PlayedCard } from '@/managers/CardManager'
+import { CardManager } from '@/managers/CardManager'
 import { LocalizationManager } from '@/managers/LocalizationManager'
 import BottomSheet from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet'
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Button, Dimensions, FlatList, Pressable, PressableProps, ViewToken } from 'react-native'
-import Animated, { Easing, SharedValue, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import { Text } from './utils/Themed'
 import useColorScheme from './utils/useColorScheme'
+import { useBottomSheet } from '@gorhom/bottom-sheet'
 
 export type GameViewProps = {
   bottomSheetRef?: React.RefObject<BottomSheet>
@@ -19,7 +19,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
   const flatListRef = React.useRef<FlatList>(null)
   const { playlist, players, playedCards, playedIds, categoryFilter } = useAppContext()
   const setContext = useAppDispatchContext()
-  const visibleItems = useSharedValue<ViewToken[]>([])
+  const [isOutOfCards, setIsOutOfCards] = useState<boolean>(true)
 
   const onPressCard = useCallback(
     (index: number) => {
@@ -37,7 +37,12 @@ export default function GameView(props: Readonly<GameViewProps>) {
     if (playlist.size === 0) return
 
     const newCard = CardManager.drawCard(playedCards, playedIds, playlist, players, categoryFilter)
-    if (newCard === null) return
+    if (newCard === null) {
+      setIsOutOfCards(true)
+      return
+    }
+
+    setIsOutOfCards(false)
 
     setContext({ action: 'addPlayedCard', payload: newCard })
     setContext({
@@ -48,13 +53,18 @@ export default function GameView(props: Readonly<GameViewProps>) {
     console.log(`Added card ${playedCards.length + 1}:`, newCard.formattedContent ?? newCard.content)
   }
 
-  const onViewableItemsChanged = ({ viewableItems }: { viewableItems: ViewToken[] }) => {
-    visibleItems.value = viewableItems
-  }
-
+  // When the playlist or players change
   useEffect(() => {
-    if (visibleItems.value.length === 0) addCard()
-  }, [playlist])
+    if (isOutOfCards) {
+      addCard()
+      return
+    }
+
+    const card = playedCards[playedCards.length - 1]
+    setContext({ action: 'removeCachedPlayedCard', payload: card })
+    console.log(`Removed card ${playedCards.length}:`, card.formattedContent ?? card.content)
+    setIsOutOfCards(true)
+  }, [playlist, players.size])
 
   if (playedCards.length === 0) return <NoCardsView onPress={onPressNoCard} />
 
@@ -62,14 +72,11 @@ export default function GameView(props: Readonly<GameViewProps>) {
     <FlatList
       ref={flatListRef}
       pagingEnabled
-      onViewableItemsChanged={onViewableItemsChanged}
       showsVerticalScrollIndicator={false}
-      initialNumToRender={1}
-      maxToRenderPerBatch={1}
       data={playedCards}
       onEndReachedThreshold={1}
       onEndReached={addCard}
-      ListFooterComponent={<OutOfCardsView viewableItems={visibleItems} onPress={onPressNoCard} />}
+      ListFooterComponent={<OutOfCardsView onPress={onPressNoCard} />}
       renderItem={({ item, index }) => <CardScreen card={item} onPress={() => onPressCard(index)} />}
     />
   )
@@ -93,53 +100,40 @@ function NoCardsView(props: Readonly<PressableProps>) {
   )
 }
 
-type OutOfCardsViewProps = { onPress: () => void; viewableItems: SharedValue<ViewToken<PlayedCard>[]> }
+type OutOfCardsViewProps = { onPress: () => void }
 function OutOfCardsView(props: Readonly<OutOfCardsViewProps>) {
-  const { viewableItems } = props
   const colorScheme = useColorScheme()
   const { playedCards } = useAppContext()
   const setContext = useAppDispatchContext()
 
-  const animationConfig = { duration: 200, easing: Easing.bezier(0, 0, 0.5, 1) }
-
-  const animatedStyle = useAnimatedStyle(() => {
-    const isVisible = viewableItems.value.length === 0
-    return {
-      opacity: withTiming(isVisible ? 1 : 0, animationConfig),
-      transform: [{ scale: withTiming(isVisible ? 1 : 0.9, animationConfig) }],
-    }
-  }, [])
-
   return (
-    <Animated.View style={animatedStyle}>
-      <Pressable
+    <Pressable
+      style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: Dimensions.get('window').width,
+        height: Dimensions.get('window').height,
+      }}
+      {...props}
+    >
+      <Text
         style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          width: Dimensions.get('window').width,
-          height: Dimensions.get('window').height,
+          textAlign: 'center',
+          color: Colors[useColorScheme()].secondaryText,
         }}
-        {...props}
       >
-        <Text
-          style={{
-            textAlign: 'center',
-            color: Colors[useColorScheme()].secondaryText,
-          }}
-        >
-          {LocalizationManager.get('out_of_cards')?.value ?? 'out_of_cards'}
-        </Text>
-        <Button
-          title={LocalizationManager.get('restart_game')?.value ?? 'restart_game'}
-          color={Colors[colorScheme].accentColor}
-          disabled={playedCards.length === 0}
-          onPress={() => {
-            props.onPress()
-            setContext({ action: 'restartGame' })
-          }}
-        />
-      </Pressable>
-    </Animated.View>
+        {LocalizationManager.get('out_of_cards')?.value ?? 'out_of_cards'}
+      </Text>
+      <Button
+        title={LocalizationManager.get('restart_game')?.value ?? 'restart_game'}
+        color={Colors[colorScheme].accentColor}
+        disabled={playedCards.length === 0}
+        onPress={() => {
+          props.onPress()
+          setContext({ action: 'restartGame' })
+        }}
+      />
+    </Pressable>
   )
 }

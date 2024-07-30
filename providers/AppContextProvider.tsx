@@ -14,6 +14,7 @@ export type AppContextType = {
 
 export type AppContextAction =
   | { action: 'addPlayedCard'; payload: PlayedCard }
+  | { action: 'removeCachedPlayedCard'; payload: PlayedCard }
   | { action: 'restartGame'; payload?: never }
   | { action: 'toggleCategory'; payload: Category }
   | { action: 'togglePack'; payload: Pack }
@@ -23,6 +24,21 @@ export type AppContextAction =
 function toggleSet<T>(set: Set<T>, value: T): Set<T> {
   if (set.has(value)) return new Set([...set].filter(v => v !== value))
   return new Set([...set, value])
+}
+
+function incrementPlayCounts(players: Set<Player>, state: AppContextType, amount = 1): Set<Player> {
+  const playersToUpdate = [...players].map(player => player.name)
+  const updatedPlayers = new Set<Player>()
+  for (const player of state.players) {
+    if (!playersToUpdate.includes(player.name)) {
+      updatedPlayers.add(player)
+      console.log(player)
+    } else {
+      updatedPlayers.add({ ...player, playCount: player.playCount + amount })
+      console.log({ ...player, playCount: player.playCount + amount })
+    }
+  }
+  return updatedPlayers
 }
 
 export function contextReducer(state: AppContextType, action: AppContextAction): AppContextType {
@@ -38,18 +54,7 @@ export function contextReducer(state: AppContextType, action: AppContextAction):
     }
 
     case 'incrementPlayCounts': {
-      const playersToUpdate = [...payload].map(player => player.name)
-      const players = new Set<Player>()
-      for (const player of state.players) {
-        if (!playersToUpdate.includes(player.name)) {
-          players.add(player)
-          console.log(player)
-        } else {
-          players.add({ ...player, playCount: player.playCount + 1 })
-          console.log({ ...player, playCount: player.playCount + 1 })
-        }
-      }
-      return { ...state, players: players }
+      return { ...state, players: incrementPlayCounts(payload, state) }
     }
 
     case 'toggleCategory': {
@@ -61,6 +66,15 @@ export function contextReducer(state: AppContextType, action: AppContextAction):
         ...state,
         playedCards: [...state.playedCards, payload],
         playedIds: new Set([...state.playedIds, payload.id]),
+      }
+    }
+
+    case 'removeCachedPlayedCard': {
+      return {
+        ...state,
+        players: incrementPlayCounts(payload.featuredPlayers, state, -1),
+        playedCards: state.playedCards.filter(card => card.id !== payload.id),
+        playedIds: new Set([...state.playedIds].filter(id => id !== payload.id)),
       }
     }
 
