@@ -2,12 +2,15 @@ import GameView from '@/components/GameView'
 import MenuView from '@/components/MenuView'
 import useColorScheme from '@/components/utils/useColorScheme'
 import Colors from '@/constants/Colors'
-import Color from '@/models/Color'
-import BottomSheet, { BottomSheetBackdrop, BottomSheetBackgroundProps } from '@gorhom/bottom-sheet'
-import { BlurView } from 'expo-blur'
+import BottomSheet, {
+  BottomSheetBackdrop,
+  BottomSheetBackgroundProps,
+  BottomSheetHandleProps,
+} from '@gorhom/bottom-sheet'
 import { SplashScreen } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { Keyboard, StyleSheet } from 'react-native'
+import { Keyboard, StyleSheet, View, ViewProps } from 'react-native'
+import Animated, { Extrapolation, interpolate, interpolateColor, useAnimatedStyle } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 SplashScreen.preventAutoHideAsync()
@@ -16,7 +19,7 @@ export default function App() {
   const colorScheme = useColorScheme()
   const insets = useSafeAreaInsets()
   const bottomSheetRef = useRef<BottomSheet>(null)
-  const snapPoints = useMemo(() => [insets.bottom + 64], [bottomSheetRef, insets])
+  const snapPoints = useMemo(() => [insets.bottom + 64, '45%', '100%'], [bottomSheetRef, insets])
 
   const backdrop = useCallback(
     (props: any) => (
@@ -24,15 +27,13 @@ export default function App() {
         opacity={0.5}
         appearsOnIndex={1}
         disappearsOnIndex={0}
-        pressBehavior="collapse"
+        pressBehavior='collapse'
         onPress={Keyboard.dismiss}
         {...props}
       />
     ),
     []
   )
-
-  const background = useCallback((props: BottomSheetBackgroundProps) => <BlurView intensity={100} {...props} />, [])
 
   useEffect(() => {
     SplashScreen.hideAsync()
@@ -45,25 +46,66 @@ export default function App() {
         ref={bottomSheetRef}
         index={1}
         snapPoints={snapPoints}
-        enableDynamicSizing
         backdropComponent={backdrop}
-        keyboardBehavior="extend"
-        backgroundComponent={background}
-        backgroundStyle={{
-          borderRadius: 16,
-          borderColor: Colors[colorScheme].stroke,
-          borderWidth: StyleSheet.hairlineWidth,
-          overflow: 'hidden',
-          backgroundColor: Color.hex(Colors[colorScheme].background).alpha(0.9).string,
-        }}
-        handleIndicatorStyle={{
-          backgroundColor: Colors[colorScheme].secondaryText,
-        }}
-        style={styles.shadow}
+        backgroundComponent={SheetMenuBackground}
+        handleComponent={SheetHandle}
+        keyboardBehavior='interactive'
+        style={{ ...styles.shadow }}
       >
         <MenuView />
       </BottomSheet>
     </>
+  )
+}
+
+const SheetMenuBackground: React.FC<BottomSheetBackgroundProps> = ({ style, animatedIndex, animatedPosition }) => {
+  const colorScheme = useColorScheme()
+  const insets = useSafeAreaInsets()
+
+  const containerAnimatedStyle = useAnimatedStyle(() => ({
+    borderRadius: interpolate(animatedPosition.value, [insets.top, 0], [16, 0], Extrapolation.CLAMP),
+    backgroundColor: interpolateColor(
+      animatedIndex.value,
+      [2, 1],
+      [Colors[colorScheme].background, Colors[colorScheme].sheetAtBottom]
+    ),
+  }))
+  const containerStyle = useMemo(() => [style, containerAnimatedStyle], [style, containerAnimatedStyle, colorScheme])
+
+  return <Animated.View pointerEvents='none' style={containerStyle} />
+}
+
+const SheetHandle: React.FC<BottomSheetHandleProps & ViewProps> = ({ style, animatedIndex, animatedPosition }) => {
+  const colorScheme = useColorScheme()
+  const insets = useSafeAreaInsets()
+
+  const containerAnimatedStyle = useAnimatedStyle(() => ({
+    height: interpolate(animatedIndex.value, [1, 2], [24, insets.top], Extrapolation.CLAMP),
+    opacity: interpolate(animatedPosition.value, [insets.top, 0], [1 / 3, 0], Extrapolation.CLAMP),
+  }))
+
+  const containerStyle = useMemo(() => [style, containerAnimatedStyle], [style, containerAnimatedStyle, colorScheme])
+
+  return (
+    <Animated.View
+      renderToHardwareTextureAndroid={true}
+      style={[
+        {
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
+        containerStyle,
+      ]}
+    >
+      <View
+        style={{
+          height: 4,
+          width: 32,
+          backgroundColor: Colors[colorScheme].text,
+          borderRadius: Number.MAX_SAFE_INTEGER,
+        }}
+      />
+    </Animated.View>
   )
 }
 

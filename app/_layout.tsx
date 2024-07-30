@@ -29,7 +29,7 @@ export default function Layout() {
             <Stack
               screenOptions={{
                 headerShown: false,
-                contentStyle: { backgroundColor: Colors[colorScheme].background },
+                contentStyle: { overflow: 'visible', backgroundColor: Colors[colorScheme].background },
               }}
             />
             {Platform.OS === 'web' && <ReactQueryDevtools initialIsOpen={true} />}

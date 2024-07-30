@@ -6,12 +6,12 @@ import { LocalizationManager } from '@/managers/LocalizationManager'
 import { PackManager } from '@/managers/PackManager'
 import Color from '@/models/Color'
 import { AntDesign } from '@expo/vector-icons'
-import { BottomSheetScrollView, BottomSheetTextInput } from '@gorhom/bottom-sheet'
+import { BottomSheetScrollView, BottomSheetTextInput, useBottomSheet } from '@gorhom/bottom-sheet'
 import { router } from 'expo-router'
 import React, { useMemo, useState } from 'react'
 import { Dimensions, StyleSheet, View, ViewProps } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
-import Animated, { LinearTransition } from 'react-native-reanimated'
+import Animated, { interpolate, LinearTransition, useAnimatedStyle } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import PackPosterView from './pack/PackPosterView'
@@ -21,6 +21,7 @@ import useColorScheme from './utils/useColorScheme'
 
 export default function MenuView() {
   const insets = useSafeAreaInsets()
+  const bottomSheet = useBottomSheet()
 
   const { players, categoryFilter } = useAppContext()
   const setContext = useAppDispatchContext()
@@ -32,40 +33,54 @@ export default function MenuView() {
     setContext({ action: 'toggleCategory', payload: category })
   }
 
+  // const topInsetStyle = useAnimatedStyle(() => ({
+  //   paddingTop: interpolate(bottomSheet.animatedIndex.value, [1, 2], [0, insets.top]),
+  // }))
+
+  const hideOnBottomStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(bottomSheet.animatedIndex.value, [0, 1], [0, 1]),
+  }))
+
   return (
-    <BottomSheetScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ rowGap: 8 }}>
-      <AddPlayerField />
-      {players.size > 0 && (
-        <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginHorizontal: 16 }}>
-          {sortedPlayers.map(tag => (
-            <Animated.View key={tag.name} layout={LinearTransition}>
-              <Tag text={tag.name} onPress={() => setContext({ action: 'togglePlayer', payload: tag })} />
-            </Animated.View>
-          ))}
-        </View>
-      )}
+    // <Animated.View style={[topInsetStyle, { flex: 1 }]}>
+      <BottomSheetScrollView showsVerticalScrollIndicator={false} style={{ overflow: 'visible' }}>
+        <AddPlayerField />
 
-      <Header titleKey='packs' descriptionKey='packs_subtitle' />
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ gap: 8 }}
-        style={{ flexDirection: 'row', overflow: 'visible', marginHorizontal: 16, marginTop: 8 }}
-      >
-        {sortedCategories?.map(category => (
-          <CategoryTag
-            key={category.id}
-            category={category}
-            isSelected={!categoryFilter.has(category.id)}
-            onPress={onPressCategory}
-          />
-        ))}
-      </ScrollView>
+        <Animated.View style={[hideOnBottomStyle, { gap: 8 }]}>
+          {players.size > 0 && (
+            <View style={{ flexDirection: 'row', marginTop: 8, gap: 8, flexWrap: 'wrap', marginHorizontal: 16 }}>
+              {sortedPlayers.map(tag => (
+                <Animated.View key={tag.name} layout={LinearTransition}>
+                  <Tag text={tag.name} onPress={() => setContext({ action: 'togglePlayer', payload: tag })} />
+                </Animated.View>
+              ))}
+            </View>
+          )}
 
-      <PackSection />
+          <Header titleKey='packs' descriptionKey='packs_subtitle' />
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ gap: 8 }}
+            style={{ flexDirection: 'row', overflow: 'visible', marginHorizontal: 16, marginTop: 8 }}
+          >
+            {sortedCategories?.map(category => (
+              <CategoryTag
+                key={category.id}
+                category={category}
+                isSelected={!categoryFilter.has(category.id)}
+                onPress={onPressCategory}
+              />
+            ))}
+          </ScrollView>
 
-      <View style={{ height: insets.bottom ?? 16 }} />
-    </BottomSheetScrollView>
+          <PackSection />
+          <PackSection />
+
+          <View style={{ height: insets.bottom ?? 16 }} />
+        </Animated.View>
+      </BottomSheetScrollView>
+    // </Animated.View>
   )
 }
 
@@ -73,8 +88,6 @@ function CategoryTag(
   props: Readonly<{ category: Category; isSelected: boolean; onPress: (category: Category) => void }>
 ) {
   const { category, isSelected, onPress } = props
-  const colorScheme = useColorScheme()
-
   const title = CategoryManager.getTitle(category)
 
   return (
@@ -82,9 +95,6 @@ function CategoryTag(
       text={category.icon + (title ? ` ${title}` : '')}
       style={{
         opacity: isSelected ? 1 : 0.25,
-        borderColor: Color.hex(Colors[colorScheme].secondaryText).alpha(0.5).string,
-        borderWidth: StyleSheet.hairlineWidth,
-        backgroundColor: Color.transparent.string,
       }}
       hideIcon
       onPress={() => onPress(category)}
@@ -128,8 +138,9 @@ function PackSection(props: Readonly<ViewProps>) {
   )
 }
 
-function AddPlayerField() {
+function AddPlayerField(props: Readonly<ViewProps>) {
   const colorScheme = useColorScheme()
+  const { style } = props
   const [text, setText] = useState<string>('')
   const { players } = useAppContext()
   const setContext = useAppDispatchContext()
@@ -144,18 +155,22 @@ function AddPlayerField() {
   }
 
   return (
-    <View
-      style={{
-        flexDirection: 'row',
-        backgroundColor: Colors[colorScheme].secondaryBackground,
-        borderWidth: StyleSheet.hairlineWidth,
-        borderColor: Colors[colorScheme].stroke,
-        alignItems: 'center',
-        borderRadius: 12,
-        padding: 8,
-        marginHorizontal: 16,
-        gap: 4,
-      }}
+    <Animated.View
+      {...props}
+      style={[
+        {
+          flexDirection: 'row',
+          backgroundColor: Colors[colorScheme].secondaryBackground,
+          borderWidth: StyleSheet.hairlineWidth,
+          borderColor: Colors[colorScheme].stroke,
+          alignItems: 'center',
+          borderRadius: 12,
+          padding: 8,
+          marginHorizontal: 16,
+          gap: 4,
+        },
+        style,
+      ]}
     >
       <AntDesign name='plus' size={18} color={Color.brightness(1 / 3).string} />
       <BottomSheetTextInput
@@ -174,6 +189,6 @@ function AddPlayerField() {
         selectionColor={Colors[colorScheme].accentColor}
         style={{ flex: 1, fontSize: 18, color: Colors[colorScheme].text }}
       />
-    </View>
+    </Animated.View>
   )
 }

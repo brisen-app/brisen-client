@@ -2,7 +2,7 @@ import Colors from '@/constants/Colors'
 import Sizes from '@/constants/Sizes'
 import { PlayedCard } from '@/managers/CardManager'
 import { CategoryManager } from '@/managers/CategoryManager'
-import { Button, Dimensions, PressableProps, ScrollView, StyleSheet, View } from 'react-native'
+import { Dimensions, PressableProps, ScrollView, StyleSheet, View } from 'react-native'
 import Animated, { Easing, withDelay, withTiming } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import useColorScheme from '../utils/useColorScheme'
@@ -14,6 +14,7 @@ import { Image } from 'expo-image'
 import { useQuery } from '@tanstack/react-query'
 import { PackManager } from '@/managers/PackManager'
 import { useRef } from 'react'
+import Color from '@/models/Color'
 
 export type CardScreenProps = { card: PlayedCard } & PressableProps
 
