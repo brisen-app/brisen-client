@@ -16,6 +16,8 @@ import { ConfigurationManager } from '@/managers/ConfigurationManager'
 export type CardViewProps = {
   card: PlayedCard
   category?: Category | null
+  onPressCategory: () => void
+  onPressPack: () => void
 }
 
 export function CardView(props: Readonly<CardViewProps>) {
@@ -60,6 +62,7 @@ export function CardView(props: Readonly<CardViewProps>) {
         }}
       >
         <TouchableOpacity
+          onPress={props.onPressCategory}
           style={{
             flexDirection: 'row',
             justifyContent: 'flex-end',
@@ -78,6 +81,7 @@ export function CardView(props: Readonly<CardViewProps>) {
 
         <View style={{ flex: 1 }} />
         <TouchableOpacity
+          onPress={props.onPressPack}
           style={{
             flexDirection: 'row',
             alignItems: 'center',

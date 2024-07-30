@@ -184,7 +184,12 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
             borderWidth: Sizes.thin,
           }}
         >
-          <CardView card={card} category={category} />
+          <CardView
+            card={card}
+            category={category}
+            onPressCategory={() => horizontalScroll.current?.scrollTo({ x: 0 })}
+            onPressPack={() => horizontalScroll.current?.scrollTo({ x: 0 })}
+          />
         </Animated.View>
       </ScrollView>
     </View>

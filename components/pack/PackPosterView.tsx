@@ -47,15 +47,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
   }, [isSelected, isNoneSelected])
 
   const checkmarkStyle = useAnimatedStyle(() => {
-    const iconPadding = withTiming(isSelected ? 8 : 0, animationConfig)
-    const shadowSize = 8
     return {
-      position: 'absolute',
-      bottom: iconPadding,
-      right: iconPadding,
-      shadowOffset: { width: 0, height: shadowSize },
-      shadowRadius: shadowSize,
-      shadowOpacity: 0.5,
       opacity: withTiming(isSelected ? 1 : 0, animationConfig),
       transform: [{ scale: withTiming(isSelected ? 1 : 0.75, animationConfig) }],
     }
@@ -92,7 +84,19 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
               borderWidth: StyleSheet.hairlineWidth,
             }}
           >
-            <Animated.View style={checkmarkStyle}>
+            <Animated.View
+              style={[
+                {
+                  position: 'absolute',
+                  bottom: 8,
+                  right: 8,
+                  shadowOffset: { width: 0, height: 8 },
+                  shadowRadius: 8,
+                  shadowOpacity: 0.5,
+                },
+                checkmarkStyle,
+              ]}
+            >
               <Ionicons name='checkmark-circle' size={32 + 16 + 8} style={{ color: Colors[colorScheme].accentColor }} />
             </Animated.View>
           </PackImage>
