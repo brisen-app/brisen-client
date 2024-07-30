@@ -1,5 +1,4 @@
 import Colors from '@/constants/Colors'
-import { Styles } from '@/constants/Styles'
 import { Pack, PackManager } from '@/managers/PackManager'
 import { Ionicons } from '@expo/vector-icons'
 import { useQuery } from '@tanstack/react-query'
