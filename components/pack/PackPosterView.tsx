@@ -2,8 +2,7 @@ import Colors from '@/constants/Colors'
 import { Pack, PackManager } from '@/managers/PackManager'
 import { Ionicons } from '@expo/vector-icons'
 import { useQuery } from '@tanstack/react-query'
-import { Image, ImageProps } from 'expo-image'
-import { useCallback } from 'react'
+import { Image } from 'expo-image'
 import { Pressable, StyleSheet, View, ViewProps } from 'react-native'
 import { useAppContext, useAppDispatchContext } from '../../providers/AppContextProvider'
 import { Text } from '../utils/Themed'
@@ -37,7 +36,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
     const shadowSize = 16
     return {
       shadowColor: 'black',
-      // shadowOffset: { width: 0, height: shadowSize },
+      shadowOffset: { width: 0, height: shadowSize },
       shadowRadius: shadowSize,
       shadowOpacity: 1 / 5,
       elevation: 24,
@@ -92,7 +91,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
                   position: 'absolute',
                   bottom: 8,
                   right: 8,
-                  // shadowOffset: { width: 0, height: 6 },
+                  shadowOffset: { width: 0, height: 6 },
                   shadowRadius: 7.49,
                   shadowOpacity: 0.37,
                   elevation: 12,
