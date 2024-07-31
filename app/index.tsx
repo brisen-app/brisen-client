@@ -18,7 +18,8 @@ SplashScreen.preventAutoHideAsync()
 export default function App() {
   const insets = useSafeAreaInsets()
   const bottomSheetRef = useRef<BottomSheet>(null)
-  const snapPoints = useMemo(() => [insets.bottom + 64, '45%', '100%'], [bottomSheetRef, insets])
+  const bottomInsets = insets.bottom === 0 ? 24 : insets.bottom
+  const snapPoints = useMemo(() => [bottomInsets + 64, '45%', '100%'], [bottomSheetRef, insets])
 
   const backdrop = useCallback(
     (props: any) => (
