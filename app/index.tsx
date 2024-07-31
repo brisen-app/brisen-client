@@ -13,8 +13,6 @@ import { Keyboard, StyleSheet, View, ViewProps } from 'react-native'
 import Animated, { Extrapolation, interpolate, interpolateColor, useAnimatedStyle } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-SplashScreen.preventAutoHideAsync()
-
 export default function App() {
   const insets = useSafeAreaInsets()
   const bottomSheetRef = useRef<BottomSheet>(null)
