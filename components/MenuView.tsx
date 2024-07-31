@@ -6,12 +6,11 @@ import { FontStyles } from '@/constants/Styles'
 import { formatName as prettifyString } from '@/lib/utils'
 import { LocalizationManager } from '@/managers/LocalizationManager'
 import { PackManager } from '@/managers/PackManager'
-import { router } from 'expo-router'
 import { ScrollView } from 'react-native-gesture-handler'
 import { Text } from './utils/Themed'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import Animated, { interpolate, LinearTransition, useAnimatedStyle } from 'react-native-reanimated'
+import Animated, { interpolate, interpolateColor, LinearTransition, useAnimatedStyle } from 'react-native-reanimated'
 import Colors from '@/constants/Colors'
 import PackPosterView from './pack/PackPosterView'
 import React, { useMemo, useState } from 'react'
@@ -20,6 +19,7 @@ import useColorScheme from './utils/useColorScheme'
 
 export default function MenuView() {
   const insets = useSafeAreaInsets()
+  const colorScheme = useColorScheme()
   const bottomSheet = useBottomSheet()
 
   const { players, categoryFilter } = useAppContext()
@@ -32,20 +32,32 @@ export default function MenuView() {
     setContext({ action: 'toggleCategory', payload: category })
   }
 
+  const secondaryBackgroundColorStyle = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(
+      bottomSheet.animatedIndex.value,
+      [2, 1],
+      [Colors[colorScheme].secondaryBackground, Colors[colorScheme].background]
+    ),
+  }))
+
   const hideOnBottomStyle = useAnimatedStyle(() => ({
     opacity: interpolate(bottomSheet.animatedIndex.value, [0, 1], [0, 1]),
   }))
 
   return (
-    <BottomSheetScrollView showsVerticalScrollIndicator={false} style={{ overflow: 'visible' }}>
-      <AddPlayerField />
+    <BottomSheetScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, overflow: 'visible' }}>
+      <AddPlayerField style={secondaryBackgroundColorStyle} />
 
       <Animated.View style={[{ gap: 8 }, hideOnBottomStyle]}>
         {players.size > 0 && (
           <View style={{ flexDirection: 'row', marginTop: 8, gap: 8, flexWrap: 'wrap', marginHorizontal: 16 }}>
             {sortedPlayers.map(tag => (
               <Animated.View key={tag.name} layout={LinearTransition}>
-                <Tag text={tag.name} onPress={() => setContext({ action: 'togglePlayer', payload: tag })} />
+                <Tag
+                  text={tag.name}
+                  onPress={() => setContext({ action: 'togglePlayer', payload: tag })}
+                  style={secondaryBackgroundColorStyle}
+                />
               </Animated.View>
             ))}
           </View>
@@ -61,6 +73,7 @@ export default function MenuView() {
           {sortedCategories?.map(category => (
             <CategoryTag
               key={category.id}
+              style={secondaryBackgroundColorStyle}
               category={category}
               isSelected={!categoryFilter.has(category.id)}
               onPress={onPressCategory}
@@ -77,20 +90,23 @@ export default function MenuView() {
 }
 
 function CategoryTag(
-  props: Readonly<{ category: Category; isSelected: boolean; onPress: (category: Category) => void }>
+  props: Readonly<{ category: Category; isSelected: boolean; onPress: (category: Category) => void } & ViewProps>
 ) {
-  const { category, isSelected, onPress } = props
+  const { category, isSelected, onPress, style } = props
   const title = CategoryManager.getTitle(category)
 
   return (
     <Tag
+      {...props}
       text={category.icon + (title ? ` ${title}` : '')}
-      style={{
-        opacity: isSelected ? 1 : 0.25,
-      }}
+      style={[
+        {
+          opacity: isSelected ? 1 : 0.25,
+        },
+        style,
+      ]}
       hideIcon
       onPress={() => onPress(category)}
-      onLongPress={() => router.navigate(`/category/${category.id}`)}
     />
   )
 }
@@ -147,7 +163,7 @@ function AddPlayerField(props: Readonly<ViewProps>) {
   }
 
   return (
-    <View
+    <Animated.View
       {...props}
       style={[
         {
@@ -181,6 +197,6 @@ function AddPlayerField(props: Readonly<ViewProps>) {
         selectionColor={Colors[colorScheme].accentColor}
         style={{ flex: 1, fontSize: 18, color: Colors[colorScheme].text }}
       />
-    </View>
+    </Animated.View>
   )
 }

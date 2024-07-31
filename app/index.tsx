@@ -13,12 +13,11 @@ import { Keyboard, StyleSheet, View, ViewProps } from 'react-native'
 import Animated, { Extrapolation, interpolate, interpolateColor, useAnimatedStyle } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-SplashScreen.preventAutoHideAsync()
-
 export default function App() {
   const insets = useSafeAreaInsets()
   const bottomSheetRef = useRef<BottomSheet>(null)
-  const snapPoints = useMemo(() => [insets.bottom + 64, '45%', '100%'], [bottomSheetRef, insets])
+  const bottomInsets = insets.bottom === 0 ? 24 : insets.bottom
+  const snapPoints = useMemo(() => [bottomInsets + 64, '45%', '100%'], [bottomSheetRef, insets])
 
   const backdrop = useCallback(
     (props: any) => (
@@ -66,7 +65,7 @@ const SheetMenuBackground: React.FC<BottomSheetBackgroundProps> = ({ style, anim
     backgroundColor: interpolateColor(
       animatedIndex.value,
       [2, 1],
-      [Colors[colorScheme].background, Colors[colorScheme].sheetAtBottom]
+      [Colors[colorScheme].background, Colors[colorScheme].secondaryBackground]
     ),
   }))
   const containerStyle = useMemo(() => [style, containerAnimatedStyle], [style, containerAnimatedStyle, colorScheme])

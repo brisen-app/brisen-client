@@ -2,8 +2,7 @@ import Colors from '@/constants/Colors'
 import { Pack, PackManager } from '@/managers/PackManager'
 import { Ionicons } from '@expo/vector-icons'
 import { useQuery } from '@tanstack/react-query'
-import { Image, ImageProps } from 'expo-image'
-import { useCallback } from 'react'
+import { Image } from 'expo-image'
 import { Pressable, StyleSheet, View, ViewProps } from 'react-native'
 import { useAppContext, useAppDispatchContext } from '../../providers/AppContextProvider'
 import { Text } from '../utils/Themed'
@@ -31,13 +30,12 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
   const { data: image, error } = useQuery(PackManager.getImageQuery(pack.image, !hideImage))
   if (error) console.warn(error)
 
-  const PackImage = useCallback((props: ImageProps) => <Image {...props} source={image} transition={256} />, [image])
-
   const animationConfig = { duration: 150, easing: Easing.bezier(0, 0, 0.5, 1) }
 
   const animatedStyle = useAnimatedStyle(() => {
     const shadowSize = 16
     return {
+      shadowColor: 'black',
       shadowOffset: { width: 0, height: shadowSize },
       shadowRadius: shadowSize,
       shadowOpacity: 1 / 5,
@@ -76,7 +74,9 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
             shadowColor: 'black',
           }}
         >
-          <PackImage
+          <Image
+            source={image}
+            transition={256}
             style={{
               width: width,
               aspectRatio: 1,
@@ -101,7 +101,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
             >
               <Ionicons name='checkmark-circle' size={32 + 16 + 8} style={{ color: Colors[colorScheme].accentColor }} />
             </Animated.View>
-          </PackImage>
+          </Image>
 
           <View style={{ width: width }}>
             <Text numberOfLines={1} style={[styles.text, styles.header]}>
