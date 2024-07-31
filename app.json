@@ -23,6 +23,9 @@
           "resizeMode": "cover",
           "backgroundColor": "#000000"
         }
+      },
+      "runtimeVersion": {
+        "policy": "appVersion"
       }
     },
     "android": {
@@ -41,7 +44,8 @@
           "resizeMode": "cover",
           "backgroundColor": "#000000"
         }
-      }
+      },
+      "runtimeVersion": "0.0.1"
     },
     "plugins": ["expo-router", "expo-localization", "expo-font"],
     "experiments": {
@@ -56,9 +60,6 @@
       }
     },
     "owner": "brisen",
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
     "updates": {
       "url": "https://u.expo.dev/ea66c9bc-ab42-4370-b12b-b6db5bf784c8"
     }
