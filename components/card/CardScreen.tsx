@@ -21,6 +21,7 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
   const { card } = props
   const colorScheme = useColorScheme()
   const horizontalScroll = useRef<ScrollView>(null)
+  const detailsWidth = Dimensions.get('screen').width * 0.8
   let scrollPosition = 0
 
   const padding = 16
@@ -73,20 +74,18 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
     <View
       onTouchEnd={() => scrollPosition >= 0.95 && horizontalScroll.current?.scrollToEnd()}
       style={{
-        height: Dimensions.get('window').height,
-        paddingBottom: insets.bottom + Sizes.big + Sizes.normal,
+        height: Dimensions.get('screen').height,
         paddingTop: insets.top,
-        paddingLeft: insets.left,
-        paddingRight: insets.right,
+        paddingBottom: insets.bottom + 64 + 16,
       }}
     >
       <Animated.View
         style={{
           ...Styles.absoluteFill,
+          width: detailsWidth - insets.left - insets.right,
           marginTop: insets.top,
           marginBottom: insets.bottom,
           marginLeft: insets.left,
-          width: Dimensions.get('window').width * 0.8 - insets.right,
           justifyContent: 'flex-end',
           gap: 8,
         }}
@@ -162,23 +161,21 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
         showsHorizontalScrollIndicator={false}
         style={{
           overflow: 'visible',
+          marginRight: insets.right,
           shadowColor: 'black',
-          // shadowOffset: { width: 0, height: 32 },
+          shadowOffset: { width: 0, height: 32 },
           shadowRadius: 32,
           shadowOpacity: 1 / 4,
           elevation: 48,
         }}
       >
-        <View
-          onTouchStart={() => horizontalScroll.current?.scrollToEnd()}
-          style={{ width: Dimensions.get('window').width * 0.8 }}
-        />
+        <View onTouchStart={() => horizontalScroll.current?.scrollToEnd()} style={{ width: detailsWidth }} />
 
         <Animated.View
           entering={entering}
           style={{
             overflow: 'hidden',
-            width: Dimensions.get('window').width - insets.left - insets.right,
+            width: Dimensions.get('screen').width - insets.left - insets.right,
             borderRadius: 32,
             backgroundColor: Colors[colorScheme].secondaryBackground,
             borderColor: Colors[colorScheme].stroke,
