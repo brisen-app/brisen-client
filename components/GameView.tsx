@@ -111,8 +111,8 @@ function OutOfCardsView(props: Readonly<OutOfCardsViewProps>) {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        width: Dimensions.get('window').width,
-        height: Dimensions.get('window').height,
+        width: Dimensions.get('screen').width,
+        height: Dimensions.get('screen').height,
       }}
       {...props}
     >
