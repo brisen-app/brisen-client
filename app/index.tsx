@@ -65,7 +65,7 @@ const SheetMenuBackground: React.FC<BottomSheetBackgroundProps> = ({ style, anim
     backgroundColor: interpolateColor(
       animatedIndex.value,
       [2, 1],
-      [Colors[colorScheme].background, Colors[colorScheme].sheetAtBottom]
+      [Colors[colorScheme].background, Colors[colorScheme].secondaryBackground]
     ),
   }))
   const containerStyle = useMemo(() => [style, containerAnimatedStyle], [style, containerAnimatedStyle, colorScheme])

@@ -17,25 +17,26 @@ export default function Tag(props: Readonly<TagListProps>) {
 
   return (
     <Animated.View
+      {...props}
+      style={[
+        {
+          paddingVertical: 6,
+          paddingHorizontal: 10,
+          borderRadius: 8,
+        },
+        style,
+      ]}
       entering={FadeInUp.easing(Easing.out(Easing.quad))}
       exiting={ZoomOut.easing(Easing.out(Easing.quad))}
     >
       <TouchableOpacity
-        {...props}
-        style={[
-          {
-            flexDirection: 'row',
-            backgroundColor: Colors[colorScheme].secondaryBackground,
-            paddingVertical: 6,
-            paddingHorizontal: 10,
-            borderRadius: 8,
-            alignItems: 'center',
-            overflow: 'hidden',
-            gap: 4,
-          },
-          style,
-        ]}
         onPress={onPress}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          overflow: 'hidden',
+          gap: 4,
+        }}
       >
         {!hideIcon ? <MaterialIcons name='close' size={16} color={Colors[colorScheme].secondaryText} /> : null}
         <Text style={[FontStyles.AccentuatedBody, { color: Colors[colorScheme].text }]}>{text}</Text>
