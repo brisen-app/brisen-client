@@ -9,13 +9,17 @@ import AppDataProvider from '@/providers/AppDataProvider'
 import Colors from '@/constants/Colors'
 import useColorScheme from '@/components/utils/useColorScheme'
 
-NavigationBar.setBackgroundColorAsync('#ffffff00')
-NavigationBar.setPositionAsync('absolute')
 SplashScreen.preventAutoHideAsync()
+if (Platform.OS === 'android') {
+  NavigationBar.setBackgroundColorAsync('#ffffff00')
+  NavigationBar.setPositionAsync('absolute')
+}
 
 export default function Layout() {
   const colorScheme = useColorScheme()
-  NavigationBar.setButtonStyleAsync(colorScheme === 'dark' ? 'light' : 'dark')
+  if (Platform.OS === 'android') {
+    NavigationBar.setButtonStyleAsync(colorScheme === 'dark' ? 'light' : 'dark')
+  }
 
   const queryClient = new QueryClient({
     defaultOptions: {
