@@ -31,8 +31,6 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
   const { data: image, error } = useQuery(PackManager.getImageQuery(pack.image, !hideImage))
   if (error) console.warn(error)
 
-  const PackImage = useCallback((props: ImageProps) => <Image {...props} source={image} transition={256} />, [image])
-
   const animationConfig = { duration: 150, easing: Easing.bezier(0, 0, 0.5, 1) }
 
   const animatedStyle = useAnimatedStyle(() => {
@@ -77,7 +75,9 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
             shadowColor: 'black',
           }}
         >
-          <PackImage
+          <Image
+            source={image}
+            transition={256}
             style={{
               width: width,
               aspectRatio: 1,
@@ -102,7 +102,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
             >
               <Ionicons name='checkmark-circle' size={32 + 16 + 8} style={{ color: Colors[colorScheme].accentColor }} />
             </Animated.View>
-          </PackImage>
+          </Image>
 
           <View style={{ width: width }}>
             <Text numberOfLines={1} style={[styles.text, styles.header]}>
