@@ -3,7 +3,16 @@ import Sizes from '@/constants/Sizes'
 import { PlayedCard } from '@/managers/CardManager'
 import { CategoryManager } from '@/managers/CategoryManager'
 import { Dimensions, PressableProps, ScrollView, StyleSheet, View } from 'react-native'
-import Animated, { Easing, withDelay, withTiming } from 'react-native-reanimated'
+import Animated, {
+  Easing,
+  Extrapolation,
+  interpolate,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withTiming,
+} from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import useColorScheme from '../utils/useColorScheme'
 import { CardView } from './CardView'
@@ -13,15 +22,22 @@ import { LocalizationManager } from '@/managers/LocalizationManager'
 import { Image } from 'expo-image'
 import { PackManager } from '@/managers/PackManager'
 import { useRef } from 'react'
+import { AnimatedScrollView } from 'react-native-reanimated/lib/typescript/reanimated2/component/ScrollView'
 
 export type CardScreenProps = { card: PlayedCard } & PressableProps
 
 export default function CardScreen(props: Readonly<CardScreenProps>) {
   const { card } = props
   const colorScheme = useColorScheme()
-  const horizontalScroll = useRef<ScrollView>(null)
+  const horizontalScroll = useRef<AnimatedScrollView>(null)
   const detailsWidth = Dimensions.get('screen').width * 0.8
-  let scrollPosition = 0
+  const scrollOffset = useSharedValue(0)
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: event => {
+      const { layoutMeasurement, contentOffset, contentSize } = event
+      scrollOffset.value = 1 - contentOffset.x / (contentSize.width - layoutMeasurement.width)
+    },
+  })
 
   const padding = 16
   let insets = useSafeAreaInsets()
@@ -37,6 +53,11 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
 
   const { data: image, error } = PackManager.useImageQuery(card.pack?.image)
   if (error) console.warn(error)
+
+  const appearOnScrollStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(scrollOffset.value, [0, 0.5], [0, 1], Extrapolation.CLAMP),
+    transform: [{ translateX: interpolate(scrollOffset.value, [0, 1], [16, 0], Extrapolation.CLAMP) }],
+  }))
 
   const animationConfig = { duration: 300, easing: Easing.bezier(0, 0, 0.5, 1) }
   const entering = () => {
@@ -55,23 +76,9 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
     }
   }
 
-  const enteringSlow = () => {
-    'worklet'
-    const animations = {
-      opacity: withDelay(300, withTiming(1, animationConfig)),
-    }
-    const initialValues = {
-      opacity: 0,
-    }
-    return {
-      initialValues,
-      animations,
-    }
-  }
-
   return (
     <View
-      onTouchEnd={() => scrollPosition >= 0.95 && horizontalScroll.current?.scrollToEnd()}
+      onTouchEnd={() => scrollOffset.value >= 0.95 && horizontalScroll.current?.scrollToEnd()}
       style={{
         height: Dimensions.get('screen').height,
         paddingTop: insets.top,
@@ -79,16 +86,18 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
       }}
     >
       <Animated.View
-        style={{
-          ...Styles.absoluteFill,
-          width: detailsWidth - insets.right,
-          marginTop: insets.top,
-          marginBottom: insets.bottom,
-          marginLeft: insets.left,
-          justifyContent: 'flex-end',
-          gap: 8,
-        }}
-        entering={enteringSlow}
+        style={[
+          {
+            ...Styles.absoluteFill,
+            width: detailsWidth - insets.right,
+            marginTop: insets.top,
+            marginBottom: insets.bottom,
+            marginLeft: insets.left,
+            justifyContent: 'flex-end',
+            gap: 8,
+          },
+          appearOnScrollStyle,
+        ]}
       >
         {category && (
           <>
@@ -151,12 +160,9 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
         )}
       </Animated.View>
 
-      <ScrollView
+      <Animated.ScrollView
         ref={horizontalScroll}
-        onScroll={({ nativeEvent }) => {
-          const { layoutMeasurement, contentOffset, contentSize } = nativeEvent
-          scrollPosition = 1 - contentOffset.x / (contentSize.width - layoutMeasurement.width)
-        }}
+        onScroll={scrollHandler}
         onLayout={() => horizontalScroll.current?.scrollToEnd({ animated: false })}
         horizontal
         pagingEnabled
@@ -194,7 +200,7 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
             onPressPack={() => horizontalScroll.current?.scrollTo({ x: 0 })}
           />
         </Animated.View>
-      </ScrollView>
+      </Animated.ScrollView>
     </View>
   )
 }
