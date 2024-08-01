@@ -2,7 +2,7 @@ import Colors from '@/constants/Colors'
 import Sizes from '@/constants/Sizes'
 import { PlayedCard } from '@/managers/CardManager'
 import { CategoryManager } from '@/managers/CategoryManager'
-import { Dimensions, PressableProps, ScrollView, StyleSheet, View } from 'react-native'
+import { Dimensions, PressableProps, StyleSheet, View } from 'react-native'
 import Animated, {
   Easing,
   Extrapolation,
@@ -10,7 +10,6 @@ import Animated, {
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
-  withDelay,
   withTiming,
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
