@@ -3,6 +3,7 @@ import { NotFoundError } from '@/models/Errors'
 import { supabase } from '../lib/supabase'
 import { Tables } from '@/models/supabase'
 import SupabaseManager from './SupabaseManager'
+import { useQuery } from '@tanstack/react-query'
 
 const tableName = 'packs'
 const select = '*, cards(id)'
@@ -22,6 +23,7 @@ class PackManagerSingleton extends SupabaseManager<Pack> {
     for (const pack of playlist) {
       if (pack.cards.has(cardId)) return pack
     }
+    console.warn(`Card ${cardId} not found in any pack`)
     return null
   }
 
@@ -45,15 +47,18 @@ class PackManagerSingleton extends SupabaseManager<Pack> {
     return packs
   }
 
-  getImageQuery(imageName: string | null | undefined, enabled = true) {
-    if (!imageName) return emptyQuery
-    return {
-      queryKey: ['storage', this.tableName, imageName],
-      queryFn: async () => {
-        return await this.fetchImage(imageName)
-      },
-      enabled: enabled,
-    }
+  useImageQuery(imageName: string | null | undefined, enabled = true) {
+    return useQuery(
+      !imageName
+        ? emptyQuery
+        : {
+            queryKey: ['storage', this.tableName, imageName],
+            queryFn: async () => {
+              return await this.fetchImage(imageName)
+            },
+            enabled: enabled,
+          }
+    )
   }
 
   private async fetchImage(imageName: string) {

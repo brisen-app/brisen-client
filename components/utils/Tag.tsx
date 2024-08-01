@@ -3,7 +3,7 @@ import { FontStyles } from '@/constants/Styles'
 import { MaterialIcons } from '@expo/vector-icons'
 import React from 'react'
 import { Text, TouchableOpacity, TouchableOpacityProps } from 'react-native'
-import Animated, { Easing, FadeInUp, ZoomOut } from 'react-native-reanimated'
+import Animated from 'react-native-reanimated'
 import useColorScheme from './useColorScheme'
 
 export type TagListProps = {
@@ -26,8 +26,6 @@ export default function Tag(props: Readonly<TagListProps>) {
         },
         style,
       ]}
-      entering={FadeInUp.easing(Easing.out(Easing.quad))}
-      exiting={ZoomOut.easing(Easing.out(Easing.quad))}
     >
       <TouchableOpacity
         onPress={onPress}

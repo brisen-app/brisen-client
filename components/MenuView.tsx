@@ -10,7 +10,15 @@ import { ScrollView } from 'react-native-gesture-handler'
 import { Text } from './utils/Themed'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import Animated, { interpolate, interpolateColor, LinearTransition, useAnimatedStyle } from 'react-native-reanimated'
+import Animated, {
+  Easing,
+  FadeInUp,
+  interpolate,
+  interpolateColor,
+  LinearTransition,
+  useAnimatedStyle,
+  ZoomOut,
+} from 'react-native-reanimated'
 import Colors from '@/constants/Colors'
 import PackPosterView from './pack/PackPosterView'
 import React, { useMemo, useState } from 'react'
@@ -52,7 +60,12 @@ export default function MenuView() {
         {players.size > 0 && (
           <View style={{ flexDirection: 'row', marginTop: 8, gap: 8, flexWrap: 'wrap', marginHorizontal: 16 }}>
             {sortedPlayers.map(tag => (
-              <Animated.View key={tag.name} layout={LinearTransition}>
+              <Animated.View
+                key={tag.name}
+                layout={LinearTransition}
+                entering={FadeInUp.easing(Easing.out(Easing.quad))}
+                exiting={ZoomOut.easing(Easing.out(Easing.quad))}
+              >
                 <Tag
                   text={tag.name}
                   onPress={() => setContext({ action: 'togglePlayer', payload: tag })}

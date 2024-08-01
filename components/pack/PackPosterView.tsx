@@ -1,7 +1,6 @@
 import Colors from '@/constants/Colors'
 import { Pack, PackManager } from '@/managers/PackManager'
 import { Ionicons } from '@expo/vector-icons'
-import { useQuery } from '@tanstack/react-query'
 import { Image } from 'expo-image'
 import { Pressable, StyleSheet, View, ViewProps } from 'react-native'
 import { useAppContext, useAppDispatchContext } from '../../providers/AppContextProvider'
@@ -27,7 +26,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
   const isSelected = playlist.has(pack)
   const isNoneSelected = playlist.size === 0
 
-  const { data: image, error } = useQuery(PackManager.getImageQuery(pack.image, !hideImage))
+  const { data: image, error } = PackManager.useImageQuery(pack.image, !hideImage)
   if (error) console.warn(error)
 
   const animationConfig = { duration: 150, easing: Easing.bezier(0, 0, 0.5, 1) }
