@@ -49,6 +49,7 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
 
   const category = card.category ? CategoryManager.get(card.category) : null
   const categoryDescription = category ? CategoryManager.getDescription(category) : null
+  const packs = PackManager.getPacksOf(card.id)
 
   const { data: image, error } = PackManager.useImageQuery(card.pack?.image)
   if (error) console.warn(error)
@@ -93,13 +94,13 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
             marginBottom: insets.bottom,
             marginLeft: insets.left,
             justifyContent: 'flex-end',
-            gap: 8,
+            gap: 16,
           },
           appearOnScrollStyle,
         ]}
       >
         {category && (
-          <>
+          <View style={{ gap: 8 }}>
             <Text style={FontStyles.Subheading}>{LocalizationManager.get('category')?.value?.toUpperCase()}</Text>
             <View
               style={{
@@ -123,39 +124,42 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
                 </Text>
               )}
             </View>
-          </>
+          </View>
         )}
 
-        {card.pack && (
-          <>
-            <Text style={FontStyles.Subheading}>{LocalizationManager.get('pack')?.value?.toUpperCase()}</Text>
-            <View
-              style={{
-                backgroundColor: Colors[colorScheme].secondaryBackground,
-                padding: 16,
-                borderRadius: 16,
-                gap: 8,
-              }}
-            >
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <Image
-                  source={image}
-                  transition={256}
-                  style={{
-                    aspectRatio: 1,
-                    height: 64,
-                    borderRadius: 16,
-                    borderColor: Colors[colorScheme].stroke,
-                    borderWidth: StyleSheet.hairlineWidth,
-                  }}
-                />
-                <Text style={{ ...FontStyles.Title, color: Colors[colorScheme].text }} numberOfLines={1}>
-                  {card.pack.name}
-                </Text>
+        {packs.length > 0 && (
+          <View style={{ gap: 8 }}>
+            <Text style={FontStyles.Subheading}>{LocalizationManager.get('packs')?.value?.toUpperCase()}</Text>
+            {packs.map(pack => (
+              <View
+                key={pack.id}
+                style={{
+                  backgroundColor: Colors[colorScheme].secondaryBackground,
+                  padding: 16,
+                  borderRadius: 16,
+                  gap: 8,
+                }}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <Image
+                    source={image}
+                    transition={256}
+                    style={{
+                      aspectRatio: 1,
+                      height: 64,
+                      borderRadius: 16,
+                      borderColor: Colors[colorScheme].stroke,
+                      borderWidth: StyleSheet.hairlineWidth,
+                    }}
+                  />
+                  <Text style={{ ...FontStyles.Title, color: Colors[colorScheme].text }} numberOfLines={1}>
+                    {pack.name}
+                  </Text>
+                </View>
+                <Text style={[FontStyles.Subheading, { fontSize: 18 }]}>{pack.description}</Text>
               </View>
-              <Text style={[FontStyles.Subheading, { fontSize: 18 }]}>{card.pack.description}</Text>
-            </View>
-          </>
+            ))}
+          </View>
         )}
       </Animated.View>
 
