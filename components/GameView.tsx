@@ -20,14 +20,6 @@ export default function GameView(props: Readonly<GameViewProps>) {
   const setContext = useAppDispatchContext()
   const [isOutOfCards, setIsOutOfCards] = useState<boolean>(true)
 
-  const onPressCard = useCallback(
-    (index: number) => {
-      if (playedCards.length <= index + 1) return
-      flatListRef.current?.scrollToIndex({ index: index + 1, animated: true })
-    },
-    [playedCards]
-  )
-
   const onPressNoCard = useCallback(() => {
     bottomSheetRef?.current?.snapToIndex(1)
   }, [])
@@ -80,7 +72,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
       onEndReachedThreshold={1}
       onEndReached={addCard}
       ListFooterComponent={<OutOfCardsView onPress={onPressNoCard} />}
-      renderItem={({ item, index }) => <CardScreen card={item} onPress={() => onPressCard(index)} />}
+      renderItem={({ item }) => <CardScreen card={item} />}
     />
   )
 }
