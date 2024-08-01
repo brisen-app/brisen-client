@@ -49,7 +49,11 @@ export default function GameView(props: Readonly<GameViewProps>) {
       payload: newCard.featuredPlayers,
     })
 
-    console.log(`Added card ${playedCards.length + 1}:`, newCard.formattedContent ?? newCard.content)
+    console.log(
+      `Added card ${playedCards.length + 1}:`,
+      (newCard.featuredPlayers.size && !newCard.is_group ? newCard.players[0].name + ', ' : '') +
+        (newCard.formattedContent ?? newCard.content)
+    )
   }
 
   // When the playlist or players change
