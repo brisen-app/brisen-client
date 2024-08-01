@@ -51,7 +51,7 @@ class CardManagerSingleton extends SupabaseManager<Card> {
 
     const playerList =
       this.getParentPlayerList(card, playedCards, playedIds) ??
-      shuffled(players).toSorted((a, b) => a.playCount - b.playCount)
+      [...shuffled(players)].sort((a, b) => a.playCount - b.playCount)
 
     const { formattedContent, featuredPlayers } = this.insertPlayers(card.content, playerList)
     if (!card.is_group && playerList.length > 0) featuredPlayers.set(playerList[0].name, playerList[0])
