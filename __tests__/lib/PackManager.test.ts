@@ -133,31 +133,6 @@ describe('fetchAll', () => {
   })
 })
 
-describe('getImageQuery', () => {
-  it('should return a query object with the correct queryKey and queryFn', () => {
-    const imageName = 'pack1.png'
-    // @ts-ignore
-    const fetchImageSpy = jest.spyOn(PackManager, 'fetchImage')
-    const query = PackManager.getImageQuery(imageName)
-    expect(query.queryKey).toEqual(['storage', 'packs', imageName])
-    expect(query.queryFn).toBeDefined()
-    expect(query.enabled).toBe(true)
-    // Call the queryFn
-    query.queryFn()
-    // Assert that PackManager.fetchImage has been called
-    expect(fetchImageSpy).toHaveBeenCalledWith(imageName)
-  })
-
-  it('should return a query object with enabled set to false if imageName is null', () => {
-    const imageName = null
-    const query = PackManager.getImageQuery(imageName)
-    expect(query.queryKey).toEqual([])
-    expect(query.queryFn).toBeDefined()
-    expect(query.enabled).toBe(false)
-    expect(query.queryFn()).resolves.toBeNull()
-  })
-})
-
 describe('fetchImage', () => {
   const imageName = 'pack1.png'
 

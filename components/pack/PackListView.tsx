@@ -2,7 +2,6 @@ import Colors from '@/constants/Colors'
 import { Pack, PackManager } from '@/managers/PackManager'
 import Color from '@/models/Color'
 import { MaterialIcons } from '@expo/vector-icons'
-import { useQuery } from '@tanstack/react-query'
 import { Image, ImageProps } from 'expo-image'
 import { useCallback } from 'react'
 import {
@@ -32,7 +31,7 @@ export default function PackListView(props: Readonly<PackListViewProps & PackVie
   const { pack, hideImage, style } = props
   const colorScheme = useColorScheme()
 
-  const { data: image, isLoading, error } = useQuery(PackManager.getImageQuery(pack.image, !hideImage))
+  const { data: image, isLoading, error } = PackManager.useImageQuery(pack.image, !hideImage)
   if (error) console.warn(error)
 
   const PackImage = useCallback((props: ImageProps) => <Image {...props} source={image} transition={256} />, [image])

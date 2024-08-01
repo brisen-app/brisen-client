@@ -6,11 +6,18 @@ import { FontStyles } from '@/constants/Styles'
 import { formatName as prettifyString } from '@/lib/utils'
 import { LocalizationManager } from '@/managers/LocalizationManager'
 import { PackManager } from '@/managers/PackManager'
-import { ScrollView } from 'react-native-gesture-handler'
 import { Text } from './utils/Themed'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import Animated, { interpolate, interpolateColor, LinearTransition, useAnimatedStyle } from 'react-native-reanimated'
+import Animated, {
+  Easing,
+  FadeInUp,
+  interpolate,
+  interpolateColor,
+  LinearTransition,
+  useAnimatedStyle,
+  ZoomOut,
+} from 'react-native-reanimated'
 import Colors from '@/constants/Colors'
 import PackPosterView from './pack/PackPosterView'
 import React, { useMemo, useState } from 'react'
@@ -45,14 +52,28 @@ export default function MenuView() {
   }))
 
   return (
-    <BottomSheetScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, overflow: 'visible' }}>
+    <BottomSheetScrollView
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ gap: 8 }}
+      style={{ flex: 1, overflow: 'visible', marginHorizontal: 16 }}
+    >
       <AddPlayerField style={secondaryBackgroundColorStyle} />
 
       <Animated.View style={[{ gap: 8 }, hideOnBottomStyle]}>
+        {players.size === 0 && (
+          <Text style={FontStyles.Subheading}>
+            {LocalizationManager.get('players_subtitle')?.value ?? 'players_subtitle'}
+          </Text>
+        )}
         {players.size > 0 && (
-          <View style={{ flexDirection: 'row', marginTop: 8, gap: 8, flexWrap: 'wrap', marginHorizontal: 16 }}>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             {sortedPlayers.map(tag => (
-              <Animated.View key={tag.name} layout={LinearTransition}>
+              <Animated.View
+                key={tag.name}
+                layout={LinearTransition}
+                entering={FadeInUp.easing(Easing.out(Easing.quad))}
+                exiting={ZoomOut.easing(Easing.out(Easing.quad))}
+              >
                 <Tag
                   text={tag.name}
                   onPress={() => setContext({ action: 'togglePlayer', payload: tag })}
@@ -64,11 +85,15 @@ export default function MenuView() {
         )}
 
         <Header titleKey='packs' descriptionKey='packs_subtitle' />
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ gap: 8 }}
-          style={{ flexDirection: 'row', overflow: 'visible', marginHorizontal: 16, marginTop: 8 }}
+        <PackSection />
+
+        <Header titleKey='categories' descriptionKey='categories_subtitle' />
+        <View
+          style={{
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: 8,
+          }}
         >
           {sortedCategories?.map(category => (
             <CategoryTag
@@ -79,9 +104,7 @@ export default function MenuView() {
               onPress={onPressCategory}
             />
           ))}
-        </ScrollView>
-
-        <PackSection />
+        </View>
 
         <View style={{ height: insets.bottom ?? 16 }} />
       </Animated.View>
@@ -111,14 +134,16 @@ function CategoryTag(
   )
 }
 
-export function Header(props: Readonly<{ titleKey: string; descriptionKey?: string }>) {
+export function Header(props: Readonly<{ titleKey?: string; descriptionKey?: string }>) {
   const { titleKey, descriptionKey } = props
 
   return (
-    <View style={{ marginHorizontal: 16, paddingTop: 16, gap: 4 }}>
-      <Text id={titleKey} style={FontStyles.Header}>
-        {LocalizationManager.get(titleKey)?.value ?? titleKey}
-      </Text>
+    <View style={{ paddingTop: 16, gap: 4 }}>
+      {titleKey && (
+        <Text id={titleKey} style={FontStyles.Header}>
+          {LocalizationManager.get(titleKey)?.value ?? titleKey}
+        </Text>
+      )}
 
       {descriptionKey && (
         <Text id={descriptionKey} style={FontStyles.Subheading}>
@@ -134,7 +159,7 @@ function PackSection(props: Readonly<ViewProps>) {
   const packs = useMemo(() => PackManager.items, [PackManager.items])
 
   return (
-    <View style={{ flexWrap: 'wrap', flexDirection: 'row', marginHorizontal: 16, gap: 16 }} {...props}>
+    <View style={{ flexWrap: 'wrap', flexDirection: 'row', gap: 16 }} {...props}>
       {packs
         ? packs.map(pack => (
             <View key={pack.id}>
@@ -174,7 +199,6 @@ function AddPlayerField(props: Readonly<ViewProps>) {
           alignItems: 'center',
           borderRadius: 12,
           padding: 8,
-          marginHorizontal: 16,
           gap: 4,
         },
         style,

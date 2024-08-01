@@ -14,7 +14,7 @@ export type PlayedCard = {
   featuredPlayers: Set<Player> // The players featured in the card content
   formattedContent: string | undefined // The card content with player names inserted
   minPlayers: number // Minimum number of players required to play the card
-  pack: Pack // The pack to which the card belongs
+  pack: Pack | null // The pack to which the card belongs
   players: Player[] // The order of all players in this series of cards
 } & Card
 
@@ -40,19 +40,18 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     players: Set<Player>,
     categoryFilterIds: Set<string>
   ): PlayedCard | null {
-    const candidates = this.findCandidates(playlist, playedIds, players.size, categoryFilterIds)
-    if (candidates.size === 0) return null
-
     let card = this.drawClosingCard(playedCards, playedIds)
+    const candidates = this.findCandidates(playlist, playedIds, players.size, categoryFilterIds)
+
     card = card ?? getRandom(candidates.values())
-    if (card === null) return null
+    if (!card) return null
 
     const parentId = CardRelationManager.getUnplayedParent(card.id, new Set(candidates.keys()))
     if (parentId) card = candidates.get(parentId) ?? card
 
     const playerList =
       this.getParentPlayerList(card, playedCards, playedIds) ??
-      shuffled(players).sort((a, b) => a.playCount - b.playCount)
+      [...shuffled(players)].sort((a, b) => a.playCount - b.playCount)
 
     const { formattedContent, featuredPlayers } = this.insertPlayers(card.content, playerList)
     if (!card.is_group && playerList.length > 0) featuredPlayers.set(playerList[0].name, playerList[0])
@@ -60,7 +59,7 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     return {
       ...card,
       minPlayers: this.getRequiredPlayerCount(card),
-      pack: PackManager.getPackOf(card.id, playlist)!,
+      pack: PackManager.getPackOf(card.id, playlist),
       players: playerList,
       featuredPlayers: new Set(featuredPlayers.values()),
       formattedContent,

@@ -20,14 +20,6 @@ export default function GameView(props: Readonly<GameViewProps>) {
   const setContext = useAppDispatchContext()
   const [isOutOfCards, setIsOutOfCards] = useState<boolean>(true)
 
-  const onPressCard = useCallback(
-    (index: number) => {
-      if (playedCards.length <= index + 1) return
-      flatListRef.current?.scrollToIndex({ index: index + 1, animated: true })
-    },
-    [playedCards]
-  )
-
   const onPressNoCard = useCallback(() => {
     bottomSheetRef?.current?.snapToIndex(1)
   }, [])
@@ -36,7 +28,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
     if (playlist.size === 0) return
 
     const newCard = CardManager.drawCard(playedCards, playedIds, playlist, players, categoryFilter)
-    if (newCard === null) {
+    if (!newCard) {
       setIsOutOfCards(true)
       return
     }
@@ -49,7 +41,11 @@ export default function GameView(props: Readonly<GameViewProps>) {
       payload: newCard.featuredPlayers,
     })
 
-    console.log(`Added card ${playedCards.length + 1}:`, newCard.formattedContent ?? newCard.content)
+    console.log(
+      `Added card ${playedCards.length + 1}:`,
+      (newCard.featuredPlayers.size && !newCard.is_group ? newCard.players[0].name + ', ' : '') +
+        (newCard.formattedContent ?? newCard.content)
+    )
   }
 
   // When the playlist or players change
@@ -76,7 +72,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
       onEndReachedThreshold={1}
       onEndReached={addCard}
       ListFooterComponent={<OutOfCardsView onPress={onPressNoCard} />}
-      renderItem={({ item, index }) => <CardScreen card={item} onPress={() => onPressCard(index)} />}
+      renderItem={({ item }) => <CardScreen card={item} />}
     />
   )
 }
