@@ -41,10 +41,10 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
   const padding = 16
   let insets = useSafeAreaInsets()
   insets = {
-    top: insets.top ? insets.top : padding,
-    bottom: insets.bottom ? insets.bottom : padding,
-    left: insets.left ? insets.left : padding,
-    right: insets.right ? insets.right : padding,
+    top: insets.top > padding ? insets.top + padding : padding,
+    bottom: insets.bottom > padding ? insets.bottom + padding : padding,
+    left: insets.left > padding ? insets.left + padding : padding,
+    right: insets.right > padding ? insets.right + padding : padding,
   }
 
   const category = card.category ? CategoryManager.get(card.category) : null

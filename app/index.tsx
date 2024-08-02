@@ -81,7 +81,7 @@ const SheetHandle: React.FC<BottomSheetHandleProps & ViewProps> = ({ style, anim
 
   const containerAnimatedStyle = useAnimatedStyle(() => ({
     height:
-      insets.top === 0
+      !insets.top
         ? handleHeight
         : interpolate(animatedIndex.value, [1, 2], [handleHeight, insets.top], Extrapolation.CLAMP),
     opacity: interpolate(animatedPosition.value, [insets.top, 0], [1 / 3, 0], Extrapolation.CLAMP),
