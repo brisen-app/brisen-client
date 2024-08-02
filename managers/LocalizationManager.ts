@@ -27,7 +27,7 @@ class LocalizationManagerSingleton extends SupabaseManager<Localization> {
 
   async fetchAll() {
     const { data } = await supabase
-      .from(this.tableName)
+      .from(tableName)
       .select()
       .eq('language', LanguageManager.getDisplayLanguage().id)
       .throwOnError()

@@ -1,9 +1,10 @@
-import { blobToBase64, emptyQuery } from '../lib/utils'
+import { blobToBase64, emptyQuery } from '@/lib/utils'
+import { LanguageManager } from './LanguageManager'
 import { NotFoundError } from '@/models/Errors'
 import { supabase } from '../lib/supabase'
 import { Tables } from '@/models/supabase'
-import SupabaseManager from './SupabaseManager'
 import { useQuery } from '@tanstack/react-query'
+import SupabaseManager from './SupabaseManager'
 
 const tableName = 'packs'
 const select = '*, cards(id)'
@@ -32,16 +33,18 @@ class PackManagerSingleton extends SupabaseManager<Pack> {
   }
 
   async fetchAll(): Promise<Pack[]> {
-    const { data } = await supabase.from(tableName).select(select).order('name').throwOnError()
+    const { data } = await supabase
+      .from(tableName)
+      .select(select)
+      .eq('language', LanguageManager.getDisplayLanguage().id)
+      .order('name')
+      .throwOnError()
     if (!data || data.length === 0) throw new NotFoundError(`No data found in table '${this.tableName}'`)
 
-    const packs = Array<Pack>()
-    for (const pack of data) {
-      packs.push({
-        ...pack,
-        cards: new Set(pack.cards.map((card: any) => card.id)),
-      })
-    }
+    const packs = data.map(pack => ({
+      ...pack,
+      cards: new Set(pack.cards.map(card => card.id)),
+    }))
 
     this.set(packs)
     return packs

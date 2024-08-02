@@ -241,6 +241,7 @@ export type Database = {
           description: string | null
           id: string
           image: string | null
+          language: string | null
           modified_at: string
           name: string
         }
@@ -249,6 +250,7 @@ export type Database = {
           description?: string | null
           id?: string
           image?: string | null
+          language?: string | null
           modified_at?: string
           name?: string
         }
@@ -257,10 +259,19 @@ export type Database = {
           description?: string | null
           id?: string
           image?: string | null
+          language?: string | null
           modified_at?: string
           name?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "packs_language_fkey"
+            columns: ["language"]
+            isOneToOne: false
+            referencedRelation: "languages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
