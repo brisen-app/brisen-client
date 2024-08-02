@@ -1,27 +1,11 @@
 import { getLocales, Locale } from 'expo-localization'
 import { Tables } from '@/models/supabase'
 import SupabaseManager from './SupabaseManager'
+import { ConfigurationManager } from './ConfigurationManager'
+import { CategoryManager } from './CategoryManager'
 
 const tableName = 'languages'
-export type Language = Omit<Locale, 'languageCode'> & Tables<typeof tableName>
-
-export const defaultLanguage: Language = {
-  currencyCode: 'NOK',
-  currencySymbol: 'kr',
-  decimalSeparator: ',',
-  digitGroupingSeparator: ' ',
-  icon: '🇳🇴',
-  id: 'nb',
-  languageTag: 'nb-NO',
-  measurementSystem: 'metric' as const,
-  name: 'Norsk',
-  public: true,
-  regionCode: 'NO',
-  temperatureUnit: 'celsius' as const,
-  textDirection: 'ltr' as const,
-  created_at: new Date().toISOString(),
-  modified_at: new Date().toISOString(),
-}
+export type Language = Partial<Omit<Locale, 'languageCode'>> & Tables<typeof tableName>
 
 class LanguageManagerSingleton extends SupabaseManager<Language> {
   protected _displayLanguage: Language | undefined
@@ -31,14 +15,40 @@ class LanguageManagerSingleton extends SupabaseManager<Language> {
   }
 
   getDisplayLanguage() {
-    if (!this._displayLanguage) console.warn('Display language has not been set')
-    return this._displayLanguage ?? defaultLanguage
+    if (!this._displayLanguage) throw new Error('Display language has not been set')
+    return this._displayLanguage
   }
 
   protected set(items: Iterable<Language>) {
-    if (this._items) console.warn(`${this.tableName} have already been set`)
+    if (this._items) console.warn(`${tableName} have already been set`)
+      
+    if (ConfigurationManager.get('use_sfw_content')?.bool === true) {
+      console.log('Forcing safe-for-work language')
+      this._displayLanguage = [...items].filter(item => item.id === ConfigurationManager.get('sfw_language')?.string)[0]
+      this._items = new Map([[this._displayLanguage.id, this._displayLanguage]])
+      return
+    }
 
-    this._items = new Map()
+    console.log(
+      'User languages:',
+      getLocales().map(locale => locale.languageCode)
+    )
+    // Find the first language that matches the user's language
+    this._displayLanguage = this.findUserLanguage(items)
+
+    if (this._displayLanguage) {
+      this._items = new Map([[this._displayLanguage.id, this._displayLanguage]])
+    } else {
+      // If no matches are found, use the default language
+      const language = this.findDefaultLanguage(items)
+      this._items = new Map([[language.id, language]])
+      this._displayLanguage = language
+    }
+
+    console.log('Stored languages:', new Set(this._items.keys()))
+  }
+
+  private findUserLanguage(items: Iterable<Language>) {
     for (const locale of getLocales()) {
       for (const item of items) {
         if (locale.languageCode === item.id && item.public) {
@@ -46,15 +56,22 @@ class LanguageManagerSingleton extends SupabaseManager<Language> {
             ...locale,
             ...item,
           }
-          this._items.set(locale.languageCode, language)
-          if (!this._displayLanguage) this._displayLanguage = language
+          console.log('Found display language:', language.id)
+          return language
         }
       }
     }
+  }
 
-    if (!this._displayLanguage || this._items.size === 0) {
-      this._displayLanguage = defaultLanguage
-    }
+  private findDefaultLanguage(items: Iterable<Language>) {
+    const defaultLanguageId = ConfigurationManager.get('default_language')?.string ?? 'en'
+
+    const languageList = [...items]
+    if (languageList.length === 0) throw new Error('No languages provided when setting default language')
+
+    const defaultLanguages = languageList.filter(item => item.id === defaultLanguageId)
+    if (defaultLanguages.length === 0) console.error(`Default language '${defaultLanguageId}' not found`)
+    return defaultLanguages[0] ?? languageList[0]
   }
 }
 
