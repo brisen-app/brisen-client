@@ -7,7 +7,7 @@ import { PackManager } from '@/managers/PackManager'
 import Color from '@/models/Color'
 import { Image } from 'expo-image'
 import { LinearGradient } from 'expo-linear-gradient'
-import { Pressable, TouchableOpacity, View } from 'react-native'
+import { Pressable, TouchableOpacity, View, ViewProps } from 'react-native'
 import { Text } from '../utils/Themed'
 import useColorScheme from '../utils/useColorScheme'
 import { ConfigurationManager } from '@/managers/ConfigurationManager'
@@ -20,9 +20,9 @@ export type CardViewProps = {
   onPressPack: () => void
 }
 
-export function CardView(props: Readonly<CardViewProps>) {
+export function CardView(props: Readonly<CardViewProps & ViewProps>) {
   const colorScheme = useColorScheme()
-  const { card, category } = props
+  const { card, category, style } = props
 
   const padding = 24
   const target = card.is_group || card.players.length === 0 ? null : card.players[0]
@@ -39,7 +39,7 @@ export function CardView(props: Readonly<CardViewProps>) {
   }
 
   return (
-    <Pressable style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <Pressable style={[{ flex: 1, justifyContent: 'center', alignItems: 'center' }, style]}>
       <LinearGradient colors={getGradient()} start={{ x: 0, y: 1 }} end={{ x: 1, y: 0 }} style={Styles.absoluteFill} />
 
       {/* Grain */}

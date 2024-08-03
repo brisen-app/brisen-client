@@ -1,8 +1,13 @@
 import Colors from '@/constants/Colors'
 import Sizes from '@/constants/Sizes'
+import { FontStyles, Styles } from '@/constants/Styles'
 import { PlayedCard } from '@/managers/CardManager'
 import { CategoryManager } from '@/managers/CategoryManager'
-import { Dimensions, PressableProps, StyleSheet, View } from 'react-native'
+import { LocalizationManager } from '@/managers/LocalizationManager'
+import { Pack, PackManager } from '@/managers/PackManager'
+import { Image } from 'expo-image'
+import { useEffect, useRef } from 'react'
+import { Dimensions, PressableProps, StyleSheet, View, ViewProps } from 'react-native'
 import Animated, {
   Easing,
   Extrapolation,
@@ -12,16 +17,11 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated'
+import { AnimatedScrollView } from 'react-native-reanimated/lib/typescript/reanimated2/component/ScrollView'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { Text } from '../utils/Themed'
 import useColorScheme from '../utils/useColorScheme'
 import { CardView } from './CardView'
-import { Text } from '../utils/Themed'
-import { FontStyles, Styles } from '@/constants/Styles'
-import { LocalizationManager } from '@/managers/LocalizationManager'
-import { Image } from 'expo-image'
-import { PackManager } from '@/managers/PackManager'
-import { useRef } from 'react'
-import { AnimatedScrollView } from 'react-native-reanimated/lib/typescript/reanimated2/component/ScrollView'
 
 export type CardScreenProps = { card: PlayedCard } & PressableProps
 
@@ -47,12 +47,11 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
     right: insets.right ? insets.right : padding,
   }
 
+  useEffect(() => horizontalScroll.current?.scrollToEnd({ animated: false }), [])
+
   const category = card.category ? CategoryManager.get(card.category) : null
   const categoryDescription = category ? CategoryManager.getDescription(category) : null
   const packs = PackManager.getPacksOf(card.id)
-
-  const { data: image, error } = PackManager.useImageQuery(card.pack?.image)
-  if (error) console.warn(error)
 
   const appearOnScrollStyle = useAnimatedStyle(() => ({
     opacity: interpolate(scrollOffset.value, [0, 0.5], [0, 1], Extrapolation.CLAMP),
@@ -130,35 +129,11 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
         {packs.length > 0 && (
           <View style={{ gap: 8 }}>
             <Text style={FontStyles.Subheading}>{LocalizationManager.get('packs')?.value?.toUpperCase()}</Text>
-            {packs.map(pack => (
-              <View
-                key={pack.id}
-                style={{
-                  backgroundColor: Colors[colorScheme].secondaryBackground,
-                  padding: 16,
-                  borderRadius: 16,
-                  gap: 8,
-                }}
-              >
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                  <Image
-                    source={image}
-                    transition={256}
-                    style={{
-                      aspectRatio: 1,
-                      height: 64,
-                      borderRadius: 16,
-                      borderColor: Colors[colorScheme].stroke,
-                      borderWidth: StyleSheet.hairlineWidth,
-                    }}
-                  />
-                  <Text style={{ ...FontStyles.Title, color: Colors[colorScheme].text }} numberOfLines={1}>
-                    {pack.name}
-                  </Text>
-                </View>
-                <Text style={[FontStyles.Subheading, { fontSize: 18 }]}>{pack.description}</Text>
-              </View>
-            ))}
+            <View style={{ gap: 16 }}>
+              {packs.map(pack => (
+                <PackView key={pack.id} pack={pack} />
+              ))}
+            </View>
           </View>
         )}
       </Animated.View>
@@ -166,19 +141,17 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
       <Animated.ScrollView
         ref={horizontalScroll}
         onScroll={scrollHandler}
-        onLayout={() => horizontalScroll.current?.scrollToEnd({ animated: false })}
+        // onLayout={() => horizontalScroll.current?.scrollToEnd({ animated: false })}
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
         style={{
           overflow: 'visible',
-          marginLeft: insets.left,
-          marginRight: insets.right,
-          shadowColor: 'black',
-          shadowOffset: { width: 0, height: 32 },
-          shadowRadius: 32,
-          shadowOpacity: 1 / 4,
-          elevation: 48,
+          // shadowColor: 'black',
+          // shadowOffset: { width: 0, height: 32 },
+          // shadowRadius: 32,
+          // shadowOpacity: 1 / 4,
+          // elevation: 48,
         }}
       >
         {(category || card.pack) && (
@@ -189,6 +162,8 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
           entering={entering}
           style={{
             overflow: 'hidden',
+            marginRight: insets.right,
+            marginLeft: insets.left,
             width: Dimensions.get('screen').width - insets.left - insets.right,
             borderRadius: 32,
             backgroundColor: Colors[colorScheme].secondaryBackground,
@@ -204,6 +179,46 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
           />
         </Animated.View>
       </Animated.ScrollView>
+    </View>
+  )
+}
+
+function PackView(props: Readonly<{ pack: Pack } & ViewProps>) {
+  const { pack, style } = props
+  const colorScheme = useColorScheme()
+  const { data: image, error } = PackManager.useImageQuery(pack.image)
+  if (error) console.warn(error)
+
+  return (
+    <View
+      {...props}
+      style={[
+        {
+          backgroundColor: Colors[colorScheme].secondaryBackground,
+          padding: 16,
+          borderRadius: 16,
+          gap: 8,
+        },
+        style,
+      ]}
+    >
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <Image
+          source={image}
+          transition={256}
+          style={{
+            aspectRatio: 1,
+            height: 64,
+            borderRadius: 12,
+            borderColor: Colors[colorScheme].stroke,
+            borderWidth: StyleSheet.hairlineWidth,
+          }}
+        />
+        <Text style={{ ...FontStyles.Title, color: Colors[colorScheme].text }} numberOfLines={1}>
+          {pack.name}
+        </Text>
+      </View>
+      <Text style={[FontStyles.Subheading, { fontSize: 18 }]}>{pack.description}</Text>
     </View>
   )
 }
