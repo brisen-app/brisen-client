@@ -4,7 +4,7 @@ import { CardManager } from '@/managers/CardManager'
 import { LocalizationManager } from '@/managers/LocalizationManager'
 import BottomSheet from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet'
 import React, { useCallback, useEffect, useState } from 'react'
-import { Button, Dimensions, FlatList, Pressable, PressableProps } from 'react-native'
+import { Button, Dimensions, FlatList, Pressable, PressableProps, ViewProps } from 'react-native'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import { Text } from './utils/Themed'
 import useColorScheme from './utils/useColorScheme'
@@ -78,18 +78,23 @@ export default function GameView(props: Readonly<GameViewProps>) {
   )
 }
 
-function NoCardsView(props: Readonly<PressableProps>) {
+function NoCardsView(props: Readonly<PressableProps & ViewProps>) {
+  const { onPress, style } = props
   return (
     <Pressable
-      onPress={props.onPress}
-      style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: 32,
-      }}
+      onPress={onPress}
+      style={[
+        {
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: 16,
+          gap: 32,
+        },
+        style,
+      ]}
     >
-      <Text style={{ color: Colors[useColorScheme()].secondaryText }}>
+      <Text style={{ color: Colors[useColorScheme()].secondaryText, textAlign: 'center' }}>
         {LocalizationManager.get('select_pack')?.value ?? 'select_pack'}
       </Text>
     </Pressable>
