@@ -22,7 +22,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
   const { pack, style } = props
   const colorScheme = useColorScheme()
   const bottomSheet = useBottomSheet()
-  const { playlist } = useAppContext()
+  const { playlist, playedIds } = useAppContext()
   const setContext = useAppDispatchContext()
   const width = props.width ?? 256
   const isSelected = playlist.has(pack)
@@ -59,7 +59,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
     >
       <Pressable
         onPress={() => {
-          if (playlist.size === 0) bottomSheet.snapToIndex(1)
+          if (playlist.size === 0 && playedIds.size === 0) bottomSheet.collapse()
           setContext({ action: 'togglePack', payload: pack })
         }}
       >
@@ -116,8 +116,8 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
                     Platform.select({
                       ios: {
                         shadowOffset: { width: 0, height: 8 },
-                        shadowRadius: 16,
-                        shadowOpacity: 0.5,
+                        shadowRadius: 8,
+                        shadowOpacity: 0.75,
                       },
                       android: {
                         textShadowOffset: { width: 0, height: 8 },
