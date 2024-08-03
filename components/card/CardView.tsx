@@ -1,5 +1,4 @@
 import Colors from '@/constants/Colors'
-import Sizes from '@/constants/Sizes'
 import { FontStyles, Styles } from '@/constants/Styles'
 import { PlayedCard } from '@/managers/CardManager'
 import { Category, CategoryManager } from '@/managers/CategoryManager'
@@ -100,16 +99,17 @@ export function CardView(props: Readonly<CardViewProps & ViewProps>) {
           >
             <Image
               source={image}
+              transition={200}
               style={{
                 height: 48,
                 aspectRatio: 1,
-                ...styles.shadow,
                 backgroundColor: Color.black.alpha(0.5).string,
                 borderColor: Colors[colorScheme].stroke,
-                borderWidth: Sizes.thin,
+                borderWidth: StyleSheet.hairlineWidth,
                 borderRadius: 12,
               }}
             />
+
             <Text style={{ ...FontStyles.Title, ...styles.textShadow, color: Color.white.string }}>
               {card.pack?.name}
             </Text>
