@@ -9,7 +9,7 @@ import BottomSheet, {
 } from '@gorhom/bottom-sheet'
 import { SplashScreen } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { Keyboard, StyleSheet, View, ViewProps } from 'react-native'
+import { Keyboard, Platform, View, ViewProps } from 'react-native'
 import Animated, { Extrapolation, interpolate, interpolateColor, useAnimatedStyle } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
@@ -48,7 +48,6 @@ export default function App() {
         backgroundComponent={SheetMenuBackground}
         handleComponent={SheetHandle}
         keyboardBehavior='interactive'
-        style={{ ...styles.shadow }}
       >
         <MenuView />
       </BottomSheet>
@@ -70,7 +69,24 @@ const SheetMenuBackground: React.FC<BottomSheetBackgroundProps> = ({ style, anim
   }))
   const containerStyle = useMemo(() => [style, containerAnimatedStyle], [style, containerAnimatedStyle, colorScheme])
 
-  return <Animated.View pointerEvents='none' style={containerStyle} />
+  return (
+    <Animated.View
+      pointerEvents='none'
+      style={[
+        Platform.select({
+          ios: {
+            shadowColor: 'black',
+            shadowOpacity: 0.5,
+            shadowRadius: 32,
+          },
+          android: {
+            elevation: 32,
+          },
+        }) ?? {},
+        containerStyle,
+      ]}
+    />
+  )
 }
 
 const SheetHandle: React.FC<BottomSheetHandleProps & ViewProps> = ({ style, animatedIndex, animatedPosition }) => {
@@ -111,11 +127,3 @@ const SheetHandle: React.FC<BottomSheetHandleProps & ViewProps> = ({ style, anim
     </Animated.View>
   )
 }
-
-const styles = StyleSheet.create({
-  shadow: {
-    shadowColor: 'black',
-    shadowOpacity: 0.5,
-    shadowRadius: 32,
-  },
-})
