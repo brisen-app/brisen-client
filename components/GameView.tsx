@@ -67,6 +67,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
     <FlatList
       ref={flatListRef}
       pagingEnabled
+      scrollsToTop={false}
       showsVerticalScrollIndicator={false}
       data={playedCards}
       onEndReachedThreshold={1}
