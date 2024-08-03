@@ -70,7 +70,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
       scrollsToTop={false}
       showsVerticalScrollIndicator={false}
       data={playedCards}
-      onEndReachedThreshold={1}
+      onEndReachedThreshold={1.1}
       onEndReached={addCard}
       ListFooterComponent={<OutOfCardsView onPress={onPressNoCard} />}
       renderItem={({ item }) => <CardScreen card={item} />}

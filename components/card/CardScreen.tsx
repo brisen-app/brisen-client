@@ -6,8 +6,8 @@ import { CategoryManager } from '@/managers/CategoryManager'
 import { LocalizationManager } from '@/managers/LocalizationManager'
 import { Pack, PackManager } from '@/managers/PackManager'
 import { Image } from 'expo-image'
-import { useEffect, useRef } from 'react'
-import { Dimensions, PressableProps, StyleSheet, View, ViewProps } from 'react-native'
+import { useRef } from 'react'
+import { Dimensions, Platform, PressableProps, StyleSheet, View, ViewProps } from 'react-native'
 import Animated, {
   Easing,
   Extrapolation,
@@ -47,8 +47,6 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
     right: insets.right ? insets.right : padding,
   }
 
-  useEffect(() => horizontalScroll.current?.scrollToEnd({ animated: false }), [])
-
   const category = card.category ? CategoryManager.get(card.category) : null
   const categoryDescription = category ? CategoryManager.getDescription(category) : null
   const packs = PackManager.getPacksOf(card.id)
@@ -80,18 +78,17 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
       onTouchEnd={() => scrollOffset.value >= 0.95 && horizontalScroll.current?.scrollToEnd()}
       style={{
         height: Dimensions.get('screen').height,
-        paddingTop: insets.top,
-        paddingBottom: insets.bottom + 64 + 16,
       }}
     >
       <Animated.View
         style={[
           {
             ...Styles.absoluteFill,
-            width: detailsWidth - insets.right,
-            marginTop: insets.top,
-            marginBottom: insets.bottom,
-            marginLeft: insets.left,
+            width: detailsWidth,
+            paddingLeft: insets.left,
+            paddingRight: insets.right,
+            paddingBottom: insets.bottom + 64 + 16,
+            paddingTop: insets.top,
             justifyContent: 'flex-end',
             gap: 16,
           },
@@ -141,18 +138,10 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
       <Animated.ScrollView
         ref={horizontalScroll}
         onScroll={scrollHandler}
-        // onLayout={() => horizontalScroll.current?.scrollToEnd({ animated: false })}
+        onLayout={() => horizontalScroll.current?.scrollToEnd({ animated: false })}
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
-        style={{
-          overflow: 'visible',
-          // shadowColor: 'black',
-          // shadowOffset: { width: 0, height: 32 },
-          // shadowRadius: 32,
-          // shadowOpacity: 1 / 4,
-          // elevation: 48,
-        }}
       >
         {(category || card.pack) && (
           <View onTouchStart={() => horizontalScroll.current?.scrollToEnd()} style={{ width: detailsWidth }} />
@@ -160,16 +149,21 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
 
         <Animated.View
           entering={entering}
-          style={{
-            overflow: 'hidden',
-            marginRight: insets.right,
-            marginLeft: insets.left,
-            width: Dimensions.get('screen').width - insets.left - insets.right,
-            borderRadius: 32,
-            backgroundColor: Colors[colorScheme].secondaryBackground,
-            borderColor: Colors[colorScheme].stroke,
-            borderWidth: Sizes.thin,
-          }}
+          style={[
+            {
+              width: Dimensions.get('screen').width,
+            },
+            Platform.select({
+              ios: {
+                shadowOffset: { width: 0, height: 8 },
+                shadowRadius: 16,
+                shadowOpacity: 0.5,
+              },
+              android: {
+                elevation: 32,
+              },
+            }) ?? {},
+          ]}
         >
           <CardView
             card={card}

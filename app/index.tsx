@@ -9,7 +9,7 @@ import BottomSheet, {
 } from '@gorhom/bottom-sheet'
 import { SplashScreen } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { Keyboard, Platform, StyleSheet, View, ViewProps } from 'react-native'
+import { Keyboard, Platform, View, ViewProps } from 'react-native'
 import Animated, { Extrapolation, interpolate, interpolateColor, useAnimatedStyle } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
