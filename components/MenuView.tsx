@@ -209,6 +209,7 @@ function AddPlayerField(props: Readonly<ViewProps>) {
         value={text}
         onChangeText={setText}
         placeholder={LocalizationManager.get('add_players')?.value ?? 'add_players'}
+        placeholderTextColor={Colors[colorScheme].secondaryText}
         keyboardAppearance={colorScheme}
         returnKeyType='done'
         enablesReturnKeyAutomatically

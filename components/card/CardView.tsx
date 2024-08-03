@@ -1,5 +1,4 @@
 import Colors from '@/constants/Colors'
-import Sizes from '@/constants/Sizes'
 import { FontStyles, Styles } from '@/constants/Styles'
 import { PlayedCard } from '@/managers/CardManager'
 import { Category, CategoryManager } from '@/managers/CategoryManager'
@@ -7,11 +6,12 @@ import { PackManager } from '@/managers/PackManager'
 import Color from '@/models/Color'
 import { Image } from 'expo-image'
 import { LinearGradient } from 'expo-linear-gradient'
-import { Pressable, TouchableOpacity, View } from 'react-native'
+import { Platform, StyleSheet, TouchableOpacity, View, ViewProps } from 'react-native'
 import { Text } from '../utils/Themed'
 import useColorScheme from '../utils/useColorScheme'
 import { ConfigurationManager } from '@/managers/ConfigurationManager'
 import { MaterialIcons } from '@expo/vector-icons'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export type CardViewProps = {
   card: PlayedCard
@@ -20,11 +20,19 @@ export type CardViewProps = {
   onPressPack: () => void
 }
 
-export function CardView(props: Readonly<CardViewProps>) {
+export function CardView(props: Readonly<CardViewProps & ViewProps>) {
   const colorScheme = useColorScheme()
-  const { card, category } = props
+  const { card, category, style } = props
+  const insets = useSafeAreaInsets()
 
   const padding = 24
+  const safeArea = {
+    paddingTop: Math.max(padding, insets.top),
+    paddingLeft: Math.max(padding, insets.left),
+    paddingRight: Math.max(padding, insets.right),
+    paddingBottom: insets.bottom + 64 + padding,
+  }
+
   const target = card.is_group || card.players.length === 0 ? null : card.players[0]
   const content = card.formattedContent ?? card.content
   const { data: image, error } = PackManager.useImageQuery(card.pack?.image)
@@ -39,7 +47,7 @@ export function CardView(props: Readonly<CardViewProps>) {
   }
 
   return (
-    <Pressable style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <View style={[{ flex: 1, justifyContent: 'center', alignItems: 'center' }, style]}>
       <LinearGradient colors={getGradient()} start={{ x: 0, y: 1 }} end={{ x: 1, y: 0 }} style={Styles.absoluteFill} />
 
       {/* Grain */}
@@ -47,7 +55,7 @@ export function CardView(props: Readonly<CardViewProps>) {
         source={require('@/assets/images/noise.png')}
         style={{
           ...Styles.absoluteFill,
-          opacity: 0.1,
+          opacity: 0.05,
         }}
       />
 
@@ -55,8 +63,7 @@ export function CardView(props: Readonly<CardViewProps>) {
       <View
         style={{
           ...Styles.absoluteFill,
-          padding: padding,
-          ...Styles.shadow,
+          ...safeArea,
         }}
       >
         {(category || card.header) && (
@@ -69,8 +76,11 @@ export function CardView(props: Readonly<CardViewProps>) {
               gap: 4,
             }}
           >
-            <Text style={{ fontSize: 48 }}>{category?.icon}</Text>
-            <Text style={{ ...FontStyles.Title, color: Color.white.string, textAlign: 'right' }} numberOfLines={1}>
+            <Text style={{ ...styles.textShadow, fontSize: 48 }}>{category?.icon}</Text>
+            <Text
+              style={{ ...FontStyles.Title, ...styles.textShadow, color: Color.white.string, textAlign: 'right' }}
+              numberOfLines={1}
+            >
               {category ? card.header ?? CategoryManager.getTitle(category) : card.header}
             </Text>
             <MaterialIcons name='info' size={18} color={Color.white.alpha(0.5).string} style={{ marginLeft: 4 }} />
@@ -89,28 +99,32 @@ export function CardView(props: Readonly<CardViewProps>) {
           >
             <Image
               source={image}
+              transition={200}
               style={{
                 height: 48,
                 aspectRatio: 1,
                 backgroundColor: Color.black.alpha(0.5).string,
                 borderColor: Colors[colorScheme].stroke,
-                borderWidth: Sizes.thin,
+                borderWidth: StyleSheet.hairlineWidth,
                 borderRadius: 12,
               }}
             />
-            <Text style={{ ...FontStyles.Title, color: Color.white.string }}>{card.pack?.name}</Text>
+
+            <Text style={{ ...FontStyles.Title, ...styles.textShadow, color: Color.white.string }}>
+              {card.pack?.name}
+            </Text>
           </TouchableOpacity>
         )}
       </View>
 
       {/* Content */}
-      <>
+      <View style={safeArea}>
         {target && (
           <Text
             style={{
               fontSize: 32,
               fontWeight: '900',
-              ...Styles.shadow,
+              ...styles.textShadow,
               color: Color.white.string,
               textAlign: 'center',
             }}
@@ -122,7 +136,7 @@ export function CardView(props: Readonly<CardViewProps>) {
           style={{
             fontSize: Math.max(18, 28 / Math.max(1, content.length / 150)),
             fontWeight: '900',
-            ...Styles.shadow,
+            ...styles.textShadow,
             color: Color.white.string,
             textAlign: 'center',
             paddingHorizontal: 32,
@@ -130,7 +144,37 @@ export function CardView(props: Readonly<CardViewProps>) {
         >
           {content}
         </Text>
-      </>
-    </Pressable>
+      </View>
+    </View>
   )
 }
+
+const shadowSize = 1.3
+const shadowOpacity = 0.3
+
+const styles = StyleSheet.create({
+  textShadow:
+    Platform.select({
+      ios: {
+        shadowOffset: { width: 0, height: shadowSize },
+        shadowRadius: shadowSize,
+        shadowOpacity: shadowOpacity,
+      },
+      android: {
+        textShadowOffset: { width: 0, height: shadowSize },
+        textShadowRadius: shadowSize,
+        textShadowColor: Color.black.alpha(shadowOpacity).string,
+      },
+    }) ?? {},
+  shadow:
+    Platform.select({
+      ios: {
+        shadowOffset: { width: 0, height: shadowSize },
+        shadowRadius: shadowSize,
+        shadowOpacity: shadowOpacity,
+      },
+      android: {
+        elevation: 2,
+      },
+    }) ?? {},
+})
