@@ -1,5 +1,4 @@
 import Colors from '@/constants/Colors'
-import Sizes from '@/constants/Sizes'
 import { FontStyles, Styles } from '@/constants/Styles'
 import { PlayedCard } from '@/managers/CardManager'
 import { CategoryManager } from '@/managers/CategoryManager'

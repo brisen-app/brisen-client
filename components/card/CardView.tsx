@@ -7,12 +7,12 @@ import { PackManager } from '@/managers/PackManager'
 import Color from '@/models/Color'
 import { Image } from 'expo-image'
 import { LinearGradient } from 'expo-linear-gradient'
-import { Platform, Pressable, StyleSheet, TouchableOpacity, View, ViewProps } from 'react-native'
+import { Platform, StyleSheet, TouchableOpacity, View, ViewProps } from 'react-native'
 import { Text } from '../utils/Themed'
 import useColorScheme from '../utils/useColorScheme'
 import { ConfigurationManager } from '@/managers/ConfigurationManager'
 import { MaterialIcons } from '@expo/vector-icons'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export type CardViewProps = {
   card: PlayedCard
@@ -24,8 +24,16 @@ export type CardViewProps = {
 export function CardView(props: Readonly<CardViewProps & ViewProps>) {
   const colorScheme = useColorScheme()
   const { card, category, style } = props
+  const insets = useSafeAreaInsets()
 
   const padding = 24
+  const safeArea = {
+    paddingTop: Math.max(padding, insets.top),
+    paddingLeft: Math.max(padding, insets.left),
+    paddingRight: Math.max(padding, insets.right),
+    paddingBottom: insets.bottom + 64 + padding,
+  }
+
   const target = card.is_group || card.players.length === 0 ? null : card.players[0]
   const content = card.formattedContent ?? card.content
   const { data: image, error } = PackManager.useImageQuery(card.pack?.image)
@@ -40,7 +48,7 @@ export function CardView(props: Readonly<CardViewProps & ViewProps>) {
   }
 
   return (
-    <Pressable style={[{ flex: 1, justifyContent: 'center', alignItems: 'center' }, style]}>
+    <View style={[{ flex: 1, justifyContent: 'center', alignItems: 'center' }, style]}>
       <LinearGradient colors={getGradient()} start={{ x: 0, y: 1 }} end={{ x: 1, y: 0 }} style={Styles.absoluteFill} />
 
       {/* Grain */}
@@ -48,15 +56,15 @@ export function CardView(props: Readonly<CardViewProps & ViewProps>) {
         source={require('@/assets/images/noise.png')}
         style={{
           ...Styles.absoluteFill,
-          opacity: 0.1,
+          opacity: 0.05,
         }}
       />
 
       {/* Pack & Category */}
-      <SafeAreaView
+      <View
         style={{
           ...Styles.absoluteFill,
-          padding: padding,
+          ...safeArea,
         }}
       >
         {(category || card.header) && (
@@ -87,7 +95,6 @@ export function CardView(props: Readonly<CardViewProps & ViewProps>) {
             style={{
               flexDirection: 'row',
               alignItems: 'center',
-              paddingBottom: 64,
               gap: 8,
             }}
           >
@@ -108,10 +115,10 @@ export function CardView(props: Readonly<CardViewProps & ViewProps>) {
             </Text>
           </TouchableOpacity>
         )}
-      </SafeAreaView>
+      </View>
 
       {/* Content */}
-      <>
+      <View style={safeArea}>
         {target && (
           <Text
             style={{
@@ -137,8 +144,8 @@ export function CardView(props: Readonly<CardViewProps & ViewProps>) {
         >
           {content}
         </Text>
-      </>
-    </Pressable>
+      </View>
+    </View>
   )
 }
 
