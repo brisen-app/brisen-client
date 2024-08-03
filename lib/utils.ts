@@ -1,4 +1,6 @@
+import { ConfigurationManager } from '@/managers/ConfigurationManager'
 import * as Crypto from 'expo-crypto'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export function blobToBase64(blob: Blob): Promise<string | null> {
   return new Promise(resolve => {
@@ -54,6 +56,12 @@ export function getRandom<T>(collection: Iterable<T>): T | null {
   else array = Array.from(collection)
   if (array.length === 0) return null
   return array[Math.floor((Crypto.getRandomValues(new Uint32Array(1))[0] / 0xffffffff) * array.length) % array.length]
+}
+
+export function useSheetHeight() {
+  const inset = useSafeAreaInsets().bottom
+  const constant = ConfigurationManager.get('bottom_sheet_min_position')?.number ?? 64
+  return inset > 0 ? inset + constant : 16 + constant
 }
 
 const emptyQuery = {
