@@ -1,4 +1,7 @@
 {
+  "cli": {
+    "version": ">= 0.34.0"
+  },
   "build": {
     "develop": {
       "extends": "preview",
@@ -17,6 +20,15 @@
       },
       "ios": {
         "image": "latest"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "ole@kallerud.no",
+        "ascAppId": "6480421611",
+        "appleTeamId": "AY62B8PT9G"
       }
     }
   }
