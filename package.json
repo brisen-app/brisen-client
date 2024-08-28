@@ -12,6 +12,9 @@
   },
   "jest": {
     "preset": "jest-expo",
+    "setupFilesAfterEnv": [
+      "<rootDir>/__tests__/setup.ts"
+    ],
     "coveragePathIgnorePatterns": [
       "/node_modules/",
       "/coverage/",
