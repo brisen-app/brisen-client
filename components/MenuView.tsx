@@ -106,7 +106,7 @@ export default function MenuView() {
           ))}
         </View>
 
-        <View style={{ height: insets.bottom ?? 16 }} />
+        <View style={{ height: insets.bottom ? insets.bottom : 16 + 8 }} />
       </Animated.View>
     </BottomSheetScrollView>
   )

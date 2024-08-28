@@ -21,6 +21,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Text } from '../utils/Themed'
 import useColorScheme from '../utils/useColorScheme'
 import { CardView } from './CardView'
+import { useSheetHeight } from '@/lib/utils'
 
 export type CardScreenProps = { card: PlayedCard } & PressableProps
 
@@ -39,11 +40,11 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
 
   const padding = 16
   let insets = useSafeAreaInsets()
-  insets = {
-    top: insets.top ? insets.top : padding,
-    bottom: insets.bottom ? insets.bottom : padding,
-    left: insets.left ? insets.left : padding,
-    right: insets.right ? insets.right : padding,
+  const safeArea = {
+    paddingTop: Math.max(padding, insets.top),
+    paddingLeft: Math.max(padding, insets.left),
+    paddingRight: Math.max(padding, insets.right),
+    paddingBottom: useSheetHeight() + padding,
   }
 
   const category = card.category ? CategoryManager.get(card.category) : null
@@ -83,11 +84,8 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
         style={[
           {
             ...Styles.absoluteFill,
+            ...safeArea,
             width: detailsWidth,
-            paddingLeft: insets.left,
-            paddingRight: insets.right,
-            paddingBottom: insets.bottom + 64 + 16,
-            paddingTop: insets.top,
             justifyContent: 'flex-end',
             gap: 16,
           },

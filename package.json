@@ -12,6 +12,12 @@
   },
   "jest": {
     "preset": "jest-expo",
+    "setupFilesAfterEnv": [
+      "<rootDir>/__tests__/setup.ts"
+    ],
+    "testPathIgnorePatterns": [
+      "setup.ts"
+    ],
     "coveragePathIgnorePatterns": [
       "/node_modules/",
       "/coverage/",
@@ -48,7 +54,7 @@
     "@supabase/supabase-js": "^2.39.3",
     "@tanstack/react-query": "^5.18.1",
     "@tanstack/react-query-devtools": "^5.18.1",
-    "expo": "^51.0.24",
+    "expo": "^51.0.31",
     "expo-blur": "~13.0.2",
     "expo-constants": "~16.0.2",
     "expo-crypto": "~13.0.2",
@@ -69,7 +75,7 @@
     "jest-expo": "~50.0.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-native": "0.74.3",
+    "react-native": "0.74.5",
     "react-native-elements": "^3.4.3",
     "react-native-gesture-handler": "~2.16.1",
     "react-native-reanimated": "~3.10.1",

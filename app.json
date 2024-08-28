@@ -24,9 +24,7 @@
           "backgroundColor": "#000000"
         }
       },
-      "runtimeVersion": {
-        "policy": "appVersion"
-      }
+      "runtimeVersion": "0.0.1"
     },
     "android": {
       "package": "no.kallerud.brisen",

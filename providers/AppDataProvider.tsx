@@ -29,11 +29,11 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
   const colorScheme = useColorScheme()
 
   const configResonse = useSupabase(ConfigurationManager)
-  const languageResponse = useSupabase(LanguageManager)
+  const languageResponse = useSupabase(LanguageManager, configResonse.hasFetched)
   const categoryResponse = useSupabase(CategoryManager)
-  const packResponse = useSupabase(PackManager)
   const cardResponse = useSupabase(CardManager)
   const cardRelationResponse = useSupabase(CardRelationManager)
+  const packResponse = useSupabase(PackManager, languageResponse.hasFetched)
   const localizationResponse = useSupabase(LocalizationManager, languageResponse.hasFetched)
 
   const hasFetched =

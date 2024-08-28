@@ -1,0 +1,37 @@
+name: Build and Submit
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: Production
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      EXPO_PROJECT: ${{ vars.EXPO_PROJECT }}
+      EXPO_PUBLIC_SB_URL: ${{ vars.SUPABASE_URL }}
+      EXPO_PUBLIC_SB_ANON: ${{ secrets.SUPABASE_ANON }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          packager: npm
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 📦 Install dependencies
+        run: npm install
+
+      - name: 🏗️ Build and Submit
+        uses: expo/expo-github-action/preview@v8
+        with:
+          command: eas build -p all --profile production --non-interactive --no-wait --auto-submit

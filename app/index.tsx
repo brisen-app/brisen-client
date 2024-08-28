@@ -2,6 +2,7 @@ import GameView from '@/components/GameView'
 import MenuView from '@/components/MenuView'
 import useColorScheme from '@/components/utils/useColorScheme'
 import Colors from '@/constants/Colors'
+import { useSheetHeight } from '@/lib/utils'
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetBackgroundProps,
@@ -16,8 +17,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 export default function App() {
   const insets = useSafeAreaInsets()
   const bottomSheetRef = useRef<BottomSheet>(null)
-  const bottomInsets = insets.bottom === 0 ? 24 : insets.bottom
-  const snapPoints = useMemo(() => [bottomInsets + 64, '45%', '100%'], [bottomSheetRef, insets])
+  const sheetHeight = useSheetHeight()
+  const snapPoints = useMemo(() => [sheetHeight, '45%', '100%'], [bottomSheetRef, insets])
 
   const backdrop = useCallback(
     (props: any) => (
@@ -96,10 +97,9 @@ const SheetHandle: React.FC<BottomSheetHandleProps & ViewProps> = ({ style, anim
   const handleHeight = 24
 
   const containerAnimatedStyle = useAnimatedStyle(() => ({
-    height:
-      insets.top === 0
-        ? handleHeight
-        : interpolate(animatedIndex.value, [1, 2], [handleHeight, insets.top], Extrapolation.CLAMP),
+    height: !insets.top
+      ? handleHeight
+      : interpolate(animatedIndex.value, [1, 2], [handleHeight, insets.top], Extrapolation.CLAMP),
     opacity: interpolate(animatedPosition.value, [insets.top, 0], [1 / 3, 0], Extrapolation.CLAMP),
   }))
 

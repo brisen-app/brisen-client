@@ -12,6 +12,7 @@ import useColorScheme from '../utils/useColorScheme'
 import { ConfigurationManager } from '@/managers/ConfigurationManager'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useSheetHeight } from '@/lib/utils'
 
 export type CardViewProps = {
   card: PlayedCard
@@ -25,12 +26,12 @@ export function CardView(props: Readonly<CardViewProps & ViewProps>) {
   const { card, category, style } = props
   const insets = useSafeAreaInsets()
 
-  const padding = 24
+  const padding = 16
   const safeArea = {
     paddingTop: Math.max(padding, insets.top),
     paddingLeft: Math.max(padding, insets.left),
     paddingRight: Math.max(padding, insets.right),
-    paddingBottom: insets.bottom + 64 + padding,
+    paddingBottom: useSheetHeight() + padding,
   }
 
   const target = card.is_group || card.players.length === 0 ? null : card.players[0]
