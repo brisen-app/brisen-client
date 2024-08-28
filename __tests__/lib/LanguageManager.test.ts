@@ -33,39 +33,24 @@ jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock')
 )
 
+const eq = (key: 'id', value: string) => ({
+  single: () => ({
+    throwOnError: () => ({
+      data: mockedItems.find(item => item[key] === value),
+    }),
+  }),
+})
+
 jest.mock('@/lib/supabase', () => ({
   supabase: {
     from: () => ({
       select: () => ({
         throwOnError: () => ({ data: mockedItems }),
-        eq: (key: 'id', value: string) => ({
-          single: () => ({
-            throwOnError: () => ({
-              data: mockedItems.find(item => item[key] === value),
-            }),
-          }),
-        }),
+        eq,
       }),
     }),
   },
 }))
-
-// jest.mock('@/managers/ConfigurationManager', () => ({
-//   ConfigurationManager: {
-//     get: (id: string) => {
-//       switch (id) {
-//         case 'default_language':
-//           return { string: 'nb' }
-//         case 'sfw_language':
-//           return { string: 'sfw' }
-//         case 'use_sfw_content':
-//           return { bool: false }
-//         default:
-//           return undefined
-//       }
-//     },
-//   },
-// }))
 
 beforeEach(() => {
   LanguageManager['_items'] = undefined

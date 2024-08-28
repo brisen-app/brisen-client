@@ -15,6 +15,9 @@
     "setupFilesAfterEnv": [
       "<rootDir>/__tests__/setup.ts"
     ],
+    "testPathIgnorePatterns": [
+      "setup.ts"
+    ],
     "coveragePathIgnorePatterns": [
       "/node_modules/",
       "/coverage/",
