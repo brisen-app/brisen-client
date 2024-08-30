@@ -6,15 +6,10 @@
     "orientation": "portrait",
     "scheme": "no.kallerud",
     "userInterfaceStyle": "automatic",
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "primaryColor": "#f3a000",
     "backgroundColor": "#000000",
-    "platforms": [
-      "ios",
-      "android"
-    ],
+    "platforms": ["ios", "android"],
     "icon": "./assets/images/app-icon/icon.jpeg",
     "ios": {
       "supportsTablet": true,
@@ -50,12 +45,7 @@
       },
       "runtimeVersion": "0.0.1"
     },
-    "plugins": [
-      "expo-router",
-      "expo-localization",
-      "expo-font",
-      "react-native-iap"
-    ],
+    "plugins": ["expo-router", "expo-localization", "expo-font"],
     "experiments": {
       "typedRoutes": true
     },
