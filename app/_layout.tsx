@@ -8,6 +8,7 @@ import * as NavigationBar from 'expo-navigation-bar'
 import AppDataProvider from '@/providers/AppDataProvider'
 import Colors from '@/constants/Colors'
 import useColorScheme from '@/components/utils/useColorScheme'
+import InAppPurchaseProvider from '@/providers/InAppPurchaseProvider'
 
 SplashScreen.preventAutoHideAsync()
 if (Platform.OS === 'android') {
@@ -35,17 +36,19 @@ export default function Layout() {
   return (
     <GestureHandlerRootView>
       <QueryClientProvider client={queryClient}>
-        <AppDataProvider>
-          <AppContextProvider>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                contentStyle: { backgroundColor: Colors[colorScheme].background },
-              }}
-            />
-            {Platform.OS === 'web' && <ReactQueryDevtools initialIsOpen={true} />}
-          </AppContextProvider>
-        </AppDataProvider>
+        <InAppPurchaseProvider>
+          <AppDataProvider>
+            <AppContextProvider>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  contentStyle: { backgroundColor: Colors[colorScheme].background },
+                }}
+              />
+              {Platform.OS === 'web' && <ReactQueryDevtools initialIsOpen={true} />}
+            </AppContextProvider>
+          </AppDataProvider>
+        </InAppPurchaseProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>
   )
