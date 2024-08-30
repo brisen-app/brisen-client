@@ -13,6 +13,8 @@
    ```env
    EXPO_PUBLIC_SB_URL=https://tlnldlywflpgvjepxwxz.supabase.co
    EXPO_PUBLIC_SB_ANON=<development-enviornment-anon-key>
+   EXPO_PUBLIC_RC_KEY_APPLE=<revenue-cat-apple-api-key>
+   EXPO_PUBLIC_RC_KEY_GOOGLE=<revenue-cat-google-api-key>
    ```
    If you're making changes to the database schema, you'll need to clone the [`supabase-database`](https://github.com/brisen-app/brisen-database)-repo and follow the instructions in the `README.md`-file.
 
