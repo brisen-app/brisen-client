@@ -241,6 +241,7 @@ export type Database = {
           description: string | null
           id: string
           image: string | null
+          is_free: boolean
           language: string | null
           modified_at: string
           name: string
@@ -250,6 +251,7 @@ export type Database = {
           description?: string | null
           id?: string
           image?: string | null
+          is_free?: boolean
           language?: string | null
           modified_at?: string
           name?: string
@@ -259,6 +261,7 @@ export type Database = {
           description?: string | null
           id?: string
           image?: string | null
+          is_free?: boolean
           language?: string | null
           modified_at?: string
           name?: string
