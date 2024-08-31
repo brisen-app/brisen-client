@@ -186,28 +186,37 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
     visited.add(from)
 
     if (direction === 'both' || direction === 'parents') {
-      for (const parent of this.parents.get(from) ?? []) {
-        if (path.includes(parent)) {
-          if (direction !== 'both') onCycle([...path, parent])
-          continue
-        }
-        if (visited.has(parent)) continue
-        this.traverse(parent, direction, forEach, onCycle, path, visited)
-      }
+      this.traverseAdjacent(from, this.parents, direction, forEach, onCycle, path, visited)
     }
 
     if (direction === 'both' || direction === 'children') {
-      for (const child of this.children.get(from) ?? []) {
-        if (path.includes(child)) {
-          if (direction !== 'both') onCycle([...path, child])
-          continue
-        }
-        if (visited.has(child)) continue
-        this.traverse(child, direction, forEach, onCycle, path, visited)
-      }
+      this.traverseAdjacent(from, this.children, direction, forEach, onCycle, path, visited)
     }
 
     path.pop()
+  }
+
+  /**
+   * Helper function for traversing the adjacent nodes of a given node in a graph.
+   * Traverses the adjacent nodes of a given node in a graph.
+   */
+  private traverseAdjacent(
+    from: string,
+    to: Map<string, Set<string>>,
+    direction: 'parents' | 'children' | 'both' = 'children',
+    forEach: (item: string) => boolean = () => true,
+    onCycle: (path: Array<string>) => void = () => {},
+    path: Array<string> = new Array<string>(),
+    visited: Set<string> = new Set<string>()
+  ) {
+    for (const parent of to.get(from) ?? []) {
+      if (path.includes(parent)) {
+        if (direction !== 'both') onCycle([...path, parent])
+        continue
+      }
+      if (visited.has(parent)) continue
+      this.traverse(parent, direction, forEach, onCycle, path, visited)
+    }
   }
 }
 
