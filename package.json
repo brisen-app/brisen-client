@@ -22,6 +22,8 @@
       "/node_modules/",
       "/coverage/",
       "/app/",
+      "AppDataProvider.tsx",
+      "InAppPurchaseProvider.tsx",
       "/components/",
       "/\\.",
       "\\.(config|d)\\.(js|jsx|ts|tsx|json)"
