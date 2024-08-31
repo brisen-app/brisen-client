@@ -9,6 +9,9 @@ import useColorScheme from '../utils/useColorScheme'
 import Animated, { Easing, useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import { useBottomSheet } from '@gorhom/bottom-sheet'
 import Color from '@/models/Color'
+import RevenueCatUI from 'react-native-purchases-ui'
+import { useInAppPurchaseContext } from '@/providers/InAppPurchaseProvider'
+import { useEffect } from 'react'
 
 export type PackViewProps = {
   pack: Pack
@@ -23,17 +26,19 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
   const colorScheme = useColorScheme()
   const bottomSheet = useBottomSheet()
   const { playlist, playedIds } = useAppContext()
+  const { isSubscribed } = useInAppPurchaseContext()
   const setContext = useAppDispatchContext()
   const width = props.width ?? 256
   const isSelected = playlist.has(pack)
   const isNoneSelected = playlist.size === 0
+  const isAvailable = pack.is_free || isSubscribed
 
   const { data: image, isLoading, error } = PackManager.useImageQuery(pack.image)
   if (error) console.warn(error)
 
   const animationConfig = { duration: 150, easing: Easing.bezier(0, 0, 0.5, 1) }
 
-  const animatedStyle = useAnimatedStyle(() => {
+  const isSelectedStyle = useAnimatedStyle(() => {
     return {
       opacity: withTiming(isSelected || isNoneSelected ? 1 : 0.5, animationConfig),
       transform: [{ scale: withTiming(isSelected || isNoneSelected ? 1 : 0.98, animationConfig) }],
@@ -47,6 +52,19 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
     }
   }, [isSelected])
 
+  const isAvailableStyle = useAnimatedStyle(() => {
+    return {
+      opacity: withTiming(isAvailable ? 1 : 1 / 3, animationConfig),
+    }
+  }, [isAvailable])
+
+  const lockStyle = useAnimatedStyle(() => {
+    return {
+      opacity: withTiming(!isAvailable ? 1 : 0, animationConfig),
+      transform: [{ scale: withTiming(!isAvailable ? 1 : 0.9, animationConfig) }],
+    }
+  }, [isAvailable])
+
   return (
     <Animated.View
       style={[
@@ -54,13 +72,17 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
           width: width,
         },
         style,
-        animatedStyle,
+        isSelectedStyle,
       ]}
     >
       <Pressable
         onPress={() => {
-          if (playlist.size === 0 && playedIds.size === 0) bottomSheet.collapse()
-          setContext({ action: 'togglePack', payload: pack })
+          if (isAvailable) {
+            setContext({ action: 'togglePack', payload: pack })
+            if (playlist.size === 0 && playedIds.size === 0) bottomSheet.collapse()
+          } else {
+            RevenueCatUI.presentPaywall().then(console.log).catch(console.warn)
+          }
         }}
       >
         <View
@@ -89,7 +111,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
           {isLoading ? (
             <ActivityIndicator size='large' color={Colors[colorScheme].accentColor} />
           ) : (
-            <>
+            <Animated.View style={isAvailableStyle}>
               <Image
                 style={{
                   width: width,
@@ -128,8 +150,36 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
                   ]}
                 />
               </Animated.View>
-            </>
+            </Animated.View>
           )}
+          <Animated.View
+            style={[
+              {
+                position: 'absolute',
+              },
+              lockStyle,
+            ]}
+          >
+            <Ionicons
+              name='lock-closed'
+              size={32 + 16}
+              style={[
+                { padding: 8, color: Color.white.string },
+                Platform.select({
+                  ios: {
+                    shadowOffset: { width: 0, height: 8 },
+                    shadowRadius: 8,
+                    shadowOpacity: 0.5,
+                  },
+                  android: {
+                    textShadowOffset: { width: 0, height: 8 },
+                    textShadowRadius: 16,
+                    textShadowColor: Color.black.alpha(0.5).string,
+                  },
+                }) ?? {},
+              ]}
+            />
+          </Animated.View>
         </View>
 
         <Text numberOfLines={1} style={[styles.text, styles.header]}>
