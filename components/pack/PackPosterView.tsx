@@ -11,7 +11,6 @@ import { useBottomSheet } from '@gorhom/bottom-sheet'
 import Color from '@/models/Color'
 import RevenueCatUI from 'react-native-purchases-ui'
 import { useInAppPurchaseContext } from '@/providers/InAppPurchaseProvider'
-import { useEffect } from 'react'
 
 export type PackViewProps = {
   pack: Pack

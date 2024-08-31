@@ -159,12 +159,13 @@ function PackSection(props: Readonly<ViewProps>) {
   const packWidth = Dimensions.get('window').width
   const packs = useMemo(() => PackManager.items, [PackManager.items])
   const { isSubscribed } = useInAppPurchaseContext()
+  const sortedPacks =
+    useMemo(
+      () => (isSubscribed ? packs : [...(packs ?? [])].sort((a, b) => (a.is_free === b.is_free ? 0 : -1))),
+      [packs]
+    ) ?? []
 
   if (!packs) return undefined
-  const sortedPacks = useMemo(
-    () => (isSubscribed ? packs : [...packs].sort((a, b) => (a.is_free === b.is_free ? 0 : -1))),
-    [packs]
-  )
   return (
     <View style={{ flexWrap: 'wrap', flexDirection: 'row', gap: 16 }} {...props}>
       {sortedPacks.map(pack => (
