@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import { Pack, PackManager } from '@/managers/PackManager'
 import { supabase } from '@/lib/supabase'
 
@@ -27,7 +25,7 @@ const mockedSupabasePacks = [
   },
 ]
 
-const mockedPacks: Pack[] = [
+const mockedPacks = [
   {
     id: 'pack1',
     name: 'Pack 1',
@@ -49,35 +47,43 @@ const mockedPacks: Pack[] = [
     image: 'pack2.png',
     cards: new Set(['2', '3']),
   },
-]
+] as Pack[]
 
 const mockedSortedPacks = [...mockedPacks].sort((a, b) => a.name.localeCompare(b.name))
 
-jest.mock('@/lib/supabase', () => ({
-  supabase: {
+const order = (columnName: 'id' | 'name') => ({
+  throwOnError: () => ({
+    data: [...mockedSupabasePacks].sort((a, b) => a[columnName].localeCompare(b[columnName])),
+  }),
+})
+
+const eq = (columnName: keyof Pack, value: string) => ({
+  single: () => ({
+    // @ts-ignore
+    throwOnError: () => ({ data: mockedSupabasePacks.find(pack => pack[columnName] === value) }),
+  }),
+  order,
+})
+
+const supabaseObj = {
+  from: () => ({
+    select: () => ({
+      eq,
+      order,
+    }),
+  }),
+  storage: {
     from: () => ({
-      select: () => ({
-        eq: (columnName: keyof Pack, value: string) => ({
-          single: () => ({
-            throwOnError: () => ({ data: mockedSupabasePacks.find(pack => pack[columnName] === value) }),
-          }),
-        }),
-        order: (columnName: 'id' | 'name') => ({
-          throwOnError: () => ({
-            data: [...mockedSupabasePacks].sort((a, b) => a[columnName].localeCompare(b[columnName])),
-          }),
-        }),
+      download: (imageName: string) => ({
+        data: imageName + '-blob',
+        error: null,
       }),
     }),
-    storage: {
-      from: () => ({
-        download: (imageName: string) => ({
-          data: imageName + '-blob',
-          error: null,
-        }),
-      }),
-    },
   },
+}
+
+jest.mock('@/lib/supabase', () => ({
+  supabase: supabaseObj,
 }))
 
 jest.mock('@/lib/utils', () => ({
@@ -85,19 +91,23 @@ jest.mock('@/lib/utils', () => ({
   blobToBase64: (blob: string) => blob + '-base64data',
 }))
 
+jest.mock('@/managers/LanguageManager', () => ({
+  LanguageManager: {
+    getDisplayLanguage: () => ({ id: 'en' }),
+  },
+}))
+
 beforeEach(() => {
-  // @ts-ignore
-  PackManager._items = null
+  PackManager['_items'] = undefined
 })
 
 describe('items', () => {
   it('should return all packs sorted by name', () => {
-    PackManager.set(mockedPacks)
+    PackManager['set'](mockedPacks)
     expect(PackManager.items).toEqual(mockedSortedPacks)
   })
 
   it('should return undefined if _items is null', () => {
-    // @ts-ignore
     expect(PackManager.items).toBeUndefined()
   })
 })
@@ -109,27 +119,35 @@ describe('fetchAll', () => {
   })
 
   it('should throw a NotFoundError if no packs are found', async () => {
+    const returnEmpty = () => ({
+      throwOnError: () => ({ error: new Error() }),
+    })
     jest.spyOn(supabase, 'from').mockReturnValueOnce({
       select: () => ({
-        order: () => ({
+        eq: () => ({
           // @ts-ignore
-          throwOnError: () => ({ data: [] }),
+          order: returnEmpty,
         }),
       }),
     })
-    await expect(PackManager.fetchAll()).rejects.toThrow(`No data found in table 'packs'`)
+
+    const act = async () => await PackManager.fetchAll()
+    await expect(act).rejects.toThrow(`No data found in table 'packs'`)
   })
 
   it('should throw if an error occurs', async () => {
+    const returnError = () => ({
+      throwOnError: () => ({ error: new Error() }),
+    })
     jest.spyOn(supabase, 'from').mockReturnValueOnce({
       select: () => ({
-        order: () => ({
-          // @ts-ignore
-          throwOnError: () => ({ error: new Error() }),
-        }),
+        // @ts-ignore
+        order: returnError,
       }),
     })
-    await expect(PackManager.fetchAll()).rejects.toThrow()
+
+    const act = async () => await PackManager.fetchAll()
+    expect(act).rejects.toThrow()
   })
 })
 
@@ -137,20 +155,19 @@ describe('fetchImage', () => {
   const imageName = 'pack1.png'
 
   it('should return the base64 image data', async () => {
-    // @ts-ignore
-    const imageData = await PackManager.fetchImage(imageName)
+    const imageData = await PackManager['fetchImage'](imageName)
     expect(imageData).toBe('pack1.png-blob-base64data')
   })
 
   it('should throw if an error occurs', async () => {
     jest.spyOn(supabase.storage, 'from').mockReturnValueOnce({
       // @ts-ignore
-      download: () => ({
+      download: async () => ({
         data: null,
         error: new Error(),
       }),
     })
-    // @ts-ignore
-    await expect(PackManager.fetchImage(imageName)).rejects.toThrow()
+
+    await expect(PackManager['fetchImage'](imageName)).rejects.toThrow()
   })
 })

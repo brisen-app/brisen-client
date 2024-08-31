@@ -2,7 +2,6 @@ import { getLocales, Locale } from 'expo-localization'
 import { Tables } from '@/models/supabase'
 import SupabaseManager from './SupabaseManager'
 import { ConfigurationManager } from './ConfigurationManager'
-import { CategoryManager } from './CategoryManager'
 
 const tableName = 'languages'
 export type Language = Partial<Omit<Locale, 'languageCode'>> & Tables<typeof tableName>
@@ -21,18 +20,17 @@ class LanguageManagerSingleton extends SupabaseManager<Language> {
 
   protected set(items: Iterable<Language>) {
     if (this._items) console.warn(`${tableName} have already been set`)
-      
+
     if (ConfigurationManager.get('use_sfw_content')?.bool === true) {
       console.log('Forcing safe-for-work language')
-      this._displayLanguage = [...items].filter(item => item.id === ConfigurationManager.get('sfw_language')?.string)[0]
+
+      const sfwLanguage = ConfigurationManager.get('sfw_language')?.string
+
+      this._displayLanguage = [...items].filter(item => item.id === sfwLanguage)[0]
       this._items = new Map([[this._displayLanguage.id, this._displayLanguage]])
       return
     }
 
-    console.log(
-      'User languages:',
-      getLocales().map(locale => locale.languageCode)
-    )
     // Find the first language that matches the user's language
     this._displayLanguage = this.findUserLanguage(items)
 
@@ -48,6 +46,12 @@ class LanguageManagerSingleton extends SupabaseManager<Language> {
     console.log('Stored languages:', new Set(this._items.keys()))
   }
 
+  /**
+   * Finds the user's preferred language from a collection of languages.
+   *
+   * @param items - An iterable collection of languages.
+   * @returns The preferred language of the user, or undefined if no matching language is found.
+   */
   private findUserLanguage(items: Iterable<Language>) {
     for (const locale of getLocales()) {
       for (const item of items) {
@@ -63,6 +67,14 @@ class LanguageManagerSingleton extends SupabaseManager<Language> {
     }
   }
 
+  /**
+   * Finds the default language from the provided list of languages.
+   * If the default language is not found, the first publiclanguage in the list is returned.
+   *
+   * @param items - The list of languages to search from.
+   * @returns The default language or the first language in the list.
+   * @throws Error if no languages are provided when setting default language.
+   */
   private findDefaultLanguage(items: Iterable<Language>) {
     const defaultLanguageId = ConfigurationManager.get('default_language')?.string ?? 'en'
 
@@ -71,7 +83,9 @@ class LanguageManagerSingleton extends SupabaseManager<Language> {
 
     const defaultLanguages = languageList.filter(item => item.id === defaultLanguageId)
     if (defaultLanguages.length === 0) console.error(`Default language '${defaultLanguageId}' not found`)
-    return defaultLanguages[0] ?? languageList[0]
+    const result = defaultLanguages[0] ?? languageList.find(item => item.public)
+    if (!result) throw new Error('No public languages found')
+    return result
   }
 }
 
