@@ -19,6 +19,8 @@ jobs:
       EXPO_PROJECT: ${{ vars.EXPO_PROJECT }}
       EXPO_PUBLIC_SB_URL: ${{ vars.SUPABASE_URL }}
       EXPO_PUBLIC_SB_ANON: ${{ secrets.SUPABASE_ANON }}
+      EXPO_PUBLIC_RC_KEY_APPLE: ${{ secrets.REVENUECAT_APPLE }}
+      EXPO_PUBLIC_RC_KEY_GOOGLE: ${{ secrets.REVENUECAT_GOOGLE }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -31,7 +33,7 @@ jobs:
       - name: 📦 Install dependencies
         run: npm install
 
-      - name: 🏗️ Build and Submit
+      - name: 🚀 Submit to stores
         uses: expo/expo-github-action/preview@v8
         with:
           command: eas build -p all --profile production --non-interactive --no-wait --auto-submit

@@ -19,7 +19,7 @@
       "setup.ts"
     ],
     "coveragePathIgnorePatterns": [
-      "/node_modules/",
+      "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@sentry/react-native|native-base|react-native-svg)",
       "/coverage/",
       "/app/",
       "/components/",
@@ -55,10 +55,9 @@
     "@tanstack/react-query": "^5.18.1",
     "@tanstack/react-query-devtools": "^5.18.1",
     "expo": "^51.0.31",
-    "expo-blur": "~13.0.2",
     "expo-constants": "~16.0.2",
     "expo-crypto": "~13.0.2",
-    "expo-dev-client": "~4.0.15",
+    "expo-dev-client": "~4.0.25",
     "expo-font": "~12.0.5",
     "expo-image": "~1.12.9",
     "expo-linear-gradient": "~13.0.2",
@@ -78,6 +77,9 @@
     "react-native": "0.74.5",
     "react-native-elements": "^3.4.3",
     "react-native-gesture-handler": "~2.16.1",
+    "react-native-iap": "^12.15.1",
+    "react-native-purchases": "^8.1.0",
+    "react-native-purchases-ui": "^8.1.0",
     "react-native-reanimated": "~3.10.1",
     "react-native-safe-area-context": "4.10.5",
     "react-native-screens": "3.31.1",
@@ -86,6 +88,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.24.0",
+    "@testing-library/react-native": "^12.6.1",
     "@types/jest": "^29.5.12",
     "@types/react": "~18.2.79",
     "jest": "^29.2.1",

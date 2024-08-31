@@ -23,6 +23,7 @@ import PackPosterView from './pack/PackPosterView'
 import React, { useMemo, useState } from 'react'
 import Tag from './utils/Tag'
 import useColorScheme from './utils/useColorScheme'
+import { useInAppPurchaseContext } from '@/providers/InAppPurchaseProvider'
 
 export default function MenuView() {
   const insets = useSafeAreaInsets()
@@ -157,16 +158,21 @@ export function Header(props: Readonly<{ titleKey?: string; descriptionKey?: str
 function PackSection(props: Readonly<ViewProps>) {
   const packWidth = Dimensions.get('window').width
   const packs = useMemo(() => PackManager.items, [PackManager.items])
+  const { isSubscribed } = useInAppPurchaseContext()
+  const sortedPacks =
+    useMemo(
+      () => (isSubscribed ? packs : [...(packs ?? [])].sort((a, b) => (a.is_free === b.is_free ? 0 : -1))),
+      [packs]
+    ) ?? []
 
+  if (!packs) return undefined
   return (
     <View style={{ flexWrap: 'wrap', flexDirection: 'row', gap: 16 }} {...props}>
-      {packs
-        ? packs.map(pack => (
-            <View key={pack.id}>
-              <PackPosterView width={(packWidth - 48) / 2} pack={pack} />
-            </View>
-          ))
-        : null}
+      {sortedPacks.map(pack => (
+        <View key={pack.id}>
+          <PackPosterView width={(packWidth - 48) / 2} pack={pack} />
+        </View>
+      ))}
     </View>
   )
 }
