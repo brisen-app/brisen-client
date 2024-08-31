@@ -5,7 +5,7 @@ import { Dimensions, StyleSheet, View, ViewProps } from 'react-native'
 import { FontStyles } from '@/constants/Styles'
 import { formatName as prettifyString } from '@/lib/utils'
 import { LocalizationManager } from '@/managers/LocalizationManager'
-import { Pack, PackManager } from '@/managers/PackManager'
+import { PackManager } from '@/managers/PackManager'
 import { Text } from './utils/Themed'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -20,10 +20,9 @@ import Animated, {
 } from 'react-native-reanimated'
 import Colors from '@/constants/Colors'
 import PackPosterView from './pack/PackPosterView'
-import React, { useContext, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import Tag from './utils/Tag'
 import useColorScheme from './utils/useColorScheme'
-import { InAppContext, isSubscribed } from '@/providers/InAppPurchaseProvider'
 
 export default function MenuView() {
   const insets = useSafeAreaInsets()
@@ -158,20 +157,16 @@ export function Header(props: Readonly<{ titleKey?: string; descriptionKey?: str
 function PackSection(props: Readonly<ViewProps>) {
   const packWidth = Dimensions.get('window').width
   const packs = useMemo(() => PackManager.items, [PackManager.items])
-  const customerInfo = useContext(InAppContext)
 
-  const isAvailable = (pack: Pack) => pack.is_free || isSubscribed(customerInfo)
-
-  if (!packs || packs.length === 0) return null
-
-  const sortedpacks = [...packs].sort((a, b) => (isAvailable(a) === isAvailable(b) ? 1 : 0))
   return (
     <View style={{ flexWrap: 'wrap', flexDirection: 'row', gap: 16 }} {...props}>
-      {sortedpacks.map(pack => (
-        <View key={pack.id}>
-          <PackPosterView width={(packWidth - 48) / 2} pack={pack} />
-        </View>
-      ))}
+      {packs
+        ? packs.map(pack => (
+            <View key={pack.id}>
+              <PackPosterView width={(packWidth - 48) / 2} pack={pack} />
+            </View>
+          ))
+        : null}
     </View>
   )
 }

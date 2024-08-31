@@ -1,18 +1,14 @@
-import { ActivityIndicator, Platform, Pressable, StyleSheet, View, ViewProps } from 'react-native'
-import { Image } from 'expo-image'
-import { InAppContext, InAppDispatchContext, isSubscribed } from '@/providers/InAppPurchaseProvider'
-import { Ionicons } from '@expo/vector-icons'
-import { Pack, PackManager } from '@/managers/PackManager'
-import { Text } from '../utils/Themed'
-import { useAppContext, useAppDispatchContext } from '../../providers/AppContextProvider'
-import { useBottomSheet } from '@gorhom/bottom-sheet'
-import { useContext } from 'react'
-import Animated, { Easing, useAnimatedStyle, withTiming } from 'react-native-reanimated'
-import Color from '@/models/Color'
 import Colors from '@/constants/Colors'
-import Purchases from 'react-native-purchases'
-import RevenueCatUI from 'react-native-purchases-ui'
+import { Pack, PackManager } from '@/managers/PackManager'
+import { Ionicons } from '@expo/vector-icons'
+import { Image } from 'expo-image'
+import { ActivityIndicator, Platform, Pressable, StyleSheet, View, ViewProps } from 'react-native'
+import { useAppContext, useAppDispatchContext } from '../../providers/AppContextProvider'
+import { Text } from '../utils/Themed'
 import useColorScheme from '../utils/useColorScheme'
+import Animated, { Easing, useAnimatedStyle, withTiming } from 'react-native-reanimated'
+import { useBottomSheet } from '@gorhom/bottom-sheet'
+import Color from '@/models/Color'
 
 export type PackViewProps = {
   pack: Pack
@@ -29,11 +25,6 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
   const { playlist, playedIds } = useAppContext()
   const setContext = useAppDispatchContext()
   const width = props.width ?? 256
-
-  const customerInfo = useContext(InAppContext)
-  const setCustomerInfo = useContext(InAppDispatchContext)
-
-  const isAvailable = pack.is_free || isSubscribed(customerInfo)
   const isSelected = playlist.has(pack)
   const isNoneSelected = playlist.size === 0
 
@@ -42,18 +33,12 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
 
   const animationConfig = { duration: 150, easing: Easing.bezier(0, 0, 0.5, 1) }
 
-  const isSelectedAnimationStyle = useAnimatedStyle(() => {
+  const animatedStyle = useAnimatedStyle(() => {
     return {
       opacity: withTiming(isSelected || isNoneSelected ? 1 : 0.5, animationConfig),
       transform: [{ scale: withTiming(isSelected || isNoneSelected ? 1 : 0.98, animationConfig) }],
     }
   }, [isSelected, isNoneSelected])
-
-  const isAvailableAnimationStyle = useAnimatedStyle(() => {
-    return {
-      opacity: withTiming(isAvailable ? 1 : 1 / 3, animationConfig),
-    }
-  }, [isAvailable])
 
   const checkmarkStyle = useAnimatedStyle(() => {
     return {
@@ -62,26 +47,6 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
     }
   }, [isSelected])
 
-  const lockStyle = useAnimatedStyle(() => {
-    return {
-      opacity: withTiming(!isAvailable ? 1 : 0, animationConfig),
-      transform: [{ scale: withTiming(!isAvailable ? 1 : 0.75, animationConfig) }],
-    }
-  }, [isAvailable])
-
-  function handlePress() {
-    if (isAvailable) {
-      setContext({ action: 'togglePack', payload: pack })
-      if (playlist.size === 0 && playedIds.size === 0) bottomSheet.collapse()
-      return
-    }
-
-    RevenueCatUI.presentPaywall().then(result => {
-      console.log('Paywall result:', result)
-      Purchases.getCustomerInfo().then(setCustomerInfo)
-    })
-  }
-
   return (
     <Animated.View
       style={[
@@ -89,10 +54,15 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
           width: width,
         },
         style,
-        isSelectedAnimationStyle,
+        animatedStyle,
       ]}
     >
-      <Pressable onPress={handlePress}>
+      <Pressable
+        onPress={() => {
+          if (playlist.size === 0 && playedIds.size === 0) bottomSheet.collapse()
+          setContext({ action: 'togglePack', payload: pack })
+        }}
+      >
         <View
           style={[
             {
@@ -119,7 +89,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
           {isLoading ? (
             <ActivityIndicator size='large' color={Colors[colorScheme].accentColor} />
           ) : (
-            <Animated.View style={isAvailableAnimationStyle}>
+            <>
               <Image
                 style={{
                   width: width,
@@ -158,40 +128,8 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
                   ]}
                 />
               </Animated.View>
-            </Animated.View>
+            </>
           )}
-          <Animated.View
-            style={[
-              {
-                position: 'absolute',
-                height: '100%',
-                width: '100%',
-                justifyContent: 'center',
-                alignItems: 'center',
-              },
-              lockStyle,
-            ]}
-          >
-            <Ionicons
-              name='lock-closed'
-              size={32 + 16 + 8}
-              style={[
-                { color: Color.white.string },
-                Platform.select({
-                  ios: {
-                    shadowOffset: { width: 0, height: 8 },
-                    shadowRadius: 8,
-                    shadowOpacity: 0.75,
-                  },
-                  android: {
-                    textShadowOffset: { width: 0, height: 8 },
-                    textShadowRadius: 16,
-                    textShadowColor: Color.black.alpha(0.5).string,
-                  },
-                }) ?? {},
-              ]}
-            />
-          </Animated.View>
         </View>
 
         <Text numberOfLines={1} style={[styles.text, styles.header]}>
