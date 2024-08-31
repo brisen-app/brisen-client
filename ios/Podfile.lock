@@ -325,9 +325,9 @@ PODS:
   - FBLazyVector (0.74.5)
   - fmt (9.1.0)
   - glog (0.3.5)
-  - hermes-engine (0.74.3):
-    - hermes-engine/Pre-built (= 0.74.3)
-  - hermes-engine/Pre-built (0.74.3)
+  - hermes-engine (0.74.5):
+    - hermes-engine/Pre-built (= 0.74.5)
+  - hermes-engine/Pre-built (0.74.5)
   - libavif/core (0.11.1)
   - libavif/libdav1d (0.11.1):
     - libavif/core
@@ -1924,7 +1924,7 @@ SPEC CHECKSUMS:
   FBLazyVector: ac12dc084d1c8ec4cc4d7b3cf1b0ebda6dab85af
   fmt: 4c2741a687cc09f0634a2e2c72a838b99f1ff120
   glog: fdfdfe5479092de0c4bdbebedd9056951f092c4f
-  hermes-engine: 1f547997900dd0752dc0cc0ae6dd16173c49e09b
+  hermes-engine: 8c1577f3fdb849cbe7729c2e7b5abc4b845e88f8
   libavif: 84bbb62fb232c3018d6f1bab79beea87e35de7b7
   libdav1d: 23581a4d8ec811ff171ed5e2e05cd27bad64c39f
   libwebp: 1786c9f4ff8a279e4dac1e8f385004d5fc253009
@@ -1996,6 +1996,6 @@ SPEC CHECKSUMS:
   sqlite3: 02d1f07eaaa01f80a1c16b4b31dfcbb3345ee01a
   Yoga: 950bbfd7e6f04790fdb51149ed51df41f329fcc8
 
-PODFILE CHECKSUM: d9a7661ae3b4178b57d5dff84a64f5a6bb060df5
+PODFILE CHECKSUM: 2abd771ca2620c584715d45b93c6c76425ba8b94
 
 COCOAPODS: 1.15.2
