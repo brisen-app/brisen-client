@@ -36,9 +36,9 @@ export default function Layout() {
   return (
     <GestureHandlerRootView>
       <QueryClientProvider client={queryClient}>
-        <InAppPurchaseProvider>
-          <AppDataProvider>
-            <AppContextProvider>
+        <AppDataProvider>
+          <AppContextProvider>
+            <InAppPurchaseProvider>
               <Stack
                 screenOptions={{
                   headerShown: false,
@@ -46,9 +46,9 @@ export default function Layout() {
                 }}
               />
               {Platform.OS === 'web' && <ReactQueryDevtools initialIsOpen={true} />}
-            </AppContextProvider>
-          </AppDataProvider>
-        </InAppPurchaseProvider>
+            </InAppPurchaseProvider>
+          </AppContextProvider>
+        </AppDataProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>
   )
