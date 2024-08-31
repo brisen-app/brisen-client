@@ -33,7 +33,7 @@ jobs:
       - name: 📦 Install dependencies
         run: npm install
 
-      - name: 🏗️ Build and Submit
+      - name: 🚀 Submit to stores
         uses: expo/expo-github-action/preview@v8
         with:
           command: eas build -p all --profile production --non-interactive --no-wait --auto-submit
