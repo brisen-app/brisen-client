@@ -31,9 +31,9 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: 📦 Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: 🏗️ Build
         uses: expo/expo-github-action/preview@v8
         with:
-          command: eas build -p all --profile preview --non-interactive --no-wait
+          command: eas build -p all --profile develop --non-interactive --no-wait

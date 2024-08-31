@@ -1,4 +1,4 @@
-name: 📋 CI
+name: 🧪 CI
 
 on:
   pull_request:
@@ -9,7 +9,6 @@ concurrency:
 
 jobs:
   ci:
-    name: 🧪 Testing & Code Quality Check
     runs-on: ubuntu-latest
     env:
       EXPO_PROJECT: ${{ vars.EXPO_PROJECT }}
@@ -26,7 +25,7 @@ jobs:
         uses: actions/setup-node@v4
 
       - name: 📦 Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: 🧪 Run tests
         id: test
