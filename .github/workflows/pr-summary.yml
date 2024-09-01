@@ -1,4 +1,4 @@
-name: 📋 PR Summary
+name: PR Summary
 
 permissions:
   contents: read
