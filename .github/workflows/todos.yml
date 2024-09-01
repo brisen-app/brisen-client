@@ -1,4 +1,4 @@
-name: 🔄 Convert TODOs to Issues
+name: Convert TODOs to Issues
 on:
   push:
     branches:

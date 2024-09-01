@@ -10,19 +10,13 @@
     "primaryColor": "#f3a000",
     "backgroundColor": "#000000",
     "platforms": ["ios", "android"],
-    "icon": "./src/assets/images/app-icon/icon.jpeg",
+    "icon": "./src/assets/images/app-icon/icon.png",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "no.kallerud.brisen",
       "splash": {
-        "image": "./src/assets/images/splash-screen/splash-screen-static.jpeg",
-        "resizeMode": "cover",
-        "backgroundColor": "#ffffff",
-        "dark": {
-          "image": "./src/assets/images/splash-screen/splash-screen-dynamic.png",
-          "resizeMode": "cover",
-          "backgroundColor": "#000000"
-        }
+        "image": "./src/assets/images/splash-screen/splash-screen.png",
+        "resizeMode": "cover"
       },
       "runtimeVersion": "0.0.1"
     },
@@ -31,17 +25,11 @@
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/images/app-icon/foreground.png",
         "monochromeImage": "./src/assets/images/app-icon/mono.png",
-        "backgroundImage": "./src/assets/images/app-icon/background.jpeg"
+        "backgroundImage": "./src/assets/images/app-icon/background.png"
       },
       "splash": {
-        "image": "./src/assets/images/splash-screen/splash-screen-static.jpeg",
-        "resizeMode": "cover",
-        "backgroundColor": "#ffffff",
-        "dark": {
-          "image": "./src/assets/images/splash-screen/splash-screen-dynamic.png",
-          "resizeMode": "cover",
-          "backgroundColor": "#000000"
-        }
+        "image": "./src/assets/images/splash-screen/splash-screen.png",
+        "resizeMode": "cover"
       },
       "runtimeVersion": "0.0.1"
     },

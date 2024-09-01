@@ -5,6 +5,10 @@ on:
   push:
     branches:
       - develop
+    paths:
+      - android/**
+      - ios/**
+      - src/**
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
