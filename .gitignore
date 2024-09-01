@@ -1,5 +1,8 @@
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
+# Secrets
+keys/**
+
 # dependencies
 node_modules/
 
@@ -8,6 +11,8 @@ node_modules/
 dist/
 web-build/
 expo-env.d.ts
+ios/
+android/
 
 # Native
 *.orig.*
@@ -39,5 +44,4 @@ yarn-error.*
 coverage/
 
 # Supabase
-src/supabase/**
-keys/**
+src/supabase/
