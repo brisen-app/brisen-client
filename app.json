@@ -31,7 +31,7 @@
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/images/app-icon/foreground.png",
         "monochromeImage": "./src/assets/images/app-icon/mono.png",
-        "backgroundImage": "./src/assets/images/app-icon/background.jpeg"
+        "backgroundImage": "./src/assets/images/app-icon/background.png"
       },
       "splash": {
         "image": "./src/assets/images/splash-screen/splash-screen-static.jpeg",
