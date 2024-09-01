@@ -3,3 +3,7 @@ package/**
 coverage/**
 node_modules/**
 models/supabase.ts
+ios/**
+android/**
+tsconfig.json
+package.json
