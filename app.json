@@ -10,7 +10,7 @@
     "primaryColor": "#f3a000",
     "backgroundColor": "#000000",
     "platforms": ["ios", "android"],
-    "icon": "./src/assets/images/app-icon/icon.jpeg",
+    "icon": "./src/assets/images/app-icon/icon.png",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "no.kallerud.brisen",
