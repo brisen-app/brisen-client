@@ -1,5 +1,5 @@
 import { Language, LanguageManager } from '@/src/managers/LanguageManager'
-const { ConfigurationManager } = require('@/managers/ConfigurationManager')
+const { ConfigurationManager } = require('@/src/managers/ConfigurationManager')
 const expoLocalization = require('expo-localization')
 
 const mockedItems = [
@@ -41,7 +41,7 @@ const eq = (key: 'id', value: string) => ({
   }),
 })
 
-jest.mock('@/lib/supabase', () => ({
+jest.mock('@/src/lib/supabase', () => ({
   supabase: {
     from: () => ({
       select: () => ({

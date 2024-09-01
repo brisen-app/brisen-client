@@ -1,4 +1,4 @@
-import Color from "@/models/Color"
+import Color from "@/src/models/Color"
 
 describe('Color', () => {
     describe('constructor', () => {

@@ -24,7 +24,7 @@ const mockedItems: Localization[] = [
   },
 ]
 
-jest.mock('@/lib/supabase', () => ({
+jest.mock('@/src/lib/supabase', () => ({
   supabase: {
     from: () => ({
       select: () => ({
@@ -43,7 +43,7 @@ jest.mock('@/lib/supabase', () => ({
   },
 }))
 
-jest.mock('@/managers/LanguageManager', () => ({
+jest.mock('@/src/managers/LanguageManager', () => ({
   LanguageManager: {
     getDisplayLanguage: () => ({ id: 'nb' }),
   },

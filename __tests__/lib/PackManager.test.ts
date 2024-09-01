@@ -82,16 +82,16 @@ const supabaseObj = {
   },
 }
 
-jest.mock('@/lib/supabase', () => ({
+jest.mock('@/src/lib/supabase', () => ({
   supabase: supabaseObj,
 }))
 
-jest.mock('@/lib/utils', () => ({
-  ...jest.requireActual('@/lib/utils'),
+jest.mock('@/src/lib/utils', () => ({
+  ...jest.requireActual('@/src/lib/utils'),
   blobToBase64: (blob: string) => blob + '-base64data',
 }))
 
-jest.mock('@/managers/LanguageManager', () => ({
+jest.mock('@/src/managers/LanguageManager', () => ({
   LanguageManager: {
     getDisplayLanguage: () => ({ id: 'en' }),
   },

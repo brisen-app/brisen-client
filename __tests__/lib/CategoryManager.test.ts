@@ -34,7 +34,7 @@ const mockedItems: Category[] = [
   },
 ]
 
-jest.mock('@/lib/supabase', () => ({
+jest.mock('@/src/lib/supabase', () => ({
   supabase: {
     from: () => ({
       select: () => ({
@@ -44,7 +44,7 @@ jest.mock('@/lib/supabase', () => ({
   },
 }))
 
-jest.mock('@/managers/LocalizationManager', () => ({
+jest.mock('@/src/managers/LocalizationManager', () => ({
   LocalizationManager: {
     get: (id: string) => mockedLocalizations.find(title => title.id === id),
   },
