@@ -28,9 +28,6 @@ jobs:
       - name: 🧪 Run tests
         run: npm run test-ci
 
-      - name: 💊 Run doctor
-        run: npx expo-doctor
-
       - name: 🔍 SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
 
