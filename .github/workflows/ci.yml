@@ -23,6 +23,11 @@ jobs:
 
       - name: 🏗 Setup Node
         uses: actions/setup-node@v4
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          packager: npm
+          token: ${{ secrets.EXPO_TOKEN }}
 
       - name: 📦 Install dependencies
         run: npm ci
@@ -30,6 +35,9 @@ jobs:
       - name: 🧪 Run tests
         id: test
         run: npm run testCI
+
+      - name: 💊 Run doctor
+        run: expo doctor
 
       - name: 🔍 SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
