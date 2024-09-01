@@ -1,4 +1,9 @@
 # Brisen Client
+![Expo Submit Status](https://github.com/brisen-app/brisen-client/actions/workflows/build_submit.yml/badge.svg)
+![Beta deployment](https://github.com/brisen-app/brisen-client/actions/workflows/build_beta.yml/badge.svg)
+[![Quality Gate Status](https://sonarqube.kallerud.no/api/project_badges/measure?project=brisen-app_brisen-client_26c99873-d531-464d-a9a9-0ea569442bdd&metric=alert_status&token=sqb_fb9cf3e8f814b6cb097b5b0c7290a06d0544dac4)](https://sonarqube.kallerud.no/dashboard?id=brisen-app_brisen-client_26c99873-d531-464d-a9a9-0ea569442bdd)
+[![Lines of Code](https://sonarqube.kallerud.no/api/project_badges/measure?project=brisen-app_brisen-client_26c99873-d531-464d-a9a9-0ea569442bdd&metric=ncloc&token=sqb_fb9cf3e8f814b6cb097b5b0c7290a06d0544dac4)](https://sonarqube.kallerud.no/dashboard?id=brisen-app_brisen-client_26c99873-d531-464d-a9a9-0ea569442bdd)
+[![Coverage](https://sonarqube.kallerud.no/api/project_badges/measure?project=brisen-app_brisen-client_26c99873-d531-464d-a9a9-0ea569442bdd&metric=coverage&token=sqb_fb9cf3e8f814b6cb097b5b0c7290a06d0544dac4)](https://sonarqube.kallerud.no/dashboard?id=brisen-app_brisen-client_26c99873-d531-464d-a9a9-0ea569442bdd)
 
 ## Setup
 
