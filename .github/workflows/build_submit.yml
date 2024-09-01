@@ -36,4 +36,4 @@ jobs:
       - name: 🚀 Submit to stores
         uses: expo/expo-github-action/preview@v8
         with:
-          command: eas build -p all --profile production --non-interactive --no-wait --auto-submit
+          command: eas build -p all --profile production --non-interactive --auto-submit
