@@ -1,7 +1,7 @@
-import { Tables } from '@/models/supabase'
+import { Tables } from '@/src/models/supabase'
 import SupabaseManager from './SupabaseManager'
-import { CycleError } from '@/models/Errors'
-import { shuffled } from '@/lib/utils'
+import { CycleError } from '@/src/models/Errors'
+import { shuffled } from '@/src/lib/utils'
 
 const tableName = 'card_dependencies'
 export type CardRelation = { id: string } & Tables<typeof tableName>

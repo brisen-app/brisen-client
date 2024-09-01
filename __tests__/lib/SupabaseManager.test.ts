@@ -1,4 +1,4 @@
-import SupabaseManager, { SupabaseItem } from '@/managers/SupabaseManager'
+import SupabaseManager, { SupabaseItem } from '@/src/managers/SupabaseManager'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const mockedItems: SupabaseItem[] = [

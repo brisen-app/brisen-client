@@ -3,11 +3,11 @@ import { CardRelation } from './CardRelationManager'
 import { Category } from './CategoryManager'
 import { Language } from './LanguageManager'
 import { Localization } from './LocalizationManager'
-import { NotFoundError } from '@/models/Errors'
+import { NotFoundError } from '@/src/models/Errors'
 import { Pack } from './PackManager'
 import { supabase } from '../lib/supabase'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { Database } from '@/models/supabase'
+import { Database } from '@/src/models/supabase'
 import { Configuration } from './ConfigurationManager'
 
 export type SupabaseItem = Category | Pack | Card | Localization | Language | Configuration | CardRelation

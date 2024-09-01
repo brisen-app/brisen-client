@@ -1,4 +1,4 @@
-import Color from '@/models/Color'
+import Color from '@/src/models/Color'
 
 const accentColor = Color.hex('#f3a000')
 

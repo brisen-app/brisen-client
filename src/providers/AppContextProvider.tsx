@@ -1,8 +1,8 @@
 import React, { createContext, Dispatch, ReactNode, useContext, useReducer } from 'react'
-import { Pack } from '@/managers/PackManager'
-import { Category } from '@/managers/CategoryManager'
-import { PlayedCard } from '@/managers/CardManager'
-import { Player } from '@/models/Player'
+import { Pack } from '@/src/managers/PackManager'
+import { Category } from '@/src/managers/CategoryManager'
+import { PlayedCard } from '@/src/managers/CardManager'
+import { Player } from '@/src/models/Player'
 
 export type AppContextType = {
   categoryFilter: Set<string>

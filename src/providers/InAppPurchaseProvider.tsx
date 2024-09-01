@@ -1,4 +1,4 @@
-import { ConfigurationManager } from '@/managers/ConfigurationManager'
+import { ConfigurationManager } from '@/src/managers/ConfigurationManager'
 import { Dispatch, ReactNode, SetStateAction, createContext, useContext, useEffect, useState } from 'react'
 import { Platform } from 'react-native'
 import Purchases, { CustomerInfo } from 'react-native-purchases'

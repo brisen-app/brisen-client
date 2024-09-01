@@ -1,18 +1,18 @@
-import Colors from '@/constants/Colors'
-import { FontStyles, Styles } from '@/constants/Styles'
-import { PlayedCard } from '@/managers/CardManager'
-import { Category, CategoryManager } from '@/managers/CategoryManager'
-import { PackManager } from '@/managers/PackManager'
-import Color from '@/models/Color'
+import Colors from '@/src/constants/Colors'
+import { FontStyles, Styles } from '@/src/constants/Styles'
+import { PlayedCard } from '@/src/managers/CardManager'
+import { Category, CategoryManager } from '@/src/managers/CategoryManager'
+import { PackManager } from '@/src/managers/PackManager'
+import Color from '@/src/models/Color'
 import { Image } from 'expo-image'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Platform, StyleSheet, TouchableOpacity, View, ViewProps } from 'react-native'
 import { Text } from '../utils/Themed'
 import useColorScheme from '../utils/useColorScheme'
-import { ConfigurationManager } from '@/managers/ConfigurationManager'
+import { ConfigurationManager } from '@/src/managers/ConfigurationManager'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useSheetHeight } from '@/lib/utils'
+import { useSheetHeight } from '@/src/lib/utils'
 
 export type CardViewProps = {
   card: PlayedCard
@@ -53,7 +53,7 @@ export function CardView(props: Readonly<CardViewProps & ViewProps>) {
 
       {/* Grain */}
       <Image
-        source={require('@/assets/images/noise.png')}
+        source={require('@/src/assets/images/noise.png')}
         style={{
           ...Styles.absoluteFill,
           opacity: 0.05,

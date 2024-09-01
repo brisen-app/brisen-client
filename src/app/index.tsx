@@ -1,8 +1,8 @@
-import GameView from '@/components/GameView'
-import MenuView from '@/components/MenuView'
-import useColorScheme from '@/components/utils/useColorScheme'
-import Colors from '@/constants/Colors'
-import { useSheetHeight } from '@/lib/utils'
+import GameView from '@/src/components/GameView'
+import MenuView from '@/src/components/MenuView'
+import useColorScheme from '@/src/components/utils/useColorScheme'
+import Colors from '@/src/constants/Colors'
+import { useSheetHeight } from '@/src/lib/utils'
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetBackgroundProps,

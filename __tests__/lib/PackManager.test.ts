@@ -1,5 +1,5 @@
-import { Pack, PackManager } from '@/managers/PackManager'
-import { supabase } from '@/lib/supabase'
+import { Pack, PackManager } from '@/src/managers/PackManager'
+import { supabase } from '@/src/lib/supabase'
 
 const mockedSupabasePacks = [
   {

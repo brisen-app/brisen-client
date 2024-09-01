@@ -1,5 +1,5 @@
-import Colors from '@/constants/Colors'
-import { Pack, PackManager } from '@/managers/PackManager'
+import Colors from '@/src/constants/Colors'
+import { Pack, PackManager } from '@/src/managers/PackManager'
 import { Ionicons } from '@expo/vector-icons'
 import { Image } from 'expo-image'
 import { ActivityIndicator, Platform, Pressable, StyleSheet, View, ViewProps } from 'react-native'
@@ -8,9 +8,9 @@ import { Text } from '../utils/Themed'
 import useColorScheme from '../utils/useColorScheme'
 import Animated, { Easing, useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import { useBottomSheet } from '@gorhom/bottom-sheet'
-import Color from '@/models/Color'
+import Color from '@/src/models/Color'
 import RevenueCatUI from 'react-native-purchases-ui'
-import { useInAppPurchaseContext } from '@/providers/InAppPurchaseProvider'
+import { useInAppPurchaseContext } from '@/src/providers/InAppPurchaseProvider'
 
 export type PackViewProps = {
   pack: Pack

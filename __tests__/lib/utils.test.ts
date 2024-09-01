@@ -1,4 +1,4 @@
-import * as utils from '@/lib/utils'
+import * as utils from '@/src/lib/utils'
 
 jest.mock('@/lib/supabase', () => undefined)
 jest.mock('expo-crypto', () => ({

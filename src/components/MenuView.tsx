@@ -1,11 +1,11 @@
 import { AntDesign } from '@expo/vector-icons'
 import { BottomSheetScrollView, BottomSheetTextInput, useBottomSheet } from '@gorhom/bottom-sheet'
-import { Category, CategoryManager } from '@/managers/CategoryManager'
+import { Category, CategoryManager } from '@/src/managers/CategoryManager'
 import { Dimensions, StyleSheet, View, ViewProps } from 'react-native'
-import { FontStyles } from '@/constants/Styles'
-import { formatName as prettifyString } from '@/lib/utils'
-import { LocalizationManager } from '@/managers/LocalizationManager'
-import { PackManager } from '@/managers/PackManager'
+import { FontStyles } from '@/src/constants/Styles'
+import { formatName as prettifyString } from '@/src/lib/utils'
+import { LocalizationManager } from '@/src/managers/LocalizationManager'
+import { PackManager } from '@/src/managers/PackManager'
 import { Text } from './utils/Themed'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -18,12 +18,12 @@ import Animated, {
   useAnimatedStyle,
   ZoomOut,
 } from 'react-native-reanimated'
-import Colors from '@/constants/Colors'
+import Colors from '@/src/constants/Colors'
 import PackPosterView from './pack/PackPosterView'
 import React, { useMemo, useState } from 'react'
 import Tag from './utils/Tag'
 import useColorScheme from './utils/useColorScheme'
-import { useInAppPurchaseContext } from '@/providers/InAppPurchaseProvider'
+import { useInAppPurchaseContext } from '@/src/providers/InAppPurchaseProvider'
 
 export default function MenuView() {
   const insets = useSafeAreaInsets()

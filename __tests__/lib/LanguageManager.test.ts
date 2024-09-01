@@ -1,4 +1,4 @@
-import { Language, LanguageManager } from '@/managers/LanguageManager'
+import { Language, LanguageManager } from '@/src/managers/LanguageManager'
 const { ConfigurationManager } = require('@/managers/ConfigurationManager')
 const expoLocalization = require('expo-localization')
 

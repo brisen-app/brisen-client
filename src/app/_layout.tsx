@@ -1,14 +1,14 @@
-import { AppContextProvider } from '@/providers/AppContextProvider'
+import { AppContextProvider } from '@/src/providers/AppContextProvider'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { Platform } from 'react-native'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { SplashScreen, Stack } from 'expo-router'
 import * as NavigationBar from 'expo-navigation-bar'
-import AppDataProvider from '@/providers/AppDataProvider'
-import Colors from '@/constants/Colors'
-import useColorScheme from '@/components/utils/useColorScheme'
-import InAppPurchaseProvider from '@/providers/InAppPurchaseProvider'
+import AppDataProvider from '@/src/providers/AppDataProvider'
+import Colors from '@/src/constants/Colors'
+import useColorScheme from '@/src/components/utils/useColorScheme'
+import InAppPurchaseProvider from '@/src/providers/InAppPurchaseProvider'
 
 SplashScreen.preventAutoHideAsync()
 if (Platform.OS === 'android') {

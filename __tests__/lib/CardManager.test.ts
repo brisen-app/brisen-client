@@ -1,9 +1,9 @@
-import { CardManager, Card, PlayedCard } from '@/managers/CardManager'
-import * as utils from '@/lib/utils'
-import { InsufficientCountError } from '@/models/Errors'
-import { Pack } from '@/managers/PackManager'
-import { Player } from '@/models/Player'
-import { CardRelationManager } from '@/managers/CardRelationManager'
+import { CardManager, Card, PlayedCard } from '@/src/managers/CardManager'
+import * as utils from '@/src/lib/utils'
+import { InsufficientCountError } from '@/src/models/Errors'
+import { Pack } from '@/src/managers/PackManager'
+import { Player } from '@/src/models/Player'
+import { CardRelationManager } from '@/src/managers/CardRelationManager'
 
 const MockedCards = {
   Card_1: { id: '1', category: 'cat1', content: 'Content of card 1', is_group: false } as Card,
@@ -353,7 +353,7 @@ describe('drawCard', () => {
   })
 
   it('should return null if no candidates are available', () => {
-    const cards = Object.values(MockedCards) as PlayedCard[]
+    const cards = Object.values(MockedCards)
     const playedIds = new Set(cards.map(card => card.id))
     const players = new Set(Object.values(MockedPlayers))
     const playlist = new Set([MockedPacks.Pack_with_all_cards])

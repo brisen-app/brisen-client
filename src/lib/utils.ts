@@ -1,4 +1,4 @@
-import { ConfigurationManager } from '@/managers/ConfigurationManager'
+import { ConfigurationManager } from '@/src/managers/ConfigurationManager'
 import * as Crypto from 'expo-crypto'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 

@@ -1,8 +1,8 @@
-import { blobToBase64, emptyQuery } from '@/lib/utils'
+import { blobToBase64, emptyQuery } from '@/src/lib/utils'
 import { LanguageManager } from './LanguageManager'
-import { NotFoundError } from '@/models/Errors'
+import { NotFoundError } from '@/src/models/Errors'
 import { supabase } from '../lib/supabase'
-import { Tables } from '@/models/supabase'
+import { Tables } from '@/src/models/supabase'
 import { useQuery } from '@tanstack/react-query'
 import SupabaseManager from './SupabaseManager'
 

@@ -1,5 +1,5 @@
-import Colors from '@/constants/Colors'
-import { FontStyles } from '@/constants/Styles'
+import Colors from '@/src/constants/Colors'
+import { FontStyles } from '@/src/constants/Styles'
 import { MaterialIcons } from '@expo/vector-icons'
 import React from 'react'
 import { Text, TouchableOpacity, TouchableOpacityProps } from 'react-native'

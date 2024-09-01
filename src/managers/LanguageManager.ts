@@ -1,5 +1,5 @@
 import { getLocales, Locale } from 'expo-localization'
-import { Tables } from '@/models/supabase'
+import { Tables } from '@/src/models/supabase'
 import SupabaseManager from './SupabaseManager'
 import { ConfigurationManager } from './ConfigurationManager'
 

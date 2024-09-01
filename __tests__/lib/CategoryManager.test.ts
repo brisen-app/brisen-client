@@ -1,7 +1,7 @@
 // @ts-nocheck
 
-import { Category, CategoryManager } from '@/managers/CategoryManager'
-import { Localization } from '@/managers/LocalizationManager'
+import { Category, CategoryManager } from '@/src/managers/CategoryManager'
+import { Localization } from '@/src/managers/LocalizationManager'
 
 const mockedLocalizations: Localization[] = [
   { id: 'categories_1_title', value: 'Alice' },

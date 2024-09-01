@@ -1,8 +1,8 @@
-import { Pack } from '@/managers/PackManager'
-import { Category } from '@/managers/CategoryManager'
-import { PlayedCard } from '@/managers/CardManager'
-import { Player } from '@/models/Player'
-import { AppContextAction, AppContextType, contextReducer } from '@/providers/AppContextProvider'
+import { Pack } from '@/src/managers/PackManager'
+import { Category } from '@/src/managers/CategoryManager'
+import { PlayedCard } from '@/src/managers/CardManager'
+import { Player } from '@/src/models/Player'
+import { AppContextAction, AppContextType, contextReducer } from '@/src/providers/AppContextProvider'
 
 const emptyState = {
   categoryFilter: new Set<string>(),

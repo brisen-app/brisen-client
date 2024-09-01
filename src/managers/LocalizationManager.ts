@@ -1,8 +1,8 @@
 import { supabase } from '../lib/supabase'
 import { LanguageManager } from './LanguageManager'
-import { NotFoundError } from '@/models/Errors'
+import { NotFoundError } from '@/src/models/Errors'
 import SupabaseManager from './SupabaseManager'
-import { Tables } from '@/models/supabase'
+import { Tables } from '@/src/models/supabase'
 
 const tableName = 'localizations'
 export type Localization = Tables<typeof tableName>

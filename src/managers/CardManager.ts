@@ -1,10 +1,10 @@
 import { getRandom, getRandomPercent, shuffled } from '../lib/utils'
-import { InsufficientCountError } from '@/models/Errors'
+import { InsufficientCountError } from '@/src/models/Errors'
 import { Pack, PackManager } from './PackManager'
-import { Tables } from '@/models/supabase'
+import { Tables } from '@/src/models/supabase'
 import SupabaseManager from './SupabaseManager'
 import { CardRelationManager } from './CardRelationManager'
-import { Player } from '@/models/Player'
+import { Player } from '@/src/models/Player'
 import { ConfigurationManager } from './ConfigurationManager'
 
 const tableName = 'cards'
