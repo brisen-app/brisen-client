@@ -16,13 +16,11 @@ jobs:
       SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     steps:
-      - name: 🏗️ Setup repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: 🏗 Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
       - uses: expo/expo-github-action@v8
         with:
           eas-version: latest
