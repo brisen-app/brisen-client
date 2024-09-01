@@ -15,14 +15,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "no.kallerud.brisen",
       "splash": {
-        "image": "./src/assets/images/splash-screen/splash-screen-static.jpeg",
-        "resizeMode": "cover",
-        "backgroundColor": "#ffffff",
-        "dark": {
-          "image": "./src/assets/images/splash-screen/splash-screen-dynamic.png",
-          "resizeMode": "cover",
-          "backgroundColor": "#000000"
-        }
+        "image": "./src/assets/images/splash-screen/splash-screen.png",
+        "resizeMode": "cover"
       },
       "runtimeVersion": "0.0.1"
     },
@@ -34,14 +28,8 @@
         "backgroundImage": "./src/assets/images/app-icon/background.png"
       },
       "splash": {
-        "image": "./src/assets/images/splash-screen/splash-screen-static.jpeg",
-        "resizeMode": "cover",
-        "backgroundColor": "#ffffff",
-        "dark": {
-          "image": "./src/assets/images/splash-screen/splash-screen-dynamic.png",
-          "resizeMode": "cover",
-          "backgroundColor": "#000000"
-        }
+        "image": "./src/assets/images/splash-screen/splash-screen.png",
+        "resizeMode": "cover"
       },
       "runtimeVersion": "0.0.1"
     },
