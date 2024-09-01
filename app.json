@@ -42,7 +42,17 @@
       "expo-router",
       "expo-localization",
       "expo-font",
-      "expo-build-properties"
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "minSdkVersion": 24
+          },
+          "ios": {
+            "deploymentTarget": "15"
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
