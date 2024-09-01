@@ -1,7 +1,7 @@
-import { LanguageManager } from '@/managers/LanguageManager'
-import { LocalizationManager, Localization } from '@/managers/LocalizationManager'
-import { supabase } from '@/lib/supabase'
-import { NotFoundError } from '@/models/Errors'
+import { LanguageManager } from '@/src/managers/LanguageManager'
+import { LocalizationManager, Localization } from '@/src/managers/LocalizationManager'
+import { supabase } from '@/src/lib/supabase'
+import { NotFoundError } from '@/src/models/Errors'
 
 const mockedItems: Localization[] = [
   // @ts-ignore
@@ -24,7 +24,7 @@ const mockedItems: Localization[] = [
   },
 ]
 
-jest.mock('@/lib/supabase', () => ({
+jest.mock('@/src/lib/supabase', () => ({
   supabase: {
     from: () => ({
       select: () => ({
@@ -43,7 +43,7 @@ jest.mock('@/lib/supabase', () => ({
   },
 }))
 
-jest.mock('@/managers/LanguageManager', () => ({
+jest.mock('@/src/managers/LanguageManager', () => ({
   LanguageManager: {
     getDisplayLanguage: () => ({ id: 'nb' }),
   },

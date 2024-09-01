@@ -39,5 +39,5 @@ yarn-error.*
 coverage/
 
 # Supabase
-supabase/**
-brisen-cc885c863cbf.json
+src/supabase/**
+keys/**

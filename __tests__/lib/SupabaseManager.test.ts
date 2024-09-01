@@ -1,4 +1,4 @@
-import SupabaseManager, { SupabaseItem } from '@/managers/SupabaseManager'
+import SupabaseManager, { SupabaseItem } from '@/src/managers/SupabaseManager'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const mockedItems: SupabaseItem[] = [
@@ -23,7 +23,7 @@ jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock')
 )
 
-jest.mock('@/lib/supabase', () => ({
+jest.mock('@/src/lib/supabase', () => ({
   supabase: {
     from: () => ({
       select: () => ({
@@ -138,7 +138,7 @@ describe('fetchAll', () => {
   })
 
   it('should throw an error if no data is found', async () => {
-    const supabase = require('@/lib/supabase').supabase
+    const supabase = require('@/src/lib/supabase').supabase
 
     supabase.from = jest.fn(() => ({
       select: jest.fn(() => ({

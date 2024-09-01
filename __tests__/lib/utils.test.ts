@@ -1,6 +1,6 @@
-import * as utils from '@/lib/utils'
+import * as utils from '@/src/lib/utils'
 
-jest.mock('@/lib/supabase', () => undefined)
+jest.mock('@/src/lib/supabase', () => undefined)
 jest.mock('expo-crypto', () => ({
   getRandomValues: jest.fn(() => new Uint32Array([123456789])),
 }))

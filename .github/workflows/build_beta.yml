@@ -36,4 +36,4 @@ jobs:
       - name: 🏗️ Build
         uses: expo/expo-github-action/preview@v8
         with:
-          command: eas build -p all --profile develop --non-interactive --no-wait
+          command: eas build -p all --profile develop --non-interactive

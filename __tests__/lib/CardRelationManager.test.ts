@@ -1,6 +1,6 @@
-import { Card, CardManager } from '@/managers/CardManager'
-import { CardRelation, CardRelationManager } from '@/managers/CardRelationManager'
-import { CycleError } from '@/models/Errors'
+import { Card, CardManager } from '@/src/managers/CardManager'
+import { CardRelation, CardRelationManager } from '@/src/managers/CardRelationManager'
+import { CycleError } from '@/src/models/Errors'
 
 const mockedRelations1 = [
   { id: '2:1', parent: '1', child: '2' },
@@ -50,7 +50,7 @@ jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock')
 )
 
-jest.mock('@/lib/supabase', () => ({
+jest.mock('@/src/lib/supabase', () => ({
   supabase: {
     from: () => ({
       select: () => ({
