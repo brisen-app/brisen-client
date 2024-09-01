@@ -1,4 +1,4 @@
-name: CI
+name: Expo doctor
 
 on:
   pull_request:
@@ -8,7 +8,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  ci:
+  doctor:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
