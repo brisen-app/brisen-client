@@ -1,7 +1,7 @@
 import GameView from '@/src/components/GameView'
 import MenuView from '@/src/components/MenuView'
 import Colors from '@/src/constants/Colors'
-import { useSheetHeight } from '@/src/lib/utils'
+import { getRandom, useSheetHeight } from '@/src/lib/utils'
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetBackgroundProps,
@@ -9,15 +9,17 @@ import BottomSheet, {
 } from '@gorhom/bottom-sheet'
 import { SplashScreen } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { Keyboard, Platform, View, ViewProps } from 'react-native'
-import Animated, { Extrapolation, interpolate, interpolateColor, useAnimatedStyle } from 'react-native-reanimated'
+import { Dimensions, Keyboard, Platform, View, ViewProps } from 'react-native'
+import Animated, { Extrapolation, interpolate, useAnimatedStyle } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { PackManager } from '../managers/PackManager'
+import { Image } from 'expo-image'
 
 export default function App() {
   const insets = useSafeAreaInsets()
   const bottomSheetRef = useRef<BottomSheet>(null)
   const sheetHeight = useSheetHeight()
-  const snapPoints = useMemo(() => [sheetHeight, '45%', '100%'], [bottomSheetRef, insets])
+  const snapPoints = useMemo(() => [sheetHeight, '100%'], [bottomSheetRef, insets])
 
   const backdrop = useCallback(
     (props: any) => (
@@ -55,18 +57,26 @@ export default function App() {
   )
 }
 
-const SheetMenuBackground: React.FC<BottomSheetBackgroundProps> = ({ style, animatedIndex, animatedPosition }) => {
-  const insets = useSafeAreaInsets()
+const SheetMenuBackground: React.FC<BottomSheetBackgroundProps> = ({ style, animatedIndex }) => {
+  const pack = getRandom(PackManager.items ?? [])
+  const { data: image, error } = PackManager.useImageQuery(pack?.image)
+  if (error) console.warn(error)
 
   const containerAnimatedStyle = useAnimatedStyle(() => ({
-    borderRadius: interpolate(animatedPosition.value, [insets.top, 0], [16, 0], Extrapolation.CLAMP),
-    backgroundColor: interpolateColor(animatedIndex.value, [2, 1], [Colors.background, Colors.secondaryBackground]),
+    borderRadius: interpolate(animatedIndex.value, [0, 1], [16, 0], Extrapolation.CLAMP),
+    backgroundColor: 'black',
+    overflow: 'hidden',
+  }))
+
+  const backgroundAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(animatedIndex.value, [0, 1], [0.2, 0.1], Extrapolation.CLAMP),
   }))
 
   return (
     <Animated.View
       pointerEvents='none'
       style={[
+        style,
         Platform.select({
           ios: {
             shadowColor: 'black',
@@ -77,10 +87,21 @@ const SheetMenuBackground: React.FC<BottomSheetBackgroundProps> = ({ style, anim
             elevation: 32,
           },
         }) ?? {},
-        style,
         containerAnimatedStyle,
       ]}
-    />
+    >
+      <Animated.View style={backgroundAnimatedStyle}>
+        <Image
+          style={[
+            {
+              height: Dimensions.get('window').height,
+            },
+          ]}
+          source={image}
+          blurRadius={256}
+        />
+      </Animated.View>
+    </Animated.View>
   )
 }
 
@@ -92,7 +113,7 @@ const SheetHandle: React.FC<BottomSheetHandleProps & ViewProps> = ({ style, anim
   const containerAnimatedStyle = useAnimatedStyle(() => ({
     height: !insets.top
       ? handleHeight
-      : interpolate(animatedIndex.value, [1, 2], [handleHeight, insets.top], Extrapolation.CLAMP),
+      : interpolate(animatedIndex.value, [0, 1], [handleHeight, insets.top], Extrapolation.CLAMP),
     opacity: interpolate(animatedPosition.value, [insets.top, 0], [1 / 3, 0], Extrapolation.CLAMP),
   }))
 

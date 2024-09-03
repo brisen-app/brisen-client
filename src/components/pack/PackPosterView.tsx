@@ -50,7 +50,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
 
   const isAvailableStyle = useAnimatedStyle(() => {
     return {
-      opacity: withTiming(isAvailable ? 1 : 1 / 3, animationConfig),
+      opacity: withTiming(isAvailable ? 1 : 0.2, animationConfig),
     }
   }, [isAvailable])
 
@@ -88,7 +88,6 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
               overflow: 'hidden',
               borderRadius: 16,
               marginBottom: 8,
-              backgroundColor: Colors.placeholder,
               borderColor: Colors.stroke,
               borderWidth: StyleSheet.hairlineWidth,
               justifyContent: 'center',
