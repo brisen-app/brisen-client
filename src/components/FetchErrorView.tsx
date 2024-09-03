@@ -1,12 +1,10 @@
-import { Text } from '@/src/components/utils/Themed'
 import Colors from '@/src/constants/Colors'
 import Color from '@/src/models/Color'
 import { useQueryClient } from '@tanstack/react-query'
 import { SplashScreen } from 'expo-router'
 import { useEffect } from 'react'
-import { TouchableOpacity, ViewProps } from 'react-native'
+import { Text, TouchableOpacity, ViewProps } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import useColorScheme from './utils/useColorScheme'
 
 export type ErrorViewProps = {
   errors: Error[]
@@ -14,7 +12,6 @@ export type ErrorViewProps = {
 
 export default function FetchErrorView(props: Readonly<ErrorViewProps>) {
   const { errors, style } = props
-  const colorScheme = useColorScheme()
   const queryClient = useQueryClient()
 
   useEffect(() => {
@@ -30,7 +27,7 @@ export default function FetchErrorView(props: Readonly<ErrorViewProps>) {
           justifyContent: 'center',
           alignItems: 'center',
           gap: 8,
-          backgroundColor: Colors[colorScheme].background,
+          backgroundColor: Colors.background,
         },
         style,
       ]}
@@ -42,7 +39,6 @@ export default function FetchErrorView(props: Readonly<ErrorViewProps>) {
           fontWeight: '900',
           textAlign: 'center',
           marginTop: 16,
-          // color: Colors[colorScheme].accentColor,
         }}
       >
         Ooops...
@@ -53,7 +49,7 @@ export default function FetchErrorView(props: Readonly<ErrorViewProps>) {
           key={error.message}
           style={{
             textAlign: 'center',
-            color: Colors[colorScheme].secondaryText,
+            color: Colors.secondaryText,
           }}
         >
           {error.message}
@@ -69,7 +65,7 @@ export default function FetchErrorView(props: Readonly<ErrorViewProps>) {
           marginTop: 64,
           padding: 8,
           borderRadius: 8,
-          backgroundColor: Colors[colorScheme].accentColor,
+          backgroundColor: Colors.accentColor,
         }}
       >
         <Text

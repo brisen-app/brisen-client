@@ -1,6 +1,5 @@
 import GameView from '@/src/components/GameView'
 import MenuView from '@/src/components/MenuView'
-import useColorScheme from '@/src/components/utils/useColorScheme'
 import Colors from '@/src/constants/Colors'
 import { useSheetHeight } from '@/src/lib/utils'
 import BottomSheet, {
@@ -57,18 +56,12 @@ export default function App() {
 }
 
 const SheetMenuBackground: React.FC<BottomSheetBackgroundProps> = ({ style, animatedIndex, animatedPosition }) => {
-  const colorScheme = useColorScheme()
   const insets = useSafeAreaInsets()
 
   const containerAnimatedStyle = useAnimatedStyle(() => ({
     borderRadius: interpolate(animatedPosition.value, [insets.top, 0], [16, 0], Extrapolation.CLAMP),
-    backgroundColor: interpolateColor(
-      animatedIndex.value,
-      [2, 1],
-      [Colors[colorScheme].background, Colors[colorScheme].secondaryBackground]
-    ),
+    backgroundColor: interpolateColor(animatedIndex.value, [2, 1], [Colors.background, Colors.secondaryBackground]),
   }))
-  const containerStyle = useMemo(() => [style, containerAnimatedStyle], [style, containerAnimatedStyle, colorScheme])
 
   return (
     <Animated.View
@@ -84,14 +77,14 @@ const SheetMenuBackground: React.FC<BottomSheetBackgroundProps> = ({ style, anim
             elevation: 32,
           },
         }) ?? {},
-        containerStyle,
+        style,
+        containerAnimatedStyle,
       ]}
     />
   )
 }
 
 const SheetHandle: React.FC<BottomSheetHandleProps & ViewProps> = ({ style, animatedIndex, animatedPosition }) => {
-  const colorScheme = useColorScheme()
   const insets = useSafeAreaInsets()
 
   const handleHeight = 24
@@ -103,8 +96,6 @@ const SheetHandle: React.FC<BottomSheetHandleProps & ViewProps> = ({ style, anim
     opacity: interpolate(animatedPosition.value, [insets.top, 0], [1 / 3, 0], Extrapolation.CLAMP),
   }))
 
-  const containerStyle = useMemo(() => [style, containerAnimatedStyle], [style, containerAnimatedStyle, colorScheme])
-
   return (
     <Animated.View
       renderToHardwareTextureAndroid={true}
@@ -113,14 +104,14 @@ const SheetHandle: React.FC<BottomSheetHandleProps & ViewProps> = ({ style, anim
           justifyContent: 'center',
           alignItems: 'center',
         },
-        containerStyle,
+        containerAnimatedStyle,
       ]}
     >
       <View
         style={{
           height: 4,
           width: 32,
-          backgroundColor: Colors[colorScheme].text,
+          backgroundColor: Colors.text,
           borderRadius: Number.MAX_SAFE_INTEGER,
         }}
       />

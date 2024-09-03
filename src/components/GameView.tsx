@@ -4,10 +4,8 @@ import { CardManager } from '@/src/managers/CardManager'
 import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import BottomSheet from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet'
 import React, { useCallback, useEffect, useState } from 'react'
-import { Button, Dimensions, FlatList, Pressable, PressableProps, ViewProps } from 'react-native'
+import { Button, Dimensions, FlatList, Pressable, PressableProps, Text, ViewProps } from 'react-native'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
-import { Text } from './utils/Themed'
-import useColorScheme from './utils/useColorScheme'
 
 export type GameViewProps = {
   bottomSheetRef?: React.RefObject<BottomSheet>
@@ -94,7 +92,7 @@ function NoCardsView(props: Readonly<PressableProps & ViewProps>) {
         style,
       ]}
     >
-      <Text style={{ color: Colors[useColorScheme()].secondaryText, textAlign: 'center' }}>
+      <Text style={{ color: Colors.secondaryText, textAlign: 'center' }}>
         {LocalizationManager.get('select_pack')?.value ?? 'select_pack'}
       </Text>
     </Pressable>
@@ -103,7 +101,6 @@ function NoCardsView(props: Readonly<PressableProps & ViewProps>) {
 
 type OutOfCardsViewProps = { onPress: () => void }
 function OutOfCardsView(props: Readonly<OutOfCardsViewProps>) {
-  const colorScheme = useColorScheme()
   const { playedCards } = useAppContext()
   const setContext = useAppDispatchContext()
 
@@ -121,14 +118,14 @@ function OutOfCardsView(props: Readonly<OutOfCardsViewProps>) {
       <Text
         style={{
           textAlign: 'center',
-          color: Colors[useColorScheme()].secondaryText,
+          color: Colors.secondaryText,
         }}
       >
         {LocalizationManager.get('out_of_cards')?.value ?? 'out_of_cards'}
       </Text>
       <Button
         title={LocalizationManager.get('restart_game')?.value ?? 'restart_game'}
-        color={Colors[colorScheme].accentColor}
+        color={Colors.accentColor}
         disabled={playedCards.length === 0}
         onPress={() => {
           props.onPress()

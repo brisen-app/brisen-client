@@ -6,9 +6,7 @@ import { PackManager } from '@/src/managers/PackManager'
 import Color from '@/src/models/Color'
 import { Image } from 'expo-image'
 import { LinearGradient } from 'expo-linear-gradient'
-import { Platform, StyleSheet, TouchableOpacity, View, ViewProps } from 'react-native'
-import { Text } from '../utils/Themed'
-import useColorScheme from '../utils/useColorScheme'
+import { Platform, StyleSheet, Text, TouchableOpacity, View, ViewProps } from 'react-native'
 import { ConfigurationManager } from '@/src/managers/ConfigurationManager'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -22,7 +20,6 @@ export type CardViewProps = {
 }
 
 export function CardView(props: Readonly<CardViewProps & ViewProps>) {
-  const colorScheme = useColorScheme()
   const { card, category, style } = props
   const insets = useSafeAreaInsets()
 
@@ -41,8 +38,7 @@ export function CardView(props: Readonly<CardViewProps & ViewProps>) {
   if (error) console.warn(error)
 
   function getGradient() {
-    if (!category?.gradient)
-      return ConfigurationManager.get('default_gradient')?.list ?? [Colors[colorScheme].accentColor]
+    if (!category?.gradient) return ConfigurationManager.get('default_gradient')?.list ?? [Colors.accentColor]
     if (category.gradient.length === 1) return [category.gradient[0], category.gradient[0]]
     return category.gradient.map(color => Color.hex(color).string)
   }
@@ -105,7 +101,7 @@ export function CardView(props: Readonly<CardViewProps & ViewProps>) {
                 height: 48,
                 aspectRatio: 1,
                 backgroundColor: Color.black.alpha(0.5).string,
-                borderColor: Colors[colorScheme].stroke,
+                borderColor: Colors.stroke,
                 borderWidth: StyleSheet.hairlineWidth,
                 borderRadius: 12,
               }}

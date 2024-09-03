@@ -1,12 +1,11 @@
 import { AntDesign } from '@expo/vector-icons'
 import { BottomSheetScrollView, BottomSheetTextInput, useBottomSheet } from '@gorhom/bottom-sheet'
 import { Category, CategoryManager } from '@/src/managers/CategoryManager'
-import { Dimensions, StyleSheet, View, ViewProps } from 'react-native'
+import { Dimensions, StyleSheet, Text, View, ViewProps } from 'react-native'
 import { FontStyles } from '@/src/constants/Styles'
 import { formatName as prettifyString } from '@/src/lib/utils'
 import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import { PackManager } from '@/src/managers/PackManager'
-import { Text } from './utils/Themed'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Animated, {
@@ -22,12 +21,10 @@ import Colors from '@/src/constants/Colors'
 import PackPosterView from './pack/PackPosterView'
 import React, { useMemo, useState } from 'react'
 import Tag from './utils/Tag'
-import useColorScheme from './utils/useColorScheme'
 import { useInAppPurchaseContext } from '@/src/providers/InAppPurchaseProvider'
 
 export default function MenuView() {
   const insets = useSafeAreaInsets()
-  const colorScheme = useColorScheme()
   const bottomSheet = useBottomSheet()
 
   const { players, categoryFilter } = useAppContext()
@@ -44,7 +41,7 @@ export default function MenuView() {
     backgroundColor: interpolateColor(
       bottomSheet.animatedIndex.value,
       [2, 1],
-      [Colors[colorScheme].secondaryBackground, Colors[colorScheme].background]
+      [Colors.secondaryBackground, Colors.background]
     ),
   }))
 
@@ -178,7 +175,6 @@ function PackSection(props: Readonly<ViewProps>) {
 }
 
 function AddPlayerField(props: Readonly<ViewProps>) {
-  const colorScheme = useColorScheme()
   const { style } = props
   const [text, setText] = useState<string>('')
   const { players } = useAppContext()
@@ -199,9 +195,9 @@ function AddPlayerField(props: Readonly<ViewProps>) {
       style={[
         {
           flexDirection: 'row',
-          backgroundColor: Colors[colorScheme].secondaryBackground,
+          backgroundColor: Colors.secondaryBackground,
           borderWidth: StyleSheet.hairlineWidth,
-          borderColor: Colors[colorScheme].stroke,
+          borderColor: Colors.stroke,
           alignItems: 'center',
           borderRadius: 12,
           padding: 8,
@@ -210,13 +206,12 @@ function AddPlayerField(props: Readonly<ViewProps>) {
         style,
       ]}
     >
-      <AntDesign name='plus' size={18} color={Colors[colorScheme].secondaryText} />
+      <AntDesign name='plus' size={18} color={Colors.secondaryText} />
       <BottomSheetTextInput
         value={text}
         onChangeText={setText}
         placeholder={LocalizationManager.get('add_players')?.value ?? 'add_players'}
-        placeholderTextColor={Colors[colorScheme].secondaryText}
-        keyboardAppearance={colorScheme}
+        placeholderTextColor={Colors.secondaryText}
         returnKeyType='done'
         enablesReturnKeyAutomatically
         autoCapitalize='words'
@@ -225,8 +220,8 @@ function AddPlayerField(props: Readonly<ViewProps>) {
         inputMode='text'
         blurOnSubmit={false}
         onSubmitEditing={handleAddPlayer}
-        selectionColor={Colors[colorScheme].accentColor}
-        style={{ flex: 1, fontSize: 18, color: Colors[colorScheme].text }}
+        selectionColor={Colors.accentColor}
+        style={{ flex: 1, fontSize: 18, color: Colors.text }}
       />
     </Animated.View>
   )

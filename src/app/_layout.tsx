@@ -7,7 +7,6 @@ import { SplashScreen, Stack } from 'expo-router'
 import * as NavigationBar from 'expo-navigation-bar'
 import AppDataProvider from '@/src/providers/AppDataProvider'
 import Colors from '@/src/constants/Colors'
-import useColorScheme from '@/src/components/utils/useColorScheme'
 import InAppPurchaseProvider from '@/src/providers/InAppPurchaseProvider'
 
 SplashScreen.preventAutoHideAsync()
@@ -17,9 +16,8 @@ if (Platform.OS === 'android') {
 }
 
 export default function Layout() {
-  const colorScheme = useColorScheme()
   if (Platform.OS === 'android') {
-    NavigationBar.setButtonStyleAsync(colorScheme === 'dark' ? 'light' : 'dark')
+    NavigationBar.setButtonStyleAsync('light')
   }
 
   const queryClient = new QueryClient({
@@ -42,7 +40,7 @@ export default function Layout() {
               <Stack
                 screenOptions={{
                   headerShown: false,
-                  contentStyle: { backgroundColor: Colors[colorScheme].background },
+                  contentStyle: { backgroundColor: Colors.background },
                 }}
               />
               {Platform.OS === 'web' && <ReactQueryDevtools initialIsOpen={true} />}

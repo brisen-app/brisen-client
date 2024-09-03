@@ -5,7 +5,7 @@
     "version": "0.0.1",
     "orientation": "portrait",
     "scheme": "no.kallerud",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "dark",
     "assetBundlePatterns": [
       "**/*"
     ],

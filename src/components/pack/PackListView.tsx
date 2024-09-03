@@ -10,12 +10,11 @@ import {
   Pressable,
   PressableProps,
   StyleSheet,
+  Text,
   TouchableOpacity,
   View,
   ViewProps,
 } from 'react-native'
-import { Text } from '../utils/Themed'
-import useColorScheme from '../utils/useColorScheme'
 
 export type PackViewProps = {
   pack: Pack
@@ -29,7 +28,6 @@ const height: DimensionValue = 80
 
 export default function PackListView(props: Readonly<PackListViewProps & PackViewProps & ViewProps>) {
   const { pack, hideImage, style } = props
-  const colorScheme = useColorScheme()
 
   const { data: image, isLoading, error } = PackManager.useImageQuery(pack.image, !hideImage)
   if (error) console.warn(error)
@@ -66,7 +64,7 @@ export default function PackListView(props: Readonly<PackListViewProps & PackVie
               aspectRatio: 1,
               height: '100%',
               borderRadius: 16,
-              borderColor: Colors[colorScheme].stroke,
+              borderColor: Colors.stroke,
               borderWidth: StyleSheet.hairlineWidth,
             }}
           />
@@ -77,7 +75,7 @@ export default function PackListView(props: Readonly<PackListViewProps & PackVie
             {pack.name}
           </Text>
 
-          <Text numberOfLines={2} style={{ ...styles.text, color: Colors[colorScheme].secondaryText }}>
+          <Text numberOfLines={2} style={{ ...styles.text, color: Colors.secondaryText }}>
             {pack.description ? pack.description : pack.cards.size + ' cards'}
           </Text>
         </View>
@@ -86,8 +84,8 @@ export default function PackListView(props: Readonly<PackListViewProps & PackVie
       {/* <Switch
         value={isSelected}
         onValueChange={() => setContext({ action: 'togglePack', payload: pack })}
-        trackColor={{ false: Colors[colorScheme].placeholder, true: Colors[colorScheme].accentColor }}
-        thumbColor={Colors[colorScheme].background}
+        trackColor={{ false: Colors.placeholder, true: Colors.accentColor }}
+        thumbColor={Colors.background}
       /> */}
     </View>
   )
@@ -95,7 +93,6 @@ export default function PackListView(props: Readonly<PackListViewProps & PackVie
 
 export function PackListViewPlaceholder(props: PackListViewProps & PressableProps) {
   const { hideImage } = props
-  const colorScheme = useColorScheme()
   return (
     <Pressable
       style={{
@@ -112,18 +109,18 @@ export function PackListViewPlaceholder(props: PackListViewProps & PressableProp
               aspectRatio: 1,
               height: '100%',
               borderRadius: 16,
-              borderColor: Colors[colorScheme].stroke,
+              borderColor: Colors.stroke,
               borderWidth: StyleSheet.hairlineWidth,
               justifyContent: 'center',
               backgroundColor: Color.white.alpha(0.05).string,
             }}
           >
-            <ActivityIndicator color={Colors[colorScheme].secondaryText} />
+            <ActivityIndicator color={Colors.secondaryText} />
           </View>
         )}
 
         <View style={{ flex: 1, gap: 4, justifyContent: 'center' }} />
-        <MaterialIcons size={28} name={'more-horiz'} color={Colors[colorScheme].placeholder} />
+        <MaterialIcons size={28} name={'more-horiz'} color={Colors.placeholder} />
       </View>
     </Pressable>
   )
@@ -131,6 +128,7 @@ export function PackListViewPlaceholder(props: PackListViewProps & PressableProp
 
 const styles = StyleSheet.create({
   text: {
+    color: Colors.text,
     userSelect: 'none',
   },
   header: {
