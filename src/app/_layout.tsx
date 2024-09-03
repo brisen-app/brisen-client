@@ -1,6 +1,6 @@
 import { AppContextProvider } from '@/src/providers/AppContextProvider'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
-import { Platform } from 'react-native'
+import { Platform, StatusBar } from 'react-native'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { SplashScreen, Stack } from 'expo-router'
@@ -10,6 +10,7 @@ import Colors from '@/src/constants/Colors'
 import InAppPurchaseProvider from '@/src/providers/InAppPurchaseProvider'
 
 SplashScreen.preventAutoHideAsync()
+
 if (Platform.OS === 'android') {
   NavigationBar.setBackgroundColorAsync('#ffffff00')
   NavigationBar.setPositionAsync('absolute')
@@ -43,6 +44,7 @@ export default function Layout() {
                   contentStyle: { backgroundColor: Colors.background },
                 }}
               />
+              <StatusBar barStyle={'light-content'} translucent />
               {Platform.OS === 'web' && <ReactQueryDevtools initialIsOpen={true} />}
             </InAppPurchaseProvider>
           </AppContextProvider>
