@@ -145,7 +145,12 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
           entering={entering}
           style={[
             {
-              width: Dimensions.get('screen').width,
+              width: Dimensions.get('screen').width - safeArea.paddingLeft - safeArea.paddingRight,
+              marginTop: safeArea.paddingTop,
+              marginBottom: safeArea.paddingBottom,
+              marginRight: safeArea.paddingRight,
+              borderRadius: 32,
+              overflow: 'hidden',
             },
             Platform.select({
               ios: {

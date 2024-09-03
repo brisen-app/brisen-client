@@ -60,7 +60,7 @@ export function CardView(props: Readonly<CardViewProps & ViewProps>) {
       <View
         style={{
           ...Styles.absoluteFill,
-          ...safeArea,
+          padding: 32,
         }}
       >
         {(category || card.header) && (

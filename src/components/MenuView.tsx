@@ -12,7 +12,6 @@ import Animated, {
   Easing,
   FadeInUp,
   interpolate,
-  interpolateColor,
   LinearTransition,
   useAnimatedStyle,
   ZoomOut,
@@ -22,6 +21,7 @@ import PackPosterView from './pack/PackPosterView'
 import React, { useMemo, useState } from 'react'
 import Tag from './utils/Tag'
 import { useInAppPurchaseContext } from '@/src/providers/InAppPurchaseProvider'
+import Color from '../models/Color'
 
 export default function MenuView() {
   const insets = useSafeAreaInsets()
@@ -37,14 +37,6 @@ export default function MenuView() {
     setContext({ action: 'toggleCategory', payload: category })
   }
 
-  const secondaryBackgroundColorStyle = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(
-      bottomSheet.animatedIndex.value,
-      [2, 1],
-      [Colors.secondaryBackground, Colors.background]
-    ),
-  }))
-
   const hideOnBottomStyle = useAnimatedStyle(() => ({
     opacity: interpolate(bottomSheet.animatedIndex.value, [0, 1], [0, 1]),
   }))
@@ -55,7 +47,7 @@ export default function MenuView() {
       contentContainerStyle={{ gap: 8 }}
       style={{ flex: 1, overflow: 'visible', marginHorizontal: 16 }}
     >
-      <AddPlayerField style={secondaryBackgroundColorStyle} />
+      <AddPlayerField />
 
       <Animated.View style={[{ gap: 8 }, hideOnBottomStyle]}>
         {players.size === 0 && (
@@ -72,11 +64,7 @@ export default function MenuView() {
                 entering={FadeInUp.easing(Easing.out(Easing.quad))}
                 exiting={ZoomOut.easing(Easing.out(Easing.quad))}
               >
-                <Tag
-                  text={tag.name}
-                  onPress={() => setContext({ action: 'togglePlayer', payload: tag })}
-                  style={secondaryBackgroundColorStyle}
-                />
+                <Tag text={tag.name} onPress={() => setContext({ action: 'togglePlayer', payload: tag })} />
               </Animated.View>
             ))}
           </View>
@@ -96,7 +84,6 @@ export default function MenuView() {
           {sortedCategories?.map(category => (
             <CategoryTag
               key={category.id}
-              style={secondaryBackgroundColorStyle}
               category={category}
               isSelected={!categoryFilter.has(category.id)}
               onPress={onPressCategory}
@@ -195,7 +182,7 @@ function AddPlayerField(props: Readonly<ViewProps>) {
       style={[
         {
           flexDirection: 'row',
-          backgroundColor: Colors.secondaryBackground,
+          backgroundColor: Color.hex(Colors.background).alpha(0.5).string,
           borderWidth: StyleSheet.hairlineWidth,
           borderColor: Colors.stroke,
           alignItems: 'center',
