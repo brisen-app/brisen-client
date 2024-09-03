@@ -6,7 +6,7 @@ import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import { Pack, PackManager } from '@/src/managers/PackManager'
 import { Image } from 'expo-image'
 import { useRef } from 'react'
-import { Text, Dimensions, Platform, PressableProps, StyleSheet, View, ViewProps } from 'react-native'
+import { Text, Dimensions, Platform, StyleSheet, View, ViewProps } from 'react-native'
 import Animated, {
   Easing,
   Extrapolation,
@@ -21,10 +21,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { CardView } from './CardView'
 import { useSheetHeight } from '@/src/lib/utils'
 
-export type CardScreenProps = { card: PlayedCard } & PressableProps
+export type CardScreenProps = { card: PlayedCard } & ViewProps
 
 export default function CardScreen(props: Readonly<CardScreenProps>) {
-  const { card } = props
+  const { card, style } = props
   const horizontalScroll = useRef<AnimatedScrollView>(null)
   const detailsWidth = Dimensions.get('screen').width * 0.8
   const scrollOffset = useSharedValue(0)
@@ -73,9 +73,12 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
   return (
     <View
       onTouchEnd={() => scrollOffset.value >= 0.95 && horizontalScroll.current?.scrollToEnd()}
-      style={{
-        height: Dimensions.get('screen').height,
-      }}
+      style={[
+        style,
+        {
+          height: Dimensions.get('screen').height,
+        },
+      ]}
     >
       <Animated.View
         style={[
