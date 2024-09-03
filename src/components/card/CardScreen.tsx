@@ -151,6 +151,8 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
               marginRight: safeArea.paddingRight,
               borderRadius: 32,
               overflow: 'hidden',
+              borderColor: Colors.stroke,
+              borderWidth: StyleSheet.hairlineWidth,
             },
             Platform.select({
               ios: {
