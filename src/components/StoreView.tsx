@@ -1,11 +1,9 @@
 import React, { useEffect } from 'react'
-import { ActivityIndicator, Alert, Button, TouchableOpacity, View } from 'react-native'
-import Purchases, { CustomerInfo, PurchasesOfferings } from 'react-native-purchases'
+import { ActivityIndicator, Alert, TouchableOpacity, View } from 'react-native'
+import Purchases, { PurchasesOfferings } from 'react-native-purchases'
 import RevenueCatUI from 'react-native-purchases-ui'
 import Colors from '../constants/Colors'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Styles } from '../constants/Styles'
-import { AntDesign, MaterialIcons } from '@expo/vector-icons'
+import { AntDesign } from '@expo/vector-icons'
 
 export type StoreViewProps = {
   dismiss: () => void
@@ -13,7 +11,6 @@ export type StoreViewProps = {
 
 export default function StoreView(props: Readonly<StoreViewProps>) {
   const { dismiss } = props
-  const { left, right } = useSafeAreaInsets()
   const [offerings, setOfferings] = React.useState<PurchasesOfferings | undefined>(undefined)
 
   useEffect(() => {

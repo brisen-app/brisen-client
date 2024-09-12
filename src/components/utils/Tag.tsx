@@ -2,8 +2,7 @@ import Colors from '@/src/constants/Colors'
 import { FontStyles } from '@/src/constants/Styles'
 import { MaterialIcons } from '@expo/vector-icons'
 import React from 'react'
-import { StyleSheet } from 'react-native'
-import { Text, TouchableOpacity, TouchableOpacityProps } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, TouchableOpacityProps } from 'react-native'
 import Animated from 'react-native-reanimated'
 
 export type TagListProps = {
