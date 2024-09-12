@@ -7,8 +7,7 @@ import { useAppContext, useAppDispatchContext } from '../../providers/AppContext
 import Animated, { Easing, useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import { useBottomSheet } from '@gorhom/bottom-sheet'
 import Color from '@/src/models/Color'
-import RevenueCatUI from 'react-native-purchases-ui'
-import { useInAppPurchaseContext } from '@/src/providers/InAppPurchaseProvider'
+import { useInAppPurchaseContext, useInAppPurchaseDispatchContext } from '@/src/providers/InAppPurchaseProvider'
 
 export type PackViewProps = {
   pack: Pack
@@ -23,6 +22,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
   const bottomSheet = useBottomSheet()
   const { playlist, playedIds } = useAppContext()
   const { isSubscribed } = useInAppPurchaseContext()
+  const { displayStore } = useInAppPurchaseDispatchContext()
   const setContext = useAppDispatchContext()
   const width = props.width ?? 256
   const isSelected = playlist.has(pack)
@@ -77,7 +77,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
             setContext({ action: 'togglePack', payload: pack })
             if (playlist.size === 0 && playedIds.size === 0) bottomSheet.collapse()
           } else {
-            RevenueCatUI.presentPaywall().then(console.log).catch(console.warn)
+            displayStore(pack)
           }
         }}
       >
