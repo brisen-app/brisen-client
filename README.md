@@ -1,11 +1,32 @@
-# Brisen Client
-![Expo Submit Status](https://github.com/brisen-app/brisen-client/actions/workflows/build_submit.yml/badge.svg)
-![Beta deployment](https://github.com/brisen-app/brisen-client/actions/workflows/build_beta.yml/badge.svg)
-[![Quality Gate Status](https://sonarqube.kallerud.no/api/project_badges/measure?project=brisen-app_brisen-client_26c99873-d531-464d-a9a9-0ea569442bdd&metric=alert_status&token=sqb_fb9cf3e8f814b6cb097b5b0c7290a06d0544dac4)](https://sonarqube.kallerud.no/dashboard?id=brisen-app_brisen-client_26c99873-d531-464d-a9a9-0ea569442bdd)
-[![Lines of Code](https://sonarqube.kallerud.no/api/project_badges/measure?project=brisen-app_brisen-client_26c99873-d531-464d-a9a9-0ea569442bdd&metric=ncloc&token=sqb_fb9cf3e8f814b6cb097b5b0c7290a06d0544dac4)](https://sonarqube.kallerud.no/dashboard?id=brisen-app_brisen-client_26c99873-d531-464d-a9a9-0ea569442bdd)
-[![Coverage](https://sonarqube.kallerud.no/api/project_badges/measure?project=brisen-app_brisen-client_26c99873-d531-464d-a9a9-0ea569442bdd&metric=coverage&token=sqb_fb9cf3e8f814b6cb097b5b0c7290a06d0544dac4)](https://sonarqube.kallerud.no/dashboard?id=brisen-app_brisen-client_26c99873-d531-464d-a9a9-0ea569442bdd)
+<p align="center">
+  <img src="https://media.githubusercontent.com/media/brisen-app/brisen-assets/main/assets/logo/logo-text.png?token=ATF6BVKBL52HFOWZAK2PMZ3G4NOEK" alt="Brisen" width="265">
+</p>
+
+<p align="center">
+  Trivia game for Android and iOS, built with React Native.
+</p>
+
+<div align="center">
+  <a href="https://expo.dev/accounts/brisen/projects/brisen-client/submissions">
+    <img src="https://github.com/brisen-app/brisen-client/actions/workflows/build_submit.yml/badge.svg" alt="Expo Submit Status">
+  </a>
+  <a href="https://expo.dev/accounts/brisen/projects/brisen-client/development-builds">
+    <img src="https://github.com/brisen-app/brisen-client/actions/workflows/build_beta.yml/badge.svg" alt="Beta deployment">
+  </a>
+  <a href="">
+    <img src="https://sonarqube.kallerud.no/api/project_badges/measure?project=brisen-app_brisen-client_26c99873-d531-464d-a9a9-0ea569442bdd&metric=alert_status&token=sqb_fb9cf3e8f814b6cb097b5b0c7290a06d0544dac4)](https://sonarqube.kallerud.no/dashboard?id=brisen-app_brisen-client_26c99873-d531-464d-a9a9-0ea569442bdd" alt="Quality Gate Status">
+  </a>
+  <a href="https://sonarqube.kallerud.no/dashboard?id=brisen-app_brisen-client_26c99873-d531-464d-a9a9-0ea569442bdd">
+    <img src="https://sonarqube.kallerud.no/api/project_badges/measure?project=brisen-app_brisen-client_26c99873-d531-464d-a9a9-0ea569442bdd&metric=ncloc&token=sqb_fb9cf3e8f814b6cb097b5b0c7290a06d0544dac4" alt="Lines of Code">
+  </a>
+  <a href="https://sonarqube.kallerud.no/dashboard?id=brisen-app_brisen-client_26c99873-d531-464d-a9a9-0ea569442bdd">
+    <img src="https://sonarqube.kallerud.no/api/project_badges/measure?project=brisen-app_brisen-client_26c99873-d531-464d-a9a9-0ea569442bdd&metric=coverage&token=sqb_fb9cf3e8f814b6cb097b5b0c7290a06d0544dac4" alt="Coverage">
+  </a>
+</div>
 
 ## Setup
+
+> First, clone the repo and navigate to the root folder.
 
 1. Install Node LTS
    - Windows: `winget install -e --id OpenJS.NodeJS.LTS`
@@ -22,6 +43,13 @@
    EXPO_PUBLIC_RC_KEY_GOOGLE=<revenue-cat-google-api-key>
    ```
    If you're making changes to the database schema, you'll need to clone the [`supabase-database`](https://github.com/brisen-app/brisen-database)-repo and follow the instructions in the `README.md`-file.
+1. Set up you development environment
+   Follow [this](https://docs.expo.dev/get-started/set-up-your-environment/?mode=development-build&buildEnv=local) guide.
+   - Select Development build
+   - Disable Build with EAS
+1. Run the app
+   - Android: `npm run android`
+   - iOS: `npm run ios` (or `npm start`)
 
 ## Development workflow
 
