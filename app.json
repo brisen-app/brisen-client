@@ -5,7 +5,7 @@
     "version": "0.0.1",
     "orientation": "portrait",
     "scheme": "no.kallerud",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "dark",
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -21,7 +21,8 @@
       "bundleIdentifier": "no.kallerud.brisen",
       "splash": {
         "image": "./src/assets/images/splash-screen/splash-screen.png",
-        "resizeMode": "cover"
+        "resizeMode": "cover",
+        "backgroundColor": "#000000"
       },
       "runtimeVersion": "0.0.1"
     },
@@ -34,7 +35,8 @@
       },
       "splash": {
         "image": "./src/assets/images/splash-screen/splash-screen.png",
-        "resizeMode": "cover"
+        "resizeMode": "cover",
+        "backgroundColor": "#000000"
       },
       "runtimeVersion": "0.0.1"
     },

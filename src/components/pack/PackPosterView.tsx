@@ -2,15 +2,12 @@ import Colors from '@/src/constants/Colors'
 import { Pack, PackManager } from '@/src/managers/PackManager'
 import { Ionicons } from '@expo/vector-icons'
 import { Image } from 'expo-image'
-import { ActivityIndicator, Platform, Pressable, StyleSheet, View, ViewProps } from 'react-native'
+import { Text, ActivityIndicator, Platform, Pressable, StyleSheet, View, ViewProps } from 'react-native'
 import { useAppContext, useAppDispatchContext } from '../../providers/AppContextProvider'
-import { Text } from '../utils/Themed'
-import useColorScheme from '../utils/useColorScheme'
 import Animated, { Easing, useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import { useBottomSheet } from '@gorhom/bottom-sheet'
 import Color from '@/src/models/Color'
-import RevenueCatUI from 'react-native-purchases-ui'
-import { useInAppPurchaseContext } from '@/src/providers/InAppPurchaseProvider'
+import { useInAppPurchaseContext, useInAppPurchaseDispatchContext } from '@/src/providers/InAppPurchaseProvider'
 
 export type PackViewProps = {
   pack: Pack
@@ -22,10 +19,10 @@ export type PackPosterViewProps = {
 
 export default function PackPosterView(props: Readonly<PackPosterViewProps & PackViewProps & ViewProps>) {
   const { pack, style } = props
-  const colorScheme = useColorScheme()
   const bottomSheet = useBottomSheet()
   const { playlist, playedIds } = useAppContext()
   const { isSubscribed } = useInAppPurchaseContext()
+  const { displayStore } = useInAppPurchaseDispatchContext()
   const setContext = useAppDispatchContext()
   const width = props.width ?? 256
   const isSelected = playlist.has(pack)
@@ -53,7 +50,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
 
   const isAvailableStyle = useAnimatedStyle(() => {
     return {
-      opacity: withTiming(isAvailable ? 1 : 1 / 3, animationConfig),
+      opacity: withTiming(isAvailable ? 1 : 0.2, animationConfig),
     }
   }, [isAvailable])
 
@@ -80,7 +77,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
             setContext({ action: 'togglePack', payload: pack })
             if (playlist.size === 0 && playedIds.size === 0) bottomSheet.collapse()
           } else {
-            RevenueCatUI.presentPaywall().then(console.log).catch(console.warn)
+            displayStore(pack)
           }
         }}
       >
@@ -91,8 +88,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
               overflow: 'hidden',
               borderRadius: 16,
               marginBottom: 8,
-              backgroundColor: Colors[colorScheme].placeholder,
-              borderColor: Colors[colorScheme].stroke,
+              borderColor: Colors.stroke,
               borderWidth: StyleSheet.hairlineWidth,
               justifyContent: 'center',
               alignItems: 'center',
@@ -108,7 +104,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
           ]}
         >
           {isLoading ? (
-            <ActivityIndicator size='large' color={Colors[colorScheme].accentColor} />
+            <ActivityIndicator size='large' color={Colors.accentColor} />
           ) : (
             <Animated.View style={isAvailableStyle}>
               <Image
@@ -133,7 +129,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
                   name='checkmark-circle'
                   size={32 + 16 + 8}
                   style={[
-                    { padding: 8, color: Colors[colorScheme].accentColor },
+                    { padding: 8, color: Colors.accentColor },
                     Platform.select({
                       ios: {
                         shadowOffset: { width: 0, height: 8 },
@@ -185,7 +181,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
           {pack.name}
         </Text>
 
-        <Text numberOfLines={2} style={{ ...styles.text, color: Colors[colorScheme].secondaryText }}>
+        <Text numberOfLines={2} style={{ ...styles.text, color: Colors.secondaryText }}>
           {pack.description ? pack.description : pack.cards.size + ' cards'}
         </Text>
       </Pressable>
@@ -195,9 +191,11 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
 
 const styles = StyleSheet.create({
   text: {
+    color: Colors.text,
     userSelect: 'none',
   },
   header: {
+    color: Colors.text,
     fontSize: 18,
     fontWeight: 'bold',
   },

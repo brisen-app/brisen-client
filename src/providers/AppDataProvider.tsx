@@ -10,7 +10,6 @@ import SupabaseManager, { SupabaseItem } from '@/src/managers/SupabaseManager'
 import { useQuery } from '@tanstack/react-query'
 import { ReactNode } from 'react'
 import { ActivityIndicator, View } from 'react-native'
-import useColorScheme from '../components/utils/useColorScheme'
 import { ConfigurationManager } from '@/src/managers/ConfigurationManager'
 
 function useSupabase(manager: SupabaseManager<SupabaseItem>, enabled = true) {
@@ -26,8 +25,6 @@ function useSupabase(manager: SupabaseManager<SupabaseItem>, enabled = true) {
 }
 
 export default function AppDataProvider(props: Readonly<{ children: ReactNode }>) {
-  const colorScheme = useColorScheme()
-
   const configResonse = useSupabase(ConfigurationManager)
   const languageResponse = useSupabase(LanguageManager, configResonse.hasFetched)
   const categoryResponse = useSupabase(CategoryManager)
@@ -65,10 +62,10 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: Colors[colorScheme].background,
+        backgroundColor: Colors.background,
       }}
     >
-      <ActivityIndicator size='large' color={Colors[colorScheme].text} />
+      <ActivityIndicator size='large' color={Colors.text} />
     </View>
   )
 }

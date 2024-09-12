@@ -6,7 +6,7 @@ import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import { Pack, PackManager } from '@/src/managers/PackManager'
 import { Image } from 'expo-image'
 import { useRef } from 'react'
-import { Dimensions, Platform, PressableProps, StyleSheet, View, ViewProps } from 'react-native'
+import { Text, Dimensions, Platform, StyleSheet, View, ViewProps } from 'react-native'
 import Animated, {
   Easing,
   Extrapolation,
@@ -18,16 +18,13 @@ import Animated, {
 } from 'react-native-reanimated'
 import { AnimatedScrollView } from 'react-native-reanimated/lib/typescript/reanimated2/component/ScrollView'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Text } from '../utils/Themed'
-import useColorScheme from '../utils/useColorScheme'
 import { CardView } from './CardView'
 import { useSheetHeight } from '@/src/lib/utils'
 
-export type CardScreenProps = { card: PlayedCard } & PressableProps
+export type CardScreenProps = { card: PlayedCard } & ViewProps
 
 export default function CardScreen(props: Readonly<CardScreenProps>) {
-  const { card } = props
-  const colorScheme = useColorScheme()
+  const { card, style } = props
   const horizontalScroll = useRef<AnimatedScrollView>(null)
   const detailsWidth = Dimensions.get('screen').width * 0.8
   const scrollOffset = useSharedValue(0)
@@ -76,9 +73,12 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
   return (
     <View
       onTouchEnd={() => scrollOffset.value >= 0.95 && horizontalScroll.current?.scrollToEnd()}
-      style={{
-        height: Dimensions.get('screen').height,
-      }}
+      style={[
+        style,
+        {
+          height: Dimensions.get('screen').height,
+        },
+      ]}
     >
       <Animated.View
         style={[
@@ -97,7 +97,7 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
             <Text style={FontStyles.Subheading}>{LocalizationManager.get('category')?.value?.toUpperCase()}</Text>
             <View
               style={{
-                backgroundColor: Colors[colorScheme].secondaryBackground,
+                backgroundColor: Colors.secondaryBackground,
                 padding: 16,
                 borderRadius: 16,
                 gap: 8,
@@ -107,7 +107,7 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
                 <Text style={{ fontSize: 32 }} numberOfLines={1}>
                   {category.icon}
                 </Text>
-                <Text style={{ ...FontStyles.Title, color: Colors[colorScheme].text }} numberOfLines={1}>
+                <Text style={{ ...FontStyles.Title, color: Colors.text }} numberOfLines={1}>
                   {CategoryManager.getTitle(category)}
                 </Text>
               </View>
@@ -148,7 +148,14 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
           entering={entering}
           style={[
             {
-              width: Dimensions.get('screen').width,
+              width: Dimensions.get('screen').width - safeArea.paddingLeft - safeArea.paddingRight,
+              marginTop: safeArea.paddingTop,
+              marginBottom: safeArea.paddingBottom,
+              marginRight: safeArea.paddingRight,
+              borderRadius: 32,
+              overflow: 'hidden',
+              borderColor: Colors.stroke,
+              borderWidth: StyleSheet.hairlineWidth,
             },
             Platform.select({
               ios: {
@@ -176,7 +183,6 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
 
 function PackView(props: Readonly<{ pack: Pack } & ViewProps>) {
   const { pack, style } = props
-  const colorScheme = useColorScheme()
   const { data: image, error } = PackManager.useImageQuery(pack.image)
   if (error) console.warn(error)
 
@@ -185,7 +191,7 @@ function PackView(props: Readonly<{ pack: Pack } & ViewProps>) {
       {...props}
       style={[
         {
-          backgroundColor: Colors[colorScheme].secondaryBackground,
+          backgroundColor: Colors.secondaryBackground,
           padding: 16,
           borderRadius: 16,
           gap: 8,
@@ -201,11 +207,11 @@ function PackView(props: Readonly<{ pack: Pack } & ViewProps>) {
             aspectRatio: 1,
             height: 64,
             borderRadius: 12,
-            borderColor: Colors[colorScheme].stroke,
+            borderColor: Colors.stroke,
             borderWidth: StyleSheet.hairlineWidth,
           }}
         />
-        <Text style={{ ...FontStyles.Title, color: Colors[colorScheme].text }} numberOfLines={1}>
+        <Text style={{ ...FontStyles.Title, color: Colors.text }} numberOfLines={1}>
           {pack.name}
         </Text>
       </View>

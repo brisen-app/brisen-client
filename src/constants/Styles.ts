@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native'
+import Colors from './Colors'
 
 export const Styles = StyleSheet.create({
   absoluteFill: {
@@ -21,30 +22,35 @@ export const Styles = StyleSheet.create({
 export const FontStyles = StyleSheet.create({
   LargeTitle: {
     userSelect: 'none',
+    color: Colors.text,
     fontSize: 32,
     fontWeight: '900',
   },
   Header: {
     userSelect: 'none',
+    color: Colors.text,
     fontSize: 24,
     fontWeight: 'bold',
   },
   Title: {
     userSelect: 'none',
+    color: Colors.text,
     fontSize: 20,
     fontWeight: '900',
   },
   Subheading: {
     userSelect: 'none',
-    color: 'gray',
+    color: Colors.secondaryText,
   },
   Button: {
     userSelect: 'none',
+    color: Colors.text,
     fontSize: 16,
     fontWeight: 'bold',
   },
   AccentuatedBody: {
     userSelect: 'none',
+    color: Colors.text,
     fontSize: 16,
   },
 })
