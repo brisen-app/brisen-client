@@ -47,9 +47,6 @@
    Follow [this](https://docs.expo.dev/get-started/set-up-your-environment/?mode=development-build&buildEnv=local) guide.
    - Select Development build
    - Disable Build with EAS
-1. Run the app
-   - Android: `npm run android`
-   - iOS: `npm run ios` (or `npm start`)
 
 ## Development workflow
 
@@ -57,7 +54,8 @@
    - `feature/<feature-name>`
    - `bugfix/<bug-name>`
 1. Start the development server
-   - Run `npm start`
+   - Android: `npm run android`
+   - iOS: `npm run ios` (or `npm start`)
 1. Make your changes in the client and the development environments [Supabase dashboard](https://supabase.com/dashboard/project/tlnldlywflpgvjepxwxz).
    - If you're making changes to the database schema, you'll need to regenerate the Supabase types
      ```bash
@@ -65,6 +63,7 @@
      ```
 1. Commit and push changes to the branch
 1. Create a pull request with `develop` as the target branch
+   - Remember to write unit-tests! I recommend installing the [Jest-plugin for VS Code](https://marketplace.visualstudio.com/items?itemName=Orta.vscode-jest) to make sure all tests pass before creating a PR.
 
 ## Release workflow
 
