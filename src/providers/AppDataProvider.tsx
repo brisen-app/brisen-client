@@ -1,5 +1,4 @@
 import FetchErrorView from '@/src/components/FetchErrorView'
-import Colors from '@/src/constants/Colors'
 import { CardManager } from '@/src/managers/CardManager'
 import { CardRelationManager } from '@/src/managers/CardRelationManager'
 import { CategoryManager } from '@/src/managers/CategoryManager'
@@ -9,7 +8,6 @@ import { PackManager } from '@/src/managers/PackManager'
 import SupabaseManager, { SupabaseItem } from '@/src/managers/SupabaseManager'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { ReactNode } from 'react'
-import { ActivityIndicator, View } from 'react-native'
 import { ConfigurationManager } from '@/src/managers/ConfigurationManager'
 import ActivityIndicatorView from '../components/ActivityIndicatorView'
 
