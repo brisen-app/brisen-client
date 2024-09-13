@@ -1,18 +1,17 @@
 import Colors from '@/src/constants/Colors'
 import Color from '@/src/models/Color'
-import { useQueryClient } from '@tanstack/react-query'
 import { SplashScreen } from 'expo-router'
 import { useEffect } from 'react'
-import { Text, TouchableOpacity, ViewProps } from 'react-native'
+import { GestureResponderEvent, Text, TouchableOpacity, ViewProps } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 export type ErrorViewProps = {
   errors: Error[]
+  onRetry?: (event: GestureResponderEvent) => void
 } & ViewProps
 
 export default function FetchErrorView(props: Readonly<ErrorViewProps>) {
-  const { errors, style } = props
-  const queryClient = useQueryClient()
+  const { errors, onRetry, style } = props
 
   useEffect(() => {
     SplashScreen.hideAsync()
@@ -57,7 +56,7 @@ export default function FetchErrorView(props: Readonly<ErrorViewProps>) {
       ))}
 
       <TouchableOpacity
-        onPress={() => queryClient.invalidateQueries()}
+        onPress={onRetry}
         style={{
           flexDirection: 'row',
           justifyContent: 'center',

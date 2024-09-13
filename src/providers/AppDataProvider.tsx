@@ -7,10 +7,11 @@ import { LanguageManager } from '@/src/managers/LanguageManager'
 import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import { PackManager } from '@/src/managers/PackManager'
 import SupabaseManager, { SupabaseItem } from '@/src/managers/SupabaseManager'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { ReactNode } from 'react'
 import { ActivityIndicator, View } from 'react-native'
 import { ConfigurationManager } from '@/src/managers/ConfigurationManager'
+import ActivityIndicatorView from '../components/ActivityIndicatorView'
 
 function useSupabase(manager: SupabaseManager<SupabaseItem>, enabled = true) {
   const { data, error, isLoading, isPending, isFetched } = useQuery({
@@ -25,6 +26,7 @@ function useSupabase(manager: SupabaseManager<SupabaseItem>, enabled = true) {
 }
 
 export default function AppDataProvider(props: Readonly<{ children: ReactNode }>) {
+  const queryClient = useQueryClient()
   const configResonse = useSupabase(ConfigurationManager)
   const languageResponse = useSupabase(LanguageManager, configResonse.hasFetched)
   const categoryResponse = useSupabase(CategoryManager)
@@ -52,20 +54,9 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
     localizationResponse.error,
   ].filter(e => !!e) as Error[]
 
-  if (errors.length > 0) return <FetchErrorView errors={errors} />
+  if (errors.length > 0) return <FetchErrorView errors={errors} onRetry={() => queryClient.invalidateQueries()} />
 
   if (hasFetched) return props.children
 
-  return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: Colors.background,
-      }}
-    >
-      <ActivityIndicator size='large' color={Colors.text} />
-    </View>
-  )
+  return <ActivityIndicatorView />
 }

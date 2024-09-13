@@ -4,6 +4,8 @@ import { Modal, Platform } from 'react-native'
 import Purchases, { CustomerInfo } from 'react-native-purchases'
 import StoreView from '../components/StoreView'
 import { Pack } from '../managers/PackManager'
+import FetchErrorView from '../components/FetchErrorView'
+import ActivityIndicatorView from '../components/ActivityIndicatorView'
 
 function initInAppPurchases(setContext: Dispatch<InAppPurchaseContextActionType>) {
   const iosKey = process.env.EXPO_PUBLIC_RC_KEY_APPLE
@@ -24,11 +26,15 @@ function initInAppPurchases(setContext: Dispatch<InAppPurchaseContextActionType>
         setContext({ action: 'setCustomerInfo', payload: customerInfo })
       })
     })
-    .catch(console.error)
+    .catch(e => {
+      setContext({ action: 'setCustomerInfoError', payload: e })
+      console.error(e)
+    })
 }
 
 type InAppPurchaseContextType = {
   customerInfo: CustomerInfo | undefined
+  customerInfoError: Error | undefined
   showStore: boolean
   product: Pack | undefined
 }
@@ -37,6 +43,7 @@ type InAppPurchaseContextActionType =
   | { action: 'hideStore' }
   | { action: 'displayStore'; payload: Pack }
   | { action: 'setCustomerInfo'; payload: CustomerInfo }
+  | { action: 'setCustomerInfoError'; payload: Error }
 
 function InAppPurchaseContextReducer(state: InAppPurchaseContextType, action: InAppPurchaseContextActionType) {
   const { action: type } = action
@@ -54,6 +61,11 @@ function InAppPurchaseContextReducer(state: InAppPurchaseContextType, action: In
     case 'setCustomerInfo': {
       const { payload } = action
       return { ...state, customerInfo: payload }
+    }
+
+    case 'setCustomerInfoError': {
+      const { payload } = action
+      return { ...state, customerInfoError: payload }
     }
 
     default:
@@ -94,13 +106,19 @@ export function useInAppPurchaseDispatchContext() {
 export default function InAppPurchaseProvider(props: Readonly<{ children: ReactNode }>) {
   const [context, setContext] = useReducer(InAppPurchaseContextReducer, {
     customerInfo: undefined,
+    customerInfoError: undefined,
     showStore: false,
     product: undefined,
-  })
+  } as InAppPurchaseContextType)
 
   useEffect(() => {
     initInAppPurchases(setContext)
   }, [])
+
+  if (context.customerInfoError)
+    return <FetchErrorView errors={[context.customerInfoError]} onRetry={() => initInAppPurchases(setContext)} />
+
+  if (!context.customerInfo) return <ActivityIndicatorView />
 
   return (
     <InAppPurchaseContext.Provider value={context}>
