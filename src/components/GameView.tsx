@@ -23,8 +23,8 @@ export default function GameView(props: Readonly<GameViewProps>) {
   const scrollButtonBottomPosition = useSheetHeight() - 8
 
   const showScrollButton = useCallback(() => {
-    if (viewableItems === undefined) return false
-    if (viewableItems.length === 0) return false
+    if (viewableItems === undefined || viewableItems.length === 0) return false
+    if (isOutOfCards) return true
     return viewableItems.some(
       item => item.key !== playedCards[playedCards.length - 1].id && item.key !== playedCards[playedCards.length - 2].id
     )
@@ -35,10 +35,14 @@ export default function GameView(props: Readonly<GameViewProps>) {
   }, [])
 
   const onPressScrollButton = useCallback(() => {
-    flatListRef.current?.scrollToIndex({ index: Math.max(0, playedCards.length - 1), animated: true })
+    if (isOutOfCards) {
+      flatListRef.current?.scrollToEnd({ animated: true })
+    } else {
+      flatListRef.current?.scrollToIndex({ index: Math.max(0, playedCards.length - 2), animated: true })
+    }
   }, [playedCards.length])
 
-  const addCard = () => {
+  const addCard = async () => {
     if (playlist.size === 0) return
 
     const newCard = CardManager.drawCard(playedCards, playedIds, playlist, players, categoryFilter)

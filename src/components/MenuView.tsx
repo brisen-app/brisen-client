@@ -11,7 +11,7 @@ import * as Application from 'expo-application'
 import * as Clipboard from 'expo-clipboard'
 import { Image } from 'expo-image'
 import React, { useMemo, useState } from 'react'
-import { Alert, Dimensions, Pressable, StyleSheet, Text, View, ViewProps } from 'react-native'
+import { Alert, Dimensions, Keyboard, Pressable, StyleSheet, Text, View, ViewProps } from 'react-native'
 import Animated, {
   Easing,
   FadeInUp,
@@ -110,7 +110,14 @@ export default function MenuView() {
           <View style={{ height: insets.bottom ? insets.bottom : 16 + 8 }} />
         </Animated.View>
       </BottomSheetScrollView>
-      {showCollapseButton && <ScrollToBottomButton onPress={() => bottomSheet.collapse()} />}
+      {showCollapseButton && (
+        <ScrollToBottomButton
+          onPress={() => {
+            Keyboard.dismiss()
+            bottomSheet.collapse()
+          }}
+        />
+      )}
     </>
   )
 }
