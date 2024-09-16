@@ -1,6 +1,6 @@
 import Colors from '@/src/constants/Colors'
 import { Ionicons } from '@expo/vector-icons'
-import { TouchableOpacity, useBottomSheet } from '@gorhom/bottom-sheet'
+import { TouchableOpacity } from '@gorhom/bottom-sheet'
 import { Platform, StyleSheet, TouchableOpacityProps } from 'react-native'
 import Animated, { Easing, FadeInRight, FadeOutRight } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'

@@ -1,13 +1,13 @@
 import CardScreen from '@/src/components/card/CardScreen'
 import Colors from '@/src/constants/Colors'
-import { Card, CardManager, PlayedCard } from '@/src/managers/CardManager'
+import { CardManager, PlayedCard } from '@/src/managers/CardManager'
 import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import BottomSheet from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Button, Dimensions, FlatList, Pressable, PressableProps, Text, ViewProps, ViewToken } from 'react-native'
+import { useSheetHeight } from '../lib/utils'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import ScrollToBottomButton from './utils/ScrollToBottomButton'
-import { useSheetHeight } from '../lib/utils'
 
 export type GameViewProps = {
   bottomSheetRef?: React.RefObject<BottomSheet>
