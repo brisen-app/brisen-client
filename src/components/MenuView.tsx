@@ -7,6 +7,9 @@ import { PackManager } from '@/src/managers/PackManager'
 import { useInAppPurchaseContext } from '@/src/providers/InAppPurchaseProvider'
 import { AntDesign } from '@expo/vector-icons'
 import { BottomSheetScrollView, BottomSheetTextInput, useBottomSheet } from '@gorhom/bottom-sheet'
+import * as Application from 'expo-application'
+import * as Clipboard from 'expo-clipboard'
+import { Image } from 'expo-image'
 import React, { useMemo, useState } from 'react'
 import { Alert, Dimensions, Pressable, StyleSheet, Text, View, ViewProps } from 'react-native'
 import Animated, {
@@ -22,9 +25,6 @@ import Color from '../models/Color'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import PackPosterView from './pack/PackPosterView'
 import Tag from './utils/Tag'
-import * as Application from 'expo-application'
-import { Image } from 'expo-image'
-import * as Clipboard from 'expo-clipboard'
 
 export default function MenuView() {
   const insets = useSafeAreaInsets()
@@ -102,7 +102,7 @@ export default function MenuView() {
           }}
         />
 
-        <DetailsView />
+        <AppDetailsView />
 
         <View style={{ height: insets.bottom ? insets.bottom : 16 + 8 }} />
       </Animated.View>
@@ -227,7 +227,7 @@ function AddPlayerField(props: Readonly<ViewProps>) {
   )
 }
 
-function DetailsView() {
+function AppDetailsView() {
   const { userId } = useInAppPurchaseContext()
   const appVersion = Application.nativeApplicationVersion
   const isDev = __DEV__
@@ -247,9 +247,6 @@ function DetailsView() {
       <Image source={require('../assets/images/app-icon/foreground.png')} style={{ width: 64, aspectRatio: 1 }} />
       <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>
         {versionTitle} {appVersion}
-      </Text>
-      <Text style={{ color: Colors.secondaryText, fontSize: fontSize }} numberOfLines={1}>
-        {userId}
       </Text>
       {isDev && <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>Running in dev mode</Text>}
     </Pressable>
