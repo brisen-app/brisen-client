@@ -5,7 +5,7 @@ import { Platform, StyleSheet, TouchableOpacityProps } from 'react-native'
 import Animated, { Easing, FadeInRight, FadeOutRight } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-export default function ScrollToBottomButton(props: TouchableOpacityProps) {
+export default function ScrollToBottomButton(props: Readonly<TouchableOpacityProps>) {
   const insets = useSafeAreaInsets()
   const { style, ...rest } = props
 
