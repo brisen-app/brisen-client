@@ -1,34 +1,39 @@
-import { AntDesign } from '@expo/vector-icons'
-import { BottomSheetScrollView, BottomSheetTextInput, useBottomSheet } from '@gorhom/bottom-sheet'
-import { Category, CategoryManager } from '@/src/managers/CategoryManager'
-import { Dimensions, StyleSheet, Text, View, ViewProps } from 'react-native'
+import Colors from '@/src/constants/Colors'
 import { FontStyles } from '@/src/constants/Styles'
 import { formatName as prettifyString } from '@/src/lib/utils'
+import { Category, CategoryManager } from '@/src/managers/CategoryManager'
 import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import { PackManager } from '@/src/managers/PackManager'
-import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useInAppPurchaseContext } from '@/src/providers/InAppPurchaseProvider'
+import { AntDesign } from '@expo/vector-icons'
+import { BottomSheetScrollView, BottomSheetTextInput, useBottomSheet } from '@gorhom/bottom-sheet'
+import * as Application from 'expo-application'
+import * as Clipboard from 'expo-clipboard'
+import { Image } from 'expo-image'
+import React, { useMemo, useState } from 'react'
+import { Alert, Dimensions, Pressable, StyleSheet, Text, View, ViewProps } from 'react-native'
 import Animated, {
   Easing,
   FadeInUp,
-  interpolate,
   LinearTransition,
-  useAnimatedStyle,
   ZoomOut,
+  interpolate,
+  useAnimatedStyle,
 } from 'react-native-reanimated'
-import Colors from '@/src/constants/Colors'
-import PackPosterView from './pack/PackPosterView'
-import React, { useMemo, useState } from 'react'
-import Tag from './utils/Tag'
-import { useInAppPurchaseContext } from '@/src/providers/InAppPurchaseProvider'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Color from '../models/Color'
+import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
+import PackPosterView from './pack/PackPosterView'
+import ScrollToBottomButton from './utils/ScrollToBottomButton'
+import Tag from './utils/Tag'
 
 export default function MenuView() {
   const insets = useSafeAreaInsets()
   const bottomSheet = useBottomSheet()
 
-  const { players, categoryFilter } = useAppContext()
+  const { playlist, players, categoryFilter } = useAppContext()
   const setContext = useAppDispatchContext()
+  const showCollapseButton = playlist.size > 0
 
   const sortedPlayers = useMemo(() => [...players].sort((a, b) => a.name.localeCompare(b.name)), [players])
   const sortedCategories = useMemo(() => CategoryManager.items, [CategoryManager.items])
@@ -42,58 +47,71 @@ export default function MenuView() {
   }))
 
   return (
-    <BottomSheetScrollView
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ gap: 8 }}
-      style={{ flex: 1, overflow: 'visible', marginHorizontal: 16 }}
-    >
-      <AddPlayerField />
+    <>
+      <BottomSheetScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ gap: 8 }}
+        style={{ flex: 1, overflow: 'visible', marginHorizontal: 16 }}
+      >
+        <AddPlayerField />
 
-      <Animated.View style={[{ gap: 8 }, hideOnBottomStyle]}>
-        {players.size === 0 && (
-          <Text style={FontStyles.Subheading}>
-            {LocalizationManager.get('players_subtitle')?.value ?? 'players_subtitle'}
-          </Text>
-        )}
-        {players.size > 0 && (
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-            {sortedPlayers.map(tag => (
-              <Animated.View
-                key={tag.name}
-                layout={LinearTransition}
-                entering={FadeInUp.easing(Easing.out(Easing.quad))}
-                exiting={ZoomOut.easing(Easing.out(Easing.quad))}
-              >
-                <Tag text={tag.name} onPress={() => setContext({ action: 'togglePlayer', payload: tag })} />
-              </Animated.View>
+        <Animated.View style={[{ gap: 8 }, hideOnBottomStyle]}>
+          {players.size === 0 && (
+            <Text style={FontStyles.Subheading}>
+              {LocalizationManager.get('players_subtitle')?.value ?? 'players_subtitle'}
+            </Text>
+          )}
+          {players.size > 0 && (
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+              {sortedPlayers.map(tag => (
+                <Animated.View
+                  key={tag.name}
+                  layout={LinearTransition}
+                  entering={FadeInUp.easing(Easing.out(Easing.quad))}
+                  exiting={ZoomOut.easing(Easing.out(Easing.quad))}
+                >
+                  <Tag text={tag.name} onPress={() => setContext({ action: 'togglePlayer', payload: tag })} />
+                </Animated.View>
+              ))}
+            </View>
+          )}
+
+          <Header titleKey='packs' descriptionKey='packs_subtitle' />
+          <PackSection />
+
+          <Header titleKey='categories' descriptionKey='categories_subtitle' />
+          <View
+            style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              gap: 8,
+            }}
+          >
+            {sortedCategories?.map(category => (
+              <CategoryTag
+                key={category.id}
+                category={category}
+                isSelected={!categoryFilter.has(category.id)}
+                onPress={onPressCategory}
+              />
             ))}
           </View>
-        )}
 
-        <Header titleKey='packs' descriptionKey='packs_subtitle' />
-        <PackSection />
+          <View
+            style={{
+              borderColor: Colors.stroke,
+              borderTopWidth: StyleSheet.hairlineWidth,
+              marginVertical: 8,
+            }}
+          />
 
-        <Header titleKey='categories' descriptionKey='categories_subtitle' />
-        <View
-          style={{
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            gap: 8,
-          }}
-        >
-          {sortedCategories?.map(category => (
-            <CategoryTag
-              key={category.id}
-              category={category}
-              isSelected={!categoryFilter.has(category.id)}
-              onPress={onPressCategory}
-            />
-          ))}
-        </View>
+          <AppDetailsView />
 
-        <View style={{ height: insets.bottom ? insets.bottom : 16 + 8 }} />
-      </Animated.View>
-    </BottomSheetScrollView>
+          <View style={{ height: insets.bottom ? insets.bottom : 16 + 8 }} />
+        </Animated.View>
+      </BottomSheetScrollView>
+      {showCollapseButton && <ScrollToBottomButton onPress={() => bottomSheet.collapse()} />}
+    </>
   )
 }
 
@@ -211,5 +229,31 @@ function AddPlayerField(props: Readonly<ViewProps>) {
         style={{ flex: 1, fontSize: 18, color: Colors.text }}
       />
     </Animated.View>
+  )
+}
+
+function AppDetailsView() {
+  const { userId } = useInAppPurchaseContext()
+  const appVersion = Application.nativeApplicationVersion
+  const isDev = __DEV__
+
+  const versionTitle = LocalizationManager.get('version')?.value ?? 'version'
+  const copiedTitle = LocalizationManager.get('copied_to_clipboard')?.value ?? 'copied_to_clipboard'
+
+  const fontSize = 12
+
+  const handleLongPress = () => {
+    Clipboard.setStringAsync(userId ?? '')
+    Alert.alert(copiedTitle, userId ?? '')
+  }
+
+  return (
+    <Pressable style={{ alignItems: 'center', gap: 2 }} onLongPress={handleLongPress}>
+      <Image source={require('../assets/images/app-icon/foreground.png')} style={{ width: 64, aspectRatio: 1 }} />
+      <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>
+        {versionTitle} {appVersion}
+      </Text>
+      {isDev && <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>Running in dev mode</Text>}
+    </Pressable>
   )
 }
