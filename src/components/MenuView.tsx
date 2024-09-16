@@ -24,14 +24,16 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Color from '../models/Color'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import PackPosterView from './pack/PackPosterView'
+import ScrollToBottomButton from './utils/ScrollToBottomButton'
 import Tag from './utils/Tag'
 
 export default function MenuView() {
   const insets = useSafeAreaInsets()
   const bottomSheet = useBottomSheet()
 
-  const { players, categoryFilter } = useAppContext()
+  const { playlist, players, categoryFilter } = useAppContext()
   const setContext = useAppDispatchContext()
+  const showCollapseButton = playlist.size > 0
 
   const sortedPlayers = useMemo(() => [...players].sort((a, b) => a.name.localeCompare(b.name)), [players])
   const sortedCategories = useMemo(() => CategoryManager.items, [CategoryManager.items])
@@ -45,68 +47,71 @@ export default function MenuView() {
   }))
 
   return (
-    <BottomSheetScrollView
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ gap: 8 }}
-      style={{ flex: 1, overflow: 'visible', marginHorizontal: 16 }}
-    >
-      <AddPlayerField />
+    <>
+      <BottomSheetScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ gap: 8 }}
+        style={{ flex: 1, overflow: 'visible', marginHorizontal: 16 }}
+      >
+        <AddPlayerField />
 
-      <Animated.View style={[{ gap: 8 }, hideOnBottomStyle]}>
-        {players.size === 0 && (
-          <Text style={FontStyles.Subheading}>
-            {LocalizationManager.get('players_subtitle')?.value ?? 'players_subtitle'}
-          </Text>
-        )}
-        {players.size > 0 && (
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-            {sortedPlayers.map(tag => (
-              <Animated.View
-                key={tag.name}
-                layout={LinearTransition}
-                entering={FadeInUp.easing(Easing.out(Easing.quad))}
-                exiting={ZoomOut.easing(Easing.out(Easing.quad))}
-              >
-                <Tag text={tag.name} onPress={() => setContext({ action: 'togglePlayer', payload: tag })} />
-              </Animated.View>
+        <Animated.View style={[{ gap: 8 }, hideOnBottomStyle]}>
+          {players.size === 0 && (
+            <Text style={FontStyles.Subheading}>
+              {LocalizationManager.get('players_subtitle')?.value ?? 'players_subtitle'}
+            </Text>
+          )}
+          {players.size > 0 && (
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+              {sortedPlayers.map(tag => (
+                <Animated.View
+                  key={tag.name}
+                  layout={LinearTransition}
+                  entering={FadeInUp.easing(Easing.out(Easing.quad))}
+                  exiting={ZoomOut.easing(Easing.out(Easing.quad))}
+                >
+                  <Tag text={tag.name} onPress={() => setContext({ action: 'togglePlayer', payload: tag })} />
+                </Animated.View>
+              ))}
+            </View>
+          )}
+
+          <Header titleKey='packs' descriptionKey='packs_subtitle' />
+          <PackSection />
+
+          <Header titleKey='categories' descriptionKey='categories_subtitle' />
+          <View
+            style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              gap: 8,
+            }}
+          >
+            {sortedCategories?.map(category => (
+              <CategoryTag
+                key={category.id}
+                category={category}
+                isSelected={!categoryFilter.has(category.id)}
+                onPress={onPressCategory}
+              />
             ))}
           </View>
-        )}
 
-        <Header titleKey='packs' descriptionKey='packs_subtitle' />
-        <PackSection />
+          <View
+            style={{
+              borderColor: Colors.stroke,
+              borderTopWidth: StyleSheet.hairlineWidth,
+              marginVertical: 8,
+            }}
+          />
 
-        <Header titleKey='categories' descriptionKey='categories_subtitle' />
-        <View
-          style={{
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            gap: 8,
-          }}
-        >
-          {sortedCategories?.map(category => (
-            <CategoryTag
-              key={category.id}
-              category={category}
-              isSelected={!categoryFilter.has(category.id)}
-              onPress={onPressCategory}
-            />
-          ))}
-        </View>
+          <AppDetailsView />
 
-        <View
-          style={{
-            borderColor: Colors.stroke,
-            borderTopWidth: StyleSheet.hairlineWidth,
-            marginVertical: 8,
-          }}
-        />
-
-        <AppDetailsView />
-
-        <View style={{ height: insets.bottom ? insets.bottom : 16 + 8 }} />
-      </Animated.View>
-    </BottomSheetScrollView>
+          <View style={{ height: insets.bottom ? insets.bottom : 16 + 8 }} />
+        </Animated.View>
+      </BottomSheetScrollView>
+      {showCollapseButton && <ScrollToBottomButton onPress={() => bottomSheet.collapse()} />}
+    </>
   )
 }
 

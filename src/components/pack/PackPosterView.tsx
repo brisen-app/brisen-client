@@ -1,13 +1,12 @@
 import Colors from '@/src/constants/Colors'
 import { Pack, PackManager } from '@/src/managers/PackManager'
-import { Ionicons } from '@expo/vector-icons'
-import { Image } from 'expo-image'
-import { Text, ActivityIndicator, Platform, Pressable, StyleSheet, View, ViewProps } from 'react-native'
-import { useAppContext, useAppDispatchContext } from '../../providers/AppContextProvider'
-import Animated, { Easing, useAnimatedStyle, withTiming } from 'react-native-reanimated'
-import { useBottomSheet } from '@gorhom/bottom-sheet'
 import Color from '@/src/models/Color'
 import { useInAppPurchaseContext, useInAppPurchaseDispatchContext } from '@/src/providers/InAppPurchaseProvider'
+import { Ionicons } from '@expo/vector-icons'
+import { Image } from 'expo-image'
+import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View, ViewProps } from 'react-native'
+import Animated, { Easing, useAnimatedStyle, withTiming } from 'react-native-reanimated'
+import { useAppContext, useAppDispatchContext } from '../../providers/AppContextProvider'
 
 export type PackViewProps = {
   pack: Pack
@@ -19,8 +18,7 @@ export type PackPosterViewProps = {
 
 export default function PackPosterView(props: Readonly<PackPosterViewProps & PackViewProps & ViewProps>) {
   const { pack, style } = props
-  const bottomSheet = useBottomSheet()
-  const { playlist, playedIds } = useAppContext()
+  const { playlist } = useAppContext()
   const { isSubscribed } = useInAppPurchaseContext()
   const { displayStore } = useInAppPurchaseDispatchContext()
   const setContext = useAppDispatchContext()
@@ -75,7 +73,6 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
         onPress={() => {
           if (isAvailable) {
             setContext({ action: 'togglePack', payload: pack })
-            if (playlist.size === 0 && playedIds.size === 0) bottomSheet.collapse()
           } else {
             displayStore(pack)
           }
