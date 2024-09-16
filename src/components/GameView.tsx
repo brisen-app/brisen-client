@@ -4,7 +4,16 @@ import { CardManager, PlayedCard } from '@/src/managers/CardManager'
 import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import BottomSheet from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet'
 import React, { useCallback, useEffect, useState } from 'react'
-import { Button, Dimensions, FlatList, Pressable, PressableProps, Text, ViewProps, ViewToken } from 'react-native'
+import {
+  Dimensions,
+  FlatList,
+  Pressable,
+  PressableProps,
+  Text,
+  TouchableOpacity,
+  ViewProps,
+  ViewToken
+} from 'react-native'
 import { useSheetHeight } from '../lib/utils'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import ScrollToBottomButton from './utils/ScrollToBottomButton'
@@ -138,6 +147,7 @@ function OutOfCardsView(props: Readonly<OutOfCardsViewProps>) {
         alignItems: 'center',
         width: Dimensions.get('screen').width,
         height: Dimensions.get('screen').height,
+        gap: 8,
       }}
       {...props}
     >
@@ -149,15 +159,21 @@ function OutOfCardsView(props: Readonly<OutOfCardsViewProps>) {
       >
         {LocalizationManager.get('out_of_cards')?.value ?? 'out_of_cards'}
       </Text>
-      <Button
-        title={LocalizationManager.get('restart_game')?.value ?? 'restart_game'}
-        color={Colors.accentColor}
+      <TouchableOpacity
         disabled={playedCards.length === 0}
         onPress={() => {
           props.onPress()
           setContext({ action: 'restartGame' })
         }}
-      />
+        style={{
+          backgroundColor: Colors.accentColor,
+          borderRadius: Number.MAX_SAFE_INTEGER,
+        }}
+      >
+        <Text style={{ color: Colors.background, paddingVertical: 8, paddingHorizontal: 16 }}>
+          {LocalizationManager.get('restart_game')?.value ?? 'restart_game'}
+        </Text>
+      </TouchableOpacity>
     </Pressable>
   )
 }
