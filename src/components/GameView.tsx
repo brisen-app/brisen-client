@@ -37,7 +37,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
     return viewableItems.some(
       item => item.key !== playedCards[playedCards.length - 1].id && item.key !== playedCards[playedCards.length - 2].id
     )
-  }, [viewableItems])
+  }, [viewableItems, isOutOfCards])
 
   const onPressNoCard = useCallback(() => {
     bottomSheetRef?.current?.snapToIndex(1)
@@ -49,7 +49,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
     } else {
       flatListRef.current?.scrollToIndex({ index: Math.max(0, playedCards.length - 2), animated: true })
     }
-  }, [playedCards.length])
+  }, [playedCards.length, isOutOfCards])
 
   const addCard = async () => {
     if (playlist.size === 0) return
