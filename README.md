@@ -1,9 +1,9 @@
 <p align="center">
-  <img src="https://media.githubusercontent.com/media/brisen-app/brisen-assets/main/assets/logo/logo-text.png?token=ATF6BVKBL52HFOWZAK2PMZ3G4NOEK" alt="Brisen" width="265">
+  <img src="src/assets/images/app-icon/foreground.png" alt="Brisen" width="265">
 </p>
 
 <p align="center">
-  Trivia game for Android and iOS, built with React Native.
+  A trivia game for Android and iOS, built with React Native.
 </p>
 
 <div align="center">
@@ -63,14 +63,14 @@
      ```
 1. Commit and push changes to the branch
 1. Create a pull request with `develop` as the target branch
-   - Remember to write unit-tests! I recommend installing the [Jest-plugin for VS Code](https://marketplace.visualstudio.com/items?itemName=Orta.vscode-jest) to make sure all tests pass before creating a PR.
+   - Remember to write unit tests! I recommend installing the [Jest-plugin for VS Code](https://marketplace.visualstudio.com/items?itemName=Orta.vscode-jest) to make sure all tests pass before creating a PR.
 
 ## Release workflow
 
 When the `develop`-branch is ready for deployment, follow these steps:
 
 1. Run the [Create Relase](https://github.com/brisen-app/brisen-database/actions/workflows/create-release.yaml)-action in the [`brisen-database`](https://github.com/brisen-app/brisen-database)-repo with the correct release version.
-   - If necessary, make manual changes to the new release-branch.
+   - If necessary, make manual changes to the new release branch.
    - Update the PR with a list of changes and a summary of the release.
 1. Update the version in `app.json` and `package.json` to the new release version.
 1. Create a release branch from `develop` with the following naming convention:
