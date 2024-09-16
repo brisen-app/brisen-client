@@ -90,6 +90,7 @@ export function useInAppPurchaseContext() {
   const brisenPlusEntitlement = !brisenPlusId ? undefined : context.customerInfo.entitlements.active[brisenPlusId]
 
   return {
+    userId: context.customerInfo.originalAppUserId,
     isSubscribed: brisenPlusEntitlement?.isActive === true,
   }
 }
