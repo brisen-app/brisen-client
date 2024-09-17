@@ -260,6 +260,7 @@ function AppDetailsView() {
       <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>
         {versionTitle} {appVersion}
       </Text>
+      {isDev && <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>{userId}</Text>}
       {isDev && <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>Running in dev mode</Text>}
     </Pressable>
   )
