@@ -5,7 +5,7 @@ import { Category, CategoryManager } from '@/src/managers/CategoryManager'
 import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import { PackManager } from '@/src/managers/PackManager'
 import { useInAppPurchaseContext } from '@/src/providers/InAppPurchaseProvider'
-import { AntDesign, Octicons } from '@expo/vector-icons'
+import { AntDesign, Feather } from '@expo/vector-icons'
 import { BottomSheetScrollView, BottomSheetTextInput, TouchableOpacity, useBottomSheet } from '@gorhom/bottom-sheet'
 import * as Application from 'expo-application'
 import * as Clipboard from 'expo-clipboard'
@@ -299,16 +299,16 @@ function SettingsView(props: Readonly<ViewProps>) {
   const settings: {
     show?: boolean
     titleKey: string
-    iconName: keyof typeof Octicons.glyphMap
+    iconName: keyof typeof Feather.glyphMap
     onPress: () => void
   }[] = [
     {
       show: !!managementURL && isSubscribed,
       titleKey: 'manage_subscriptions',
-      iconName: 'link-external',
+      iconName: 'arrow-up-right',
       onPress: () => openURL(managementURL!),
     },
-    { titleKey: 'change_language', iconName: 'link-external', onPress: () => openSettings() },
+    { titleKey: 'change_language', iconName: 'arrow-up-right', onPress: () => openSettings() },
     {
       show: !!storeURL,
       titleKey: 'share_app',
@@ -330,11 +330,11 @@ function SettingsView(props: Readonly<ViewProps>) {
             onPress={setting.onPress}
             style={{
               alignItems: 'center',
-              flexDirection: 'row',
+              flexDirection: setting.iconName === 'arrow-up-right' ? 'row-reverse' : 'row',
               gap: 4,
             }}
           >
-            <Octicons name={setting.iconName} size={18} color={Colors.secondaryText} />
+            <Feather name={setting.iconName} size={18} color={Colors.secondaryText} />
             <Text key={setting.titleKey} style={{ color: Colors.secondaryText, fontWeight: '500' }}>
               {LocalizationManager.get(setting.titleKey)?.value ?? setting.titleKey}
             </Text>
