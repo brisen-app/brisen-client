@@ -175,8 +175,8 @@ function OutOfCardsView(props: Readonly<OutOfCardsViewProps>) {
           style={{
             ...FontStyles.Button,
             color: Colors.background,
-            paddingVertical: 16,
-            paddingHorizontal: 64,
+            paddingVertical: 12,
+            paddingHorizontal: 48,
           }}
         >
           {LocalizationManager.get('restart_game')?.value ?? 'restart_game'}
