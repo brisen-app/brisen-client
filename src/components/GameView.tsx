@@ -12,8 +12,9 @@ import {
   Text,
   TouchableOpacity,
   ViewProps,
-  ViewToken
+  ViewToken,
 } from 'react-native'
+import { FontStyles } from '../constants/Styles'
 import { useSheetHeight } from '../lib/utils'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import ScrollToBottomButton from './utils/ScrollToBottomButton'
@@ -170,7 +171,14 @@ function OutOfCardsView(props: Readonly<OutOfCardsViewProps>) {
           borderRadius: Number.MAX_SAFE_INTEGER,
         }}
       >
-        <Text style={{ color: Colors.background, paddingVertical: 8, paddingHorizontal: 16 }}>
+        <Text
+          style={{
+            ...FontStyles.Button,
+            color: Colors.background,
+            paddingVertical: 16,
+            paddingHorizontal: 64,
+          }}
+        >
           {LocalizationManager.get('restart_game')?.value ?? 'restart_game'}
         </Text>
       </TouchableOpacity>
