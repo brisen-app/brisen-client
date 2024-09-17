@@ -12,7 +12,18 @@ import * as Clipboard from 'expo-clipboard'
 import { Image } from 'expo-image'
 import { openSettings, openURL } from 'expo-linking'
 import React, { useMemo, useState } from 'react'
-import { Alert, Dimensions, Keyboard, Pressable, StyleSheet, Text, View, ViewProps } from 'react-native'
+import {
+  Alert,
+  Dimensions,
+  Keyboard,
+  Platform,
+  Pressable,
+  Share,
+  StyleSheet,
+  Text,
+  View,
+  ViewProps,
+} from 'react-native'
 import Animated, {
   Easing,
   FadeInUp,
@@ -22,6 +33,7 @@ import Animated, {
   useAnimatedStyle,
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { ConfigurationManager } from '../managers/ConfigurationManager'
 import Color from '../models/Color'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import PackPosterView from './pack/PackPosterView'
@@ -105,6 +117,7 @@ export default function MenuView() {
               marginVertical: 8,
             }}
           />
+
           <SettingsView />
 
           <AppDetailsView />
@@ -244,6 +257,45 @@ function AddPlayerField(props: Readonly<ViewProps>) {
 function SettingsView(props: Readonly<ViewProps>) {
   const { managementURL, isSubscribed } = useInAppPurchaseContext()
   const { style, ...viewProps } = props
+  const storeURL =
+    Platform.select({
+      ios: ConfigurationManager.get('app_store_url')?.string,
+      android: ConfigurationManager.get('play_store_url')?.string,
+    }) ?? undefined
+
+  const onShare = async () => {
+    const shareTitle = LocalizationManager.get('app_name')?.value ?? 'app_name'
+    const shareMsg = LocalizationManager.get('share_message')?.value ?? 'share_message'
+
+    try {
+      if (!storeURL) throw new Error('Missing store URL')
+      const result = await Share.share(
+        {
+          title: shareTitle,
+          url: storeURL,
+          message: `${shareMsg} ${storeURL}`,
+        },
+        {
+          dialogTitle: shareTitle,
+          subject: shareMsg,
+          tintColor: Colors.accentColor,
+        }
+      )
+
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // shared with activity type of result.activityType
+        } else {
+          // shared
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // dismissed
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   const settings: {
     show?: boolean
     titleKey: string
@@ -257,12 +309,17 @@ function SettingsView(props: Readonly<ViewProps>) {
       onPress: () => openURL(managementURL!),
     },
     { titleKey: 'change_language', iconName: 'link-external', onPress: () => openSettings() },
-    { titleKey: 'share_app', iconName: 'share', onPress: () => openSettings() },
+    {
+      show: !!storeURL,
+      titleKey: 'share_app',
+      iconName: 'share',
+      onPress: () => onShare(),
+    },
   ]
 
   return (
     <View
-      style={[{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-evenly', gap: 4 }, style]}
+      style={[{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-evenly', gap: 4 }, style]}
       {...viewProps}
     >
       {settings
