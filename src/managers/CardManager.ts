@@ -173,6 +173,7 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     }
     const requiredPlayerCount = highestIndex + 1
     this.cachedPlayerCounts.set(card.id, requiredPlayerCount)
+    if (requiredPlayerCount === 0 && !card.is_group) return 1
     return requiredPlayerCount
   }
 }

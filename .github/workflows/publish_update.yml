@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - develop
+    paths:
+      - src/**
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -12,12 +14,11 @@ concurrency:
 jobs:
   publish-preview:
     runs-on: ubuntu-latest
-    environment: Beta
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       EXPO_PROJECT: ${{ vars.EXPO_PROJECT }}
-      EXPO_PUBLIC_SB_URL: ${{ vars.SUPABASE_URL }}
-      EXPO_PUBLIC_SB_ANON: ${{ secrets.SUPABASE_ANON }}
+      EXPO_PUBLIC_SB_URL: ${{ vars.SUPABASE_URL_DEV }}
+      EXPO_PUBLIC_SB_ANON: ${{ secrets.SUPABASE_ANON_DEV }}
       EXPO_PUBLIC_RC_KEY_APPLE: ${{ secrets.REVENUECAT_APPLE }}
       EXPO_PUBLIC_RC_KEY_GOOGLE: ${{ secrets.REVENUECAT_GOOGLE }}
     steps:

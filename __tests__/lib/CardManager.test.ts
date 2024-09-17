@@ -6,10 +6,10 @@ import { Player } from '@/src/models/Player'
 import { CardRelationManager } from '@/src/managers/CardRelationManager'
 
 const MockedCards = {
-  Card_1: { id: '1', category: 'cat1', content: 'Content of card 1', is_group: false } as Card,
-  Card_2: { id: '2', category: 'cat2', content: 'Content of card 2', is_group: false } as Card,
-  Card_3: { id: '3', category: 'cat3', content: 'Content of card 3', is_group: false } as Card,
-  Card_4_no_category: { id: '4', content: 'Content of card 4', is_group: false } as Card,
+  Card_1: { id: '1', category: 'cat1', content: 'Content of card 1', is_group: true } as Card,
+  Card_2: { id: '2', category: 'cat2', content: 'Content of card 2', is_group: true } as Card,
+  Card_3: { id: '3', category: 'cat3', content: 'Content of card 3', is_group: true } as Card,
+  Card_4_no_category: { id: '4', content: 'Content of card 4', is_group: true } as Card,
   Card_5_req_2_players: { id: '5', content: 'Content of card 5 {player-0} {player-1}', is_group: false } as Card,
   Card_6_req_5_players: {
     id: '6',
@@ -123,21 +123,26 @@ describe('insertPlayers', () => {
 describe('getRequiredPlayerCount', () => {
   const testCases = [
     {
-      cardContent: 'Hello {player-0}, how are you {player-1}? ({player-2} is testing {player-3})',
-      expected: 4,
+      card: {
+        is_group: false,
+        content: 'Hello {player-0}, how are you {player-5}? ({player-2} is testing {player-3})',
+      },
+      expected: 6,
     },
     {
-      cardContent: 'Hello {player-0}, how are you {player-150}? ({player-3} is testing {player-2})',
+      card: {
+        is_group: true,
+        content: 'Hello {player-0}, how are you {player-150}? ({player-3} is testing {player-2})',
+      },
       expected: 151,
     },
-    { cardContent: 'Hello {player-0}.', expected: 1 },
-    { cardContent: 'String with no template.', expected: 0 },
-    { cardContent: '', expected: 0 },
-  ]
+    { card: { is_group: true, content: 'Hello everyone.' }, expected: 0 },
+    { card: { is_group: false, content: '' }, expected: 1 },
+  ] as { card: Card; expected: number }[]
 
-  testCases.forEach(({ cardContent, expected }) => {
-    it(`should return ${expected} for "${cardContent}"`, () => {
-      const result = CardManager.getRequiredPlayerCount({ content: cardContent } as Card)
+  testCases.forEach(({ card, expected }) => {
+    it(`should return ${expected} for "${card.content}"`, () => {
+      const result = CardManager.getRequiredPlayerCount(card)
       expect(result).toEqual(expected)
     })
   })

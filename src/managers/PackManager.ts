@@ -29,7 +29,8 @@ class PackManagerSingleton extends SupabaseManager<Pack> {
   }
 
   getPacksOf(cardId: string) {
-    return this.items?.filter(pack => pack.cards.has(cardId)) ?? []
+    if (!this._items) return []
+    return [...this._items.values()].filter(pack => pack.cards.has(cardId)) ?? []
   }
 
   async fetchAll(): Promise<Pack[]> {

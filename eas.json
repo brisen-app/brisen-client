@@ -4,10 +4,7 @@
     "appVersionSource": "remote"
   },
   "build": {
-    "develop": {
-      "channel": "develop",
-      "developmentClient": true,
-      "distribution": "internal",
+    "base": {
       "android": {
         "image": "latest"
       },
@@ -15,15 +12,17 @@
         "image": "latest"
       }
     },
+    "develop": {
+      "extends": "base",
+      "channel": "develop",
+      "developmentClient": true,
+      "distribution": "internal"
+    },
     "production": {
+      "extends": "base",
       "channel": "production",
       "autoIncrement": true,
-      "android": {
-        "image": "latest"
-      },
-      "ios": {
-        "image": "latest"
-      }
+      "distribution": "store"
     }
   },
   "submit": {

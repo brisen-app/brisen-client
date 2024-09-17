@@ -5,13 +5,25 @@ import { Category, CategoryManager } from '@/src/managers/CategoryManager'
 import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import { PackManager } from '@/src/managers/PackManager'
 import { useInAppPurchaseContext } from '@/src/providers/InAppPurchaseProvider'
-import { AntDesign } from '@expo/vector-icons'
-import { BottomSheetScrollView, BottomSheetTextInput, useBottomSheet } from '@gorhom/bottom-sheet'
+import { AntDesign, Feather } from '@expo/vector-icons'
+import { BottomSheetScrollView, BottomSheetTextInput, TouchableOpacity, useBottomSheet } from '@gorhom/bottom-sheet'
 import * as Application from 'expo-application'
 import * as Clipboard from 'expo-clipboard'
 import { Image } from 'expo-image'
+import { openSettings, openURL } from 'expo-linking'
 import React, { useMemo, useState } from 'react'
-import { Alert, Dimensions, Pressable, StyleSheet, Text, View, ViewProps } from 'react-native'
+import {
+  Alert,
+  Dimensions,
+  Keyboard,
+  Platform,
+  Pressable,
+  Share,
+  StyleSheet,
+  Text,
+  View,
+  ViewProps,
+} from 'react-native'
 import Animated, {
   Easing,
   FadeInUp,
@@ -21,6 +33,7 @@ import Animated, {
   useAnimatedStyle,
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { ConfigurationManager } from '../managers/ConfigurationManager'
 import Color from '../models/Color'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import PackPosterView from './pack/PackPosterView'
@@ -105,12 +118,21 @@ export default function MenuView() {
             }}
           />
 
+          <LinksView />
+
           <AppDetailsView />
 
           <View style={{ height: insets.bottom ? insets.bottom : 16 + 8 }} />
         </Animated.View>
       </BottomSheetScrollView>
-      {showCollapseButton && <ScrollToBottomButton onPress={() => bottomSheet.collapse()} />}
+      {showCollapseButton && (
+        <ScrollToBottomButton
+          onPress={() => {
+            Keyboard.dismiss()
+            bottomSheet.collapse()
+          }}
+        />
+      )}
     </>
   )
 }
@@ -232,6 +254,80 @@ function AddPlayerField(props: Readonly<ViewProps>) {
   )
 }
 
+function LinksView(props: Readonly<ViewProps>) {
+  const { managementURL, isSubscribed } = useInAppPurchaseContext()
+  const { style, ...viewProps } = props
+  const storeURL =
+    Platform.select({
+      ios: ConfigurationManager.get('app_store_url')?.string,
+      android: ConfigurationManager.get('play_store_url')?.string,
+    }) ?? undefined
+
+  const onShare = async () => {
+    const shareTitle = LocalizationManager.get('app_name')?.value ?? 'app_name'
+    const shareMsg = LocalizationManager.get('share_message')?.value ?? 'share_message'
+    await Share.share(
+      {
+        title: shareTitle,
+        url: storeURL,
+        message: `${shareMsg} ${storeURL}`,
+      },
+      {
+        dialogTitle: shareTitle,
+        subject: shareMsg,
+        tintColor: Colors.accentColor,
+      }
+    )
+  }
+
+  const settings: {
+    show?: boolean
+    titleKey: string
+    iconName: keyof typeof Feather.glyphMap
+    onPress: () => {}
+  }[] = [
+    {
+      show: !!managementURL && isSubscribed,
+      titleKey: 'manage_subscriptions',
+      iconName: 'arrow-up-right',
+      onPress: () => openURL(managementURL!),
+    },
+    { titleKey: 'change_language', iconName: 'arrow-up-right', onPress: () => openSettings() },
+    {
+      show: !!storeURL,
+      titleKey: 'share_app',
+      iconName: 'share',
+      onPress: () => onShare(),
+    },
+  ]
+
+  return (
+    <View
+      style={[{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-evenly', gap: 4 }, style]}
+      {...viewProps}
+    >
+      {settings
+        .filter(s => s.show !== false)
+        .map(setting => (
+          <TouchableOpacity
+            key={setting.titleKey}
+            onPress={setting.onPress}
+            style={{
+              alignItems: 'center',
+              flexDirection: setting.iconName === 'arrow-up-right' ? 'row-reverse' : 'row',
+              gap: 4,
+            }}
+          >
+            <Feather name={setting.iconName} size={18} color={Colors.secondaryText} />
+            <Text key={setting.titleKey} style={{ color: Colors.secondaryText, fontWeight: '500' }}>
+              {LocalizationManager.get(setting.titleKey)?.value ?? setting.titleKey}
+            </Text>
+          </TouchableOpacity>
+        ))}
+    </View>
+  )
+}
+
 function AppDetailsView() {
   const { userId } = useInAppPurchaseContext()
   const appVersion = Application.nativeApplicationVersion
@@ -253,6 +349,7 @@ function AppDetailsView() {
       <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>
         {versionTitle} {appVersion}
       </Text>
+      {isDev && <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>{userId}</Text>}
       {isDev && <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>Running in dev mode</Text>}
     </Pressable>
   )
