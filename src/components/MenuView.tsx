@@ -5,11 +5,12 @@ import { Category, CategoryManager } from '@/src/managers/CategoryManager'
 import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import { PackManager } from '@/src/managers/PackManager'
 import { useInAppPurchaseContext } from '@/src/providers/InAppPurchaseProvider'
-import { AntDesign } from '@expo/vector-icons'
-import { BottomSheetScrollView, BottomSheetTextInput, useBottomSheet } from '@gorhom/bottom-sheet'
+import { AntDesign, Octicons } from '@expo/vector-icons'
+import { BottomSheetScrollView, BottomSheetTextInput, TouchableOpacity, useBottomSheet } from '@gorhom/bottom-sheet'
 import * as Application from 'expo-application'
 import * as Clipboard from 'expo-clipboard'
 import { Image } from 'expo-image'
+import { openSettings, openURL } from 'expo-linking'
 import React, { useMemo, useState } from 'react'
 import { Alert, Dimensions, Keyboard, Pressable, StyleSheet, Text, View, ViewProps } from 'react-native'
 import Animated, {
@@ -21,6 +22,7 @@ import Animated, {
   useAnimatedStyle,
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { ConfigurationManager } from '../managers/ConfigurationManager'
 import Color from '../models/Color'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import PackPosterView from './pack/PackPosterView'
@@ -104,6 +106,7 @@ export default function MenuView() {
               marginVertical: 8,
             }}
           />
+          <SettingsView />
 
           <AppDetailsView />
 
@@ -236,6 +239,52 @@ function AddPlayerField(props: Readonly<ViewProps>) {
         style={{ flex: 1, fontSize: 18, color: Colors.text }}
       />
     </Animated.View>
+  )
+}
+
+function SettingsView(props: Readonly<ViewProps>) {
+  const { managementURL, isSubscribed } = useInAppPurchaseContext()
+  const { style, ...viewProps } = props
+  const settings: {
+    show?: boolean
+    titleKey: string
+    iconName: keyof typeof Octicons.glyphMap
+    onPress: () => void
+  }[] = [
+    {
+      show: !!managementURL && isSubscribed,
+      titleKey: 'manage_subscriptions',
+      iconName: 'link-external',
+      onPress: () => openURL(managementURL!),
+    },
+    { titleKey: 'change_language', iconName: 'link-external', onPress: () => openSettings() },
+    { titleKey: 'share_app', iconName: 'share', onPress: () => openSettings() },
+  ]
+
+  return (
+    <View
+      style={[{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-evenly', gap: 4 }, style]}
+      {...viewProps}
+    >
+      {settings
+        .filter(s => s.show !== false)
+        .map(setting => (
+          <TouchableOpacity
+            key={setting.titleKey}
+            onPress={setting.onPress}
+            style={{
+              alignItems: 'center',
+              flexDirection: 'row',
+              gap: 4,
+            }}
+          >
+            <Octicons name={setting.iconName} size={18} color={Colors.secondaryText} />
+            <Text key={setting.titleKey} style={{ color: Colors.secondaryText, fontWeight: '500' }}>
+              {LocalizationManager.get(setting.titleKey)?.value ?? setting.titleKey}
+            </Text>
+          </TouchableOpacity>
+        ))}
+    </View>
   )
 }
 

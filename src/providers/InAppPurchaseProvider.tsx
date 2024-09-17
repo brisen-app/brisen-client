@@ -80,7 +80,7 @@ function InAppPurchaseContextReducer(state: InAppPurchaseContextType, action: In
 const InAppPurchaseContext = createContext<InAppPurchaseContextType | undefined>(undefined)
 const InAppPurchaseDispatchContext = createContext<Dispatch<InAppPurchaseContextActionType> | undefined>(undefined)
 
-const inAppContextCache = new Map<string, { userId?: string; isSubscribed: boolean }>()
+const inAppContextCache = new Map<string, { userId?: string; managementURL?: string; isSubscribed: boolean }>()
 export function useInAppPurchaseContext() {
   const context = useContext(InAppPurchaseContext)
   if (!context) throw new Error('useInAppPurchaseContext must be used within an InAppPurchaseContext')
@@ -90,6 +90,7 @@ export function useInAppPurchaseContext() {
 
   const value = {
     userId: context.customerInfo?.originalAppUserId,
+    managementURL: context.customerInfo?.managementURL ?? undefined,
     isSubscribed: isSubscribed(context.customerInfo),
   }
 
