@@ -31,7 +31,6 @@ export default function StoreView(props: Readonly<StoreViewProps>) {
       .then(offerings => setOfferings(offerings))
       .catch(e => {
         console.error(e)
-        Alert.alert('Alert Title', 'My Alert Msg')
         dismiss()
       })
   }, [])
