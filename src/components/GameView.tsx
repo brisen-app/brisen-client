@@ -3,7 +3,7 @@ import Colors from '@/src/constants/Colors'
 import { CardManager, PlayedCard } from '@/src/managers/CardManager'
 import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import BottomSheet from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import {
   Dimensions,
   FlatList,
@@ -25,7 +25,7 @@ export type GameViewProps = {
 
 export default function GameView(props: Readonly<GameViewProps>) {
   const { bottomSheetRef } = props
-  const flatListRef = React.useRef<FlatList>(null)
+  const flatListRef = useRef<FlatList>(null)
   const { playlist, players, playedCards, playedIds, categoryFilter } = useAppContext()
   const setContext = useAppDispatchContext()
   const [isOutOfCards, setIsOutOfCards] = useState<boolean>(true)
@@ -175,8 +175,8 @@ function OutOfCardsView(props: Readonly<OutOfCardsViewProps>) {
           style={{
             ...FontStyles.Button,
             color: Colors.background,
-            paddingVertical: 16,
-            paddingHorizontal: 64,
+            paddingVertical: 12,
+            paddingHorizontal: 48,
           }}
         >
           {LocalizationManager.get('restart_game')?.value ?? 'restart_game'}
