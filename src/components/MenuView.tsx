@@ -333,6 +333,8 @@ function AppDetailsView() {
   const appVersion = Application.nativeApplicationVersion
   const isDev = __DEV__
 
+  const iconSize = 48
+
   const versionTitle = LocalizationManager.get('version')?.value ?? 'version'
   const copiedTitle = LocalizationManager.get('copied_to_clipboard')?.value ?? 'copied_to_clipboard'
 
@@ -345,7 +347,10 @@ function AppDetailsView() {
 
   return (
     <Pressable style={{ alignItems: 'center', gap: 2 }} onLongPress={handleLongPress}>
-      <Image source={require('../assets/images/app-icon/foreground.png')} style={{ width: 64, aspectRatio: 1 }} />
+      <Image
+        source={require('../assets/images/app-icon/icon.png')}
+        style={{ width: iconSize, aspectRatio: 1, borderRadius: iconSize / 4.4, marginVertical: 8 }}
+      />
       <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>
         {versionTitle} {appVersion}
       </Text>
