@@ -97,7 +97,7 @@ jest.mock('@/src/managers/LanguageManager', () => ({
   },
 }))
 
-beforeEach(() => {
+afterEach(() => {
   PackManager['_items'] = undefined
 })
 
@@ -169,5 +169,35 @@ describe('fetchImage', () => {
     })
 
     await expect(PackManager['fetchImage'](imageName)).rejects.toThrow()
+  })
+})
+
+describe('getPackOf', () => {
+  it('should return a pack that exists in the playlist and contains the specified card', () => {
+    const pack = PackManager.getPackOf('3', new Set(mockedPacks))
+    expect(pack?.id).toBe('pack3')
+  })
+
+  it('should return null if no packs in the playlist contains the card', () => {
+    const pack = PackManager.getPackOf('10', new Set(mockedPacks))
+    expect(pack).toBeNull()
+  })
+})
+
+describe('getPacskOf', () => {
+  beforeEach(() => {
+    PackManager['set'](mockedPacks)
+  })
+
+  it('should return all packs that contains the specified card', () => {
+    const packs = PackManager.getPacksOf('2')
+    expect(packs).toContain(mockedPacks[0])
+    expect(packs).toContain(mockedPacks[2])
+    expect(packs).toHaveLength(2)
+  })
+
+  it('should return an empty list if card is not found', () => {
+    const packs = PackManager.getPacksOf('10')
+    expect(packs).toHaveLength(0)
   })
 })
