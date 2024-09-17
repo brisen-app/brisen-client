@@ -266,41 +266,25 @@ function LinksView(props: Readonly<ViewProps>) {
   const onShare = async () => {
     const shareTitle = LocalizationManager.get('app_name')?.value ?? 'app_name'
     const shareMsg = LocalizationManager.get('share_message')?.value ?? 'share_message'
-
-    try {
-      if (!storeURL) throw new Error('Missing store URL')
-      const result = await Share.share(
-        {
-          title: shareTitle,
-          url: storeURL,
-          message: `${shareMsg} ${storeURL}`,
-        },
-        {
-          dialogTitle: shareTitle,
-          subject: shareMsg,
-          tintColor: Colors.accentColor,
-        }
-      )
-
-      if (result.action === Share.sharedAction) {
-        if (result.activityType) {
-          // shared with activity type of result.activityType
-        } else {
-          // shared
-        }
-      } else if (result.action === Share.dismissedAction) {
-        // dismissed
+    await Share.share(
+      {
+        title: shareTitle,
+        url: storeURL,
+        message: `${shareMsg} ${storeURL}`,
+      },
+      {
+        dialogTitle: shareTitle,
+        subject: shareMsg,
+        tintColor: Colors.accentColor,
       }
-    } catch (error) {
-      console.error(error)
-    }
+    )
   }
 
   const settings: {
     show?: boolean
     titleKey: string
     iconName: keyof typeof Feather.glyphMap
-    onPress: () => void
+    onPress: () => {}
   }[] = [
     {
       show: !!managementURL && isSubscribed,
