@@ -3,7 +3,7 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-    "start": "npm run ios",
+    "start": "expo prebuild -p all && expo --dev-client",
     "android": "expo run:android --device",
     "ios": "expo run:ios --device",
     "web": "expo start --web",
