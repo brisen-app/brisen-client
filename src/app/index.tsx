@@ -94,7 +94,7 @@ const SheetMenuBackground: React.FC<BottomSheetBackgroundProps> = ({ style, anim
         <Image
           style={[
             {
-              height: Dimensions.get('window').height,
+              height: Dimensions.get('screen').height,
             },
           ]}
           source={image}
