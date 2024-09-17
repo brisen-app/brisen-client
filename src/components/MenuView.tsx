@@ -6,12 +6,18 @@ import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import { PackManager } from '@/src/managers/PackManager'
 import { useInAppPurchaseContext } from '@/src/providers/InAppPurchaseProvider'
 import { AntDesign, Feather } from '@expo/vector-icons'
-import { BottomSheetScrollView, BottomSheetTextInput, TouchableOpacity, useBottomSheet } from '@gorhom/bottom-sheet'
+import {
+  BottomSheetScrollView,
+  BottomSheetScrollViewMethods,
+  BottomSheetTextInput,
+  TouchableOpacity,
+  useBottomSheet,
+} from '@gorhom/bottom-sheet'
 import * as Application from 'expo-application'
 import * as Clipboard from 'expo-clipboard'
 import { Image } from 'expo-image'
 import { openSettings, openURL } from 'expo-linking'
-import React, { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import {
   Alert,
   Dimensions,
@@ -43,6 +49,7 @@ import Tag from './utils/Tag'
 export default function MenuView() {
   const insets = useSafeAreaInsets()
   const bottomSheet = useBottomSheet()
+  const scrollViewRef = useRef<BottomSheetScrollViewMethods>(null)
 
   const { playlist, players, categoryFilter } = useAppContext()
   const setContext = useAppDispatchContext()
@@ -62,6 +69,7 @@ export default function MenuView() {
   return (
     <>
       <BottomSheetScrollView
+        ref={scrollViewRef}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ gap: 8 }}
         style={{ flex: 1, overflow: 'visible', marginHorizontal: 16 }}
@@ -129,6 +137,7 @@ export default function MenuView() {
         <ScrollToBottomButton
           onPress={() => {
             Keyboard.dismiss()
+            scrollViewRef.current?.scrollTo({ y: 0, animated: true })
             bottomSheet.collapse()
           }}
         />
