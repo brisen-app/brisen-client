@@ -118,7 +118,7 @@ export default function MenuView() {
             }}
           />
 
-          <SettingsView />
+          <LinksView />
 
           <AppDetailsView />
 
@@ -254,7 +254,7 @@ function AddPlayerField(props: Readonly<ViewProps>) {
   )
 }
 
-function SettingsView(props: Readonly<ViewProps>) {
+function LinksView(props: Readonly<ViewProps>) {
   const { managementURL, isSubscribed } = useInAppPurchaseContext()
   const { style, ...viewProps } = props
   const storeURL =
