@@ -17,16 +17,13 @@ export default function StoreView(props: Readonly<StoreViewProps>) {
   const [offerings, setOfferings] = React.useState<PurchasesOfferings | undefined>(undefined)
 
   const localizations = {
-    error_alert_title: LocalizationManager.get('error_alert_title')?.value ?? 'error_alert_title',
     purchase_complete_msg: LocalizationManager.get('purchase_complete_msg')?.value ?? 'purchase_complete_msg',
     purchase_complete_title: LocalizationManager.get('purchase_complete_title')?.value ?? 'purchase_complete_title',
-    purchase_error_msg: LocalizationManager.get('purchase_error_msg')?.value ?? 'purchase_error_msg',
     restore_completed_msg_fail:
       LocalizationManager.get('restore_completed_msg_fail')?.value ?? 'restore_completed_msg_fail',
     restore_completed_msg_success:
       LocalizationManager.get('restore_completed_msg_success')?.value ?? 'restore_completed_msg_success',
     restore_completed_title: LocalizationManager.get('restore_completed_title')?.value ?? 'restore_completed_title',
-    restore_error_msg: LocalizationManager.get('restore_error_msg')?.value ?? 'restore_error_msg',
   }
 
   useEffect(() => {
@@ -63,10 +60,6 @@ export default function StoreView(props: Readonly<StoreViewProps>) {
         options={{
           offering: offerings.current,
         }}
-        onRestoreError={({ error }) => {
-          // An alert will be shown to the user automatically.
-          console.log('restore error', error)
-        }}
         onRestoreCompleted={({ customerInfo }) => {
           // This may be called even if no entitlements have been granted.
           console.log('restore completed', customerInfo)
@@ -81,10 +74,6 @@ export default function StoreView(props: Readonly<StoreViewProps>) {
           console.log('purchase completed', customerInfo, storeTransaction)
           Alert.alert(localizations.purchase_complete_title, localizations.purchase_complete_msg)
           dismiss()
-        }}
-        onPurchaseError={({ error }) => {
-          console.log('purchase error', error)
-          Alert.alert(localizations.error_alert_title, localizations.purchase_error_msg)
         }}
         onDismiss={dismiss}
       ></RevenueCatUI.PaywallFooterContainerView>
