@@ -22,7 +22,6 @@ import Animated, {
   useAnimatedStyle,
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { ConfigurationManager } from '../managers/ConfigurationManager'
 import Color from '../models/Color'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import PackPosterView from './pack/PackPosterView'
