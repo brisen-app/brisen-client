@@ -69,7 +69,7 @@ const SheetMenuBackground: React.FC<BottomSheetBackgroundProps> = ({ style, anim
   }))
 
   const backgroundAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(animatedIndex.value, [0, 1], [0.2, 0.15], Extrapolation.CLAMP),
+    opacity: interpolate(animatedIndex.value, [0, 1], [0.2, 0.1], Extrapolation.CLAMP),
   }))
 
   return (
