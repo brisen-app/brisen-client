@@ -1,7 +1,7 @@
 name: 🚀 Feature Request
 description: Suggest a new feature.
 title: '[Feature Request]: '
-labels: ['type:feature-request']
+labels: ['type:feature']
 body:
   - type: markdown
     attributes:
@@ -48,4 +48,5 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thank you for your feature request! 🚀
+        Please add the appropriate platform and priority labels to the issue.
+        > Thank you for your feature request! 🚀
