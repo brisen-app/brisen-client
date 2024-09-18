@@ -30,8 +30,8 @@ body:
       options:
         - iOS
         - Android
-      validations:
-        required: true
+    validations:
+      required: true
 
   - type: textarea
     id: platform-version
