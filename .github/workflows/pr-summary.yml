@@ -26,7 +26,11 @@ jobs:
 
       - name: Read pull request template
         id: pr_template
-        run: echo "template=$(cat .github/PULL_REQUEST_TEMPLATE/pr_template.md)" >> $GITHUB_OUTPUT
+        run: |
+          template=$(cat .github/PULL_REQUEST_TEMPLATE/pr_template.md)
+          echo "template<<EOF" >> $GITHUB_OUTPUT
+          echo "$template" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: 'Review PR changes'
         uses: coderabbitai/ai-pr-reviewer@latest
