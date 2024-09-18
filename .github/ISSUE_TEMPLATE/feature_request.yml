@@ -16,8 +16,8 @@ body:
         - label: I have checked that this feature is not already requested in another [issue](https://github.com/brisen-app/brisen-client/issues).
           required: true
         - label: I am willing to implement this feature myself.
-      validations:
-        required: true
+    validations:
+      required: true
 
   - type: checkboxes
     id: platform
@@ -25,8 +25,8 @@ body:
       label: Platform
       description: What platform are you requesting this feature for?
       options:
-        - iOS
-        - Android
+        - label: iOS
+        - label: Android
     validations:
       required: true
 
