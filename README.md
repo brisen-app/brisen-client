@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="src/assets/images/app-icon/foreground.png" alt="Brisen" width="265">
+  <img src="https://media.githubusercontent.com/media/brisen-app/brisen-assets/refs/heads/main/assets/logo/logo-text.png" alt="Brisen" width="265">
 </p>
 
 <p align="center">
@@ -24,9 +24,9 @@
   </a>
 </div>
 
-## Setup
+# Setup
 
-> First, clone the repo and navigate to the root folder.
+> First, fork the repo and navigate to the root folder.
 
 1. Install Node LTS
    - Windows: `winget install -e --id OpenJS.NodeJS.LTS`
@@ -48,7 +48,7 @@
    - Select Development build
    - Disable Build with EAS
 
-## Development workflow
+# Development workflow
 
 1. Create and checkout a new branch from `develop` with the following naming convention:
    - `feature/<feature-name>`
@@ -65,7 +65,7 @@
 1. Create a pull request with `develop` as the target branch
    - Remember to write unit tests! I recommend installing the [Jest-plugin for VS Code](https://marketplace.visualstudio.com/items?itemName=Orta.vscode-jest) to make sure all tests pass before creating a PR.
 
-## Release workflow
+# Release workflow
 
 When the `develop`-branch is ready for deployment, follow these steps:
 
@@ -81,8 +81,18 @@ When the `develop`-branch is ready for deployment, follow these steps:
 
 ### Upgrade Expo SDK
 
-🔗 [Documentation](https://docs.expo.dev/workflow/upgrading-expo-sdk-walkthrough/)
+🔗 Read the [Documentation](https://docs.expo.dev/workflow/upgrading-expo-sdk-walkthrough/).
 
 ```bash
 npm update && npm install expo@latest && npx expo install --fix
 ```
+
+# License
+
+The code in this repository is licensed under a custom license that permits its use only for contributing to the original project. That means no redistribution is allowed, and all contributions must be made available under the same license. For complete details, please refer to the [LICENSE](LICENSE.md) file.
+
+Please ensure that you adhere to these guidelines when using or modifying the code.
+
+# Contributing
+
+We welcome contributions to this project! Please fork the repository and submit a pull request with bug fixes, features, or other improvements. We also encourage you to [create an issue](https://github.com/brisen-app/brisen-client/issues/new/choose) to discuss potential changes or new features.
