@@ -4,7 +4,11 @@
 
 - ...
 
-## Fixes issue(s)
+## New dependencies
+> List any new dependencies added in this PR.
+- ...
+
+## Related issue(s)
 
 > Please '#' the issue number(s) that are fixed by this PR.
 
@@ -12,10 +16,11 @@
 
 ## Type of change
 
-- [ ] Bug fix
 - [ ] New feature
+- [ ] Bug fix
+- [ ] Chore
 
-# Checklist
+### Checklist
 
 - [ ] I have provided unit tests that prove my fix is effective or that my feature works
 - [ ] My changes generate no new warnings and I have formatted my code with [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
