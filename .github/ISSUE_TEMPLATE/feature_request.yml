@@ -1,0 +1,51 @@
+name: 🚀 Feature Request
+description: Suggest a new feature.
+title: '[Feature Request]: '
+labels: ['type:feature-request']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        *Please add an appropriate title for this feature request.*
+
+  - type: checkboxes
+    attributes:
+      label: Requirements
+      description: What type of feature are you requesting?
+      options:
+        - label: I have checked that this feature is not already requested in another [issue](https://github.com/brisen-app/brisen-client/issues).
+          required: true
+        - label: I am willing to implement this feature myself.
+      validations:
+        required: true
+
+  - type: checkboxes
+    id: platform
+    attributes:
+      label: Platform
+      description: What platform are you requesting this feature for?
+      options:
+        - iOS
+        - Android
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Description
+      description: Clear and concise description of the feature or missing capability. Attach screenshots if needed, and explain your own use case.
+      placeholder: As a user, I want to be able to...
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Alternatives
+      description: Any considered alternative solutions or workarounds. If undesirable, why?
+      placeholder: I have considered...
+
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for your feature request! 🚀
