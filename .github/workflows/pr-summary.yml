@@ -21,7 +21,15 @@ jobs:
     name: 🐰 CodeRabbit summary
     runs-on: ubuntu-latest
     steps:
-      - uses: coderabbitai/ai-pr-reviewer@latest
+      - name: 'Checkout source code'
+        uses: 'actions/checkout@v3'
+
+      - name: Read pull request template
+        id: pr_template
+        run: echo "template=$(cat .github/PULL_REQUEST_TEMPLATE/pr_template.md)" >> $GITHUB_OUTPUT
+
+      - name: 'Review PR changes'
+        uses: coderabbitai/ai-pr-reviewer@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -47,30 +55,4 @@ jobs:
             Skip the issues-section, but leave it in for the developer to fill out. Ignore
             the footnotes but leave them in. Cosolidate all the changes into 1-4 bullet points.
 
-            # Changes
-
-            > Please include a bullet list of the general changes made in this PR.
-
-            - ...
-
-            ## Fixes issue(s)[^1]
-
-            > Please '#' the issue number(s) that are fixed by this PR.
-
-            - ...
-
-            ## Type of change
-
-            - [ ] Bug fix
-            - [ ] New feature
-
-            # Checklist
-
-            - [ ] I have provided unit tests that prove my fix is effective or that my feature works
-            - [ ] My changes generate no new warnings and I have formatted my code with [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
-            - [ ] I have made necessary changes to the [README](README.md)
-            - [ ] I have added relevant labels[^2], milestone and issues to this PR
-            - [ ] I know that all outstanding TODOs will create GitHub issues
-
-            [^1]: Add the label `type:bug` or `type:feature` to this PR.
-            [^2]: Add the label `status:request-review` when you're ready for a review.
+            ${{ steps.pr_template.outputs.template }}
