@@ -65,6 +65,14 @@
 1. Create a pull request with `develop` as the target branch
    - Remember to write unit tests! I recommend installing the [Jest-plugin for VS Code](https://marketplace.visualstudio.com/items?itemName=Orta.vscode-jest) to make sure all tests pass before creating a PR.
 
+### Upgrade Expo SDK
+
+🔗 Read the [Documentation](https://docs.expo.dev/workflow/upgrading-expo-sdk-walkthrough/).
+
+```bash
+npm update && npm install expo@latest && npx expo install --fix
+```
+
 # Release workflow
 
 When the `develop`-branch is ready for deployment, follow these steps:
@@ -77,15 +85,7 @@ When the `develop`-branch is ready for deployment, follow these steps:
    - `release/<release-version>`
 1. Create a pull request from the release branch with `main` as the target branch.
    - The PR should include a list of changes and a summary of the release.
-1. When a PR is merged into `main`, the app will be automatically built and deployed to the App Store and Google Play Store. (_TODO: Create a GitHub action for this_)
-
-### Upgrade Expo SDK
-
-🔗 Read the [Documentation](https://docs.expo.dev/workflow/upgrading-expo-sdk-walkthrough/).
-
-```bash
-npm update && npm install expo@latest && npx expo install --fix
-```
+1. When a PR is merged into `main`, the app will be automatically built and submitted to the App Store and Google Play Store.
 
 # License
 
