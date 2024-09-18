@@ -55,7 +55,7 @@ jobs:
             Avoid additional commentary as this will be added as a comment on the 
             GitHub pull request.
           summarize_release_notes: |
-            Fill the following template with the PR details and tick the relevant checkboxes.
+            Fill the following template with the PR details and toggle the relevant checkboxes.
             Skip the issues-section, but leave it in for the developer to fill out. Ignore
             the footnotes but leave them in. Cosolidate all the changes into 1-4 bullet points.
 
