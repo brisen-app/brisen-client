@@ -32,7 +32,18 @@ jobs:
           openai_light_model: 'gpt-4o'
           openai_heavy_model: 'gpt-4o'
           summarize: |
-            Fill the following template with the PR details. Treat quotes starting with `>` as comments and remove them from the final summary. Skip the issues-section, but leave it in for the developer to fill out. Also, tick the relevant checkboxes in the checklist-section.
+            Provide your final response in markdown with the following content:
+
+            - Roast the changes in a creative way. Format it as a quote using the ">"
+            symbol and feel free to use emojis where relevant.
+
+            Avoid additional commentary as this will be added as a comment on the 
+            GitHub pull request.
+          summarize_release_notes: |
+            Fill the following template with the PR details. Treat quotes starting with `>`
+            as comments and remove them from the final summary. Skip the issues-section, but
+            leave it in for the developer to fill out. Also, tick the relevant checkboxes in the
+            checklist-section.
 
             # Description
 
