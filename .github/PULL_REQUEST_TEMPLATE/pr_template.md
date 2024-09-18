@@ -1,11 +1,13 @@
 # Changes
 
-> Please include a bullet list of the general changes made in this PR.
+> Provide a concise bullet-point summary of the key changes.
 
 - ...
 
 ## New dependencies
-> List any new dependencies added in this PR.
+
+> List any new dependencies, if any.
+
 - ...
 
 ## Related issue(s)
