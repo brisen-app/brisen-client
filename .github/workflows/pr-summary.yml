@@ -29,17 +29,32 @@ jobs:
           debug: false
           review_simple_changes: false
           disable_review: true
-          openai_light_model: 'gpt-4o'
-          openai_heavy_model: 'gpt-4o'
+          openai_light_model: 'o1-mini'
+          openai_heavy_model: 'o1-mini'
           summarize: |
-            Provide your final response in markdown with the following content:
+            Fill the following template with the PR details. Treat quotes starting with `>` as comments and remove them from the final summary. Skip the issues-section as you don't have the issue number yet.
 
-            - **Walkthrough**: A high-level summary of the overall change instead of 
-              specific files within 80 words.
-            - **Changes**: A markdown table of files and their summaries. Group files 
-              with similar changes together into a single row to save space.
-            - **Quote**: Below the changes, roast the changes in a creative way. Format
-              it as a quote using the ">" symbol and feel free to use emojis where relevant.
+            # Description
 
-            Avoid additional commentary as this summary will be added as a comment on the 
-            GitHub pull request. Use the titles "Walkthrough" and "Changes" and they must be H2.
+            > Please include a bullet list of the overall changes made in this PR.
+
+            - ...
+
+            ## Fixes issue(s)
+
+            > Please '#' the issue number(s) that are fixed by this PR.
+
+            - ...
+
+            ## Type of change
+
+            - [ ] Bug fix
+            - [ ] New feature
+
+            # Checklist
+
+            - [ ] I have provided unit tests that prove my fix is effective or that my feature works
+            - [ ] My changes generate no new warnings and I have formatted my code with [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) > Should be done manually by the developer
+            - [ ] I have made necessary changes to the [README](README.md)
+            - [ ] I have added relevant labels, milestone and issues to this PR > Should be done manually by the developer
+            - [ ] I know that all outstanding TODOs will create GitHub issues > Should be done manually by the developer
