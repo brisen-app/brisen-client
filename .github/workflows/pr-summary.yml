@@ -34,15 +34,18 @@ jobs:
           summarize: |
             Provide your final response in markdown with the following content:
 
+            - If necessary, suggest some improvements to the changes in the form
+            of a bullet list. Max two bullets.
+
             - Roast the changes in a creative way. Format it as a quote using the ">"
             symbol and feel free to use emojis where relevant. Max two sentences.
 
             Avoid additional commentary as this will be added as a comment on the 
             GitHub pull request.
           summarize_release_notes: |
-            Fill the following template with the PR details and tick the relevant checkboxes
-            (Replace [ ] with [x]). Skip the issues-section, but leave it in for the developer
-            to fill out. Ignore the footnotes. Cosolidate all the changes into 1-4 bullet points.
+            Fill the following template with the PR details and tick the relevant checkboxes.
+            Skip the issues-section, but leave it in for the developer to fill out. Ignore
+            the footnotes but leave them in. Cosolidate all the changes into 1-4 bullet points.
 
             # Changes
 
@@ -71,4 +74,3 @@ jobs:
 
             [^1]: Add the label `type:bug` or `type:feature` to this PR.
             [^2]: Add the label `status:request-review` when you're ready for a review.
-
