@@ -17,9 +17,10 @@ jobs:
     steps:
       - name: Print labels array
         run: |
-          echo "${{ github.event.pull_request.labels.*.name }}"
-          if [[ ${{ github.event.pull_request.labels.*.name }} == type:* ]]; then
+          echo "${{ toJson(github.event.pull_request.labels.*.name) }}"
+          if [[ ${{ toJson(github.event.pull_request.labels.*.name) }} == type:* ]]; then
             echo "Type label found"
           else
             echo "Type label not found"
+            exit 1
           fi
