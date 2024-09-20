@@ -1,0 +1,24 @@
+name: Check labels
+
+on:
+  pull_request:
+    types:
+      - opened
+      - labeled
+      - unlabeled
+
+jobs:
+  check-labels:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for "type:" label
+        if: '!contains(join(github.event.pull_request.labels.*.name, ","), "type:")'
+        run: |
+          echo "Error: Pull request is missing a 'type:' label."
+          exit 1
+
+      - name: Check for "status:" label
+        if: '!contains(join(github.event.pull_request.labels.*.name, ","), "status:")'
+        run: |
+          echo "Error: Pull request is missing a 'status:' label."
+          exit 1
