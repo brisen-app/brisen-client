@@ -13,11 +13,7 @@ jobs:
     steps:
       - name: Print labels array
         run: |
-          # Convert labels to JSON and extract names
-          labels=$(echo ${{ github.event.pull_request.labels.*.name }})
-
-          # Check for "type:" label
-          if echo "$labels" | grep -q '^type:'; then
+          if ${{ github.event.pull_request.labels.*.name }} | grep -q '^type:'; then
             echo "Found a 'type:' label."
           else
             echo "Error: No 'type:' label found."
