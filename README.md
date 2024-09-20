@@ -24,10 +24,11 @@
   </a>
 </div>
 
-# Setup
+# Contributing
 
-> First, fork the repo and navigate to the root folder.
+> If you don't know what to contribute with, check out the [issues](https://github.com/brisen-app/brisen-client/issues).
 
+1. Fork the repo and navigate to the root folder.
 1. Install Node LTS
    - Windows: `winget install -e --id OpenJS.NodeJS.LTS`
    - MacOS: `brew install node`
@@ -48,44 +49,59 @@
    - Select Development build
    - Disable Build with EAS
 
-# Development workflow
+## Workflow
 
 1. Create and checkout a new branch from `develop` with the following naming convention:
    - `feature/<feature-name>`
    - `bugfix/<bug-name>`
 1. Start the development server
+
+   - Run `npm start`
+
+   If you install a build from the [Expo cloud](https://expo.dev/accounts/brisen/projects/brisen-client/development-builds), you can connect your phone to the development server. If not, start the app on a simulator:
+
    - Android: `npm run android`
-   - iOS: `npm run ios` (or `npm start`)
-1. Make your changes in the client and the development environments [Supabase dashboard](https://supabase.com/dashboard/project/tlnldlywflpgvjepxwxz).
-   - If you're making changes to the database schema, you'll need to regenerate the Supabase types
-     ```bash
-     npx supabase gen types typescript --project-id tlnldlywflpgvjepxwxz --schema public > models/supabase.ts
-     ```
+   - iOS: `npm run ios` (MacOS only)
+
+1. Make your changes in the client or the development environment [Supabase dashboard](https://supabase.com/dashboard/project/tlnldlywflpgvjepxwxz).
 1. Commit and push changes to the branch
-1. Create a pull request with `develop` as the target branch
-   - Remember to write unit tests! I recommend installing the [Jest-plugin for VS Code](https://marketplace.visualstudio.com/items?itemName=Orta.vscode-jest) to make sure all tests pass before creating a PR.
+1. Create a pull request with the latest `release`-branch as the target branch
 
-### Upgrade Expo SDK
+## Guides
 
-🔗 Read the [Documentation](https://docs.expo.dev/workflow/upgrading-expo-sdk-walkthrough/).
+### Useful commands
+
+- `npm run build`: Creates a new build for iOS and Android using Expo Cloud. Useful if you have installed a new dependency and want to test the app on a physical device. This takes a while to complete.
+- `npm run upgrade`: Updates Expo and all dependencies to the latest version.
+
+### Database schema changes
+
+If you're making changes to the database schema, you'll need to regenerate the Supabase types.
 
 ```bash
-npm update && npm install expo@latest && npx expo install --fix
+npx supabase gen types typescript --project-id tlnldlywflpgvjepxwxz --schema public > models/supabase.ts
 ```
+
+### Unit tests
+
+Make sure to write unit tests for all new features and bug fixes or you will be stopped by the CI/CD pipeline. I recommend installing the [Jest-plugin for VS Code](https://marketplace.visualstudio.com/items?itemName=Orta.vscode-jest).
 
 # Release workflow
 
-When the `develop`-branch is ready for deployment, follow these steps:
+When the `develop`-branch is ready for a new release, follow these steps:
 
 1. Run the [Create Relase](https://github.com/brisen-app/brisen-database/actions/workflows/create-release.yaml)-action in the [`brisen-database`](https://github.com/brisen-app/brisen-database)-repo with the correct release version.
    - If necessary, make manual changes to the new release branch.
    - Update the PR with a list of changes and a summary of the release.
-1. Update the version in `app.json` and `package.json` to the new release version.
+1. Complete the PR and merge the release branch into `main` and wait for the deployment pipeline to complete.
 1. Create a release branch from `develop` with the following naming convention:
    - `release/<release-version>`
+1. Update the version in `app.json` and `package.json` to the new release version.
 1. Create a pull request from the release branch with `main` as the target branch.
    - The PR should include a list of changes and a summary of the release.
+   - Make sure to squash and merge the PR.
 1. When a PR is merged into `main`, the app will be automatically built and submitted to the App Store and Google Play Store.
+1. Log into Google Play Console and App Store Connect to submit the new release for review.
 
 # License
 
