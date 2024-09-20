@@ -11,7 +11,8 @@ jobs:
   check-labels:
     runs-on: ubuntu-latest
     steps:
-      - run: |
+      - name: Check for 'type:' label
+        run: |
           labels=$(echo '${{ toJson(github.event.pull_request.labels) }}' | jq -r '.[].name')
           if echo "$labels" | grep -q '^type:'; then
             echo "Found a 'type:' label."
@@ -20,7 +21,8 @@ jobs:
             exit 1
           fi
 
-      - run: |
+      - name: Check for 'status:' label
+        run: |
           labels=$(echo '${{ toJson(github.event.pull_request.labels) }}' | jq -r '.[].name')
           if echo "$labels" | grep -q '^status:'; then
             echo "Found a 'status:' label."
