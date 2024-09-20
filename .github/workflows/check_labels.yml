@@ -15,7 +15,7 @@ jobs:
   check-labels:
     runs-on: ubuntu-latest
     steps:
-      - name: Check for "type:" label
+      - name: Print labels array
         run: |
-          echo "${{ github.event.pull_request.labels.*.name }}"
+          echo "Labels Array: '${{ toJson(github.event.pull_request.labels) }}'"
           exit 1
