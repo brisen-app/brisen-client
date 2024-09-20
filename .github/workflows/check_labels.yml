@@ -11,9 +11,14 @@ jobs:
   check-labels:
     runs-on: ubuntu-latest
     steps:
-      - name: Print labels array
+      - name: Check for "type:" label
         run: |
-          if [ ${{ github.event.pull_request.labels.*.name }} | grep -q '^type:' ]; then
+          # Convert labels to JSON and extract names
+          labels=$(echo '${{ toJson(github.event.pull_request.labels) }}' | jq -r '.[].name')
+          echo "Labels Array: $labels"
+
+          # Check for "type:" label
+          if echo "$labels" | grep -q '^type:'; then
             echo "Found a 'type:' label."
           else
             echo "Error: No 'type:' label found."
