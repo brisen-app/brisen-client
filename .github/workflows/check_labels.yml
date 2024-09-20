@@ -17,14 +17,5 @@ jobs:
     steps:
       - name: Check for "type:" label
         run: |
-          if ! echo "${{ github.event.pull_request.labels.*.name }}" | grep -q 'type:'; then
-            echo "Error: Pull request is missing a 'type:' label."
-            exit 1
-          fi
-
-      - name: Check for "status:" label
-        run: |
-          if ! echo "${{ github.event.pull_request.labels.*.name }}" | grep -q 'status:'; then
-            echo "Error: Pull request is missing a 'status:' label."
-            exit 1
-          fi
+          echo "${{ github.event.pull_request.labels.*.name }}"
+          exit 1
