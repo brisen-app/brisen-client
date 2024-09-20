@@ -7,14 +7,20 @@ on:
       - labeled
       - unlabeled
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   check-labels:
     runs-on: ubuntu-latest
     steps:
       - name: Print labels array
         run: |
-          echo ${{ toJson(github.event.pull_request.labels.*.name) }} | grep -w type:
+          # Convert labels to JSON and extract names
+          labels=$(echo ${{ toJson(github.event.pull_request.labels.*.name) }})
+          echo "Labels Array: $labels"
+
+          # Check for "type:" label
+          if echo "$labels" | grep -q '^type:'; then
+            echo "Found a 'type:' label."
+          else
+            echo "Error: No 'type:' label found."
+            exit 1
+          fi
