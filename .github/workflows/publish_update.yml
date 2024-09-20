@@ -4,8 +4,10 @@ on:
   push:
     branches:
       - develop
+      - release/**
     paths:
       - src/**
+      - .github/workflows/**
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

@@ -1,0 +1,32 @@
+name: Check labels
+
+on:
+  pull_request:
+    types:
+      - opened
+      - labeled
+      - unlabeled
+
+jobs:
+  check-labels:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for 'type:' label
+        run: |
+          labels=$(echo '${{ toJson(github.event.pull_request.labels) }}' | jq -r '.[].name')
+          if echo "$labels" | grep -q '^type:'; then
+            echo "Found a 'type:' label."
+          else
+            echo "Error: No 'type:' label found."
+            exit 1
+          fi
+
+      - name: Check for 'status:' label
+        run: |
+          labels=$(echo '${{ toJson(github.event.pull_request.labels) }}' | jq -r '.[].name')
+          if echo "$labels" | grep -q '^status:'; then
+            echo "Found a 'status:' label."
+          else
+            echo "Error: No 'status:' label found."
+            exit 1
+          fi
