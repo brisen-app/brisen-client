@@ -7,18 +7,24 @@ on:
       - labeled
       - unlabeled
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   check-labels:
     runs-on: ubuntu-latest
     steps:
       - name: Check for "type:" label
-        if: '!contains(join(github.event.pull_request.labels.*.name, ","), "type:")'
         run: |
-          echo "Error: Pull request is missing a 'type:' label."
-          exit 1
+          if ! echo "${{ github.event.pull_request.labels[*].name }}" | grep -q 'type:'; then
+            echo "Error: Pull request is missing a 'type:' label."
+            exit 1
+          fi
 
       - name: Check for "status:" label
-        if: '!contains(join(github.event.pull_request.labels.*.name, ","), "status:")'
         run: |
-          echo "Error: Pull request is missing a 'status:' label."
-          exit 1
+          if ! echo "${{ github.event.pull_request.labels[*].name }}" | grep -q 'status:'; then
+            echo "Error: Pull request is missing a 'status:' label."
+            exit 1
+          fi
