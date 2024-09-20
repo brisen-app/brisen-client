@@ -2,6 +2,15 @@ name: CI
 
 on:
   pull_request:
+    branches:
+      - main
+      - develop
+      - release/**
+    paths:
+      - src/**
+      - __tests__/**
+      - __mocks__/**
+      - .github/workflows/**
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

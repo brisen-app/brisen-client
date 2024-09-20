@@ -4,7 +4,10 @@ on:
     branches:
       - main
       - develop
-      - release/*
+      - release/**
+    paths:
+      - src/**
+      - .github/workflows/**
 
 jobs:
   build:
