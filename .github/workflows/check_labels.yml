@@ -14,8 +14,7 @@ jobs:
       - name: Print labels array
         run: |
           # Convert labels to JSON and extract names
-          labels=$(echo ${{ toJson(github.event.pull_request.labels.*.name) }})
-          echo "Labels Array: $labels"
+          labels=$(echo ${{ github.event.pull_request.labels.*.name }})
 
           # Check for "type:" label
           if echo "$labels" | grep -q '^type:'; then
