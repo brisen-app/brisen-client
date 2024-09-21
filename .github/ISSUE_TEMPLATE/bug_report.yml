@@ -1,6 +1,6 @@
 name: 🐞 Bug Report
 description: File a bug or issue report.
-title: '[Bug]: '
+title: '[Bug] '
 labels: ['type:bug']
 body:
   - type: markdown
@@ -22,29 +22,29 @@ body:
     validations:
       required: true
 
-  - type: dropdown
+  - type: checkboxes
     id: platform
     attributes:
       label: Platform
       description: What platform are you experiencing this bug on?
       options:
-        - iOS
-        - Android
+        - label: iOS
+        - label: Android
     validations:
       required: true
 
-  - type: textarea
+  - type: input
     id: platform-version
     attributes:
       label: Platform Version
       description: What version of the platform are you running?
       placeholder: iOS 18.1
 
-  - type: textarea
+  - type: input
     id: version
     attributes:
-      label: Version
-      description: What version of our software are you running?
+      label: App version
+      description: What version of the app are you running?
       placeholder: 1.0.2
     validations:
       required: true
