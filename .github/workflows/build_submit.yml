@@ -6,7 +6,10 @@ on:
       - main
     paths:
       - src/**
+      - app.json
+      - eas.json
       - package.json
+      - package-lock.json
       - .github/workflows/build_submit.yml
 
 concurrency:

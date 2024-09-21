@@ -7,7 +7,7 @@ on:
       - release/**
     paths:
       - src/**
-      - .github/workflows/**
+      - .github/workflows/todos.yml
 
 jobs:
   build:

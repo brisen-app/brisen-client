@@ -7,7 +7,11 @@ on:
       - release/**
     paths:
       - src/**
-      - .github/workflows/**
+      - app.json
+      - eas.json
+      - package.json
+      - package-lock.json
+      - .github/workflows/publish_update.yml
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
