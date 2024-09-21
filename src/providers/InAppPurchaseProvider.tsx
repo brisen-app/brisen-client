@@ -107,17 +107,35 @@ export async function presentPaywall() {
   try {
     const result = await RevenueCatUI.presentPaywall()
 
-    if (result === PAYWALL_RESULT.PURCHASED) {
-      console.log('Purchase successful')
-      const title = LocalizationManager.get('purchase_complete_title')?.value ?? 'purchase_complete_title'
-      const message = LocalizationManager.get('purchase_complete_msg')?.value ?? 'purchase_complete_msg'
-      Alert.alert(title, message)
+    switch (result) {
+      case PAYWALL_RESULT.PURCHASED:
+        presentAlert('purchase_complete_title', 'purchase_complete_msg')
+        break
+      case PAYWALL_RESULT.RESTORED:
+        // presentAlert('restore_complete_title', 'restore_complete_msg')
+        break
+      case PAYWALL_RESULT.ERROR:
+        // presentAlert('error_alert_title', 'purchase_error_msg')
+        break
+      default:
+        console.log('Purchase canceled')
+        break
     }
   } catch (e) {
-    if (!(e instanceof Error)) throw e
     console.error(e)
-    const title = LocalizationManager.get('error_alert_title')?.value ?? 'Error'
-    Alert.alert(title, e.message)
+    if (!(e instanceof Error)) throw e
+    const message = LocalizationManager.get('error_alert_title')?.value
+    Alert.alert(
+      LocalizationManager.get('error_alert_title')?.value ?? 'Error',
+      message ? `${message}\n(${e.message})` : e.message
+    )
+  }
+  return
+  function presentAlert(titleKey: string, messageKey: string) {
+    Alert.alert(
+      LocalizationManager.get(titleKey)?.value ?? titleKey,
+      LocalizationManager.get(messageKey)?.value ?? messageKey
+    )
   }
 }
 
