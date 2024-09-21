@@ -112,10 +112,10 @@ export async function presentPaywall() {
         presentAlert('purchase_complete_title', 'purchase_complete_msg')
         break
       case PAYWALL_RESULT.RESTORED:
-        // presentAlert('restore_complete_title', 'restore_complete_msg')
+        console.log('Purchases restored')
         break
       case PAYWALL_RESULT.ERROR:
-        // presentAlert('error_alert_title', 'purchase_error_msg')
+        presentAlert('error_alert_title', 'purchase_error_msg')
         break
       default:
         console.log('Purchase canceled')
