@@ -1,0 +1,37 @@
+{
+  "cli": {
+    "version": ">= 0.34.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "base": {
+      "android": {
+        "image": "latest"
+      },
+      "ios": {
+        "image": "latest"
+      }
+    },
+    "develop": {
+      "extends": "base",
+      "channel": "develop",
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "production": {
+      "extends": "base",
+      "channel": "production",
+      "autoIncrement": true,
+      "distribution": "store"
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "ole@kallerud.no",
+        "ascAppId": "6480421611",
+        "appleTeamId": "AY62B8PT9G"
+      }
+    }
+  }
+}

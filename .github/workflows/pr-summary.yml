@@ -1,14 +1,17 @@
-name: 📋 PR Summary
+name: PR Summary
 
 permissions:
   contents: read
   pull-requests: write
 
 on:
-  workflow_dispatch:
   pull_request:
+    branches:
+      - develop
+      - release/**
     types:
       - opened
+      - reopened
 
 concurrency:
   group: ${{ github.repository }}-${{ github.event.number || github.head_ref ||
@@ -21,25 +24,42 @@ jobs:
     name: 🐰 CodeRabbit summary
     runs-on: ubuntu-latest
     steps:
-      - uses: coderabbitai/ai-pr-reviewer@latest
+      - name: 'Checkout source code'
+        uses: 'actions/checkout@v3'
+
+      - name: Read pull request template
+        id: pr_template
+        run: |
+          template=$(cat .github/PULL_REQUEST_TEMPLATE/pr_template.md)
+          echo "template<<EOF" >> $GITHUB_OUTPUT
+          echo "$template" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: 'Review PR changes'
+        uses: coderabbitai/ai-pr-reviewer@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         with:
           debug: false
           review_simple_changes: false
-          review_comment_lgtm: false
           disable_review: true
+          openai_light_model: 'gpt-4o'
+          openai_heavy_model: 'gpt-4o'
           summarize: |
             Provide your final response in markdown with the following content:
 
-            - **Walkthrough**: A high-level summary of the overall change instead of 
-              specific files within 80 words.
-            - **Changes**: A markdown table of files and their summaries. Group files 
-              with similar changes together into a single row to save space.
-            - **Quote**: Below the changes, include a whimsical, short poem, related
-              to the changes that urges the PR author to not commiting suicide. Format the poem as a quote using 
-              the ">" symbol and feel free to use emojis where relevant.
+            - If necessary, suggest some improvements to the changes in the form
+            of a bullet list. Max two bullets.
 
-            Avoid additional commentary as this summary will be added as a comment on the 
-            GitHub pull request. Use the titles "Walkthrough" and "Changes" and they must be H2.
+            - Roast the changes in a creative way. Format it as a quote using the ">"
+            symbol and feel free to use emojis where relevant. Max two sentences.
+
+            Avoid additional commentary as this will be added as a comment on the 
+            GitHub pull request.
+          summarize_release_notes: |
+            Fill the following template with the PR details and toggle the relevant checkboxes.
+            Skip the issues-section, but leave it in for the developer to fill out. Ignore
+            the footnotes but leave them in. Cosolidate all the changes into 1-4 bullet points.
+
+            ${{ steps.pr_template.outputs.template }}

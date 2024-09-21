@@ -1,16 +1,19 @@
-name: 🔄 Convert TODOs to Issues
+name: Convert TODOs to Issues
 on:
   push:
     branches:
       - main
       - develop
-      - release/*
+      - release/**
+    paths:
+      - src/**
+      - .github/workflows/todos.yml
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: 🔄 TODO to Issue
         uses: alstr/todo-to-issue-action@v4
         with:

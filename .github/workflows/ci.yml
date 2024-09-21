@@ -1,29 +1,40 @@
-name: 🎸 CI
+name: CI
 
 on:
   pull_request:
+    branches:
+      - main
+      - develop
+      - release/**
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  test:
-    name: 🧪 Test
+  ci:
     runs-on: ubuntu-latest
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       EXPO_PROJECT: ${{ vars.EXPO_PROJECT }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     steps:
-      - name: 🏗 Setup
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: 🏗 Setup Node
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
 
       - name: 📦 Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: 🧪 Run tests
-        id: test
-        run: npm run testCI
+        run: npm run test-ci
+
+      - name: 🔍 SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+
+      - name: 📋 SonarQube Quality Gate check
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        timeout-minutes: 5

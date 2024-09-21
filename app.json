@@ -2,35 +2,54 @@
   "expo": {
     "name": "Brisen",
     "slug": "brisen-client",
-    "version": "0.0.1",
+    "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
     "scheme": "no.kallerud",
-    "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./assets/images/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
+    "userInterfaceStyle": "dark",
     "assetBundlePatterns": [
       "**/*"
     ],
+    "primaryColor": "#f3a000",
+    "backgroundColor": "#000000",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "icon": "./src/assets/images/app-icon/icon.png",
+    "splash": {
+        "image": "./src/assets/images/splash-screen/splash-screen.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#000000"
+      },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "no.kallerud.brisen",
+      "runtimeVersion": "0.0.1"
     },
     "android": {
+      "package": "no.kallerud.brisen",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
-    },
-    "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
+        "foregroundImage": "./src/assets/images/app-icon/foreground.png",
+        "monochromeImage": "./src/assets/images/app-icon/mono.png",
+        "backgroundImage": "./src/assets/images/app-icon/background.png"
+      },
+      "runtimeVersion": "0.0.1"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-localization",
+      "expo-font",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "minSdkVersion": 24
+          },
+          "ios": {
+            "deploymentTarget": "15.0"
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
@@ -43,6 +62,9 @@
         "projectId": "ea66c9bc-ab42-4370-b12b-b6db5bf784c8"
       }
     },
-    "owner": "brisen"
+    "owner": "brisen",
+    "updates": {
+      "url": "https://u.expo.dev/ea66c9bc-ab42-4370-b12b-b6db5bf784c8"
+    }
   }
 }
