@@ -48,6 +48,10 @@ export const FontStyles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  Body: {
+    userSelect: 'none',
+    color: Colors.text,
+  },
   AccentuatedBody: {
     userSelect: 'none',
     color: Colors.text,

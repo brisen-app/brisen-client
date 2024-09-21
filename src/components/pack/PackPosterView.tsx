@@ -1,12 +1,13 @@
 import Colors from '@/src/constants/Colors'
 import { Pack, PackManager } from '@/src/managers/PackManager'
 import Color from '@/src/models/Color'
-import { useInAppPurchaseContext, useInAppPurchaseDispatchContext } from '@/src/providers/InAppPurchaseProvider'
+import { useInAppPurchaseContext } from '@/src/providers/InAppPurchaseProvider'
 import { Ionicons } from '@expo/vector-icons'
 import { Image } from 'expo-image'
 import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View, ViewProps } from 'react-native'
 import Animated, { Easing, useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import { useAppContext, useAppDispatchContext } from '../../providers/AppContextProvider'
+import { presentPaywall } from '../../providers/InAppPurchaseProvider'
 
 export type PackViewProps = {
   pack: Pack
@@ -20,7 +21,6 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
   const { pack, style } = props
   const { playlist } = useAppContext()
   const { isSubscribed } = useInAppPurchaseContext()
-  const { displayStore } = useInAppPurchaseDispatchContext()
   const setContext = useAppDispatchContext()
   const width = props.width ?? 256
   const isSelected = playlist.has(pack)
@@ -71,11 +71,8 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
     >
       <Pressable
         onPress={() => {
-          if (isAvailable) {
-            setContext({ action: 'togglePack', payload: pack })
-          } else {
-            displayStore(pack)
-          }
+          if (isAvailable) setContext({ action: 'togglePack', payload: pack })
+          else presentPaywall()
         }}
       >
         <View
@@ -101,7 +98,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
           ]}
         >
           {isLoading ? (
-            <ActivityIndicator size='large' color={Colors.accentColor} />
+            <ActivityIndicator size='large' color={Colors.text} />
           ) : (
             <Animated.View style={isAvailableStyle}>
               <Image

@@ -1,11 +1,11 @@
 import { ConfigurationManager } from '@/src/managers/ConfigurationManager'
 import { Dispatch, ReactNode, createContext, useContext, useEffect, useReducer } from 'react'
-import { Modal, Platform } from 'react-native'
+import { Alert, Platform } from 'react-native'
 import Purchases, { CustomerInfo } from 'react-native-purchases'
+import RevenueCatUI, { PAYWALL_RESULT } from 'react-native-purchases-ui'
 import ActivityIndicatorView from '../components/ActivityIndicatorView'
 import FetchErrorView from '../components/FetchErrorView'
-import StoreView from '../components/StoreView'
-import { Pack } from '../managers/PackManager'
+import { LocalizationManager } from '../managers/LocalizationManager'
 
 function initInAppPurchases(setContext: Dispatch<InAppPurchaseContextActionType>) {
   const iosKey = process.env.EXPO_PUBLIC_RC_KEY_APPLE
@@ -37,31 +37,21 @@ function initInAppPurchases(setContext: Dispatch<InAppPurchaseContextActionType>
 }
 
 type InAppPurchaseContextType = {
-  customerInfo: CustomerInfo | undefined
-  customerInfoError: Error | undefined
-  showStore: boolean
-  product: Pack | undefined
+  customerInfo?: CustomerInfo
+  customerInfoError?: Error
 }
 
 type InAppPurchaseContextActionType =
-  | { action: 'hideStore' }
-  | { action: 'displayStore'; payload: Pack }
   | { action: 'setCustomerInfo'; payload: CustomerInfo }
   | { action: 'setCustomerInfoError'; payload: Error }
 
-function InAppPurchaseContextReducer(state: InAppPurchaseContextType, action: InAppPurchaseContextActionType) {
+function InAppPurchaseContextReducer(
+  state: InAppPurchaseContextType,
+  action: InAppPurchaseContextActionType
+): InAppPurchaseContextType {
   const { action: type } = action
 
   switch (type) {
-    case 'hideStore': {
-      return { ...state, showStore: false }
-    }
-
-    case 'displayStore': {
-      const { payload } = action
-      return { ...state, showStore: true, product: payload }
-    }
-
     case 'setCustomerInfo': {
       const { payload } = action
       return { ...state, customerInfo: payload, customerInfoError: undefined }
@@ -113,12 +103,39 @@ function isSubscribed(customerInfo: CustomerInfo | undefined) {
   return isSubscribed
 }
 
-export function useInAppPurchaseDispatchContext() {
-  const context = useContext(InAppPurchaseDispatchContext)
-  if (!context) throw new Error('useInAppPurchaseDispatchContext must be used within an InAppPurchaseContext')
-  return {
-    hideStore: () => context({ action: 'hideStore' }),
-    displayStore: (product: Pack) => context({ action: 'displayStore', payload: product }),
+export async function presentPaywall() {
+  try {
+    const result = await RevenueCatUI.presentPaywall()
+
+    switch (result) {
+      case PAYWALL_RESULT.PURCHASED:
+        presentAlert('purchase_complete_title', 'purchase_complete_msg')
+        break
+      case PAYWALL_RESULT.RESTORED:
+        console.log('Purchases restored')
+        break
+      case PAYWALL_RESULT.ERROR:
+        presentAlert('error_alert_title', 'purchase_error_msg')
+        break
+      default:
+        console.log('Purchase canceled')
+        break
+    }
+  } catch (e) {
+    console.error(e)
+    if (!(e instanceof Error)) throw e
+    const message = LocalizationManager.get('error_alert_title')?.value
+    Alert.alert(
+      LocalizationManager.get('error_alert_title')?.value ?? 'Error',
+      message ? `${message}\n(${e.message})` : e.message
+    )
+  }
+  return
+  function presentAlert(titleKey: string, messageKey: string) {
+    Alert.alert(
+      LocalizationManager.get(titleKey)?.value ?? titleKey,
+      LocalizationManager.get(messageKey)?.value ?? messageKey
+    )
   }
 }
 
@@ -126,8 +143,6 @@ export default function InAppPurchaseProvider(props: Readonly<{ children: ReactN
   const [context, setContext] = useReducer(InAppPurchaseContextReducer, {
     customerInfo: undefined,
     customerInfoError: undefined,
-    showStore: false,
-    product: undefined,
   } as InAppPurchaseContextType)
 
   useEffect(() => {
@@ -141,20 +156,7 @@ export default function InAppPurchaseProvider(props: Readonly<{ children: ReactN
 
   return (
     <InAppPurchaseContext.Provider value={context}>
-      <InAppPurchaseDispatchContext.Provider value={setContext}>
-        <Modal
-          animationType='slide'
-          presentationStyle='pageSheet'
-          statusBarTranslucent
-          visible={context.showStore}
-          onRequestClose={() => {
-            setContext({ action: 'hideStore' })
-          }}
-        >
-          <StoreView dismiss={() => setContext({ action: 'hideStore' })} />
-        </Modal>
-        {props.children}
-      </InAppPurchaseDispatchContext.Provider>
+      <InAppPurchaseDispatchContext.Provider value={setContext}>{props.children}</InAppPurchaseDispatchContext.Provider>
     </InAppPurchaseContext.Provider>
   )
 }
