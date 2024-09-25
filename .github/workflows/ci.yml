@@ -15,8 +15,6 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     env:
-      EXPO_PROJECT: ${{ vars.EXPO_PROJECT }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     steps:
