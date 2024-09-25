@@ -6,18 +6,15 @@ import RevenueCatUI, { PAYWALL_RESULT } from 'react-native-purchases-ui'
 import ActivityIndicatorView from '../components/ActivityIndicatorView'
 import FetchErrorView from '../components/FetchErrorView'
 import { LocalizationManager } from '../managers/LocalizationManager'
+import environmentVariables from '../lib/env'
 
 function initInAppPurchases(setContext: Dispatch<InAppPurchaseContextActionType>) {
-  const iosKey = process.env.EXPO_PUBLIC_RC_KEY_APPLE
-  const androidKey = process.env.EXPO_PUBLIC_RC_KEY_GOOGLE
-
   Purchases.setLogLevel(Purchases.LOG_LEVEL.DEBUG)
 
-  if (!iosKey) throw new Error('Missing Apple API key')
-  if (!androidKey) throw new Error('Missing Google API key')
+  const vars = environmentVariables()
 
-  if (Platform.OS === 'ios') Purchases.configure({ apiKey: iosKey })
-  if (Platform.OS === 'android') Purchases.configure({ apiKey: androidKey })
+  if (Platform.OS === 'ios') Purchases.configure({ apiKey: vars.rcAppleKey })
+  if (Platform.OS === 'android') Purchases.configure({ apiKey: vars.rcGoogleKey })
 
   console.log('InAppPurchases initialized')
 
