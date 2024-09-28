@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - develop
-      - release/**
     paths:
       - src/**
       - app.json
@@ -21,13 +20,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     environment: Beta
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      EXPO_PROJECT: ${{ vars.EXPO_PROJECT }}
-      EXPO_PUBLIC_SB_URL: ${{ vars.SUPABASE_URL }}
-      EXPO_PUBLIC_SB_ANON: ${{ secrets.SUPABASE_ANON }}
-      EXPO_PUBLIC_RC_KEY_APPLE: ${{ secrets.REVENUECAT_APPLE }}
-      EXPO_PUBLIC_RC_KEY_GOOGLE: ${{ secrets.REVENUECAT_GOOGLE }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3

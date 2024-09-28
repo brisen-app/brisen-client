@@ -2,7 +2,7 @@
   "expo": {
     "name": "Brisen",
     "slug": "brisen-client",
-    "version": "0.0.1",
+    "version": "1.0.0",
     "orientation": "portrait",
     "scheme": "no.kallerud",
     "userInterfaceStyle": "dark",
