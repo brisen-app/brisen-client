@@ -13,28 +13,34 @@ import { AppState } from 'react-native'
 import ActivityIndicatorView from '../components/ActivityIndicatorView'
 
 function useSupabase(manager: SupabaseManager<SupabaseItem>, enabled = true) {
-  const { data, error, isLoading, isPending, isFetched } = useQuery({
+  const response = useQuery({
     queryKey: [manager.tableName],
     queryFn: async () => {
       return await manager.fetchAllOrRetrieve()
     },
     enabled: enabled,
   })
-  if (error) console.warn(error)
-  return { hasFetched: !!data && !isLoading && !isPending && isFetched, error }
+  if (response.error) console.warn(response.error)
+  return { ...response, key: manager.tableName }
 }
 
 export default function AppDataProvider(props: Readonly<{ children: ReactNode }>) {
   const queryClient = useQueryClient()
   const appState = useRef(AppState.currentState)
 
+  const configResonse = useSupabase(ConfigurationManager)
+  const languageResponse = useSupabase(LanguageManager, configResonse.isSuccess)
+  const categoryResponse = useSupabase(CategoryManager)
+  const cardResponse = useSupabase(CardManager)
+  const cardRelationResponse = useSupabase(CardRelationManager)
+  const packResponse = useSupabase(PackManager, languageResponse.isSuccess)
+  const localizationResponse = useSupabase(LocalizationManager, languageResponse.isSuccess)
+
   useEffect(() => {
     const stateListener = AppState.addEventListener('change', nextAppState => {
-      if (LanguageManager.hasUserChangedLanguage()) {
-        console.log('User has changed language')
-        queryClient.invalidateQueries({
-          queryKey: [LanguageManager.tableName, LocalizationManager.tableName, PackManager.tableName],
-        })
+      if (LanguageManager.updateDisplayLanguage()) {
+        queryClient.invalidateQueries({ queryKey: [PackManager.tableName] })
+        queryClient.invalidateQueries({ queryKey: [LocalizationManager.tableName] })
       }
 
       appState.current = nextAppState
@@ -46,36 +52,31 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
     }
   }, [])
 
-  const configResonse = useSupabase(ConfigurationManager)
-  const languageResponse = useSupabase(LanguageManager, configResonse.hasFetched)
-  const categoryResponse = useSupabase(CategoryManager)
-  const cardResponse = useSupabase(CardManager)
-  const cardRelationResponse = useSupabase(CardRelationManager)
-  const packResponse = useSupabase(PackManager, languageResponse.hasFetched)
-  const localizationResponse = useSupabase(LocalizationManager, languageResponse.hasFetched)
+  const isSuccess =
+    configResonse.isSuccess &&
+    languageResponse.isSuccess &&
+    categoryResponse.isSuccess &&
+    packResponse.isSuccess &&
+    cardResponse.isSuccess &&
+    cardRelationResponse.isSuccess &&
+    localizationResponse.isSuccess
 
-  const hasFetched =
-    configResonse.hasFetched &&
-    languageResponse.hasFetched &&
-    categoryResponse.hasFetched &&
-    packResponse.hasFetched &&
-    cardResponse.hasFetched &&
-    cardRelationResponse.hasFetched &&
-    localizationResponse.hasFetched
+  const failedResponses = [
+    configResonse,
+    languageResponse,
+    categoryResponse,
+    packResponse,
+    cardResponse,
+    cardRelationResponse,
+    localizationResponse,
+  ].filter(response => !!response.error)
 
-  const errors = [
-    configResonse.error,
-    languageResponse.error,
-    categoryResponse.error,
-    packResponse.error,
-    cardResponse.error,
-    cardRelationResponse.error,
-    localizationResponse.error,
-  ].filter(e => !!e) as Error[]
+  if (failedResponses.length > 0)
+    return (
+      <FetchErrorView errors={failedResponses.map(r => r.error!)} onRetry={() => queryClient.invalidateQueries()} />
+    )
 
-  if (errors.length > 0) return <FetchErrorView errors={errors} onRetry={() => queryClient.invalidateQueries()} />
-
-  if (hasFetched) return props.children
-
-  return <ActivityIndicatorView text={LocalizationManager.get('loading')?.value} />
+  if (!isSuccess || queryClient.isFetching())
+    return <ActivityIndicatorView text={LocalizationManager.get('loading')?.value} />
+  return props.children
 }

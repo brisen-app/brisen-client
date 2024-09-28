@@ -72,17 +72,23 @@ class LanguageManagerSingleton extends SupabaseManager<Language> {
     return result.length > 0 ? result : undefined
   }
 
-  public hasUserChangedLanguage() {
+  public updateDisplayLanguage() {
     if (!this._items) {
-      console.warn('[hasUserChangedLanguage] No languages set')
+      console.warn('[updateDisplayLanguage] No languages set')
       return false
     }
-    const newLanguage = this.mergeLanguageData([...this._items.values()])
-    if (!newLanguage) {
-      console.warn('[hasUserChangedLanguage] No languages match user locale')
+    const newLanguages = this.mergeLanguageData([...this._items.values()])
+    if (!newLanguages) {
+      console.warn('[updateDisplayLanguage] No languages match user locale')
       return false
     }
-    return newLanguage && newLanguage[0].id !== this.getDisplayLanguage().id
+    const newLanguage = newLanguages[0]
+    const hasChanged = newLanguages && newLanguage.id !== this.getDisplayLanguage().id
+    if (hasChanged) {
+      this._displayLanguage = newLanguage
+      console.log(`[updateDisplayLanguage] User has changed language to '${newLanguages[0].id}'`)
+    }
+    return hasChanged
   }
 
   /**
