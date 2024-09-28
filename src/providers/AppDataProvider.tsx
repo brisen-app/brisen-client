@@ -9,7 +9,7 @@ import { PackManager } from '@/src/managers/PackManager'
 import SupabaseManager, { SupabaseItem } from '@/src/managers/SupabaseManager'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { ReactNode, useEffect, useRef } from 'react'
-import { AppState } from 'react-native'
+import { AppState, Platform } from 'react-native'
 import ActivityIndicatorView from '../components/ActivityIndicatorView'
 
 function useSupabase(manager: SupabaseManager<SupabaseItem>, enabled = true) {
@@ -38,7 +38,7 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
 
   useEffect(() => {
     const stateListener = AppState.addEventListener('change', nextAppState => {
-      if (LanguageManager.updateDisplayLanguage()) {
+      if (LanguageManager.updateDisplayLanguage() && Platform.OS === 'android') {
         queryClient.invalidateQueries({ queryKey: [PackManager.tableName] })
         queryClient.invalidateQueries({ queryKey: [LocalizationManager.tableName] })
       }
