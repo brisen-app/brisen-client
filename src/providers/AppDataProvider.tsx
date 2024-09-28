@@ -56,5 +56,5 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
 
   if (hasFetched) return props.children
 
-  return <ActivityIndicatorView />
+  return <ActivityIndicatorView text={LocalizationManager.get('loading')?.value} />
 }
