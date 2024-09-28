@@ -20,6 +20,7 @@ import { openSettings, openURL } from 'expo-linking'
 import { useMemo, useRef, useState } from 'react'
 import {
   Alert,
+  Button,
   Dimensions,
   Keyboard,
   Platform,
@@ -45,6 +46,7 @@ import { useAppContext, useAppDispatchContext } from '../providers/AppContextPro
 import PackPosterView from './pack/PackPosterView'
 import ScrollToBottomButton from './utils/ScrollToBottomButton'
 import Tag from './utils/Tag'
+import { useQueryClient } from '@tanstack/react-query'
 
 export default function MenuView() {
   const insets = useSafeAreaInsets()
@@ -344,6 +346,7 @@ function LinksView(props: Readonly<ViewProps>) {
 
 function AppDetailsView() {
   const { userId } = useInAppPurchaseContext()
+  const queryClient = useQueryClient()
   const appVersion = Application.nativeApplicationVersion
   const isDev = __DEV__
 
@@ -369,6 +372,9 @@ function AppDetailsView() {
       </Text>
       {isDev && <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>{userId}</Text>}
       {isDev && <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>Running in dev mode</Text>}
+      {isDev && (
+        <Button color={Colors.accentColor} title='Invalidate queries' onPress={() => queryClient.invalidateQueries()} />
+      )}
     </Pressable>
   )
 }
