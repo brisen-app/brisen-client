@@ -1,10 +1,11 @@
-import { getLocales, Locale } from 'expo-localization'
 import { Tables } from '@/src/models/supabase'
-import SupabaseManager from './SupabaseManager'
+import { getLocales, Locale } from 'expo-localization'
 import { ConfigurationManager } from './ConfigurationManager'
+import SupabaseManager from './SupabaseManager'
 
 const tableName = 'languages'
-export type Language = Partial<Omit<Locale, 'languageCode'>> & Tables<typeof tableName>
+export type SupabaseLanguage = Tables<typeof tableName>
+export type Language = Partial<Omit<Locale, 'languageCode'>> & SupabaseLanguage
 
 class LanguageManagerSingleton extends SupabaseManager<Language> {
   protected _displayLanguage: Language | undefined
@@ -18,7 +19,7 @@ class LanguageManagerSingleton extends SupabaseManager<Language> {
     return this._displayLanguage
   }
 
-  protected set(items: Iterable<Language>) {
+  protected set(items: Iterable<SupabaseLanguage>) {
     if (this._items) console.warn(`${tableName} have already been set`)
 
     if (ConfigurationManager.get('use_sfw_content')?.bool === true) {
@@ -52,7 +53,7 @@ class LanguageManagerSingleton extends SupabaseManager<Language> {
    * @param items - An iterable collection of languages.
    * @returns The preferred language of the user, or undefined if no matching language is found.
    */
-  private findUserLanguage(items: Iterable<Language>) {
+  private findUserLanguage(items: Iterable<SupabaseLanguage>): Language | undefined {
     for (const locale of getLocales()) {
       for (const item of items) {
         if (locale.languageCode === item.id && item.public) {
@@ -75,7 +76,7 @@ class LanguageManagerSingleton extends SupabaseManager<Language> {
    * @returns The default language or the first language in the list.
    * @throws Error if no languages are provided when setting default language.
    */
-  private findDefaultLanguage(items: Iterable<Language>) {
+  private findDefaultLanguage(items: Iterable<SupabaseLanguage>) {
     const defaultLanguageId = ConfigurationManager.get('default_language')?.string ?? 'en'
 
     const languageList = [...items]
