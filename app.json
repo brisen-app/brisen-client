@@ -19,7 +19,8 @@
     },
     "locales": {
       "en": {},
-      "nb": {}
+      "nb": {},
+      "sv": {}
     },
     "ios": {
       "supportsTablet": true,
