@@ -301,7 +301,12 @@ function LinksView(props: Readonly<ViewProps>) {
       iconName: 'arrow-up-right',
       onPress: () => openURL(managementURL!),
     },
-    { titleKey: 'change_language', iconName: 'arrow-up-right', onPress: () => openSettings() },
+    {
+      show: Platform.OS === 'ios',
+      titleKey: 'change_language',
+      iconName: 'arrow-up-right',
+      onPress: () => openSettings(),
+    },
     {
       show: !!storeURL,
       titleKey: 'share_app',
