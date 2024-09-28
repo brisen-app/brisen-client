@@ -4,6 +4,8 @@ import { SplashScreen } from 'expo-router'
 import { useEffect } from 'react'
 import { GestureResponderEvent, Text, TouchableOpacity, ViewProps } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { FontStyles } from '../constants/Styles'
+import { LocalizationManager } from '../managers/LocalizationManager'
 
 export type ErrorViewProps = {
   errors: Error[]
@@ -32,25 +34,10 @@ export default function FetchErrorView(props: Readonly<ErrorViewProps>) {
       ]}
       {...props}
     >
-      <Text
-        style={{
-          fontSize: 48,
-          fontWeight: '900',
-          textAlign: 'center',
-          marginTop: 16,
-        }}
-      >
-        Ooops...
-      </Text>
+      <Text style={FontStyles.LargeTitle}>{LocalizationManager.get('error_alert_title')?.value ?? 'Ooops...'}</Text>
 
       {errors.map(error => (
-        <Text
-          key={error.message}
-          style={{
-            textAlign: 'center',
-            color: Colors.secondaryText,
-          }}
-        >
+        <Text key={error.message} style={FontStyles.Subheading}>
           {error.message}
         </Text>
       ))}
@@ -61,9 +48,10 @@ export default function FetchErrorView(props: Readonly<ErrorViewProps>) {
           flexDirection: 'row',
           justifyContent: 'center',
           alignItems: 'center',
-          marginTop: 64,
-          padding: 8,
-          borderRadius: 8,
+          padding: 16,
+          paddingHorizontal: 32,
+          marginTop: 32,
+          borderRadius: Number.MAX_SAFE_INTEGER,
           backgroundColor: Colors.accentColor,
         }}
       >

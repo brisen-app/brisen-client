@@ -1,9 +1,12 @@
-import { ActivityIndicator, ActivityIndicatorProps, StyleProp, View, ViewStyle } from 'react-native'
+import { ActivityIndicator, Text, View, ViewProps } from 'react-native'
 import Colors from '../constants/Colors'
 
-export default function ActivityIndicatorView(
-  props: Readonly<{ style?: StyleProp<ViewStyle & ActivityIndicatorProps> }>
-) {
+type ActivityIndicatorViewProps = ViewProps & {
+  text?: string
+}
+
+export default function ActivityIndicatorView(props: Readonly<ActivityIndicatorViewProps>) {
+  const { text, style, ...rest } = props
   return (
     <View
       style={[
@@ -12,11 +15,13 @@ export default function ActivityIndicatorView(
           justifyContent: 'center',
           alignItems: 'center',
           backgroundColor: Colors.background,
+          gap: 16,
         },
-        props.style,
+        style,
       ]}
     >
-      <ActivityIndicator size='large' color={Colors.text} {...props} />
+      <ActivityIndicator size='large' color={Colors.text} {...rest} />
+      {!!text && <Text style={{ color: Colors.text }}>{text}</Text>}
     </View>
   )
 }

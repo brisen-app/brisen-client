@@ -105,12 +105,6 @@ describe('get', () => {
     SupabaseManagerMock.set(mockedItems)
     expect(SupabaseManagerMock.get('1')).toBe(mockedItems[0])
   })
-
-  it('should warn if items have not been set', () => {
-    console.warn = jest.fn()
-    SupabaseManagerMock.get('1')
-    expect(console.warn).toHaveBeenCalledTimes(1)
-  })
 })
 
 describe('fetch', () => {

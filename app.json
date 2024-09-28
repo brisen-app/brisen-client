@@ -7,24 +7,27 @@
     "orientation": "portrait",
     "scheme": "no.kallerud",
     "userInterfaceStyle": "dark",
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "primaryColor": "#f3a000",
     "backgroundColor": "#000000",
-    "platforms": [
-      "ios",
-      "android"
-    ],
+    "platforms": ["ios", "android"],
     "icon": "./src/assets/images/app-icon/icon.png",
     "splash": {
-        "image": "./src/assets/images/splash-screen/splash-screen.png",
-        "resizeMode": "contain",
-        "backgroundColor": "#000000"
-      },
+      "image": "./src/assets/images/splash-screen/splash-screen.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
+    },
+    "locales": {
+      "en": {},
+      "nb": {},
+      "sv": {}
+    },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "no.kallerud.brisen"
+      "bundleIdentifier": "no.kallerud.brisen",
+      "infoPlist": {
+        "CFBundleAllowMixedLocalizations": true
+      }
     },
     "android": {
       "package": "no.kallerud.brisen",
@@ -32,7 +35,8 @@
         "foregroundImage": "./src/assets/images/app-icon/foreground.png",
         "monochromeImage": "./src/assets/images/app-icon/mono.png",
         "backgroundImage": "./src/assets/images/app-icon/background.png"
-      }
+      },
+      "allowBackup": false
     },
     "plugins": [
       "expo-router",

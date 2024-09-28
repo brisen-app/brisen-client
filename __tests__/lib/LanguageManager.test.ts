@@ -57,7 +57,7 @@ beforeEach(() => {
   LanguageManager['_displayLanguage'] = undefined
 })
 
-describe('findUserLanguage', () => {
+describe('mergeLanguageData', () => {
   beforeAll(() => {
     expoLocalization.getLocales = jest.fn().mockReturnValue(mockedLocales)
   })
@@ -66,17 +66,18 @@ describe('findUserLanguage', () => {
     expoLocalization.getLocales.mockRestore()
   })
 
-  it('should return the first public language that matches the user locale', () => {
-    const displayLanguage = LanguageManager['findUserLanguage'](mockedItems)
+  it('should merge the language data with the locale data', () => {
+    const mergedData = LanguageManager['mergeLanguageData'](mockedItems)
 
-    expect(displayLanguage!.id).toEqual('en')
+    expect(mergedData).toBeDefined()
+    expect(mergedData!.length).toEqual(2)
+    expect(mergedData![0].id).toEqual('en')
+    expect(mergedData![1].id).toEqual('nb')
   })
 
-  it('should return undefined if no public language matches the user locale', () => {
-    const languageItems = [{ id: 'en', name: 'English', public: false }] as Language[]
-    const displayLanguage = LanguageManager['findUserLanguage'](languageItems)
-
-    expect(displayLanguage).toBeUndefined()
+  it('should return undefined if no languages match the user locale', () => {
+    const mergedData = LanguageManager['mergeLanguageData']([])
+    expect(mergedData).toBeUndefined()
   })
 })
 
