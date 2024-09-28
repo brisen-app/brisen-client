@@ -2,13 +2,14 @@ import FetchErrorView from '@/src/components/FetchErrorView'
 import { CardManager } from '@/src/managers/CardManager'
 import { CardRelationManager } from '@/src/managers/CardRelationManager'
 import { CategoryManager } from '@/src/managers/CategoryManager'
+import { ConfigurationManager } from '@/src/managers/ConfigurationManager'
 import { LanguageManager } from '@/src/managers/LanguageManager'
 import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import { PackManager } from '@/src/managers/PackManager'
 import SupabaseManager, { SupabaseItem } from '@/src/managers/SupabaseManager'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { ReactNode } from 'react'
-import { ConfigurationManager } from '@/src/managers/ConfigurationManager'
+import { ReactNode, useEffect, useRef } from 'react'
+import { AppState } from 'react-native'
 import ActivityIndicatorView from '../components/ActivityIndicatorView'
 
 function useSupabase(manager: SupabaseManager<SupabaseItem>, enabled = true) {
@@ -25,6 +26,26 @@ function useSupabase(manager: SupabaseManager<SupabaseItem>, enabled = true) {
 
 export default function AppDataProvider(props: Readonly<{ children: ReactNode }>) {
   const queryClient = useQueryClient()
+  const appState = useRef(AppState.currentState)
+
+  useEffect(() => {
+    const stateListener = AppState.addEventListener('change', nextAppState => {
+      if (LanguageManager.hasUserChangedLanguage()) {
+        console.log('User has changed language')
+        queryClient.invalidateQueries({
+          queryKey: [LanguageManager.tableName, LocalizationManager.tableName, PackManager.tableName],
+        })
+      }
+
+      appState.current = nextAppState
+      console.log('AppState', appState.current)
+    })
+
+    return () => {
+      stateListener.remove()
+    }
+  }, [])
+
   const configResonse = useSupabase(ConfigurationManager)
   const languageResponse = useSupabase(LanguageManager, configResonse.hasFetched)
   const categoryResponse = useSupabase(CategoryManager)

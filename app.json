@@ -35,7 +35,8 @@
         "foregroundImage": "./src/assets/images/app-icon/foreground.png",
         "monochromeImage": "./src/assets/images/app-icon/mono.png",
         "backgroundImage": "./src/assets/images/app-icon/background.png"
-      }
+      },
+      "allowBackup": false
     },
     "plugins": [
       "expo-router",
