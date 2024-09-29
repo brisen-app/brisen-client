@@ -29,8 +29,8 @@ body:
       description: What platform are you experiencing this bug on?
       multiple: true
       options:
-        - label: iOS
-        - label: Android
+        - iOS
+        - Android
     validations:
       required: true
 

@@ -13,9 +13,10 @@ body:
       label: Confirmations
       multiple: true
       options:
-        - label: I have checked that this feature is not already requested in another [issue](https://github.com/brisen-app/brisen-client/issues).
-          required: true
-        - label: I am willing to implement this feature myself.
+        - I have checked that this feature is not already requested in another [issue](https://github.com/brisen-app/brisen-client/issues).
+        - I am willing to implement this feature myself.
+    validations:
+      required: true
 
   - type: textarea
     id: details
