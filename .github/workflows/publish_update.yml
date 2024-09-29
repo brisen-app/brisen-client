@@ -1,6 +1,19 @@
 name: Deploy Expo Preview
 
 on:
+  pull_request:
+    branches:
+      - develop
+    types:
+      - opened
+      - synchronize
+    paths:
+      - src/**
+      - app.json
+      - eas.json
+      - package.json
+      - package-lock.json
+      - .github/workflows/publish_update.yml
   push:
     branches:
       - develop
@@ -19,6 +32,13 @@ concurrency:
 jobs:
   publish-preview:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    env:
+      EXPO_PUBLIC_SB_URL: ${{ vars.SUPABASE_URL_DEV }}
+      EXPO_PUBLIC_SB_ANON: ${{ secrets.SUPABASE_ANON_DEV }}
+      EXPO_PUBLIC_RC_KEY_APPLE: ${{ secrets.REVENUECAT_APPLE }}
+      EXPO_PUBLIC_RC_KEY_GOOGLE: ${{ secrets.REVENUECAT_GOOGLE }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -38,4 +58,4 @@ jobs:
       - name: 🚀 Create preview
         uses: expo/expo-github-action/preview@v8
         with:
-          command: eas update --branch "${{ github.ref_name }}" --message "${{ steps.get-message.outputs.message }}"
+          command: eas update --auto --branch "${{ github.ref_name }}" --message "${{ steps.get-message.outputs.message }}"
