@@ -3,9 +3,7 @@
     "name": "Brisen",
     "slug": "brisen-client",
     "version": "1.0.1",
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
+    "runtimeVersion": "1",
     "orientation": "portrait",
     "scheme": "no.kallerud",
     "userInterfaceStyle": "dark",
