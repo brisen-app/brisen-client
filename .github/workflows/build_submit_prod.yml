@@ -1,4 +1,4 @@
-name: Build and Submit
+name: Build and Submit Production
 
 on:
   push:
@@ -19,7 +19,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: Production
+    environment: production
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
