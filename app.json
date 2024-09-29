@@ -2,8 +2,10 @@
   "expo": {
     "name": "Brisen",
     "slug": "brisen-client",
+    "description": "Let's get Brisen together!",
     "version": "1.0.1",
-    "runtimeVersion": "1.0.1",
+    "runtimeVersion": "1",
+    "githubUrl": "https://github.com/brisen-app/brisen-client",
     "orientation": "portrait",
     "scheme": "no.kallerud",
     "userInterfaceStyle": "dark",
@@ -21,6 +23,17 @@
       "en": {},
       "nb": {},
       "sv": {}
+    },
+    "developmentClient": {
+      "silentLaunch": true
+    },
+    "androidStatusBar": {
+      "backgroundColor": "#00000000",
+      "barStyle": "light-content"
+    },
+    "androidNavigationBar": {
+      "backgroundColor": "#00000000",
+      "barStyle": "light-content"
     },
     "ios": {
       "supportsTablet": true,

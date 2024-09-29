@@ -30,7 +30,7 @@ jobs:
       - name: Read pull request template
         id: pr_template
         run: |
-          template=$(cat .github/PULL_REQUEST_TEMPLATE/pr_template.md)
+          template=$(cat .github/pull_request_template.md)
           echo "template<<EOF" >> $GITHUB_OUTPUT
           echo "$template" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT

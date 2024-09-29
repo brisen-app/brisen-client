@@ -1,11 +1,12 @@
 {
   "name": "brisen-client",
   "main": "expo-router/entry",
-  "version": "1.0.1",
   "scripts": {
     "start": "expo prebuild -p all && expo --dev-client",
     "android": "expo run:android --device",
-    "ios": "expo run:ios --device",
+    "android-release": "expo run:android --variant release --device",
+    "ios": "expo run:ios --configuration Release --device",
+    "ios-release": "expo run:ios --device",
     "web": "expo start --web",
     "upgrade": "npm update && npm install expo@latest && npx expo install --fix",
     "build": "eas build -p all --profile develop --non-interactive",

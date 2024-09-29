@@ -8,9 +8,10 @@ body:
       value: |
         *Please add an appropriate title for this feature request.*
 
-  - type: checkboxes
+  - type: dropdown
     attributes:
       label: Confirmations
+      multiple: true
       options:
         - label: I have checked that this feature is not already requested in another [issue](https://github.com/brisen-app/brisen-client/issues).
           required: true

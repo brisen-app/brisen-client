@@ -22,11 +22,12 @@ body:
     validations:
       required: true
 
-  - type: checkboxes
+  - type: dropdown
     id: platform
     attributes:
       label: Platform
       description: What platform are you experiencing this bug on?
+      multiple: true
       options:
         - label: iOS
         - label: Android

@@ -1,26 +1,22 @@
+import Colors from '@/src/constants/Colors'
 import { AppContextProvider } from '@/src/providers/AppContextProvider'
-import { GestureHandlerRootView } from 'react-native-gesture-handler'
-import { Platform, StatusBar } from 'react-native'
+import AppDataProvider from '@/src/providers/AppDataProvider'
+import InAppPurchaseProvider from '@/src/providers/InAppPurchaseProvider'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { setBackgroundColorAsync, setPositionAsync } from 'expo-navigation-bar'
 import { SplashScreen, Stack } from 'expo-router'
-import * as NavigationBar from 'expo-navigation-bar'
-import AppDataProvider from '@/src/providers/AppDataProvider'
-import Colors from '@/src/constants/Colors'
-import InAppPurchaseProvider from '@/src/providers/InAppPurchaseProvider'
+import { Platform } from 'react-native'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 SplashScreen.preventAutoHideAsync()
 
 if (Platform.OS === 'android') {
-  NavigationBar.setBackgroundColorAsync('#ffffff00')
-  NavigationBar.setPositionAsync('absolute')
+  setBackgroundColorAsync('#00000000')
+  setPositionAsync('absolute')
 }
 
 export default function Layout() {
-  if (Platform.OS === 'android') {
-    NavigationBar.setButtonStyleAsync('light')
-  }
-
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -44,7 +40,6 @@ export default function Layout() {
                   contentStyle: { backgroundColor: Colors.background },
                 }}
               />
-              <StatusBar barStyle={'light-content'} translucent />
               {Platform.OS === 'web' && <ReactQueryDevtools initialIsOpen={true} />}
             </InAppPurchaseProvider>
           </AppContextProvider>
