@@ -24,6 +24,17 @@
       "nb": {},
       "sv": {}
     },
+    "developmentClient": {
+      "silentLaunch": true
+    },
+    "androidStatusBar": {
+      "backgroundColor": "#00000000",
+      "barStyle": "light-content"
+    },
+    "androidNavigationBar": {
+      "backgroundColor": "#00000000",
+      "barStyle": "light-content"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "no.kallerud.brisen",
