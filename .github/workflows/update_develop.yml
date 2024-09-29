@@ -20,7 +20,7 @@ concurrency:
 jobs:
   publish-preview:
     runs-on: ubuntu-latest
-    environment: develop
+    environment: Develop
     env:
       EXPO_PUBLIC_SB_URL: ${{ vars.SUPABASE_URL_DEV }}
       EXPO_PUBLIC_SB_ANON: ${{ secrets.SUPABASE_ANON_DEV }}
