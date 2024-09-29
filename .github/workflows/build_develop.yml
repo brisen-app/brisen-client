@@ -1,9 +1,12 @@
 name: Build Beta
 
 on:
-  push:
+  pull_request:
+    types:
+      - opened
+      - synchronize
     branches:
-      - develop
+      - main
     paths:
       - src/**
       - app.json
@@ -19,7 +22,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: Beta
+    environment: develop
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
