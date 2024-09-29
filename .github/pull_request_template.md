@@ -18,7 +18,7 @@
 
 ## Type of change
 
-> Remember to add the appropriate label[^1].
+> Remember to add the appropriate `type`-label.
 
 - [ ] New feature
 - [ ] Bug fix
@@ -26,11 +26,8 @@
 
 ### Checklist
 
-- [ ] I have added a dependency and updated the `runtimeVersion` in the `app.json`
+- [ ] I have made changes to assets, `app.json` or `package.json` and updated the `runtimeVersion` in the `app.json`
 - [ ] I have provided unit tests that prove my fix is effective or that my feature works
 - [ ] My changes generate no new warnings and I have formatted my code with [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
 - [ ] I have made necessary changes to the [README](README.md)
-- [ ] I have added relevant labels[^1], milestone and issues to this PR
-
-[^1]: Add the label `type:bug` or `type:feature` to this PR.
-[^2]: Add the label `status:request-review` when you're ready for a review.
+- [ ] I have added relevant labels, milestone and issues to this PR
