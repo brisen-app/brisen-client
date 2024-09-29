@@ -1,17 +1,16 @@
-name: Expo Update Preview
+name: Expo Update Production
 
 on:
   push:
     branches:
-      - develop
-      - release/**
+      - main
     paths:
       - src/**
       - app.json
       - eas.json
       - package.json
       - package-lock.json
-      - .github/workflows/update_develop.yml
+      - .github/workflows/update_prod.yml
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -20,7 +19,7 @@ concurrency:
 jobs:
   publish-preview:
     runs-on: ubuntu-latest
-    environment: develop
+    environment: production
     env:
       EXPO_PUBLIC_SB_URL: ${{ vars.SUPABASE_URL_DEV }}
       EXPO_PUBLIC_SB_ANON: ${{ secrets.SUPABASE_ANON_DEV }}
@@ -40,14 +39,9 @@ jobs:
 
       - name: Get first line of commit message
         id: get-message
-        run: |
-          if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
-            echo "::set-output name=message::$(echo "${{ github.event.head_commit.message }}" | head -n 1)"
-          else
-            echo "::set-output name=message::$(echo "${{ github.ref }}" | sed 's|refs/heads/||')"
-          fi
+        run: echo "::set-output name=message::$(echo "${{ github.event.head_commit.message }}" | head -n 1)"
 
-      - name: 🚀 Push develop update
+      - name: 🚀 Push production update
         uses: expo/expo-github-action/preview@v8
         with:
-          command: eas update --channel development --message "${{ steps.get-message.outputs.message }}"
+          command: eas update --channel production --message "${{ steps.get-message.outputs.message }}"
