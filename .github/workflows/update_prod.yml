@@ -37,11 +37,7 @@ jobs:
       - name: 📦 Install dependencies
         run: npm ci
 
-      - name: Get first line of commit message
-        id: get-message
-        run: echo "::set-output name=message::$(echo "${{ github.event.head_commit.message }}" | head -n 1)"
-
       - name: 🚀 Push production update
         uses: expo/expo-github-action/preview@v8
         with:
-          command: eas update --channel production --message "${{ steps.get-message.outputs.message }}"
+          command: eas update --channel production --message echo "${{ github.event.head_commit.message }}" | head -n 1)
