@@ -6,7 +6,7 @@ type:bug:
 
 type:improvement:
   - head-branch: ['^improve', 'improve']
-  
+
 type:chore:
   - head-branch: ['^chore', 'chore']
 
@@ -23,4 +23,4 @@ deploy:update:
   - all:
       - changed-files:
           - any-glob-to-any-file: 'src/**/*'
-          - all-glob-to-all-file: '!src/assets/**/*'
+          - all-glob-to-all-files: '!src/assets/**/*'
