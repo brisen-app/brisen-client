@@ -1,4 +1,4 @@
-name: Expo Update Devlop
+name: Expo Update Preview
 
 on:
   pull_request:
