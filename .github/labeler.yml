@@ -23,4 +23,4 @@ deploy:update:
   - all:
       - changed-files:
           - any-glob-to-any-file: 'src/**/*'
-          - all-glob-to-all-files: '!src/assets/**/*'
+          - all-globs-to-all-files: '!src/assets/**/*'
