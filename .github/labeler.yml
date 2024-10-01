@@ -15,11 +15,13 @@ type:release:
 
 # Add build deployment method to PRs that increment the runtime version
 deploy:build:
+  - base-branch: 'main'
   - changed-files:
       - any-glob-to-any-file: ['package.json', 'package-lock.json', 'app.json', 'eas.json', 'src/assets/**/*']
 
 # Add deploy method to PRs that change the typescript source code
 deploy:update:
+  - base-branch: 'main'
   - all:
       - changed-files:
           - any-glob-to-any-file: 'src/**/*'
