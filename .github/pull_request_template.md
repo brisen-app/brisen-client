@@ -16,14 +16,6 @@
 
 - ...
 
-## Type of change
-
-> Remember to add the appropriate `type`-label.
-
-- [ ] New feature
-- [ ] Bug fix
-- [ ] Chore
-
 ### Checklist
 
 - [ ] I have made changes to assets, `app.json` or `package.json` and updated the `runtimeVersion` in the `app.json`
