@@ -3,7 +3,7 @@
     "name": "Brisen",
     "slug": "brisen-client",
     "description": "Let's get Brisen together!",
-    "version": "1.0.1",
+    "version": "1.0.0",
     "runtimeVersion": "1",
     "githubUrl": "https://github.com/brisen-app/brisen-client",
     "orientation": "portrait",
