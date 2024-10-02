@@ -38,7 +38,8 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
 
   useEffect(() => {
     const stateListener = AppState.addEventListener('change', nextAppState => {
-      if (LanguageManager.updateDisplayLanguage() && Platform.OS === 'android') {
+      if (Platform.OS === 'android' && LanguageManager.hasChangedLanguage()) {
+        LanguageManager.updateDisplayLanguage()
         queryClient.invalidateQueries({ queryKey: [PackManager.tableName] })
         queryClient.invalidateQueries({ queryKey: [LocalizationManager.tableName] })
       }
