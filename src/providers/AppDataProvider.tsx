@@ -47,9 +47,7 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
       console.log('AppState', appState.current)
     })
 
-    return () => {
-      stateListener.remove()
-    }
+    return () => stateListener.remove()
   }, [])
 
   const isSuccess =
