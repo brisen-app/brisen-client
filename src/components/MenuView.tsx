@@ -20,6 +20,7 @@ import { openSettings, openURL } from 'expo-linking'
 import { useMemo, useRef, useState } from 'react'
 import {
   Alert,
+  Button,
   Dimensions,
   Keyboard,
   Platform,
@@ -45,6 +46,7 @@ import { useAppContext, useAppDispatchContext } from '../providers/AppContextPro
 import PackPosterView from './pack/PackPosterView'
 import ScrollToBottomButton from './utils/ScrollToBottomButton'
 import Tag from './utils/Tag'
+import { useQueryClient } from '@tanstack/react-query'
 
 export default function MenuView() {
   const insets = useSafeAreaInsets()
@@ -301,7 +303,12 @@ function LinksView(props: Readonly<ViewProps>) {
       iconName: 'arrow-up-right',
       onPress: () => openURL(managementURL!),
     },
-    { titleKey: 'change_language', iconName: 'arrow-up-right', onPress: () => openSettings() },
+    {
+      show: Platform.OS === 'ios',
+      titleKey: 'change_language',
+      iconName: 'arrow-up-right',
+      onPress: () => openSettings(),
+    },
     {
       show: !!storeURL,
       titleKey: 'share_app',
@@ -339,15 +346,15 @@ function LinksView(props: Readonly<ViewProps>) {
 
 function AppDetailsView() {
   const { userId } = useInAppPurchaseContext()
+  const queryClient = useQueryClient()
   const appVersion = Application.nativeApplicationVersion
   const isDev = __DEV__
 
   const iconSize = 48
-
-  const versionTitle = LocalizationManager.get('version')?.value ?? 'version'
-  const copiedTitle = LocalizationManager.get('copied_to_clipboard')?.value ?? 'copied_to_clipboard'
-
   const fontSize = 12
+
+  const appName = LocalizationManager.get('app_name')?.value ?? 'app_name'
+  const copiedTitle = LocalizationManager.get('copied_to_clipboard')?.value ?? 'copied_to_clipboard'
 
   const handleLongPress = () => {
     Clipboard.setStringAsync(userId ?? '')
@@ -361,10 +368,13 @@ function AppDetailsView() {
         style={{ width: iconSize, aspectRatio: 1, borderRadius: iconSize / 4.4, marginVertical: 8 }}
       />
       <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>
-        {versionTitle} {appVersion}
+        {appName} v{appVersion}
       </Text>
       {isDev && <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>{userId}</Text>}
       {isDev && <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>Running in dev mode</Text>}
+      {isDev && (
+        <Button color={Colors.accentColor} title='Invalidate queries' onPress={() => queryClient.invalidateQueries()} />
+      )}
     </Pressable>
   )
 }

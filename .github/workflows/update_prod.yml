@@ -1,16 +1,16 @@
-name: Deploy Expo Preview
+name: Expo Update Production
 
 on:
   push:
     branches:
-      - develop
+      - main
     paths:
       - src/**
       - app.json
       - eas.json
       - package.json
       - package-lock.json
-      - .github/workflows/publish_update.yml
+      - .github/workflows/update_prod.yml
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -19,9 +19,15 @@ concurrency:
 jobs:
   publish-preview:
     runs-on: ubuntu-latest
+    environment: Production
+    env:
+      EXPO_PUBLIC_SB_URL: ${{ vars.SUPABASE_URL_DEV }}
+      EXPO_PUBLIC_SB_ANON: ${{ secrets.SUPABASE_ANON_DEV }}
+      EXPO_PUBLIC_RC_KEY_APPLE: ${{ secrets.REVENUECAT_APPLE }}
+      EXPO_PUBLIC_RC_KEY_GOOGLE: ${{ secrets.REVENUECAT_GOOGLE }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
       - uses: expo/expo-github-action@v8
         with:
           eas-version: latest
@@ -35,7 +41,7 @@ jobs:
         id: get-message
         run: echo "::set-output name=message::$(echo "${{ github.event.head_commit.message }}" | head -n 1)"
 
-      - name: 🚀 Create preview
+      - name: 🚀 Push production update
         uses: expo/expo-github-action/preview@v8
         with:
-          command: eas update --branch "${{ github.ref_name }}" --message "${{ steps.get-message.outputs.message }}"
+          command: eas update --channel production --message "${{ steps.get-message.outputs.message }}"

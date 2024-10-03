@@ -152,7 +152,7 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     return { formattedContent, featuredPlayers }
   }
 
-  private cachedPlayerCounts: Map<string, number> = new Map()
+  private readonly cachedPlayerCounts: Map<string, number> = new Map()
   /**
    * Calculates the required player count based on the card's content.
    * The method is memoized to avoid recalculating the same card multiple times.

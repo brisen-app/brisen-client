@@ -24,8 +24,8 @@ jobs:
     name: 🐰 CodeRabbit summary
     runs-on: ubuntu-latest
     steps:
-      - name: 'Checkout source code'
-        uses: 'actions/checkout@v3'
+      - name: Checkout source code
+        uses: actions/checkout@v4
 
       - name: Read pull request template
         id: pr_template

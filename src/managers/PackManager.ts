@@ -40,7 +40,10 @@ class PackManagerSingleton extends SupabaseManager<Pack> {
       .eq('language', LanguageManager.getDisplayLanguage().id)
       .order('name')
       .throwOnError()
-    if (!data || data.length === 0) throw new NotFoundError(`No data found in table '${this.tableName}'`)
+    if (!data || data.length === 0)
+      throw new NotFoundError(
+        `No data found in table '${this.tableName}' for language '${LanguageManager.getDisplayLanguage().id}'`
+      )
 
     const packs = data.map(pack => ({
       ...pack,

@@ -1,16 +1,16 @@
-name: Build Beta
+name: Build and Submit Production
 
 on:
   push:
     branches:
-      - develop
+      - main
     paths:
       - src/**
       - app.json
       - eas.json
       - package.json
       - package-lock.json
-      - .github/workflows/build_beta.yml
+      - .github/workflows/build_submit_prod.yml
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -19,10 +19,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: Beta
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
       - uses: expo/expo-github-action@v8
         with:
           eas-version: latest
@@ -32,7 +31,7 @@ jobs:
       - name: 📦 Install dependencies
         run: npm ci
 
-      - name: 🏗️ Build
+      - name: 🚀 Submit to stores
         uses: expo/expo-github-action/preview@v8
         with:
-          command: eas build -p all --profile develop --non-interactive
+          command: eas build -p all --profile production --non-interactive --auto-submit
