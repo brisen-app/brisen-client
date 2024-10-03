@@ -38,7 +38,8 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
 
   useEffect(() => {
     const stateListener = AppState.addEventListener('change', nextAppState => {
-      if (LanguageManager.updateDisplayLanguage() && Platform.OS === 'android') {
+      if (Platform.OS === 'android' && LanguageManager.hasChangedLanguage()) {
+        LanguageManager.updateDisplayLanguage()
         queryClient.invalidateQueries({ queryKey: [PackManager.tableName] })
         queryClient.invalidateQueries({ queryKey: [LocalizationManager.tableName] })
       }
@@ -47,9 +48,7 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
       console.log('AppState', appState.current)
     })
 
-    return () => {
-      stateListener.remove()
-    }
+    return () => stateListener.remove()
   }, [])
 
   const isSuccess =
@@ -69,12 +68,10 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
     cardResponse,
     cardRelationResponse,
     localizationResponse,
-  ].filter(response => !!response.error)
+  ].filter(response => !!response.error) as { error: Error }[]
 
   if (failedResponses.length > 0)
-    return (
-      <FetchErrorView errors={failedResponses.map(r => r.error!)} onRetry={() => queryClient.invalidateQueries()} />
-    )
+    return <FetchErrorView errors={failedResponses.map(r => r.error)} onRetry={() => queryClient.invalidateQueries()} />
 
   if (!isSuccess || queryClient.isFetching())
     return <ActivityIndicatorView text={LocalizationManager.get('loading')?.value} />

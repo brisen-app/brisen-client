@@ -7,13 +7,13 @@ import BottomSheet, {
   BottomSheetBackgroundProps,
   BottomSheetHandleProps,
 } from '@gorhom/bottom-sheet'
+import { Image } from 'expo-image'
 import { SplashScreen } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { Dimensions, Keyboard, Platform, View, ViewProps } from 'react-native'
 import Animated, { Extrapolation, interpolate, useAnimatedStyle } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { PackManager } from '../managers/PackManager'
-import { Image } from 'expo-image'
 
 export default function App() {
   const insets = useSafeAreaInsets()

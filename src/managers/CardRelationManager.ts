@@ -13,8 +13,8 @@ export type CardRelation = { id: string } & Tables<typeof tableName>
 // A graph can have multiple roots and multiple leaves.
 // No cycles are allowed.
 class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
-  private children: Map<string, Set<string>>
-  private parents: Map<string, Set<string>>
+  private readonly children: Map<string, Set<string>>
+  private readonly parents: Map<string, Set<string>>
 
   constructor() {
     super(tableName)
@@ -102,7 +102,7 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
     return null
   }
 
-  private cachedPlayerCounts: Map<string, number> = new Map()
+  private readonly cachedPlayerCounts: Map<string, number> = new Map()
   getRequiredPlayerCount(cardId: string): number {
     if (this.cachedPlayerCounts.has(cardId)) return this.cachedPlayerCounts.get(cardId)!
     const CardManager = require('./CardManager').CardManager
