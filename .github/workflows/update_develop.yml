@@ -22,8 +22,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: Develop
     env:
-      EXPO_PUBLIC_SB_URL: ${{ vars.SUPABASE_URL_DEV }}
-      EXPO_PUBLIC_SB_ANON: ${{ secrets.SUPABASE_ANON_DEV }}
+      EXPO_PUBLIC_ENV: develop
+      EXPO_PUBLIC_SB_URL_DEV: ${{ vars.SUPABASE_URL_DEV }}
+      EXPO_PUBLIC_SB_ANON_DEV: ${{ secrets.SUPABASE_ANON_DEV }}
       EXPO_PUBLIC_RC_KEY_APPLE: ${{ secrets.REVENUECAT_APPLE }}
       EXPO_PUBLIC_RC_KEY_GOOGLE: ${{ secrets.REVENUECAT_GOOGLE }}
     steps:
@@ -50,4 +51,4 @@ jobs:
       - name: 🚀 Push develop update
         uses: expo/expo-github-action/preview@v8
         with:
-          command: eas update --channel development --message "${{ steps.get-message.outputs.message }}"
+          command: eas update --channel develop --message "${{ steps.get-message.outputs.message }}"

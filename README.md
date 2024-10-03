@@ -38,8 +38,9 @@
    - Run `npm install`
 1. Create a `.env` file in the root directory:
    ```env
-   EXPO_PUBLIC_SB_URL=https://tlnldlywflpgvjepxwxz.supabase.co
-   EXPO_PUBLIC_SB_ANON=<development-enviornment-anon-key>
+   EXPO_PUBLIC_ENV=local
+   EXPO_PUBLIC_SB_URL_DEV=https://tlnldlywflpgvjepxwxz.supabase.co
+   EXPO_PUBLIC_SB_ANON_DEV=<development-enviornment-anon-key>
    EXPO_PUBLIC_RC_KEY_APPLE=<revenue-cat-apple-api-key>
    EXPO_PUBLIC_RC_KEY_GOOGLE=<revenue-cat-google-api-key>
    ```
