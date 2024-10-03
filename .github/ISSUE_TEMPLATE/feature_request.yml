@@ -13,7 +13,7 @@ body:
       label: Confirmations
       multiple: true
       options:
-        - I have checked that this feature is not already requested in another [issue](https://github.com/brisen-app/brisen-client/issues).
+        - I have checked that this feature is not already requested in another [issue](https://github.com/brisen-app/brisen-client/issues)
         - I am willing to implement this feature myself.
     validations:
       required: true
