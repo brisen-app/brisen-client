@@ -132,6 +132,8 @@ export default function MenuView() {
 
           <AppDetailsView />
 
+          <DevMenu />
+
           <View style={{ height: insets.bottom ? insets.bottom : 16 + 8 }} />
         </Animated.View>
       </BottomSheetScrollView>
@@ -346,9 +348,7 @@ function LinksView(props: Readonly<ViewProps>) {
 
 function AppDetailsView() {
   const { userId } = useInAppPurchaseContext()
-  const queryClient = useQueryClient()
   const appVersion = Application.nativeApplicationVersion
-  const { isProd, environment } = env
 
   const iconSize = 48
   const fontSize = 12
@@ -370,23 +370,51 @@ function AppDetailsView() {
       <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>
         {appName} v{appVersion}
       </Text>
-      {!isProd && (
-        <View style={{ alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-          <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>{userId}</Text>
-          <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>Environment: {environment}</Text>
-          <TouchableOpacity
-            style={{
-              backgroundColor: Colors.accentColor,
-              borderRadius: Number.MAX_SAFE_INTEGER,
-              padding: 8,
-              paddingHorizontal: 16,
-            }}
-            onPress={() => queryClient.invalidateQueries()}
-          >
-            <Text style={{ color: 'black' }}>invalidateQueries</Text>
-          </TouchableOpacity>
-        </View>
-      )}
     </Pressable>
+  )
+}
+
+function DevMenu() {
+  const { userId } = useInAppPurchaseContext()
+  const queryClient = useQueryClient()
+  const { isProd, environment } = env
+
+  if (isProd) return null
+
+  return (
+    <View
+      style={{
+        justifyContent: 'center',
+        borderColor: Colors.stroke,
+        borderWidth: 4,
+        borderRadius: 16,
+        borderStyle: 'dashed',
+        padding: 16,
+        gap: 8,
+      }}
+    >
+      <Text style={[{ paddingBottom: 8 }, FontStyles.Title]}>Dev Menu</Text>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        <Text style={{ color: Colors.text }}>User ID:</Text>
+        <Text style={{ color: Colors.secondaryText, fontSize: 10 }}>{userId}</Text>
+      </View>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        <Text style={{ color: Colors.text }}>Environment:</Text>
+        <Text style={{ color: Colors.secondaryText }}>{environment}</Text>
+      </View>
+      <View />
+      <TouchableOpacity
+        style={{
+          backgroundColor: Colors.accentColor,
+          borderRadius: Number.MAX_SAFE_INTEGER,
+          padding: 8,
+          paddingTop: 8,
+          paddingHorizontal: 16,
+        }}
+        onPress={() => queryClient.invalidateQueries()}
+      >
+        <Text style={{ color: 'black' }}>invalidateQueries</Text>
+      </TouchableOpacity>
+    </View>
   )
 }
