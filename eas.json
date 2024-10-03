@@ -16,28 +16,19 @@
       "extends": "base",
       "channel": "preview",
       "developmentClient": true,
-      "distribution": "internal",
-      "env": {
-        "EXPO_PUBLIC_ENV": "preview"
-      }
+      "distribution": "internal"
     },
     "develop": {
       "extends": "base",
       "channel": "develop",
       "developmentClient": true,
-      "distribution": "internal",
-      "env": {
-        "EXPO_PUBLIC_ENV": "develop"
-      }
+      "distribution": "internal"
     },
     "production": {
       "extends": "base",
       "channel": "production",
       "autoIncrement": true,
-      "distribution": "store",
-      "env": {
-        "EXPO_PUBLIC_ENV": "production"
-      }
+      "distribution": "store"
     }
   },
   "submit": {
