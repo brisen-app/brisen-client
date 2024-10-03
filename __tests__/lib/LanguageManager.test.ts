@@ -90,6 +90,15 @@ describe('hasChangedLanguage', () => {
     expect(hasChanged).toBeTruthy()
   })
 
+  it('should return false if the SFW configuration is set', () => {
+    ConfigurationManager.get = jest.fn().mockReturnValue({ bool: true })
+
+    const hasChanged = LanguageManager.hasChangedLanguage()
+
+    expect(hasChanged).toBeFalsy()
+    ConfigurationManager.get.mockRestore()
+  })
+
   it('should return false if the display language has not changed', () => {
     LanguageManager['_userSelectedLanguage'] = 'aa'
     const hasChanged = LanguageManager.hasChangedLanguage()

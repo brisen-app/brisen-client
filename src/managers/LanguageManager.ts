@@ -34,6 +34,7 @@ class LanguageManagerSingleton extends SupabaseManager<SupabaseLanguage> {
    * @returns {boolean} `true` if the display language has changed, otherwise `false`.
    */
   public hasChangedLanguage(): boolean {
+    if (ConfigurationManager.get('use_sfw_content')?.bool === true) return false
     const userLocales = getLocales()
     if (!userLocales) return false
     const newSelectedLanguage = userLocales[0]?.languageCode
