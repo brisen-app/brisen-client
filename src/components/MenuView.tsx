@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   useBottomSheet,
 } from '@gorhom/bottom-sheet'
+import { useQueryClient } from '@tanstack/react-query'
 import * as Application from 'expo-application'
 import * as Clipboard from 'expo-clipboard'
 import { Image } from 'expo-image'
@@ -40,13 +41,13 @@ import Animated, {
   useAnimatedStyle,
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import env from '../lib/env'
 import { ConfigurationManager } from '../managers/ConfigurationManager'
 import Color from '../models/Color'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import PackPosterView from './pack/PackPosterView'
 import ScrollToBottomButton from './utils/ScrollToBottomButton'
 import Tag from './utils/Tag'
-import { useQueryClient } from '@tanstack/react-query'
 
 export default function MenuView() {
   const insets = useSafeAreaInsets()
@@ -348,7 +349,7 @@ function AppDetailsView() {
   const { userId } = useInAppPurchaseContext()
   const queryClient = useQueryClient()
   const appVersion = Application.nativeApplicationVersion
-  const isDev = __DEV__
+  const { isProd, environment } = env
 
   const iconSize = 48
   const fontSize = 12
@@ -370,9 +371,10 @@ function AppDetailsView() {
       <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>
         {appName} v{appVersion}
       </Text>
-      {isDev && <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>{userId}</Text>}
-      {isDev && <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>Running in dev mode</Text>}
-      {isDev && (
+      {!isProd && <Tag text={environment} />}
+      {!isProd && <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>{userId}</Text>}
+      {!isProd && <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>Running in dev mode</Text>}
+      {!isProd && (
         <Button color={Colors.accentColor} title='Invalidate queries' onPress={() => queryClient.invalidateQueries()} />
       )}
     </Pressable>

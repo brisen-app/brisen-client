@@ -1,12 +1,10 @@
-import 'react-native-url-polyfill/auto'
+import { Database } from '@/src/models/supabase'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { createClient } from '@supabase/supabase-js'
-import { Database } from '@/src/models/supabase'
-import environmentVariables from './env'
+import 'react-native-url-polyfill/auto'
+import env from './env'
 
-const vars = environmentVariables()
-
-export const supabase = createClient<Database>(vars.supabaseUrl, vars.supabaseAnon, {
+export const supabase = createClient<Database>(env.supabaseUrl, env.supabaseAnon, {
   auth: {
     storage: AsyncStorage,
     autoRefreshToken: false,
