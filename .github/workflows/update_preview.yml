@@ -26,6 +26,7 @@ jobs:
     permissions:
       pull-requests: write
     env:
+      EXPO_PUBLIC_ENV: preview
       EXPO_PUBLIC_SB_URL_DEV: ${{ vars.SUPABASE_URL_DEV }}
       EXPO_PUBLIC_SB_ANON_DEV: ${{ secrets.SUPABASE_ANON_DEV }}
       EXPO_PUBLIC_RC_KEY_APPLE: ${{ secrets.REVENUECAT_APPLE }}
