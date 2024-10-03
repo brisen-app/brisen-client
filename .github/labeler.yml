@@ -26,4 +26,4 @@ deploy:update:
       - base-branch: 'main'
       - changed-files:
           - any-glob-to-any-file: 'src/**/*'
-          - all-globs-to-all-files: '!src/assets/**/*'
+          - all-globs-to-all-files: ['!package.json', '!app.json', '!eas.json', '!src/assets/**/*']

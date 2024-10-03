@@ -21,8 +21,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: Production
     env:
-      EXPO_PUBLIC_SB_URL: ${{ vars.SUPABASE_URL_DEV }}
-      EXPO_PUBLIC_SB_ANON: ${{ secrets.SUPABASE_ANON_DEV }}
+      EXPO_PUBLIC_ENV: production
+      EXPO_PUBLIC_SB_URL_PROD: ${{ vars.SUPABASE_URL }}
+      EXPO_PUBLIC_SB_ANON_PROD: ${{ secrets.SUPABASE_ANON }}
       EXPO_PUBLIC_RC_KEY_APPLE: ${{ secrets.REVENUECAT_APPLE }}
       EXPO_PUBLIC_RC_KEY_GOOGLE: ${{ secrets.REVENUECAT_GOOGLE }}
     steps:
