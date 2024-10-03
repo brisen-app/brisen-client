@@ -21,7 +21,6 @@ import { openSettings, openURL } from 'expo-linking'
 import { useMemo, useRef, useState } from 'react'
 import {
   Alert,
-  Button,
   Dimensions,
   Keyboard,
   Platform,
@@ -371,11 +370,22 @@ function AppDetailsView() {
       <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>
         {appName} v{appVersion}
       </Text>
-      {!isProd && <Tag text={environment} />}
-      {!isProd && <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>{userId}</Text>}
-      {!isProd && <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>Running in dev mode</Text>}
       {!isProd && (
-        <Button color={Colors.accentColor} title='Invalidate queries' onPress={() => queryClient.invalidateQueries()} />
+        <View style={{ alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+          <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>{userId}</Text>
+          <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>Environment: {environment}</Text>
+          <TouchableOpacity
+            style={{
+              backgroundColor: Colors.accentColor,
+              borderRadius: Number.MAX_SAFE_INTEGER,
+              padding: 8,
+              paddingHorizontal: 16,
+            }}
+            onPress={() => queryClient.invalidateQueries()}
+          >
+            <Text style={{ color: 'black' }}>invalidateQueries</Text>
+          </TouchableOpacity>
+        </View>
       )}
     </Pressable>
   )
