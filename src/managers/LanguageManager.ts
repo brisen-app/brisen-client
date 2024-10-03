@@ -5,11 +5,11 @@ import SupabaseManager from './SupabaseManager'
 
 const tableName = 'languages'
 export type SupabaseLanguage = Tables<typeof tableName>
-export type Language = Partial<Omit<Locale, 'languageCode'>> & SupabaseLanguage
+export type Language = Partial<Locale> & SupabaseLanguage
 
 class LanguageManagerSingleton extends SupabaseManager<SupabaseLanguage> {
   protected _displayLanguage: Language | undefined
-  private userSelectedLanguage: string | undefined
+  private _userSelectedLanguage: string | undefined
 
   constructor() {
     super(tableName)
@@ -36,8 +36,8 @@ class LanguageManagerSingleton extends SupabaseManager<SupabaseLanguage> {
   public hasChangedLanguage(): boolean {
     const userLocales = getLocales()
     if (!userLocales) return false
-    const newSelectedLanguage = userLocales[0].languageCode
-    return this.userSelectedLanguage !== newSelectedLanguage
+    const newSelectedLanguage = userLocales[0]?.languageCode
+    return this._userSelectedLanguage !== newSelectedLanguage
   }
 
   /**
@@ -55,7 +55,18 @@ class LanguageManagerSingleton extends SupabaseManager<SupabaseLanguage> {
     return sfwLanguage
   }
 
-  public updateDisplayLanguage() {
+  /**
+   * Updates the display language of the application based on the user's locale settings.
+   *
+   * - If the application is configured to use safe-for-work content, it forces the display language to be the safe-for-work language.
+   * - Stores the user's selected language from the available locales.
+   * - Finds and sets the language that matches the user's locale.
+   * - If no matching language is found, it uses the default language.
+   * - Logs the selected language to the console.
+   *
+   * @returns {void}
+   */
+  public updateDisplayLanguage(): void {
     // If the app is configured to use safe-for-work content, force the display language to be the safe-for-work language
     if (ConfigurationManager.get('use_sfw_content')?.bool === true) {
       console.log('Forcing safe-for-work language')
@@ -63,18 +74,17 @@ class LanguageManagerSingleton extends SupabaseManager<SupabaseLanguage> {
       return
     }
 
-    const userLocales = getLocales()
+    const userLocales = getLocales() ?? []
 
     // Store the user's selected language
-    this.userSelectedLanguage = userLocales[0].languageCode ?? undefined
+    this._userSelectedLanguage = userLocales[0]?.languageCode ?? undefined
 
     // Find the language that matches the user's locale
-    const userLocale = userLocales?.find(item => !!item.languageCode && this._items?.has(item.languageCode))
+    const userLocale = userLocales?.find(item => !!item.languageCode && this.get(item.languageCode)?.public)
 
     // If no matches are found, use the default language
     if (!userLocale) {
       const language = this.findDefaultLanguage()
-      this._items = new Map([[language.id, language]])
       this._displayLanguage = language
       return
     }
@@ -85,6 +95,7 @@ class LanguageManagerSingleton extends SupabaseManager<SupabaseLanguage> {
       ...userLocale,
       ...language,
     } as Language
+
     console.log('Found language:', this._displayLanguage.id)
   }
 
