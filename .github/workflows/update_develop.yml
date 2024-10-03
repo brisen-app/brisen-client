@@ -50,4 +50,4 @@ jobs:
       - name: 🚀 Push develop update
         uses: expo/expo-github-action/preview@v8
         with:
-          command: eas update --channel development --message "${{ steps.get-message.outputs.message }}"
+          command: eas update --channel develop --message "${{ steps.get-message.outputs.message }}"
