@@ -25,7 +25,7 @@ const mockedItems = [
   },
 ] as SupabaseLanguage[]
 
-const mockedItemMap = new Map(mockedItems.map(item => [item.id, item])) as Map<string, SupabaseLanguage>
+const mockedItemMap = new Map(mockedItems.map(item => [item.id, item]))
 
 const mockedLocales = [
   { languageCode: 'aa' },

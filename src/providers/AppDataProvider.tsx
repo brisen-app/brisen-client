@@ -68,12 +68,10 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
     cardResponse,
     cardRelationResponse,
     localizationResponse,
-  ].filter(response => !!response.error)
+  ].filter(response => !!response.error) as { error: Error }[]
 
   if (failedResponses.length > 0)
-    return (
-      <FetchErrorView errors={failedResponses.map(r => r.error!)} onRetry={() => queryClient.invalidateQueries()} />
-    )
+    return <FetchErrorView errors={failedResponses.map(r => r.error)} onRetry={() => queryClient.invalidateQueries()} />
 
   if (!isSuccess || queryClient.isFetching())
     return <ActivityIndicatorView text={LocalizationManager.get('loading')?.value} />
