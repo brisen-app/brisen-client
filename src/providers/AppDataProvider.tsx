@@ -8,8 +8,7 @@ import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import { PackManager } from '@/src/managers/PackManager'
 import SupabaseManager, { SupabaseItem } from '@/src/managers/SupabaseManager'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { ReactNode, useEffect, useRef } from 'react'
-import { AppState, Platform } from 'react-native'
+import { ReactNode } from 'react'
 import ActivityIndicatorView from '../components/ActivityIndicatorView'
 
 function useSupabase(manager: SupabaseManager<SupabaseItem>, enabled = true) {
@@ -26,7 +25,6 @@ function useSupabase(manager: SupabaseManager<SupabaseItem>, enabled = true) {
 
 export default function AppDataProvider(props: Readonly<{ children: ReactNode }>) {
   const queryClient = useQueryClient()
-  const appState = useRef(AppState.currentState)
 
   const configResonse = useSupabase(ConfigurationManager)
   const languageResponse = useSupabase(LanguageManager, configResonse.isSuccess)
@@ -35,26 +33,6 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
   const cardRelationResponse = useSupabase(CardRelationManager)
   const packResponse = useSupabase(PackManager, languageResponse.isSuccess)
   const localizationResponse = useSupabase(LocalizationManager, languageResponse.isSuccess)
-
-  useEffect(() => {
-    const stateListener = AppState.addEventListener('change', nextAppState => {
-      if (
-        Platform.OS === 'android' &&
-        configResonse.isSuccess &&
-        languageResponse.isSuccess &&
-        LanguageManager.hasChangedLanguage()
-      ) {
-        LanguageManager.updateDisplayLanguage()
-        queryClient.invalidateQueries({ queryKey: [PackManager.tableName] })
-        queryClient.invalidateQueries({ queryKey: [LocalizationManager.tableName] })
-      }
-
-      appState.current = nextAppState
-      console.log('AppState', appState.current)
-    })
-
-    return () => stateListener.remove()
-  }, [])
 
   const isSuccess =
     configResonse.isSuccess &&
