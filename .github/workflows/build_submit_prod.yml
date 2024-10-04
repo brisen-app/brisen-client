@@ -1,4 +1,4 @@
-name: Build and Submit
+name: Build and Submit Production
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
       - eas.json
       - package.json
       - package-lock.json
-      - .github/workflows/build_submit.yml
+      - .github/workflows/build_submit_prod.yml
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -19,10 +19,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: Production
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
       - uses: expo/expo-github-action@v8
         with:
           eas-version: latest
@@ -30,7 +29,7 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: 📦 Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: 🚀 Submit to stores
         uses: expo/expo-github-action/preview@v8

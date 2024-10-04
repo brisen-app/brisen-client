@@ -12,10 +12,15 @@
         "image": "latest"
       }
     },
+    "preview": {
+      "extends": "base",
+      "channel": "preview",
+      "developmentClient": true,
+      "distribution": "internal"
+    },
     "develop": {
       "extends": "base",
       "channel": "develop",
-      "developmentClient": true,
       "distribution": "internal"
     },
     "production": {

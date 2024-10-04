@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   useBottomSheet,
 } from '@gorhom/bottom-sheet'
+import { useQueryClient } from '@tanstack/react-query'
 import * as Application from 'expo-application'
 import * as Clipboard from 'expo-clipboard'
 import { Image } from 'expo-image'
@@ -39,6 +40,7 @@ import Animated, {
   useAnimatedStyle,
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import env from '../lib/env'
 import { ConfigurationManager } from '../managers/ConfigurationManager'
 import Color from '../models/Color'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
@@ -129,6 +131,8 @@ export default function MenuView() {
           <LinksView />
 
           <AppDetailsView />
+
+          <DevMenu />
 
           <View style={{ height: insets.bottom ? insets.bottom : 16 + 8 }} />
         </Animated.View>
@@ -301,7 +305,12 @@ function LinksView(props: Readonly<ViewProps>) {
       iconName: 'arrow-up-right',
       onPress: () => openURL(managementURL!),
     },
-    { titleKey: 'change_language', iconName: 'arrow-up-right', onPress: () => openSettings() },
+    {
+      show: Platform.OS === 'ios',
+      titleKey: 'change_language',
+      iconName: 'arrow-up-right',
+      onPress: () => openSettings(),
+    },
     {
       show: !!storeURL,
       titleKey: 'share_app',
@@ -340,14 +349,12 @@ function LinksView(props: Readonly<ViewProps>) {
 function AppDetailsView() {
   const { userId } = useInAppPurchaseContext()
   const appVersion = Application.nativeApplicationVersion
-  const isDev = __DEV__
 
   const iconSize = 48
-
-  const versionTitle = LocalizationManager.get('version')?.value ?? 'version'
-  const copiedTitle = LocalizationManager.get('copied_to_clipboard')?.value ?? 'copied_to_clipboard'
-
   const fontSize = 12
+
+  const appName = LocalizationManager.get('app_name')?.value ?? 'app_name'
+  const copiedTitle = LocalizationManager.get('copied_to_clipboard')?.value ?? 'copied_to_clipboard'
 
   const handleLongPress = () => {
     Clipboard.setStringAsync(userId ?? '')
@@ -361,10 +368,53 @@ function AppDetailsView() {
         style={{ width: iconSize, aspectRatio: 1, borderRadius: iconSize / 4.4, marginVertical: 8 }}
       />
       <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>
-        {versionTitle} {appVersion}
+        {appName} v{appVersion}
       </Text>
-      {isDev && <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>{userId}</Text>}
-      {isDev && <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>Running in dev mode</Text>}
     </Pressable>
+  )
+}
+
+function DevMenu() {
+  const { userId } = useInAppPurchaseContext()
+  const queryClient = useQueryClient()
+  const { isProd, environment } = env
+
+  if (isProd) return null
+
+  return (
+    <View
+      style={{
+        justifyContent: 'center',
+        borderColor: Colors.stroke,
+        borderWidth: 4,
+        borderRadius: 16,
+        borderStyle: 'dashed',
+        padding: 16,
+        gap: 8,
+      }}
+    >
+      <Text style={[{ paddingBottom: 8 }, FontStyles.Title]}>Dev Menu</Text>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        <Text style={{ color: Colors.text }}>User ID:</Text>
+        <Text style={{ color: Colors.secondaryText, fontSize: 10 }}>{userId}</Text>
+      </View>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        <Text style={{ color: Colors.text }}>Environment:</Text>
+        <Text style={{ color: Colors.secondaryText }}>{environment}</Text>
+      </View>
+      <View />
+      <TouchableOpacity
+        style={{
+          backgroundColor: Colors.accentColor,
+          borderRadius: Number.MAX_SAFE_INTEGER,
+          padding: 8,
+          paddingTop: 8,
+          paddingHorizontal: 16,
+        }}
+        onPress={() => queryClient.invalidateQueries()}
+      >
+        <Text style={{ color: 'black' }}>invalidateQueries</Text>
+      </TouchableOpacity>
+    </View>
   )
 }

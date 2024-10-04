@@ -2,29 +2,44 @@
   "expo": {
     "name": "Brisen",
     "slug": "brisen-client",
+    "description": "Let's get Brisen together!",
     "version": "1.0.0",
+    "runtimeVersion": "1",
+    "githubUrl": "https://github.com/brisen-app/brisen-client",
     "orientation": "portrait",
     "scheme": "no.kallerud",
     "userInterfaceStyle": "dark",
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "primaryColor": "#f3a000",
     "backgroundColor": "#000000",
-    "platforms": [
-      "ios",
-      "android"
-    ],
+    "platforms": ["ios", "android"],
     "icon": "./src/assets/images/app-icon/icon.png",
     "splash": {
-        "image": "./src/assets/images/splash-screen/splash-screen.png",
-        "resizeMode": "contain",
-        "backgroundColor": "#000000"
-      },
+      "image": "./src/assets/images/splash-screen/splash-screen.png",
+      "resizeMode": "contain"
+    },
+    "locales": {
+      "en": {},
+      "nb": {},
+      "sv": {}
+    },
+    "developmentClient": {
+      "silentLaunch": true
+    },
+    "androidStatusBar": {
+      "backgroundColor": "#00000000",
+      "barStyle": "light-content"
+    },
+    "androidNavigationBar": {
+      "backgroundColor": "#00000000",
+      "barStyle": "light-content"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "no.kallerud.brisen",
-      "runtimeVersion": "0.0.1"
+      "infoPlist": {
+        "CFBundleAllowMixedLocalizations": true
+      }
     },
     "android": {
       "package": "no.kallerud.brisen",
@@ -33,7 +48,7 @@
         "monochromeImage": "./src/assets/images/app-icon/mono.png",
         "backgroundImage": "./src/assets/images/app-icon/background.png"
       },
-      "runtimeVersion": "0.0.1"
+      "allowBackup": false
     },
     "plugins": [
       "expo-router",

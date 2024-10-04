@@ -5,16 +5,15 @@ import Purchases, { CustomerInfo } from 'react-native-purchases'
 import RevenueCatUI, { PAYWALL_RESULT } from 'react-native-purchases-ui'
 import ActivityIndicatorView from '../components/ActivityIndicatorView'
 import FetchErrorView from '../components/FetchErrorView'
+import env from '../lib/env'
 import { LocalizationManager } from '../managers/LocalizationManager'
-import environmentVariables from '../lib/env'
 
 function initInAppPurchases(setContext: Dispatch<InAppPurchaseContextActionType>) {
   Purchases.setLogLevel(Purchases.LOG_LEVEL.DEBUG)
+  const { rcAppleKey, rcGoogleKey } = env
 
-  const vars = environmentVariables()
-
-  if (Platform.OS === 'ios') Purchases.configure({ apiKey: vars.rcAppleKey })
-  if (Platform.OS === 'android') Purchases.configure({ apiKey: vars.rcGoogleKey })
+  if (Platform.OS === 'ios') Purchases.configure({ apiKey: rcAppleKey })
+  if (Platform.OS === 'android') Purchases.configure({ apiKey: rcGoogleKey })
 
   console.log('InAppPurchases initialized')
 
