@@ -8,8 +8,8 @@ import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import { PackManager } from '@/src/managers/PackManager'
 import SupabaseManager, { SupabaseItem } from '@/src/managers/SupabaseManager'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { ReactNode, useEffect, useRef } from 'react'
-import { AppState, Platform } from 'react-native'
+import { ReactNode, useRef } from 'react'
+import { AppState } from 'react-native'
 import ActivityIndicatorView from '../components/ActivityIndicatorView'
 
 function useSupabase(manager: SupabaseManager<SupabaseItem>, enabled = true) {
