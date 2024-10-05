@@ -13,15 +13,13 @@ import {
   TouchableOpacity,
   useBottomSheet,
 } from '@gorhom/bottom-sheet'
-import { useQueryClient } from '@tanstack/react-query'
 import * as Application from 'expo-application'
 import * as Clipboard from 'expo-clipboard'
 import { Image } from 'expo-image'
 import { openSettings, openURL } from 'expo-linking'
-import { useMemo, useRef, useState } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import {
   Alert,
-  ColorValue,
   Dimensions,
   Keyboard,
   Platform,
@@ -41,13 +39,13 @@ import Animated, {
   useAnimatedStyle,
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import env from '../lib/env'
 import { ConfigurationManager } from '../managers/ConfigurationManager'
 import Color from '../models/Color'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import PackPosterView from './pack/PackPosterView'
 import ScrollToBottomButton from './utils/ScrollToBottomButton'
 import Tag from './utils/Tag'
+import DevMenu from './DevMenu'
 
 export default function MenuView() {
   const insets = useSafeAreaInsets()
@@ -130,9 +128,7 @@ export default function MenuView() {
           />
 
           <LinksView />
-
           <AppDetailsView />
-
           <DevMenu />
 
           <View style={{ height: insets.bottom ? insets.bottom : 16 + 8 }} />
@@ -374,69 +370,3 @@ function AppDetailsView() {
     </Pressable>
   )
 }
-
-function DevMenu() {
-  const { userId } = useInAppPurchaseContext()
-  const queryClient = useQueryClient()
-  const { isProd, environment } = env
-
-  if (isProd) return null
-
-  return (
-    <View
-      style={{
-        justifyContent: 'center',
-        borderColor: Colors.stroke,
-        borderWidth: 4,
-        borderRadius: 16,
-        borderStyle: 'dashed',
-        padding: 16,
-        gap: 8,
-      }}
-    >
-      <Text style={[{ paddingBottom: 8 }, FontStyles.Header]}>Dev Menu</Text>
-      <InfoRow title='User ID:' value={userId} />
-      <InfoRow title='Environment:' value={environment} />
-      <View />
-      <Text style={[{ paddingBottom: 8 }, FontStyles.Title]}>Tools</Text>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
-        <FunctionButton title='Invalidates queries' onPress={() => queryClient.invalidateQueries()} />
-        <FunctionButton
-          title='Throw error'
-          color={'red'}
-          onPress={() => {
-            throw new Error('This is a test error')
-          }}
-        />
-      </View>
-    </View>
-  )
-}
-
-function InfoRow(props: Readonly<{ title: string; value?: string }>) {
-  return (
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-      <Text style={{ color: Colors.text }}>{props.title}</Text>
-      <Text style={{ color: Colors.secondaryText }}>{props.value ?? 'N/A'}</Text>
-    </View>
-  )
-}
-
-function FunctionButton(props: Readonly<{ title: string; color?: ColorValue; onPress: () => void }>) {
-  return (
-    <TouchableOpacity
-      onPress={props.onPress}
-      style={{
-        backgroundColor: props.color ?? Colors.accentColor,
-        borderRadius: Number.MAX_SAFE_INTEGER,
-        padding: 8,
-        paddingHorizontal: 16,
-      }}
-    >
-      <Text style={{ color: 'black', fontWeight: 'bold' }}>{props.title}</Text>
-    </TouchableOpacity>
-  )
-}
-
-// Re-export the default UI
-export { ErrorBoundary } from 'expo-router'
