@@ -21,6 +21,7 @@
     "develop": {
       "extends": "base",
       "channel": "develop",
+      "developmentClient": true,
       "distribution": "internal"
     },
     "production": {
