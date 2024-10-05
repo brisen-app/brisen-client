@@ -43,3 +43,8 @@ coverage/
 
 # Supabase
 src/supabase/
+
+# builds
+*.aab
+*.apk
+*.ipa
