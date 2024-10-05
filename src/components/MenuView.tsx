@@ -21,6 +21,7 @@ import { openSettings, openURL } from 'expo-linking'
 import { useMemo, useRef, useState } from 'react'
 import {
   Alert,
+  ColorValue,
   Dimensions,
   Keyboard,
   Platform,
@@ -393,28 +394,49 @@ function DevMenu() {
         gap: 8,
       }}
     >
-      <Text style={[{ paddingBottom: 8 }, FontStyles.Title]}>Dev Menu</Text>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-        <Text style={{ color: Colors.text }}>User ID:</Text>
-        <Text style={{ color: Colors.secondaryText, fontSize: 10 }}>{userId}</Text>
-      </View>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-        <Text style={{ color: Colors.text }}>Environment:</Text>
-        <Text style={{ color: Colors.secondaryText }}>{environment}</Text>
-      </View>
+      <Text style={[{ paddingBottom: 8 }, FontStyles.Header]}>Dev Menu</Text>
+      <InfoRow title='User ID:' value={userId} />
+      <InfoRow title='Environment:' value={environment} />
       <View />
-      <TouchableOpacity
-        style={{
-          backgroundColor: Colors.accentColor,
-          borderRadius: Number.MAX_SAFE_INTEGER,
-          padding: 8,
-          paddingTop: 8,
-          paddingHorizontal: 16,
-        }}
-        onPress={() => queryClient.invalidateQueries()}
-      >
-        <Text style={{ color: 'black' }}>invalidateQueries</Text>
-      </TouchableOpacity>
+      <Text style={[{ paddingBottom: 8 }, FontStyles.Title]}>Tools</Text>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
+        <FunctionButton title='Invalidates queries' onPress={() => queryClient.invalidateQueries()} />
+        <FunctionButton
+          title='Throw error'
+          color={'red'}
+          onPress={() => {
+            throw new Error('This is a test error')
+          }}
+        />
+      </View>
     </View>
   )
 }
+
+function InfoRow(props: Readonly<{ title: string; value?: string }>) {
+  return (
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+      <Text style={{ color: Colors.text }}>{props.title}</Text>
+      <Text style={{ color: Colors.secondaryText }}>{props.value ?? 'N/A'}</Text>
+    </View>
+  )
+}
+
+function FunctionButton(props: Readonly<{ title: string; color?: ColorValue; onPress: () => void }>) {
+  return (
+    <TouchableOpacity
+      onPress={props.onPress}
+      style={{
+        backgroundColor: props.color ?? Colors.accentColor,
+        borderRadius: Number.MAX_SAFE_INTEGER,
+        padding: 8,
+        paddingHorizontal: 16,
+      }}
+    >
+      <Text style={{ color: 'black', fontWeight: 'bold' }}>{props.title}</Text>
+    </TouchableOpacity>
+  )
+}
+
+// Re-export the default UI
+export { ErrorBoundary } from 'expo-router'
