@@ -8,8 +8,7 @@ import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import { PackManager } from '@/src/managers/PackManager'
 import SupabaseManager, { SupabaseItem } from '@/src/managers/SupabaseManager'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { ReactNode, useRef } from 'react'
-import { AppState } from 'react-native'
+import { ReactNode } from 'react'
 import ActivityIndicatorView from '../components/ActivityIndicatorView'
 
 function useSupabase(manager: SupabaseManager<SupabaseItem>, enabled = true) {
@@ -26,7 +25,6 @@ function useSupabase(manager: SupabaseManager<SupabaseItem>, enabled = true) {
 
 export default function AppDataProvider(props: Readonly<{ children: ReactNode }>) {
   const queryClient = useQueryClient()
-  const appState = useRef(AppState.currentState)
 
   const configResonse = useSupabase(ConfigurationManager)
   const languageResponse = useSupabase(LanguageManager, configResonse.isSuccess)
@@ -53,12 +51,10 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
     cardResponse,
     cardRelationResponse,
     localizationResponse,
-  ].filter(response => !!response.error)
+  ].filter(response => !!response.error) as { error: Error }[]
 
   if (failedResponses.length > 0)
-    return (
-      <FetchErrorView errors={failedResponses.map(r => r.error!)} onRetry={() => queryClient.invalidateQueries()} />
-    )
+    return <FetchErrorView errors={failedResponses.map(r => r.error)} onRetry={() => queryClient.invalidateQueries()} />
 
   if (!isSuccess || queryClient.isFetching())
     return <ActivityIndicatorView text={LocalizationManager.get('loading')?.value} />
