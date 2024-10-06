@@ -13,12 +13,11 @@ import {
   TouchableOpacity,
   useBottomSheet,
 } from '@gorhom/bottom-sheet'
-import { useQueryClient } from '@tanstack/react-query'
 import * as Application from 'expo-application'
 import * as Clipboard from 'expo-clipboard'
 import { Image } from 'expo-image'
 import { openSettings, openURL } from 'expo-linking'
-import { useMemo, useRef, useState } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import {
   Alert,
   Dimensions,
@@ -40,13 +39,13 @@ import Animated, {
   useAnimatedStyle,
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import env from '../lib/env'
 import { ConfigurationManager } from '../managers/ConfigurationManager'
 import Color from '../models/Color'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import PackPosterView from './pack/PackPosterView'
 import ScrollToBottomButton from './utils/ScrollToBottomButton'
 import Tag from './utils/Tag'
+import DevMenu from './DevMenu'
 
 export default function MenuView() {
   const insets = useSafeAreaInsets()
@@ -129,9 +128,7 @@ export default function MenuView() {
           />
 
           <LinksView />
-
           <AppDetailsView />
-
           <DevMenu />
 
           <View style={{ height: insets.bottom ? insets.bottom : 16 + 8 }} />
@@ -371,50 +368,5 @@ function AppDetailsView() {
         {appName} v{appVersion}
       </Text>
     </Pressable>
-  )
-}
-
-function DevMenu() {
-  const { userId } = useInAppPurchaseContext()
-  const queryClient = useQueryClient()
-  const { isProd, environment } = env
-
-  if (isProd) return null
-
-  return (
-    <View
-      style={{
-        justifyContent: 'center',
-        borderColor: Colors.stroke,
-        borderWidth: 4,
-        borderRadius: 16,
-        borderStyle: 'dashed',
-        padding: 16,
-        gap: 8,
-      }}
-    >
-      <Text style={[{ paddingBottom: 8 }, FontStyles.Title]}>Dev Menu</Text>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-        <Text style={{ color: Colors.text }}>User ID:</Text>
-        <Text style={{ color: Colors.secondaryText, fontSize: 10 }}>{userId}</Text>
-      </View>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-        <Text style={{ color: Colors.text }}>Environment:</Text>
-        <Text style={{ color: Colors.secondaryText }}>{environment}</Text>
-      </View>
-      <View />
-      <TouchableOpacity
-        style={{
-          backgroundColor: Colors.accentColor,
-          borderRadius: Number.MAX_SAFE_INTEGER,
-          padding: 8,
-          paddingTop: 8,
-          paddingHorizontal: 16,
-        }}
-        onPress={() => queryClient.invalidateQueries()}
-      >
-        <Text style={{ color: 'black' }}>invalidateQueries</Text>
-      </TouchableOpacity>
-    </View>
   )
 }

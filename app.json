@@ -23,9 +23,6 @@
       "nb": {},
       "sv": {}
     },
-    "developmentClient": {
-      "silentLaunch": true
-    },
     "androidStatusBar": {
       "backgroundColor": "#00000000",
       "barStyle": "light-content"
