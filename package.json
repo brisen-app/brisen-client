@@ -1,13 +1,15 @@
 {
   "name": "brisen-client",
   "main": "expo-router/entry",
-  "version": "1.0.0",
   "scripts": {
     "start": "expo prebuild -p all && expo --dev-client",
     "android": "expo run:android --device",
+    "android-release": "expo run:android --variant release --device",
     "ios": "expo run:ios --device",
+    "ios-release": "expo run:ios --configuration Release --device",
     "web": "expo start --web",
     "upgrade": "npm update && npm install expo@latest && npx expo install --fix",
+    "generate-types": "npx supabase gen types typescript --project-id tlnldlywflpgvjepxwxz --schema public > models/supabase.ts",
     "build": "eas build -p all --profile develop --non-interactive",
     "test": "jest --watchAll",
     "test-ci": "jest --ci --coverage"
