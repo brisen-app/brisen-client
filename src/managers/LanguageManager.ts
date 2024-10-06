@@ -5,10 +5,11 @@ import SupabaseManager from './SupabaseManager'
 
 const tableName = 'languages'
 export type SupabaseLanguage = Tables<typeof tableName>
-export type Language = Partial<Omit<Locale, 'languageCode'>> & SupabaseLanguage
+export type Language = Partial<Locale> & SupabaseLanguage
 
-class LanguageManagerSingleton extends SupabaseManager<Language> {
+class LanguageManagerSingleton extends SupabaseManager<SupabaseLanguage> {
   protected _displayLanguage: Language | undefined
+  private _userSelectedLanguage: string | undefined
 
   constructor() {
     super(tableName)
@@ -21,74 +22,82 @@ class LanguageManagerSingleton extends SupabaseManager<Language> {
 
   protected set(items: Iterable<SupabaseLanguage>) {
     if (this._items) console.warn(`${tableName} have already been set`)
+    // Store the SupabaseLanguages in a map for easy access
+    this._items = new Map([...items]?.map(item => [item.id, item]))
 
-    // Filter out languages that are not in the user's locale and merge Supabase language data with locale data
-    const langList = [...items]
-    const languages = this.mergeLanguageData(langList)
-
-    // Store the languages in a map for easy access
-    this._items = new Map(languages?.map(item => [item.id, item]))
-    console.log(
-      'Stored languages:',
-      languages?.map(item => item.id)
-    )
-
-    // If the app is configured to use safe-for-work content, force the display language to be the safe-for-work language
-    if (ConfigurationManager.get('use_sfw_content')?.bool === true) {
-      console.log('Forcing safe-for-work language')
-
-      const sfwLanguage = ConfigurationManager.get('sfw_language')?.string
-
-      this._displayLanguage = langList.find(item => item.id === sfwLanguage)
-      if (this._displayLanguage) return
-
-      console.error('sfw language not found')
-    }
-
-    // Find the first language that matches the user's language
-    this._displayLanguage = languages ? languages[0] : undefined
-
-    // If no matches are found, use the default language
-    if (!this._displayLanguage) {
-      const language = this.findDefaultLanguage(items)
-      this._items = new Map([[language.id, language]])
-      this._displayLanguage = language
-    }
-
-    console.log('Display language:', this._displayLanguage.id)
+    this.updateDisplayLanguage()
   }
 
   /**
-   * Merges the language data that's in the user's locale with the Supabase language data.
+   * Checks if the display language has changed compared to the user's current language settings.
    *
-   * @param langList - An array of `SupabaseLanguage` objects representing the available languages.
-   * @returns An array of merged locale objects, where each object contains the properties of both the locale and the corresponding language from the list.
+   * @returns {boolean} `true` if the display language has changed, otherwise `false`.
    */
-  private mergeLanguageData(langList: Array<SupabaseLanguage>) {
+  public hasChangedLanguage(): boolean {
+    if (ConfigurationManager.get('use_sfw_content')?.bool === true) return false
     const userLocales = getLocales()
-    const result = userLocales
-      .filter(locale => locale.languageCode && langList.some(lang => lang.id === locale.languageCode))
-      .map(locale => ({ ...locale, ...langList.find(lang => lang.id === locale.languageCode)! }))
-    return result.length > 0 ? result : undefined
+    if (!userLocales) return false
+    const newSelectedLanguage = userLocales[0]?.languageCode
+    return this._userSelectedLanguage !== newSelectedLanguage
   }
 
-  public updateDisplayLanguage() {
-    if (!this._items) {
-      console.warn('[updateDisplayLanguage] No languages set')
-      return false
+  /**
+   * Retrieves the safe-for-work (SFW) language from the provided list of languages.
+   *
+   * @param languages - An array of `Language` objects to search through.
+   * @returns The `Language` object that matches the SFW language ID.
+   * @throws Will throw an error if the SFW language is not found in the provided list.
+   */
+  private getSfwLanguage() {
+    const sfwLanguageId = ConfigurationManager.get('sfw_language')?.string
+    if (!sfwLanguageId) throw new Error('Safe-for-work language ID not found')
+    const sfwLanguage = this._items?.get(sfwLanguageId)
+    if (!sfwLanguage) throw new Error('Safe-for-work language data not found')
+    return sfwLanguage
+  }
+
+  /**
+   * Updates the display language of the application based on the user's locale settings.
+   *
+   * - If the application is configured to use safe-for-work content, it forces the display language to be the safe-for-work language.
+   * - Stores the user's selected language from the available locales.
+   * - Finds and sets the language that matches the user's locale.
+   * - If no matching language is found, it uses the default language.
+   * - Logs the selected language to the console.
+   *
+   * @returns {void}
+   */
+  public updateDisplayLanguage(): void {
+    // If the app is configured to use safe-for-work content, force the display language to be the safe-for-work language
+    if (ConfigurationManager.get('use_sfw_content')?.bool === true) {
+      console.log('Forcing safe-for-work language')
+      this._displayLanguage = this.getSfwLanguage()
+      return
     }
-    const newLanguages = this.mergeLanguageData([...this._items.values()])
-    if (!newLanguages) {
-      console.warn('[updateDisplayLanguage] No languages match user locale')
-      return false
+
+    const userLocales = getLocales() ?? []
+
+    // Store the user's selected language
+    this._userSelectedLanguage = userLocales[0]?.languageCode ?? undefined
+
+    // Find the language that matches the user's locale
+    const userLocale = userLocales?.find(item => !!item.languageCode && this.get(item.languageCode)?.public)
+
+    // If no matches are found, use the default language
+    if (!userLocale) {
+      const language = this.findDefaultLanguage()
+      this._displayLanguage = language
+      return
     }
-    const newLanguage = newLanguages[0]
-    const hasChanged = newLanguages && newLanguage.id !== this.getDisplayLanguage().id
-    if (hasChanged) {
-      this._displayLanguage = newLanguage
-      console.log(`[updateDisplayLanguage] User has changed language to '${newLanguages[0].id}'`)
-    }
-    return hasChanged
+
+    // Use the first language that matches the user's language
+    const language = this.get(userLocale.languageCode!)
+    this._displayLanguage = {
+      ...userLocale,
+      ...language,
+    } as Language
+
+    console.log('Found language:', this._displayLanguage.id)
   }
 
   /**
@@ -99,17 +108,12 @@ class LanguageManagerSingleton extends SupabaseManager<Language> {
    * @returns The default language or the first language in the list.
    * @throws Error if no languages are provided when setting default language.
    */
-  private findDefaultLanguage(items: Iterable<SupabaseLanguage>) {
+  private findDefaultLanguage() {
+    console.log('Using default language')
     const defaultLanguageId = ConfigurationManager.get('default_language')?.string ?? 'en'
-
-    const languageList = [...items]
-    if (languageList.length === 0) throw new Error('No languages provided when setting default language')
-
-    const defaultLanguages = languageList.filter(item => item.id === defaultLanguageId)
-    if (defaultLanguages.length === 0) console.error(`Default language '${defaultLanguageId}' not found`)
-    const result = defaultLanguages[0] ?? languageList.find(item => item.public)
-    if (!result) throw new Error('No public languages found')
-    return result
+    const defaultLanguage = this.get(defaultLanguageId)
+    if (!defaultLanguage) throw new Error('Default language not found')
+    return defaultLanguage
   }
 }
 
