@@ -30,7 +30,7 @@ export default function PackListView(props: Readonly<PackListViewProps & PackVie
   const { pack, hideImage, style } = props
 
   const { data: image, isLoading, error } = PackManager.useImageQuery(pack.image, !hideImage)
-  if (error) console.warn(error)
+  if (error) console.warn(`Couldn't load image for pack ${pack.name}:`, error)
 
   const PackImage = useCallback((props: ImageProps) => <Image {...props} source={image} transition={256} />, [image])
 
