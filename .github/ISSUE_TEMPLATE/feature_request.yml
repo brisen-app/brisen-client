@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        *Please add an appropriate title for this feature request.*
+        *Please add an appropriate title for this feature request, and relevant tags.*
 
   - type: dropdown
     attributes:
