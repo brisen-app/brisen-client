@@ -17,16 +17,18 @@ import * as Application from 'expo-application'
 import * as Clipboard from 'expo-clipboard'
 import { Image } from 'expo-image'
 import { openSettings, openURL } from 'expo-linking'
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useMemo, useRef } from 'react'
 import {
   Alert,
   Dimensions,
   Keyboard,
+  NativeSyntheticEvent,
   Platform,
   Pressable,
   Share,
   StyleSheet,
   Text,
+  TextInputSubmitEditingEventData,
   View,
   ViewProps,
 } from 'react-native'
@@ -42,10 +44,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ConfigurationManager } from '../managers/ConfigurationManager'
 import Color from '../models/Color'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
+import DevMenu from './DevMenu'
 import PackPosterView from './pack/PackPosterView'
 import ScrollToBottomButton from './utils/ScrollToBottomButton'
 import Tag from './utils/Tag'
-import DevMenu from './DevMenu'
+import { TextInput } from 'react-native-gesture-handler'
 
 export default function MenuView() {
   const insets = useSafeAreaInsets()
@@ -213,17 +216,18 @@ function PackSection(props: Readonly<ViewProps>) {
 
 function AddPlayerField(props: Readonly<ViewProps>) {
   const { style } = props
-  const [text, setText] = useState<string>('')
   const { players } = useAppContext()
   const setContext = useAppDispatchContext()
+  const textInputRef = useRef<TextInput>(null)
 
-  const handleAddPlayer = () => {
-    if (text.trim().length === 0) return
+  const handleAddPlayer = (e: NativeSyntheticEvent<TextInputSubmitEditingEventData>) => {
+    e.preventDefault()
+    if (e.nativeEvent.text.trim().length === 0) return
 
-    const formattedText = prettifyString(text)
+    const formattedText = prettifyString(e.nativeEvent.text)
     if (new Set([...players].map(p => p.name)).has(formattedText)) console.warn('Player already exists')
     else setContext({ action: 'togglePlayer', payload: { name: formattedText, playCount: 0 } })
-    setText('')
+    textInputRef.current?.clear()
   }
 
   return (
@@ -245,8 +249,7 @@ function AddPlayerField(props: Readonly<ViewProps>) {
     >
       <AntDesign name='plus' size={18} color={Colors.secondaryText} />
       <BottomSheetTextInput
-        value={text}
-        onChangeText={setText}
+        ref={textInputRef}
         placeholder={LocalizationManager.get('add_players')?.value ?? 'add_players'}
         placeholderTextColor={Colors.secondaryText}
         returnKeyType='done'
