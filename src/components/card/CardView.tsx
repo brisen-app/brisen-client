@@ -34,8 +34,7 @@ export function CardView(props: Readonly<CardViewProps & ViewProps>) {
   const target = card.is_group || card.players.length === 0 ? null : card.players[0]
   const content = card.formattedContent ?? card.content
   const { data: image, error } = PackManager.useImageQuery(card.pack?.image)
-
-  if (error) console.warn(error)
+  if (error) console.warn(`Couldn't load image for pack ${card.pack?.name}:`, error)
 
   function getGradient() {
     if (!category?.gradient) return ConfigurationManager.get('default_gradient')?.list ?? [Colors.accentColor]
