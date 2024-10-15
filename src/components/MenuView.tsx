@@ -32,6 +32,7 @@ import {
   View,
   ViewProps,
 } from 'react-native'
+import { TextInput } from 'react-native-gesture-handler'
 import Animated, {
   Easing,
   FadeInUp,
@@ -48,8 +49,6 @@ import DevMenu from './DevMenu'
 import PackPosterView from './pack/PackPosterView'
 import ScrollToBottomButton from './utils/ScrollToBottomButton'
 import Tag from './utils/Tag'
-import { TextInput } from 'react-native-gesture-handler'
-import PackListView from './pack/PackListView'
 
 export default function MenuView() {
   const insets = useSafeAreaInsets()
