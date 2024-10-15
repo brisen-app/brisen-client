@@ -49,6 +49,7 @@ import PackPosterView from './pack/PackPosterView'
 import ScrollToBottomButton from './utils/ScrollToBottomButton'
 import Tag from './utils/Tag'
 import { TextInput } from 'react-native-gesture-handler'
+import PackListView from './pack/PackListView'
 
 export default function MenuView() {
   const insets = useSafeAreaInsets()
@@ -196,16 +197,21 @@ function PackSection(props: Readonly<ViewProps>) {
   const packWidth = Dimensions.get('window').width
   const packs = useMemo(() => PackManager.items, [PackManager.items])
   const { isSubscribed } = useInAppPurchaseContext()
-  const sortedPacks =
-    useMemo(
-      () => (isSubscribed ? packs : [...(packs ?? [])].sort((a, b) => (a.is_free === b.is_free ? 0 : -1))),
-      [packs]
-    ) ?? []
+
+  const sortedPacks = useMemo(() => {
+    if (isSubscribed || !packs) return packs
+    const packList = [...packs]
+
+    return packList.sort((a, b) => {
+      if (a.is_free === b.is_free) return 0
+      return a.is_free ? -1 : 1
+    })
+  }, [packs])
 
   if (!packs) return undefined
   return (
     <View style={{ flexWrap: 'wrap', flexDirection: 'row', gap: 16 }} {...props}>
-      {sortedPacks.map(pack => (
+      {sortedPacks?.map(pack => (
         <View key={pack.id}>
           <PackPosterView width={(packWidth - 48) / 2} pack={pack} />
         </View>
