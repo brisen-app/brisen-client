@@ -21,6 +21,8 @@ concurrency:
 jobs:
   doctor:
     runs-on: ubuntu-latest
+    env:
+      EXPO_PUBLIC_ENV: ci
     steps:
       - uses: actions/checkout@v4
         with:
