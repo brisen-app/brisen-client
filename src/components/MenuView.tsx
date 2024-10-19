@@ -17,19 +17,22 @@ import * as Application from 'expo-application'
 import * as Clipboard from 'expo-clipboard'
 import { Image } from 'expo-image'
 import { openSettings, openURL } from 'expo-linking'
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useMemo, useRef } from 'react'
 import {
   Alert,
   Dimensions,
   Keyboard,
+  NativeSyntheticEvent,
   Platform,
   Pressable,
   Share,
   StyleSheet,
   Text,
+  TextInputSubmitEditingEventData,
   View,
   ViewProps,
 } from 'react-native'
+import { TextInput } from 'react-native-gesture-handler'
 import Animated, {
   Easing,
   FadeInUp,
@@ -42,10 +45,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ConfigurationManager } from '../managers/ConfigurationManager'
 import Color from '../models/Color'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
+import DevMenu from './DevMenu'
 import PackPosterView from './pack/PackPosterView'
 import ScrollToBottomButton from './utils/ScrollToBottomButton'
 import Tag from './utils/Tag'
-import DevMenu from './DevMenu'
 
 export default function MenuView() {
   const insets = useSafeAreaInsets()
@@ -193,16 +196,21 @@ function PackSection(props: Readonly<ViewProps>) {
   const packWidth = Dimensions.get('window').width
   const packs = useMemo(() => PackManager.items, [PackManager.items])
   const { isSubscribed } = useInAppPurchaseContext()
-  const sortedPacks =
-    useMemo(
-      () => (isSubscribed ? packs : [...(packs ?? [])].sort((a, b) => (a.is_free === b.is_free ? 0 : -1))),
-      [packs]
-    ) ?? []
+
+  const sortedPacks = useMemo(() => {
+    if (isSubscribed || !packs) return packs
+    const packList = [...packs]
+
+    return packList.sort((a, b) => {
+      if (a.is_free === b.is_free) return 0
+      return a.is_free ? -1 : 1
+    })
+  }, [packs])
 
   if (!packs) return undefined
   return (
     <View style={{ flexWrap: 'wrap', flexDirection: 'row', gap: 16 }} {...props}>
-      {sortedPacks.map(pack => (
+      {sortedPacks?.map(pack => (
         <View key={pack.id}>
           <PackPosterView width={(packWidth - 48) / 2} pack={pack} />
         </View>
@@ -213,17 +221,18 @@ function PackSection(props: Readonly<ViewProps>) {
 
 function AddPlayerField(props: Readonly<ViewProps>) {
   const { style } = props
-  const [text, setText] = useState<string>('')
   const { players } = useAppContext()
   const setContext = useAppDispatchContext()
+  const textInputRef = useRef<TextInput>(null)
 
-  const handleAddPlayer = () => {
-    if (text.trim().length === 0) return
+  const handleAddPlayer = (e: NativeSyntheticEvent<TextInputSubmitEditingEventData>) => {
+    e.preventDefault()
+    if (e.nativeEvent.text.trim().length === 0) return
 
-    const formattedText = prettifyString(text)
+    const formattedText = prettifyString(e.nativeEvent.text)
     if (new Set([...players].map(p => p.name)).has(formattedText)) console.warn('Player already exists')
     else setContext({ action: 'togglePlayer', payload: { name: formattedText, playCount: 0 } })
-    setText('')
+    textInputRef.current?.clear()
   }
 
   return (
@@ -245,8 +254,7 @@ function AddPlayerField(props: Readonly<ViewProps>) {
     >
       <AntDesign name='plus' size={18} color={Colors.secondaryText} />
       <BottomSheetTextInput
-        value={text}
-        onChangeText={setText}
+        ref={textInputRef}
         placeholder={LocalizationManager.get('add_players')?.value ?? 'add_players'}
         placeholderTextColor={Colors.secondaryText}
         returnKeyType='done'

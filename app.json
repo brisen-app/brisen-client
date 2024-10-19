@@ -34,6 +34,9 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "no.kallerud.brisen",
+      "config": {
+        "usesNonExemptEncryption": false
+      },
       "infoPlist": {
         "CFBundleAllowMixedLocalizations": true
       }

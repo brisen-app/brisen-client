@@ -184,7 +184,7 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
 function PackView(props: Readonly<{ pack: Pack } & ViewProps>) {
   const { pack, style } = props
   const { data: image, error } = PackManager.useImageQuery(pack.image)
-  if (error) console.warn(error)
+  if (error) console.warn(`Couldn't load image for pack ${pack.name}:`, error)
 
   return (
     <View

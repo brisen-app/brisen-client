@@ -28,7 +28,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
   const isAvailable = pack.is_free || isSubscribed
 
   const { data: image, isLoading, error } = PackManager.useImageQuery(pack.image)
-  if (error) console.warn(error)
+  if (error) console.warn(`Couldn't load image for pack ${pack.name}:`, error)
 
   const animationConfig = { duration: 150, easing: Easing.bezier(0, 0, 0.5, 1) }
 

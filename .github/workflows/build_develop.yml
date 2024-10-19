@@ -1,12 +1,10 @@
 name: Build Develop
 
 on:
-  pull_request:
-    types:
-      - opened
-      - synchronize
+  push:
     branches:
-      - main
+      - develop
+      - release/**
     paths:
       - src/**
       - app.json
@@ -22,7 +20,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: build develop
+    environment: Build Develop
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
