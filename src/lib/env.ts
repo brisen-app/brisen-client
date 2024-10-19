@@ -1,5 +1,5 @@
 function environmentVariables() {
-  const environment = process.env.EXPO_PUBLIC_ENV
+  const environment = process.env.EXPO_PUBLIC_ENV as 'development' | 'production' | 'preview' | 'local'
   if (!environment) throw new Error('EXPO_PUBLIC_ENV is not defined')
   const isProd = environment === 'production'
 
