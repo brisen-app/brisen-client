@@ -16,7 +16,10 @@
     "preview": {
       "extends": "base",
       "channel": "preview",
-      "developmentClient": true
+      "developmentClient": true,
+      "env": {
+        "EXPO_PUBLIC_ENV": "preview"
+      }
     },
     "develop": {
       "extends": "base",

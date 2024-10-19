@@ -94,7 +94,7 @@ When the `develop`-branch is ready for a new release, follow these steps:
 1. Complete the PR and merge the release branch into `main` and wait for the deployment pipeline to complete.
 1. Create a release branch from `develop` with the following naming convention:
    - `release/<release-version>`
-1. Update the version in `app.json` and `package.json` to the new release version.
+1. Update the version in `app.config.ts` and `package.json` to the new release version.
 1. Create a pull request from the release branch with `main` as the target branch.
    - The PR should include a list of changes and a summary of the release.
    - Make sure to squash and merge the PR.
