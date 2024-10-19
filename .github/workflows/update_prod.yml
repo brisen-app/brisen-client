@@ -17,7 +17,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  publish-preview:
+  update:
     runs-on: ubuntu-latest
     environment: Production
     env:
