@@ -1,14 +1,23 @@
-const ENV = process.env.EXPO_PUBLIC_ENV ?? 'local'
-const IS_PROD = ENV === 'production'
+import { ExpoConfig } from 'expo/config'
 
-const appName = IS_PROD ? 'Brisen' : 'Brisen-' + ENV
-const bundleIdentifier = IS_PROD ? 'no.kallerud.brisen' : 'no.kallerud.brisen.' + ENV
+let bundleId = 'no.kallerud.brisen'
+let appName = 'Brisen'
+const appVersion = '1.0.0'
 
-export default {
+const environment = process.env.EXPO_PUBLIC_ENV
+if (!environment) throw new Error('EXPO_PUBLIC_ENV not set')
+
+if (environment !== 'production') {
+  if (environment === 'release') appName += `-${appVersion}`
+  else appName += `-${environment}`
+  bundleId += `.${environment}`
+}
+
+export default (): ExpoConfig => ({
   name: appName,
   slug: 'brisen-client',
   description: "Let's get Brisen together!",
-  version: '1.0.0',
+  version: appVersion,
   runtimeVersion: '1',
   githubUrl: 'https://github.com/brisen-app/brisen-client',
   orientation: 'portrait',
@@ -38,7 +47,7 @@ export default {
   },
   ios: {
     supportsTablet: true,
-    bundleIdentifier: bundleIdentifier,
+    bundleIdentifier: bundleId,
     config: {
       usesNonExemptEncryption: false,
     },
@@ -47,7 +56,7 @@ export default {
     },
   },
   android: {
-    package: bundleIdentifier,
+    package: bundleId,
     adaptiveIcon: {
       foregroundImage: './src/assets/images/app-icon/foreground.png',
       monochromeImage: './src/assets/images/app-icon/mono.png',
@@ -86,4 +95,4 @@ export default {
   updates: {
     url: 'https://u.expo.dev/ea66c9bc-ab42-4370-b12b-b6db5bf784c8',
   },
-}
+})
