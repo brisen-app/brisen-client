@@ -4,10 +4,12 @@ import Colors from '../constants/Colors'
 import { FontStyles } from '../constants/Styles'
 import env from '../lib/env'
 import { useInAppPurchaseContext } from '../providers/InAppPurchaseProvider'
+import { LanguageManager } from '../managers/LanguageManager'
 
 export default function DevMenu() {
   const { userId } = useInAppPurchaseContext()
   const queryClient = useQueryClient()
+  const language = LanguageManager.getDisplayLanguage()
   const { isProd, environment } = env
 
   if (isProd) return null
@@ -26,6 +28,7 @@ export default function DevMenu() {
     >
       <Text style={[{ paddingBottom: 8 }, FontStyles.Header]}>Dev Menu</Text>
       <InfoRow title='Environment:' value={environment} />
+      <InfoRow title='Language:' value={`${language.icon} ${language.name} (${language.id})`} />
       <InfoRow title='RevenueCat ID:' value={userId} />
       <View />
       <Text style={[{ paddingBottom: 8 }, FontStyles.Title]}>Tools</Text>
