@@ -1,12 +1,10 @@
 name: Build Develop
 
 on:
-  pull_request:
-    types:
-      - opened
-      - synchronize
+  push:
     branches:
-      - main
+      - develop
+      - release/**
     paths:
       - src/**
       - app.json
