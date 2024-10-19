@@ -5,6 +5,7 @@
   },
   "build": {
     "base": {
+      "distribution": "internal",
       "android": {
         "image": "latest"
       },
@@ -15,15 +16,21 @@
     "preview": {
       "extends": "base",
       "channel": "preview",
-      "developmentClient": true,
-      "distribution": "internal"
+      "developmentClient": true
     },
     "develop": {
       "extends": "base",
       "channel": "develop",
-      "distribution": "internal",
+      "developmentClient": true,
       "env": {
         "EXPO_PUBLIC_ENV": "develop"
+      }
+    },
+    "release": {
+      "extends": "base",
+      "channel": "release",
+      "env": {
+        "EXPO_PUBLIC_ENV": "release"
       }
     },
     "production": {

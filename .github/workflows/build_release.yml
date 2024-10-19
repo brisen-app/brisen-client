@@ -1,16 +1,16 @@
-name: Build Develop
+name: Build Release
 
 on:
   push:
     branches:
-      - develop
+      - release/**
     paths:
       - src/**
       - app.json
       - eas.json
       - package.json
       - package-lock.json
-      - .github/workflows/build_develop.yml
+      - .github/workflows/build_release.yml
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -19,7 +19,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: Build Develop
+    environment: Build Release
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -35,4 +35,4 @@ jobs:
       - name: 🏗️ Build
         uses: expo/expo-github-action/preview@v8
         with:
-          command: eas build -p all --profile develop --non-interactive
+          command: eas build -p all --profile release --non-interactive
