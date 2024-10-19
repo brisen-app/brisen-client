@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        *Please add an appropriate title for this feature request.*
+        *Please add an appropriate title for this feature request, and relevant tags.*
 
   - type: dropdown
     attributes:
@@ -14,7 +14,6 @@ body:
       multiple: true
       options:
         - I have checked that this feature is not already requested or implemented
-        - I am willing to implement this feature myself
     validations:
       required: true
 
@@ -29,9 +28,9 @@ body:
 
   - type: textarea
     attributes:
-      label: Alternatives
-      description: Any considered alternative solutions or workarounds. If undesirable, why?
-      placeholder: I have considered...
+      label: Implementation
+      description: How would you implement this feature? If you have an idea, please share it.
+      placeholder: Step 1, do this. Step 2, do that.
 
   - type: markdown
     attributes:

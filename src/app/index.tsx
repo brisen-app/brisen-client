@@ -60,7 +60,7 @@ export default function App() {
 const SheetMenuBackground: React.FC<BottomSheetBackgroundProps> = ({ style, animatedIndex }) => {
   const pack = getRandom(PackManager.items ?? [])
   const { data: image, error } = PackManager.useImageQuery(pack?.image)
-  if (error) console.warn(error)
+  if (error) console.warn(`Couldn't load image for pack ${pack?.name}:`, error)
 
   const containerAnimatedStyle = useAnimatedStyle(() => ({
     borderRadius: interpolate(animatedIndex.value, [0, 1], [16, 0], Extrapolation.CLAMP),
