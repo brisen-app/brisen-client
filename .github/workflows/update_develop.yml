@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - develop
-      - release/**
     paths:
       - src/**
       - app.json
@@ -18,7 +17,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  publish-preview:
+  update:
     runs-on: ubuntu-latest
     environment: Develop
     env:
