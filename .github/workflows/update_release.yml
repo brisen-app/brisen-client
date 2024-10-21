@@ -47,4 +47,4 @@ jobs:
       - name: 🚀 Push release update
         uses: expo/expo-github-action/preview@v8
         with:
-          command: eas update --channel release --branch "${{ steps.get-details.outputs.branch }}" --message "${{ steps.get-details.outputs.message }}"
+          command: eas update --channel release --message "${{ steps.get-details.outputs.branch }}"
