@@ -1,4 +1,4 @@
-name: Expo Update Preview
+name: Expo Update Develop
 
 on:
   push:
