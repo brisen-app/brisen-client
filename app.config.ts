@@ -31,6 +31,7 @@ export default (): ExpoConfig => ({
   splash: {
     image: './src/assets/images/splash-screen/splash-screen.png',
     resizeMode: 'contain',
+    backgroundColor: '#000000',
   },
   locales: {
     en: {},
