@@ -27,7 +27,6 @@ export default (): ExpoConfig => ({
   primaryColor: '#f3a000',
   backgroundColor: '#000000',
   platforms: ['ios', 'android'],
-  icon: './src/assets/images/app-icon/icon.png',
   splash: {
     image: './src/assets/images/splash-screen/splash-screen.png',
     resizeMode: 'contain',
@@ -49,6 +48,11 @@ export default (): ExpoConfig => ({
   ios: {
     supportsTablet: true,
     bundleIdentifier: bundleId,
+    icon: {
+      light: './src/assets/images/app-icon/icon.png',
+      dark: './src/assets/images/app-icon/foreground.png',
+      tinted: './src/assets/images/app-icon/mono.png',
+    },
     config: {
       usesNonExemptEncryption: false,
     },
@@ -76,7 +80,7 @@ export default (): ExpoConfig => ({
           minSdkVersion: 24,
         },
         ios: {
-          deploymentTarget: '15.0',
+          deploymentTarget: '15.1',
         },
       },
     ],

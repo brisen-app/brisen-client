@@ -3,7 +3,6 @@ import { AppContextProvider } from '@/src/providers/AppContextProvider'
 import AppDataProvider from '@/src/providers/AppDataProvider'
 import InAppPurchaseProvider from '@/src/providers/InAppPurchaseProvider'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { setBackgroundColorAsync, setPositionAsync } from 'expo-navigation-bar'
 import { SplashScreen, Stack } from 'expo-router'
 import { Platform } from 'react-native'
@@ -40,7 +39,6 @@ export default function Layout() {
                   contentStyle: { backgroundColor: Colors.background },
                 }}
               />
-              {Platform.OS === 'web' && <ReactQueryDevtools initialIsOpen={true} />}
             </InAppPurchaseProvider>
           </AppContextProvider>
         </AppDataProvider>
