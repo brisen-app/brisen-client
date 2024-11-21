@@ -42,6 +42,11 @@
     "useTabs": false
   },
   "expo": {
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "listUnknownPackages": false
+      }
+    },
     "autolinking": {
       "ios": {
         "exclude": [
