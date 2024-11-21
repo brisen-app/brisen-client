@@ -263,7 +263,7 @@ function AddPlayerField(props: Readonly<ViewProps>) {
         autoComplete='off'
         maxLength={32}
         inputMode='text'
-        blurOnSubmit={false}
+        submitBehavior='submit'
         onSubmitEditing={handleAddPlayer}
         selectionColor={Colors.accentColor}
         style={{ flex: 1, fontSize: 18, color: Colors.text }}
