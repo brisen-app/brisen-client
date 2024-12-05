@@ -50,8 +50,8 @@ export default (): ExpoConfig => ({
     bundleIdentifier: bundleId,
     icon: {
       light: './src/assets/images/app-icon/icon.png',
-      dark: './src/assets/images/app-icon/foreground.png',
-      tinted: './src/assets/images/app-icon/mono.png',
+      dark: './src/assets/images/app-icon/foreground-ios.png',
+      tinted: './src/assets/images/app-icon/mono-ios.png',
     },
     config: {
       usesNonExemptEncryption: false,
