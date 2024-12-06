@@ -19,7 +19,6 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: Submit to Stores
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -35,4 +34,4 @@ jobs:
       - name: 🚀 Submit to stores
         uses: expo/expo-github-action/preview@v8
         with:
-          command: eas build -p all --profile production --non-interactive --auto-submit
+          command: eas build -p all --profile production --non-interactive --auto-submit --no-wait
