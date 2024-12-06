@@ -18,7 +18,9 @@ export default (): ExpoConfig => ({
   slug: 'brisen-client',
   description: "Let's get Brisen together!",
   version: appVersion,
-  runtimeVersion: '1',
+  runtimeVersion: {
+    policy: 'fingerprint',
+  },
   githubUrl: 'https://github.com/brisen-app/brisen-client',
   orientation: 'portrait',
   scheme: 'no.kallerud',
@@ -27,7 +29,6 @@ export default (): ExpoConfig => ({
   primaryColor: '#f3a000',
   backgroundColor: '#000000',
   platforms: ['ios', 'android'],
-  icon: './src/assets/images/app-icon/icon.png',
   splash: {
     image: './src/assets/images/splash-screen/splash-screen.png',
     resizeMode: 'contain',
@@ -49,6 +50,11 @@ export default (): ExpoConfig => ({
   ios: {
     supportsTablet: true,
     bundleIdentifier: bundleId,
+    icon: {
+      light: './src/assets/images/app-icon/icon.png',
+      dark: './src/assets/images/app-icon/foreground-ios.png',
+      tinted: './src/assets/images/app-icon/mono-ios.png',
+    },
     config: {
       usesNonExemptEncryption: false,
     },
@@ -76,7 +82,7 @@ export default (): ExpoConfig => ({
           minSdkVersion: 24,
         },
         ios: {
-          deploymentTarget: '15.0',
+          deploymentTarget: '15.1',
         },
       },
     ],

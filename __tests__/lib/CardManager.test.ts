@@ -455,4 +455,61 @@ describe('drawCard', () => {
     expect(result?.featuredPlayers).toEqual(new Set([players[0], players[2]]))
     expect(result?.players).toEqual([players[2], players[0], players[1], players[3]])
   })
+
+  it('should always return starting cards first', () => {
+    const cards: Set<Card> = new Set([
+      {
+        ...MockedCards.Card_2,
+        order: 'ending',
+      },
+      {
+        ...MockedCards.Card_1,
+        order: 'starting',
+      },
+    ])
+
+    CardManager['set'](cards)
+    const playlist: Set<Pack> = new Set([
+      {
+        cards: new Set(['1', '2']),
+      } as Pack,
+    ])
+    const players = new Set([MockedPlayers.Alice, MockedPlayers.Bob])
+
+    const result = CardManager.drawCard([], new Set(), playlist, players, new Set())
+
+    expect(result?.id).toBe('1')
+  })
+
+  it('should only return ending cards if no other cards are available', () => {
+    const cards: Set<Card> = new Set([
+      {
+        ...MockedCards.Card_1,
+        order: 'starting',
+      },
+      MockedCards.Card_2,
+      {
+        ...MockedCards.Card_3,
+        order: 'ending',
+      },
+    ])
+
+    CardManager['set'](cards)
+    const playlist: Set<Pack> = new Set([
+      {
+        cards: new Set(['1', '2', '3']),
+      } as Pack,
+    ])
+    const players = new Set([MockedPlayers.Alice, MockedPlayers.Bob])
+
+    const result = CardManager.drawCard(
+      [MockedCards.Card_1 as PlayedCard, MockedCards.Card_2 as PlayedCard],
+      new Set(['1', '2']),
+      playlist,
+      players,
+      new Set()
+    )
+
+    expect(result?.id).toBe('3')
+  })
 })

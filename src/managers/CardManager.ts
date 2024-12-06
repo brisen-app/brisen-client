@@ -41,9 +41,14 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     categoryFilterIds: Set<string>
   ): PlayedCard | null {
     let card = this.drawClosingCard(playedCards, playedIds)
-    const candidates = this.findCandidates(playlist, playedIds, players.size, categoryFilterIds)
+    let candidates = this.findCandidates(playlist, playedIds, players.size, categoryFilterIds)
 
-    card = card ?? getRandom(candidates.values())
+    candidates = this.getOrderedCards(candidates, 'starting')
+    const endingCandidates = this.getOrderedCards(candidates, 'ending')
+    candidates = this.removeOrderedCards(candidates, 'ending')
+
+    card ??= getRandom(candidates.values())
+    card ??= getRandom(endingCandidates.values())
     if (!card) return null
 
     const parentId = CardRelationManager.getUnplayedParent(card.id, new Set(candidates.keys()))
@@ -64,6 +69,22 @@ class CardManagerSingleton extends SupabaseManager<Card> {
       featuredPlayers: new Set(featuredPlayers.values()),
       formattedContent,
     }
+  }
+
+  private getOrderedCards(candidates: Map<string, Card>, order: Exclude<Card['order'], null>) {
+    let results = new Map<string, Card>()
+    for (const card of candidates.values()) {
+      if (card.order === order) results.set(card.id, card)
+    }
+    return results.size > 0 ? results : candidates
+  }
+
+  private removeOrderedCards(candidates: Map<string, Card>, order: Exclude<Card['order'], null>) {
+    const results = new Map<string, Card>()
+    for (const card of candidates.values()) {
+      if (card.order !== order) results.set(card.id, card)
+    }
+    return results
   }
 
   private drawClosingCard(playedCards: PlayedCard[], playedIds: Set<string>) {
