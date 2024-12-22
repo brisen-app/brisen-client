@@ -51,9 +51,8 @@ import MenuHudView from './MenuHudView'
 import PackPosterView from './pack/PackPosterView'
 import ScrollToBottomButton from './utils/ScrollToBottomButton'
 import Tag from './utils/Tag'
-import MenuDetailsVeiw from './MenuDetailsView'
 
-const SHEET_TRASITION_POINT = 0.5
+const SHEET_TRASITION_POINT = 0.25
 
 export default function MenuView() {
   const insets = useSafeAreaInsets()
@@ -65,7 +64,6 @@ export default function MenuView() {
   const showCollapseButton = playlist.size > 0
 
   const closedSheetHeight = useSheetHeight() - SHEET_HANDLE_HEIGHT
-  const midSheetHeight = closedSheetHeight + Dimensions.get('screen').height / 3
 
   const sortedPlayers = useMemo(() => [...players].sort((a, b) => a.name.localeCompare(b.name)), [players])
   const sortedCategories = useMemo(() => CategoryManager.items, [CategoryManager.items])
@@ -97,8 +95,6 @@ export default function MenuView() {
         contentContainerStyle={{ gap: 8 }}
         style={{ flex: 1, overflow: 'visible', marginHorizontal: 16 }}
       >
-        <MenuDetailsVeiw style={hideOnBottomStyle} />
-
         <Animated.View style={[{ gap: 8 }, hideOnBottomStyle]}>
           <Header titleKey='players' descriptionKey='players_subtitle' />
           <AddPlayerField />
