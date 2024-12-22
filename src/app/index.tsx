@@ -7,25 +7,26 @@ import BottomSheet, {
   BottomSheetBackgroundProps,
   BottomSheetHandleProps,
 } from '@gorhom/bottom-sheet'
+import { LinearGradient } from 'expo-linear-gradient'
 import { SplashScreen } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { Keyboard, Platform, View, ViewProps } from 'react-native'
+import { Dimensions, Keyboard, Platform, View, ViewProps } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { SHEET_HANDLE_HEIGHT } from '../constants/Styles'
 import Color from '../models/Color'
-import { LinearGradient } from 'expo-linear-gradient'
 
 export default function App() {
   const insets = useSafeAreaInsets()
   const bottomSheetRef = useRef<BottomSheet>(null)
   const sheetHeight = useSheetHeight()
-  const snapPoints = useMemo(() => [sheetHeight, '90%'], [bottomSheetRef, insets])
+  const sheetDetailsHeight = sheetHeight + Dimensions.get('screen').height / 3
+  const snapPoints = useMemo(() => [sheetHeight, sheetDetailsHeight, '90%'], [bottomSheetRef, insets])
 
   const backdrop = useCallback(
     (props: any) => (
       <BottomSheetBackdrop
-        opacity={0.5}
-        appearsOnIndex={1}
+        opacity={0.75}
+        appearsOnIndex={2}
         disappearsOnIndex={0}
         pressBehavior='collapse'
         onPress={Keyboard.dismiss}
