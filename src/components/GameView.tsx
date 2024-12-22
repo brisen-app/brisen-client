@@ -17,7 +17,6 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { FontStyles } from '../constants/Styles'
 import { useSheetHeight } from '../lib/utils'
-import { ConfigurationManager } from '../managers/ConfigurationManager'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import ScrollToBottomButton from './utils/ScrollToBottomButton'
 
@@ -45,16 +44,13 @@ export default function GameView(props: Readonly<GameViewProps>) {
     paddingBottom: useSheetHeight() + padding,
   }
 
-  const bottomSheetHeight = ConfigurationManager.get('bottom_sheet_min_position')?.number ?? 64
-  const cardHeight =
-    Dimensions.get('screen').height - bottomSheetHeight - insets.top - insets.bottom - padding - CARD_PEEK_HEIGHT
+  const bottomSheetHeight = useSheetHeight()
+  const cardHeight = Dimensions.get('screen').height - bottomSheetHeight - insets.top - padding - CARD_PEEK_HEIGHT
 
   const showScrollButton = useCallback(() => {
     if (viewableItems === undefined || viewableItems.length === 0) return false
     if (isOutOfCards) return true
-    return viewableItems.some(
-      item => item.index && item.index < playedCards.length - 3
-    )
+    return viewableItems.some(item => item.index && item.index < playedCards.length - 3)
   }, [viewableItems, isOutOfCards])
 
   const onPressNoCard = useCallback(() => {
@@ -92,6 +88,10 @@ export default function GameView(props: Readonly<GameViewProps>) {
         (newCard.formattedContent ?? newCard.content)
     )
   }
+
+  useEffect(() => {
+    setContext({ action: 'currentCard', payload: viewableItems?.[0]?.item })
+  }, [viewableItems])
 
   // When the playlist or players change
   useEffect(() => {
