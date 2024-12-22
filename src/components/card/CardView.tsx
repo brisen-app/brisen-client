@@ -1,16 +1,16 @@
 import Colors from '@/src/constants/Colors'
 import { FontStyles, Styles } from '@/src/constants/Styles'
+import { useSheetHeight } from '@/src/lib/utils'
 import { PlayedCard } from '@/src/managers/CardManager'
 import { Category, CategoryManager } from '@/src/managers/CategoryManager'
+import { ConfigurationManager } from '@/src/managers/ConfigurationManager'
 import { PackManager } from '@/src/managers/PackManager'
 import Color from '@/src/models/Color'
+import { MaterialIcons } from '@expo/vector-icons'
 import { Image } from 'expo-image'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Platform, StyleSheet, Text, TouchableOpacity, View, ViewProps } from 'react-native'
-import { ConfigurationManager } from '@/src/managers/ConfigurationManager'
-import { MaterialIcons } from '@expo/vector-icons'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useSheetHeight } from '@/src/lib/utils'
 
 export type CardViewProps = {
   card: PlayedCard
@@ -36,10 +36,16 @@ export function CardView(props: Readonly<CardViewProps & ViewProps>) {
   const { data: image, error } = PackManager.useImageQuery(card.pack?.image)
   if (error) console.warn(`Couldn't load image for pack ${card.pack?.name}:`, error)
 
-  function getGradient() {
-    if (!category?.gradient) return ConfigurationManager.get('default_gradient')?.list ?? [Colors.accentColor]
+  function getGradient(): [string, string, ...string[]] {
+    if (!category?.gradient)
+      return (
+        (ConfigurationManager.get('default_gradient')?.list as [string, string, ...string[]]) ?? [
+          Colors.accentColor,
+          Colors.accentColor,
+        ]
+      )
     if (category.gradient.length === 1) return [category.gradient[0], category.gradient[0]]
-    return category.gradient.map(color => Color.hex(color).string)
+    return category.gradient.map(color => Color.hex(color).string) as [string, string, ...string[]]
   }
 
   return (

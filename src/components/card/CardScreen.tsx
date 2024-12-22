@@ -1,12 +1,14 @@
 import Colors from '@/src/constants/Colors'
 import { FontStyles, Styles } from '@/src/constants/Styles'
+import { useSheetHeight } from '@/src/lib/utils'
 import { PlayedCard } from '@/src/managers/CardManager'
 import { CategoryManager } from '@/src/managers/CategoryManager'
+import { ConfigurationManager } from '@/src/managers/ConfigurationManager'
 import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import { Pack, PackManager } from '@/src/managers/PackManager'
 import { Image } from 'expo-image'
 import { useRef } from 'react'
-import { Text, Dimensions, Platform, StyleSheet, View, ViewProps } from 'react-native'
+import { Dimensions, Platform, StyleSheet, Text, View, ViewProps } from 'react-native'
 import Animated, {
   Easing,
   Extrapolation,
@@ -16,10 +18,9 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated'
-import { AnimatedScrollView } from 'react-native-reanimated/lib/typescript/reanimated2/component/ScrollView'
+import { AnimatedScrollView } from 'react-native-reanimated/lib/typescript/component/ScrollView'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { CardView } from './CardView'
-import { useSheetHeight } from '@/src/lib/utils'
 
 export type CardScreenProps = { card: PlayedCard } & ViewProps
 
@@ -46,6 +47,7 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
 
   const category = card.category ? CategoryManager.get(card.category) : null
   const categoryDescription = category ? CategoryManager.getDescription(category) : null
+  const closedSheetHeight = ConfigurationManager.get('bottom_sheet_min_position')?.number ?? 64
   const packs = PackManager.getPacksOf(card.id)
 
   const appearOnScrollStyle = useAnimatedStyle(() => ({
@@ -76,7 +78,7 @@ export default function CardScreen(props: Readonly<CardScreenProps>) {
       style={[
         style,
         {
-          height: Dimensions.get('screen').height,
+          height: Dimensions.get('screen').height - closedSheetHeight - safeArea.paddingBottom,
         },
       ]}
     >
