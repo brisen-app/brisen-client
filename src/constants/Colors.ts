@@ -7,7 +7,7 @@ export default {
   secondaryText: Color.brightness(0.5).string,
 
   background: Color.black.string,
-  secondaryBackground: Color.brightness(0.1).string,
+  secondaryBackground: Color.brightness(0.08).string,
 
   stroke: Color.white.alpha(0.1).string,
 
