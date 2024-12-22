@@ -1,6 +1,6 @@
 import Colors from '@/src/constants/Colors'
 import { FontStyles, SHEET_HANDLE_HEIGHT } from '@/src/constants/Styles'
-import { formatName as prettifyString } from '@/src/lib/utils'
+import { formatName as prettifyString, useSheetHeight } from '@/src/lib/utils'
 import { Category, CategoryManager } from '@/src/managers/CategoryManager'
 import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import { PackManager } from '@/src/managers/PackManager'
@@ -63,7 +63,7 @@ export default function MenuView() {
   const setContext = useAppDispatchContext()
   const showCollapseButton = playlist.size > 0
 
-  const closedSheetHeight = ConfigurationManager.get('bottom_sheet_min_position')?.number ?? 64
+  const closedSheetHeight = useSheetHeight() - SHEET_HANDLE_HEIGHT
 
   const sortedPlayers = useMemo(() => [...players].sort((a, b) => a.name.localeCompare(b.name)), [players])
   const sortedCategories = useMemo(() => CategoryManager.items, [CategoryManager.items])
@@ -73,7 +73,7 @@ export default function MenuView() {
   }
 
   const hideOnBottomStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(bottomSheet.animatedIndex.value, [0, SHEET_TRASITION_POINT], [0, 1]),
+    opacity: interpolate(bottomSheet.animatedIndex.value, [0, SHEET_TRASITION_POINT], [0, 1], Extrapolation.CLAMP),
   }))
 
   const hudStyle = useAnimatedStyle(() => ({
