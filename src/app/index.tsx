@@ -12,6 +12,8 @@ import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { Keyboard, Platform, View, ViewProps } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { SHEET_HANDLE_HEIGHT } from '../constants/Styles'
+import Color from '../models/Color'
+import { LinearGradient } from 'expo-linear-gradient'
 
 export default function App() {
   const insets = useSafeAreaInsets()
@@ -39,6 +41,18 @@ export default function App() {
 
   return (
     <>
+      <LinearGradient
+        colors={bezierGradient}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={{
+          position: 'absolute',
+          zIndex: Number.MAX_SAFE_INTEGER,
+          height: insets.top,
+          width: '100%',
+          opacity: 0.75,
+        }}
+      />
       <GameView bottomSheetRef={bottomSheetRef} />
       <BottomSheet
         ref={bottomSheetRef}
@@ -97,3 +111,22 @@ const SheetHandle: React.FC<BottomSheetHandleProps & ViewProps> = ({ style }) =>
     </View>
   )
 }
+
+const bezierGradient: [string, string, ...string[]] = [
+  Color.black.alpha(1 - 0).string,
+  Color.black.alpha(1 - 0.1129).string,
+  Color.black.alpha(1 - 0.2204).string,
+  Color.black.alpha(1 - 0.3225).string,
+  Color.black.alpha(1 - 0.4188).string,
+  Color.black.alpha(1 - 0.5092).string,
+  Color.black.alpha(1 - 0.5933).string,
+  Color.black.alpha(1 - 0.6709).string,
+  Color.black.alpha(1 - 0.7416).string,
+  Color.black.alpha(1 - 0.805).string,
+  Color.black.alpha(1 - 0.8607).string,
+  Color.black.alpha(1 - 0.9081).string,
+  Color.black.alpha(1 - 0.9466).string,
+  Color.black.alpha(1 - 0.9754).string,
+  Color.black.alpha(1 - 0.9936).string,
+  Color.black.alpha(1 - 1).string,
+]

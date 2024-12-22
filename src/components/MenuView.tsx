@@ -152,7 +152,7 @@ export default function MenuView() {
       </BottomSheetScrollView>
       {showCollapseButton && (
         <ScrollToBottomButton
-          text='Start'
+          text={LocalizationManager.get('start_game')?.value ?? 'Start'}
           onPress={() => {
             Keyboard.dismiss()
             scrollViewRef.current?.scrollTo({ y: 0, animated: true })
