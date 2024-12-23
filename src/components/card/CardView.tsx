@@ -21,7 +21,7 @@ import Animated, {
   interpolateColor,
   useAnimatedStyle,
   useSharedValue,
-  withTiming
+  withTiming,
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
@@ -146,10 +146,6 @@ function CategoryView(
     animationState.value = withTiming(showDetails ? 1 : 0, ANIMATION_SETTINGS)
   }, [showDetails])
 
-  const animatedFlexStyle = useAnimatedStyle(() => ({
-    flex: interpolate(animationState.value, [0, 1], [0, 1], Extrapolation.CLAMP),
-  }))
-
   const animatedContainerStyle = useAnimatedStyle(() => ({
     backgroundColor: interpolateColor(animationState.value, [0, 1], ['transparent', Colors.stroke]),
     padding: interpolate(animationState.value, [0, 1], [0, 16], Extrapolation.CLAMP),
@@ -167,7 +163,7 @@ function CategoryView(
       >
         {item?.icon && <Text style={[styles.textShadow, { fontSize: 48 }]}>{item?.icon}</Text>}
 
-        <Animated.View style={animatedFlexStyle}>
+        <View style={{ flex: showDetails ? 1 : 0 }}>
           {categoryTitle && (
             <Text style={[FontStyles.Title, styles.textShadow, { color: Color.white.string }]}>{categoryTitle}</Text>
           )}
@@ -176,8 +172,10 @@ function CategoryView(
               {categoryDescription}
             </Text>
           )}
-        </Animated.View>
-        <MaterialIcons name='info' size={18} color={Color.white.alpha(0.5).string} style={{ marginLeft: 4 }} />
+        </View>
+        {!showDetails && (
+          <MaterialIcons name='info' size={18} color={Color.white.alpha(0.5).string} style={{ marginLeft: 4 }} />
+        )}
       </Animated.View>
     </TouchableOpacity>
   )
@@ -231,6 +229,9 @@ function PackView(props: Readonly<{ pack: Pack; showDetails: boolean } & Touchab
             </Text>
           )}
         </View>
+        {!showDetails && (
+          <MaterialIcons name='info' size={18} color={Color.white.alpha(0.5).string} style={{ marginLeft: 4 }} />
+        )}
       </Animated.View>
     </TouchableOpacity>
   )
