@@ -117,7 +117,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
         style={[{ overflow: 'visible' }, safeArea]}
         contentContainerStyle={{ gap: padding }}
         data={playedCards}
-        decelerationRate={0}
+        decelerationRate={'fast'}
         snapToInterval={cardHeight + padding}
         keyboardDismissMode='on-drag'
         onEndReachedThreshold={1.01}
