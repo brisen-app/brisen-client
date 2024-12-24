@@ -39,8 +39,8 @@ export default function GameView(props: Readonly<GameViewProps>) {
   const insets = useSafeAreaInsets()
   const safeArea = {
     paddingTop: Math.max(padding, insets.top),
-    paddingLeft: Math.max(padding, insets.left),
-    paddingRight: Math.max(padding, insets.right),
+    paddingLeft: insets.left,
+    paddingRight: insets.right,
     paddingBottom: useSheetHeight() + padding,
   }
 
