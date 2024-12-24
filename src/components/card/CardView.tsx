@@ -1,6 +1,5 @@
 import Colors from '@/src/constants/Colors'
 import { FontStyles, Styles } from '@/src/constants/Styles'
-import { useSheetHeight } from '@/src/lib/utils'
 import { PlayedCard } from '@/src/managers/CardManager'
 import { Category, CategoryManager } from '@/src/managers/CategoryManager'
 import { ConfigurationManager } from '@/src/managers/ConfigurationManager'
@@ -23,7 +22,6 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 const ANIMATION_SETTINGS: WithTimingConfig = { duration: 200, easing: Easing.out(Easing.ease) }
 
@@ -35,15 +33,6 @@ export type CardViewProps = {
 export function CardView(props: Readonly<CardViewProps & ViewProps>) {
   const { card, category, style } = props
   const [showDetails, setShowDetails] = useState(false)
-
-  const insets = useSafeAreaInsets()
-  const padding = 16
-  const safeArea = {
-    paddingTop: Math.max(padding, insets.top),
-    paddingLeft: Math.max(padding, insets.left),
-    paddingRight: Math.max(padding, insets.right),
-    paddingBottom: useSheetHeight() + padding,
-  }
 
   const target = card.is_group || card.players.length === 0 ? undefined : card.players[0]
   const content = card.formattedContent ?? card.content
@@ -94,7 +83,7 @@ export function CardView(props: Readonly<CardViewProps & ViewProps>) {
         )}
       </View>
 
-      <Content content={content} player={target} style={safeArea} />
+      <Content content={content} player={target} />
     </View>
   )
 }
@@ -149,14 +138,13 @@ function CategoryView(
   const animatedContainerStyle = useAnimatedStyle(() => ({
     backgroundColor: interpolateColor(animationState.value, [0, 1], ['transparent', Colors.stroke]),
     padding: interpolate(animationState.value, [0, 1], [0, 16], Extrapolation.CLAMP),
-    borderRadius: interpolate(animationState.value, [0, 1], [0, 16], Extrapolation.CLAMP),
   }))
 
   return (
     <TouchableOpacity {...rest}>
       <Animated.View
         style={[
-          { flexDirection: 'row', alignItems: 'center', alignSelf: 'center', gap: 4 },
+          { flexDirection: 'row', alignItems: 'center', alignSelf: 'center', gap: 4, borderRadius: 16 },
           animatedContainerStyle,
           style,
         ]}
@@ -204,7 +192,13 @@ function PackView(props: Readonly<{ pack: Pack; showDetails: boolean } & Touchab
 
   return (
     <TouchableOpacity {...rest}>
-      <Animated.View style={[{ flexDirection: 'row', alignItems: 'center', gap: 8 }, animatedContainerStyle, style]}>
+      <Animated.View
+        style={[
+          { flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: 16 },
+          animatedContainerStyle,
+          style,
+        ]}
+      >
         {image && (
           <Animated.Image
             source={{ uri: image }}
@@ -221,7 +215,7 @@ function PackView(props: Readonly<{ pack: Pack; showDetails: boolean } & Touchab
           />
         )}
 
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: showDetails ? 1 : 0 }}>
           <Text style={[FontStyles.Title, styles.textShadow, { color: Color.white.string }]}>{pack.name}</Text>
           {showDetails && (
             <Text style={[FontStyles.Subheading, styles.textShadow, { color: Color.white.string }]}>
