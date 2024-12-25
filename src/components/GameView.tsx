@@ -173,7 +173,6 @@ function OutOfCardsView(props: Readonly<TouchableOpacityProps>) {
       {...props}
       style={[
         {
-          flex: 1,
           justifyContent: 'center',
           alignItems: 'center',
           gap: 8,
