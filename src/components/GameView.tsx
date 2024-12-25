@@ -18,7 +18,7 @@ import {
 import { TouchableOpacityProps } from 'react-native-gesture-handler'
 import Animated from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { FontStyles, SHEET_HANDLE_HEIGHT } from '../constants/Styles'
+import { FontStyles } from '../constants/Styles'
 import { useSheetHeight } from '../lib/utils'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import ScrollToBottomButton from './utils/ScrollToBottomButton'
