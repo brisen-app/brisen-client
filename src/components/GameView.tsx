@@ -11,6 +11,7 @@ import {
   PressableProps,
   Text,
   TouchableOpacity,
+  View,
   ViewProps,
   ViewToken,
 } from 'react-native'
@@ -19,6 +20,7 @@ import { FontStyles } from '../constants/Styles'
 import { useSheetHeight } from '../lib/utils'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import ScrollToBottomButton from './utils/ScrollToBottomButton'
+import { TouchableOpacityProps } from 'react-native-gesture-handler'
 
 export type GameViewProps = {
   bottomSheetRef?: React.RefObject<BottomSheet>
@@ -161,14 +163,13 @@ function NoCardsView(props: Readonly<PressableProps & ViewProps>) {
   )
 }
 
-type OutOfCardsViewProps = { onPress: () => void } & ViewProps
-function OutOfCardsView(props: Readonly<OutOfCardsViewProps>) {
+function OutOfCardsView(props: Readonly<TouchableOpacityProps>) {
   const { onPress, style } = props
   const { playedCards } = useAppContext()
   const setContext = useAppDispatchContext()
 
   return (
-    <Pressable
+    <View
       {...props}
       style={[
         {
@@ -191,7 +192,7 @@ function OutOfCardsView(props: Readonly<OutOfCardsViewProps>) {
       <TouchableOpacity
         disabled={playedCards.length === 0}
         onPress={() => {
-          onPress()
+          onPress?.()
           setContext({ action: 'restartGame' })
         }}
         style={{
@@ -210,6 +211,6 @@ function OutOfCardsView(props: Readonly<OutOfCardsViewProps>) {
           {LocalizationManager.get('restart_game')?.value ?? 'restart_game'}
         </Text>
       </TouchableOpacity>
-    </Pressable>
+    </View>
   )
 }

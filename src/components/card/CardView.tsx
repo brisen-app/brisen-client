@@ -6,24 +6,10 @@ import { ConfigurationManager } from '@/src/managers/ConfigurationManager'
 import { Pack, PackManager } from '@/src/managers/PackManager'
 import Color from '@/src/models/Color'
 import { Player } from '@/src/models/Player'
-import { MaterialIcons } from '@expo/vector-icons'
 import { Image } from 'expo-image'
 import { LinearGradient } from 'expo-linear-gradient'
-import { useEffect, useState } from 'react'
-import { Platform, StyleSheet, Text, TouchableOpacity, View, ViewProps } from 'react-native'
-import { TouchableOpacityProps } from 'react-native-gesture-handler'
-import Animated, {
-  Easing,
-  Extrapolation,
-  WithTimingConfig,
-  interpolate,
-  interpolateColor,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated'
-
-const ANIMATION_SETTINGS: WithTimingConfig = { duration: 200, easing: Easing.out(Easing.ease) }
+import { Platform, StyleSheet, Text, View, ViewProps } from 'react-native'
+import { Easing, WithTimingConfig } from 'react-native-reanimated'
 
 export type CardViewProps = {
   card: PlayedCard
@@ -32,7 +18,6 @@ export type CardViewProps = {
 
 export function CardView(props: Readonly<CardViewProps & ViewProps>) {
   const { card, category, style } = props
-  const [showDetails, setShowDetails] = useState(false)
 
   const target = card.is_group || card.players.length === 0 ? undefined : card.players[0]
   const content = card.formattedContent ?? card.content
@@ -69,18 +54,9 @@ export function CardView(props: Readonly<CardViewProps & ViewProps>) {
           padding: 24,
         }}
       >
-        {(category || card.header) && (
-          <CategoryView
-            item={category}
-            header={card.header ?? undefined}
-            onPress={() => setShowDetails(!showDetails)}
-            showDetails={showDetails}
-          />
-        )}
+        {(category || card.header) && <CategoryView item={category} header={card.header ?? undefined} />}
         <View style={{ flex: 1 }} />
-        {card.pack && (
-          <PackView pack={card.pack} onPress={() => setShowDetails(!showDetails)} showDetails={showDetails} />
-        )}
+        {card.pack && <PackView pack={card.pack} />}
       </View>
 
       <Content content={content} player={target} />
@@ -122,112 +98,54 @@ function Content(props: Readonly<{ content: string; player?: Player } & ViewProp
   )
 }
 
-function CategoryView(
-  props: Readonly<{ item?: Category; header?: string; showDetails: boolean } & TouchableOpacityProps>
-) {
-  const { item, header, showDetails, style, ...rest } = props
-  const animationState = useSharedValue(0)
+function CategoryView(props: Readonly<{ item?: Category; header?: string } & ViewProps>) {
+  const { item, header, style, ...rest } = props
 
   const categoryTitle = item ? CategoryManager.getTitle(item) : header
-  const categoryDescription = item ? CategoryManager.getDescription(item) : undefined
-
-  useEffect(() => {
-    animationState.value = withTiming(showDetails ? 1 : 0, ANIMATION_SETTINGS)
-  }, [showDetails])
-
-  const animatedContainerStyle = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(animationState.value, [0, 1], ['transparent', Colors.stroke]),
-    padding: interpolate(animationState.value, [0, 1], [0, 16], Extrapolation.CLAMP),
-  }))
 
   return (
-    <TouchableOpacity {...rest}>
-      <Animated.View
-        style={[
-          { flexDirection: 'row', alignItems: 'center', alignSelf: 'center', gap: 4, borderRadius: 16 },
-          animatedContainerStyle,
-          style,
-        ]}
-      >
-        {item?.icon && <Text style={[styles.textShadow, { fontSize: 48 }]}>{item?.icon}</Text>}
+    <View
+      {...rest}
+      style={[{ flexDirection: 'row', alignItems: 'center', alignSelf: 'center', gap: 4, borderRadius: 16 }, style]}
+    >
+      {item?.icon && <Text style={[styles.textShadow, { fontSize: 48 }]}>{item?.icon}</Text>}
 
-        <View style={{ flex: showDetails ? 1 : 0 }}>
-          {categoryTitle && (
-            <Text style={[FontStyles.Title, styles.textShadow, { color: Color.white.string }]}>{categoryTitle}</Text>
-          )}
-          {showDetails && categoryDescription && (
-            <Text style={[FontStyles.Subheading, styles.textShadow, { color: Color.white.string }]}>
-              {categoryDescription}
-            </Text>
-          )}
-        </View>
-        {!showDetails && (
-          <MaterialIcons name='info' size={18} color={Color.white.alpha(0.5).string} style={{ marginLeft: 4 }} />
+      <View>
+        {categoryTitle && (
+          <Text style={[FontStyles.Title, styles.textShadow, { color: Color.white.string }]}>{categoryTitle}</Text>
         )}
-      </Animated.View>
-    </TouchableOpacity>
+      </View>
+    </View>
   )
 }
 
-function PackView(props: Readonly<{ pack: Pack; showDetails: boolean } & TouchableOpacityProps>) {
-  const { pack, showDetails, style, ...rest } = props
-  const animationState = useSharedValue(0)
+function PackView(props: Readonly<{ pack: Pack } & ViewProps>) {
+  const { pack, style, ...rest } = props
 
   const { data: image, error } = PackManager.useImageQuery(pack.image)
   if (error) console.warn(`Couldn't load image for pack ${pack.name}:`, error)
 
-  useEffect(() => {
-    animationState.value = withTiming(showDetails ? 1 : 0, ANIMATION_SETTINGS)
-  }, [showDetails])
-
-  const animatedContainerStyle = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(animationState.value, [0, 1], ['transparent', Colors.stroke]),
-    padding: interpolate(animationState.value, [0, 1], [0, 16], Extrapolation.CLAMP),
-    borderRadius: interpolate(animationState.value, [0, 1], [0, 16], Extrapolation.CLAMP),
-  }))
-
-  const animatedImageStyle = useAnimatedStyle(() => ({
-    height: interpolate(animationState.value, [0, 1], [48, 64], Extrapolation.CLAMP),
-  }))
-
   return (
-    <TouchableOpacity {...rest}>
-      <Animated.View
-        style={[
-          { flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: 16 },
-          animatedContainerStyle,
-          style,
-        ]}
-      >
-        {image && (
-          <Animated.Image
-            source={{ uri: image }}
-            style={[
-              {
-                aspectRatio: 1,
-                backgroundColor: Color.black.alpha(0.5).string,
-                borderColor: Colors.stroke,
-                borderWidth: StyleSheet.hairlineWidth,
-                borderRadius: 12,
-              },
-              animatedImageStyle,
-            ]}
-          />
-        )}
+    <View {...rest} style={[{ flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: 16 }, style]}>
+      {image && (
+        <Image
+          source={image}
+          transition={200}
+          style={[
+            {
+              height: 48,
+              aspectRatio: 1,
+              backgroundColor: Color.black.alpha(0.5).string,
+              borderColor: Colors.stroke,
+              borderWidth: StyleSheet.hairlineWidth,
+              borderRadius: 12,
+            },
+          ]}
+        />
+      )}
 
-        <View style={{ flex: showDetails ? 1 : 0 }}>
-          <Text style={[FontStyles.Title, styles.textShadow, { color: Color.white.string }]}>{pack.name}</Text>
-          {showDetails && (
-            <Text style={[FontStyles.Subheading, styles.textShadow, { color: Color.white.string }]}>
-              {pack.description}
-            </Text>
-          )}
-        </View>
-        {!showDetails && (
-          <MaterialIcons name='info' size={18} color={Color.white.alpha(0.5).string} style={{ marginLeft: 4 }} />
-        )}
-      </Animated.View>
-    </TouchableOpacity>
+      <Text style={[FontStyles.Title, styles.textShadow, { color: Color.white.string }]}>{pack.name}</Text>
+    </View>
   )
 }
 
