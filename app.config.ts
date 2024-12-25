@@ -42,6 +42,7 @@ export default (): ExpoConfig => ({
   androidStatusBar: {
     backgroundColor: '#00000000',
     barStyle: 'light-content',
+    translucent: true,
   },
   androidNavigationBar: {
     backgroundColor: '#00000000',
