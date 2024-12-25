@@ -1,6 +1,8 @@
 import { StyleSheet } from 'react-native'
 import Colors from './Colors'
 
+export const SHEET_HANDLE_HEIGHT = 24
+
 export const Styles = StyleSheet.create({
   absoluteFill: {
     position: 'absolute',

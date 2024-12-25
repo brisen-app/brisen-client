@@ -2,44 +2,35 @@ import Colors from '@/src/constants/Colors'
 import { FontStyles, Styles } from '@/src/constants/Styles'
 import { PlayedCard } from '@/src/managers/CardManager'
 import { Category, CategoryManager } from '@/src/managers/CategoryManager'
-import { PackManager } from '@/src/managers/PackManager'
+import { ConfigurationManager } from '@/src/managers/ConfigurationManager'
+import { Pack, PackManager } from '@/src/managers/PackManager'
 import Color from '@/src/models/Color'
+import { Player } from '@/src/models/Player'
 import { Image } from 'expo-image'
 import { LinearGradient } from 'expo-linear-gradient'
-import { Platform, StyleSheet, Text, TouchableOpacity, View, ViewProps } from 'react-native'
-import { ConfigurationManager } from '@/src/managers/ConfigurationManager'
-import { MaterialIcons } from '@expo/vector-icons'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useSheetHeight } from '@/src/lib/utils'
+import { Platform, StyleSheet, Text, View, ViewProps } from 'react-native'
 
 export type CardViewProps = {
   card: PlayedCard
-  category?: Category | null
-  onPressCategory: () => void
-  onPressPack: () => void
+  category?: Category
 }
 
 export function CardView(props: Readonly<CardViewProps & ViewProps>) {
   const { card, category, style } = props
-  const insets = useSafeAreaInsets()
 
-  const padding = 16
-  const safeArea = {
-    paddingTop: Math.max(padding, insets.top),
-    paddingLeft: Math.max(padding, insets.left),
-    paddingRight: Math.max(padding, insets.right),
-    paddingBottom: useSheetHeight() + padding,
-  }
-
-  const target = card.is_group || card.players.length === 0 ? null : card.players[0]
+  const target = card.is_group || card.players.length === 0 ? undefined : card.players[0]
   const content = card.formattedContent ?? card.content
-  const { data: image, error } = PackManager.useImageQuery(card.pack?.image)
-  if (error) console.warn(`Couldn't load image for pack ${card.pack?.name}:`, error)
 
-  function getGradient() {
-    if (!category?.gradient) return ConfigurationManager.get('default_gradient')?.list ?? [Colors.accentColor]
+  function getGradient(): [string, string, ...string[]] {
+    if (!category?.gradient)
+      return (
+        (ConfigurationManager.get('default_gradient')?.list as [string, string, ...string[]]) ?? [
+          Colors.accentColor,
+          Colors.accentColor,
+        ]
+      )
     if (category.gradient.length === 1) return [category.gradient[0], category.gradient[0]]
-    return category.gradient.map(color => Color.hex(color).string)
+    return category.gradient.map(color => Color.hex(color).string) as [string, string, ...string[]]
   }
 
   return (
@@ -62,85 +53,97 @@ export function CardView(props: Readonly<CardViewProps & ViewProps>) {
           padding: 24,
         }}
       >
-        {(category || card.header) && (
-          <TouchableOpacity
-            onPress={props.onPressCategory}
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: 4,
-            }}
-          >
-            <Text style={{ ...styles.textShadow, fontSize: 48 }}>{category?.icon}</Text>
-            <Text
-              style={{ ...FontStyles.Title, ...styles.textShadow, color: Color.white.string, textAlign: 'right' }}
-              numberOfLines={1}
-            >
-              {category ? card.header ?? CategoryManager.getTitle(category) : card.header}
-            </Text>
-            <MaterialIcons name='info' size={18} color={Color.white.alpha(0.5).string} style={{ marginLeft: 4 }} />
-          </TouchableOpacity>
-        )}
-
+        {(category || card.header) && <CategoryView item={category} header={card.header ?? undefined} />}
         <View style={{ flex: 1 }} />
-        {card.pack && (
-          <TouchableOpacity
-            onPress={props.onPressPack}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 8,
-            }}
-          >
-            <Image
-              source={image}
-              transition={200}
-              style={{
-                height: 48,
-                aspectRatio: 1,
-                backgroundColor: Color.black.alpha(0.5).string,
-                borderColor: Colors.stroke,
-                borderWidth: StyleSheet.hairlineWidth,
-                borderRadius: 12,
-              }}
-            />
-
-            <Text style={{ ...FontStyles.Title, ...styles.textShadow, color: Color.white.string }}>
-              {card.pack?.name}
-            </Text>
-          </TouchableOpacity>
-        )}
+        {card.pack && <PackView pack={card.pack} />}
       </View>
 
-      {/* Content */}
-      <View style={safeArea}>
-        {target && (
-          <Text
-            style={{
-              fontSize: 32,
-              fontWeight: '900',
-              ...styles.textShadow,
-              color: Color.white.string,
-              textAlign: 'center',
-            }}
-          >
-            {target.name},
-          </Text>
-        )}
+      <Content content={content} player={target} />
+    </View>
+  )
+}
+
+function Content(props: Readonly<{ content: string; player?: Player } & ViewProps>) {
+  const { content, player, ...rest } = props
+
+  return (
+    <View {...rest}>
+      {player && (
         <Text
           style={{
-            fontSize: Math.max(18, 28 / Math.max(1, content.length / 150)),
+            fontSize: 32,
             fontWeight: '900',
             ...styles.textShadow,
             color: Color.white.string,
             textAlign: 'center',
-            paddingHorizontal: 32,
           }}
         >
-          {content}
+          {player.name},
         </Text>
+      )}
+      <Text
+        style={{
+          fontSize: Math.max(18, 28 / Math.max(1, content.length / 150)),
+          fontWeight: '900',
+          ...styles.textShadow,
+          color: Color.white.string,
+          textAlign: 'center',
+          paddingHorizontal: 32,
+        }}
+      >
+        {content}
+      </Text>
+    </View>
+  )
+}
+
+function CategoryView(props: Readonly<{ item?: Category; header?: string } & ViewProps>) {
+  const { item, header, style, ...rest } = props
+
+  const categoryTitle = item ? CategoryManager.getTitle(item) : header
+
+  return (
+    <View
+      {...rest}
+      style={[{ flexDirection: 'row', alignItems: 'center', alignSelf: 'center', gap: 4, borderRadius: 16 }, style]}
+    >
+      {item?.icon && <Text style={[styles.textShadow, { fontSize: 48 }]}>{item?.icon}</Text>}
+
+      <View>
+        {categoryTitle && (
+          <Text style={[FontStyles.Title, styles.textShadow, { color: Color.white.string }]}>{categoryTitle}</Text>
+        )}
       </View>
+    </View>
+  )
+}
+
+function PackView(props: Readonly<{ pack: Pack } & ViewProps>) {
+  const { pack, style, ...rest } = props
+
+  const { data: image, error } = PackManager.useImageQuery(pack.image)
+  if (error) console.warn(`Couldn't load image for pack ${pack.name}:`, error)
+
+  return (
+    <View {...rest} style={[{ flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: 16 }, style]}>
+      {image && (
+        <Image
+          source={image}
+          transition={200}
+          style={[
+            {
+              height: 48,
+              aspectRatio: 1,
+              backgroundColor: Color.black.alpha(0.5).string,
+              borderColor: Colors.stroke,
+              borderWidth: StyleSheet.hairlineWidth,
+              borderRadius: 12,
+            },
+          ]}
+        />
+      )}
+
+      <Text style={[FontStyles.Title, styles.textShadow, { color: Color.white.string }]}>{pack.name}</Text>
     </View>
   )
 }
