@@ -9,7 +9,6 @@ import { Player } from '@/src/models/Player'
 import { Image } from 'expo-image'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Platform, StyleSheet, Text, View, ViewProps } from 'react-native'
-import { Easing, WithTimingConfig } from 'react-native-reanimated'
 
 export type CardViewProps = {
   card: PlayedCard

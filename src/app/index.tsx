@@ -113,7 +113,7 @@ const SheetHandle: React.FC<BottomSheetHandleProps & ViewProps> = ({ style }) =>
 }
 
 const bezierGradient: [string, string, ...string[]] = [
-  Color.black.alpha(1 - 0).string,
+  Color.black.alpha(1).string,
   Color.black.alpha(1 - 0.1129).string,
   Color.black.alpha(1 - 0.2204).string,
   Color.black.alpha(1 - 0.3225).string,
@@ -128,5 +128,5 @@ const bezierGradient: [string, string, ...string[]] = [
   Color.black.alpha(1 - 0.9466).string,
   Color.black.alpha(1 - 0.9754).string,
   Color.black.alpha(1 - 0.9936).string,
-  Color.black.alpha(1 - 1).string,
+  Color.black.alpha(0).string,
 ]
