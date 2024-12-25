@@ -31,7 +31,7 @@ export default (): ExpoConfig => ({
   platforms: ['ios', 'android'],
   splash: {
     image: './src/assets/images/splash-screen/splash-screen.png',
-    resizeMode: 'contain',
+    resizeMode: 'cover',
     backgroundColor: '#000000',
   },
   locales: {
@@ -42,6 +42,7 @@ export default (): ExpoConfig => ({
   androidStatusBar: {
     backgroundColor: '#00000000',
     barStyle: 'light-content',
+    translucent: true,
   },
   androidNavigationBar: {
     backgroundColor: '#00000000',
