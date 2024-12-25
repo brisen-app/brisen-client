@@ -7,13 +7,13 @@ import BottomSheet, {
   BottomSheetBackgroundProps,
   BottomSheetHandleProps,
 } from '@gorhom/bottom-sheet'
+import { LinearGradient } from 'expo-linear-gradient'
 import { SplashScreen } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { Keyboard, Platform, View, ViewProps } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { SHEET_HANDLE_HEIGHT } from '../constants/Styles'
 import Color from '../models/Color'
-import { LinearGradient } from 'expo-linear-gradient'
 
 export default function App() {
   const insets = useSafeAreaInsets()
