@@ -19,6 +19,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: Build Develop
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -34,4 +35,4 @@ jobs:
       - name: 🏗️ Build
         uses: expo/expo-github-action/preview@v8
         with:
-          command: eas build -p all --profile develop --non-interactive --no-wait
+          command: eas build -p all --profile develop --non-interactive
