@@ -50,13 +50,11 @@ export default function GameView(props: Readonly<GameViewProps>) {
   const cardHeight = Dimensions.get('screen').height - sheetHeight - insets.top - PADDING - CARD_PEEK_HEIGHT
 
   const showScrollButton = useCallback(() => {
-    if (viewableItems === undefined || viewableItems.length === 0) return false
-    return viewableItems.some(item => item.index != null && item.index < playedCards.length - 2)
+    if (viewableItems === undefined) return false
+    return viewableItems.some(item => item.index != null && item.index < playedCards.length - 3)
   }, [viewableItems])
 
-  const onPressNoCard = useCallback(() => {
-    bottomSheetRef?.current?.snapToIndex(1)
-  }, [])
+  const onPressNoCard = () => bottomSheetRef?.current?.snapToIndex(1)
 
   const onPressScrollButton = useCallback(() => {
     if (isOutOfCards) {
