@@ -4,10 +4,11 @@ import Color from '@/src/models/Color'
 import { useInAppPurchaseContext } from '@/src/providers/InAppPurchaseProvider'
 import { Ionicons } from '@expo/vector-icons'
 import { Image } from 'expo-image'
-import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View, ViewProps } from 'react-native'
+import { Platform, Pressable, StyleSheet, Text, View, ViewProps } from 'react-native'
 import Animated, { Easing, useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import { useAppContext, useAppDispatchContext } from '../../providers/AppContextProvider'
 import { presentPaywall } from '../../providers/InAppPurchaseProvider'
+import Skeleton from '../utils/Skeleton'
 
 export type PackViewProps = {
   pack: Pack
@@ -50,14 +51,24 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
     return {
       opacity: withTiming(isAvailable ? 1 : 0.2, animationConfig),
     }
-  }, [isAvailable])
+  }, [isSubscribed])
 
   const lockStyle = useAnimatedStyle(() => {
     return {
       opacity: withTiming(!isAvailable ? 1 : 0, animationConfig),
       transform: [{ scale: withTiming(!isAvailable ? 1 : 0.9, animationConfig) }],
     }
-  }, [isAvailable])
+  }, [isSubscribed])
+
+  if (isLoading) {
+    return (
+      <View style={[{ width, gap: 8 }, style]}>
+        <Skeleton height={width} borderRadius={16} />
+        <Skeleton height={18} width={width * 0.75} />
+        <Skeleton height={32} />
+      </View>
+    )
+  }
 
   return (
     <Animated.View
@@ -87,60 +98,48 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
               justifyContent: 'center',
               alignItems: 'center',
             },
-            Platform.select({
-              ios: {
-                shadowColor: 'black',
-                shadowOffset: { width: 0, height: 16 },
-                shadowRadius: 16,
-                shadowOpacity: 1 / 5,
-              },
-            }) ?? {},
           ]}
         >
-          {isLoading ? (
-            <ActivityIndicator size='large' color={Colors.text} />
-          ) : (
-            <Animated.View style={isAvailableStyle}>
-              <Image
-                style={{
-                  width: width,
-                  height: width,
-                }}
-                source={image}
-                transition={200}
-              />
-              <Animated.View
+          <Animated.View style={isAvailableStyle}>
+            <Image
+              style={{
+                width: width,
+                aspectRatio: 1,
+              }}
+              source={image}
+              transition={200}
+            />
+            <Animated.View
+              style={[
+                {
+                  position: 'absolute',
+                  bottom: 0,
+                  right: 0,
+                },
+                checkmarkStyle,
+              ]}
+            >
+              <Ionicons
+                name='checkmark-circle'
+                size={32 + 16 + 8}
                 style={[
-                  {
-                    position: 'absolute',
-                    bottom: 0,
-                    right: 0,
-                  },
-                  checkmarkStyle,
+                  { padding: 8, color: Colors.accentColor },
+                  Platform.select({
+                    ios: {
+                      shadowOffset: { width: 0, height: 8 },
+                      shadowRadius: 8,
+                      shadowOpacity: 0.75,
+                    },
+                    android: {
+                      textShadowOffset: { width: 0, height: 8 },
+                      textShadowRadius: 16,
+                      textShadowColor: Color.black.alpha(0.5).string,
+                    },
+                  }) ?? {},
                 ]}
-              >
-                <Ionicons
-                  name='checkmark-circle'
-                  size={32 + 16 + 8}
-                  style={[
-                    { padding: 8, color: Colors.accentColor },
-                    Platform.select({
-                      ios: {
-                        shadowOffset: { width: 0, height: 8 },
-                        shadowRadius: 8,
-                        shadowOpacity: 0.75,
-                      },
-                      android: {
-                        textShadowOffset: { width: 0, height: 8 },
-                        textShadowRadius: 16,
-                        textShadowColor: Color.black.alpha(0.5).string,
-                      },
-                    }) ?? {},
-                  ]}
-                />
-              </Animated.View>
+              />
             </Animated.View>
-          )}
+          </Animated.View>
           <Animated.View
             style={[
               {

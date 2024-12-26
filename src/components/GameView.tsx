@@ -51,21 +51,23 @@ export default function GameView(props: Readonly<GameViewProps>) {
 
   const showScrollButton = useCallback(() => {
     if (viewableItems === undefined) return false
+    if (isOutOfCards && viewableItems.some(item => item.index != null && item.index < playedCards.length - 1))
+      return true
     return viewableItems.some(item => item.index != null && item.index < playedCards.length - 3)
   }, [viewableItems])
 
   const onPressNoCard = () => bottomSheetRef?.current?.snapToIndex(1)
 
-  const onPressScrollButton = useCallback(() => {
+  const onPressScrollButton = () => {
     if (isOutOfCards) {
       flatListRef.current?.scrollToEnd({ animated: true })
     } else {
       flatListRef.current?.scrollToIndex({ index: Math.max(0, playedCards.length - 2), animated: true })
     }
-  }, [playedCards.length, isOutOfCards])
+  }
 
   const addCard = async () => {
-    if (playlist.size === 0) return
+    if (playedCards.length === 0 && playlist.size === 0) return
 
     const newCard = CardManager.drawCard(playedCards, playedIds, playlist, players, categoryFilter)
     if (!newCard) {
@@ -102,8 +104,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
     const card = playedCards[playedCards.length - 1]
     setContext({ action: 'removeCachedPlayedCard', payload: card })
     console.log(`Removed card ${playedCards.length}:`, card.formattedContent ?? card.content)
-    setIsOutOfCards(true)
-  }, [playlist, players.size])
+  }, [playlist.size, players.size])
 
   const keyExtractor = (item: PlayedCard) => item.id
   const renderItem = useCallback(

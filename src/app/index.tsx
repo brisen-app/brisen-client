@@ -8,8 +8,7 @@ import BottomSheet, {
   BottomSheetHandleProps,
 } from '@gorhom/bottom-sheet'
 import { LinearGradient } from 'expo-linear-gradient'
-import { SplashScreen } from 'expo-router'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import { Keyboard, Platform, View, ViewProps } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { SHEET_HANDLE_HEIGHT } from '../constants/Styles'
@@ -34,10 +33,6 @@ export default function App() {
     ),
     []
   )
-
-  useEffect(() => {
-    SplashScreen.hideAsync()
-  }, [])
 
   return (
     <>
