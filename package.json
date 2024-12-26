@@ -9,6 +9,7 @@
     "ios-release": "expo run:ios --configuration Release --device",
     "web": "expo start --web",
     "upgrade": "npm install -g npm@latest && npm update && npm install expo@latest && npx expo install --fix",
+    "doctor": "npx expo-doctor",
     "generate-types": "npx supabase gen types typescript --project-id tlnldlywflpgvjepxwxz --schema public > models/supabase.ts",
     "build": "eas build -p all --profile develop --non-interactive",
     "test": "jest --watchAll",
