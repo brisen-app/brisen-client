@@ -57,6 +57,7 @@ export default function App() {
       <BottomSheet
         ref={bottomSheetRef}
         index={1}
+        enableDynamicSizing={false}
         snapPoints={snapPoints}
         backdropComponent={backdrop}
         backgroundComponent={SheetMenuBackground}
