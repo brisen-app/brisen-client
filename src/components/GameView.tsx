@@ -148,6 +148,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
         data={playedCards}
         decelerationRate={'fast'}
         snapToInterval={cardHeight + PADDING}
+        disableIntervalMomentum
         keyboardDismissMode='on-drag'
         onEndReachedThreshold={1.01}
         onEndReached={addCard}
