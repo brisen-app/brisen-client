@@ -115,14 +115,13 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     playedIds: Set<string>,
     playerCount: number,
     categoryFilterIds: Set<string>
-  ) {
+  ): Map<string, Card> {
     const candidates = new Map<string, Card>()
 
     for (const pack of playlist) {
       for (const cardId of pack.cards) {
         const card = this.get(cardId)!
         if (
-          card &&
           !playedIds.has(card.id) &&
           (!card.category || !categoryFilterIds.has(card.category)) &&
           playerCount >= CardRelationManager.getRequiredPlayerCount(card.id)
