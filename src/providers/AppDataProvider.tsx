@@ -8,11 +8,9 @@ import { PackManager } from '@/src/managers/PackManager'
 import SupabaseManager, { SupabaseItem } from '@/src/managers/SupabaseManager'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { ReactNode, useEffect, useRef } from 'react'
-import { AppState, Platform, View, ViewProps } from 'react-native'
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
+import { ActivityIndicator, AppState, Platform, View } from 'react-native'
 import FetchErrorView from '../components/FetchErrorView'
 import Colors from '../constants/Colors'
-import Color from '../models/Color'
 
 function useSupabase(manager: SupabaseManager<SupabaseItem>, enabled = true) {
   const response = useQuery({
@@ -77,50 +75,10 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
   if (queryClient.isFetching() || responses.some(r => r.isPending)) {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <ProgressBar progress={responses.filter(r => !r.isPending).length / (responses.length - 2)} />
+        <ActivityIndicator size='large' color={Colors.text} />
       </View>
     )
   }
 
   return props.children
-}
-
-function ProgressBar(props: Readonly<{ progress: number } & ViewProps>) {
-  const { progress, style } = props
-  const animationProgress = useSharedValue(progress)
-
-  const animatedProgressStyle = useAnimatedStyle(() => {
-    return {
-      width: `${animationProgress.value * 100}%`,
-    }
-  }, [progress])
-
-  useEffect(() => {
-    animationProgress.value = withTiming(Math.max(Math.min(progress, 1), 0), { duration: 50 })
-  }, [progress])
-
-  return (
-    <View
-      style={[
-        {
-          height: 8,
-          width: '50%',
-          backgroundColor: Color.hex(Colors.accentColor).alpha(0.25).string,
-          borderRadius: Number.MAX_SAFE_INTEGER,
-          overflow: 'hidden',
-        },
-        style,
-      ]}
-    >
-      <Animated.View
-        style={[
-          {
-            height: '100%',
-            backgroundColor: Colors.accentColor,
-          },
-          animatedProgressStyle,
-        ]}
-      />
-    </View>
-  )
 }
