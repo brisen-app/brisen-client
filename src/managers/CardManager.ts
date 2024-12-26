@@ -61,10 +61,16 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     const { formattedContent, featuredPlayers } = this.insertPlayers(card.content, playerList)
     if (!card.is_group && playerList.length > 0) featuredPlayers.set(playerList[0].name, playerList[0])
 
+    let pack = PackManager.getPackOf(card.id, playlist)
+    if (!pack) {
+      const parent = CardRelationManager.getPlayedParent(card.id, playedIds)
+      if (parent) pack = playedCards.find(c => c.id === parent)?.pack ?? null
+    }
+
     return {
       ...card,
       minPlayers: this.getRequiredPlayerCount(card),
-      pack: PackManager.getPackOf(card.id, playlist),
+      pack,
       players: playerList,
       featuredPlayers: new Set(featuredPlayers.values()),
       formattedContent,
