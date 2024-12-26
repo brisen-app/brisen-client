@@ -98,14 +98,6 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
               justifyContent: 'center',
               alignItems: 'center',
             },
-            Platform.select({
-              ios: {
-                shadowColor: 'black',
-                shadowOffset: { width: 0, height: 16 },
-                shadowRadius: 16,
-                shadowOpacity: 1 / 5,
-              },
-            }) ?? {},
           ]}
         >
           <Animated.View style={isAvailableStyle}>
