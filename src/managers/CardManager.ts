@@ -102,7 +102,10 @@ class CardManagerSingleton extends SupabaseManager<Card> {
 
     const chance = getRandomPercent() * maxAge
     for (const [age, child] of unplayedChildren) {
-      if (age > 3 && age > chance) return child
+      if (age > 3 && age > chance) {
+        console.log(`Drawing closing card ${child.id} with age ${age}`)
+        return child
+      }
     }
     return null
   }
