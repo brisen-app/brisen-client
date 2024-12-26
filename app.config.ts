@@ -33,7 +33,7 @@ export default (): ExpoConfig => ({
   platforms: ['ios', 'android'],
   splash: {
     image: './src/assets/images/splash-screen/splash-screen.png',
-    resizeMode: 'cover',
+    resizeMode: 'contain',
     backgroundColor: '#000000',
   },
   locales: {
