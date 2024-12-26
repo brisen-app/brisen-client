@@ -67,6 +67,8 @@ export default function GameView(props: Readonly<GameViewProps>) {
   }
 
   const addCard = async () => {
+    if (playedCards.length === 0 && playlist.size === 0) return
+
     const newCard = CardManager.drawCard(playedCards, playedIds, playlist, players, categoryFilter)
     if (!newCard) {
       setIsOutOfCards(true)

@@ -40,8 +40,9 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     players: Set<Player>,
     categoryFilterIds: Set<string>
   ): PlayedCard | null {
-    let card = this.drawClosingCard(playedCards, playedIds)
+    console.log('Drawing card...')
     let candidates = this.findCandidates(playlist, playedIds, players.size, categoryFilterIds)
+    let card = this.drawClosingCard(playedCards, playedIds, candidates.size)
 
     candidates = this.getOrderedCards(candidates, 'starting')
     const endingCandidates = this.getOrderedCards(candidates, 'ending')
@@ -93,7 +94,7 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     return results
   }
 
-  private drawClosingCard(playedCards: PlayedCard[], playedIds: Set<string>) {
+  private drawClosingCard(playedCards: PlayedCard[], playedIds: Set<string>, candidateCount: number) {
     const unplayedChildren = new Map<number, Card>()
     const maxAge = ConfigurationManager.get('max_unclosed_card_age')?.number ?? 10
 
@@ -113,7 +114,7 @@ class CardManagerSingleton extends SupabaseManager<Card> {
         return child
       }
     }
-    return null
+    return candidateCount === 0 ? getRandom(unplayedChildren.values()) : null
   }
 
   private findCandidates(
