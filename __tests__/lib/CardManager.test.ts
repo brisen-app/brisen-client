@@ -1,9 +1,10 @@
-import { CardManager, Card, PlayedCard } from '@/src/managers/CardManager'
 import * as utils from '@/src/lib/utils'
-import { InsufficientCountError } from '@/src/models/Errors'
-import { Pack } from '@/src/managers/PackManager'
-import { Player } from '@/src/models/Player'
+import { Card, CardManager, PlayedCard } from '@/src/managers/CardManager'
 import { CardRelationManager } from '@/src/managers/CardRelationManager'
+import { Configuration, ConfigurationManager } from '@/src/managers/ConfigurationManager'
+import { Pack } from '@/src/managers/PackManager'
+import { InsufficientCountError } from '@/src/models/Errors'
+import { Player } from '@/src/models/Player'
 
 const MockedCards = {
   Card_1: { id: '1', category: 'cat1', content: 'Content of card 1', is_group: true } as Card,
@@ -57,12 +58,6 @@ const MockedPlayers = {
   Kevin: { name: 'Kevin', playCount: 0 } as Player,
 }
 
-jest.mock('@/src/managers/ConfigurationManager', () => ({
-  ConfigurationManager: {
-    get: () => ({ number: 10 }),
-  },
-}))
-
 jest.mock('@/src/lib/supabase', () => ({
   supabase: {
     from: () => ({
@@ -81,6 +76,7 @@ jest.mock('@/src/lib/supabase', () => ({
 beforeEach(() => {
   CardManager['_items'] = undefined
   CardManager['cachedPlayerCounts'].clear()
+  jest.clearAllMocks()
 })
 
 describe('insertPlayers', () => {
@@ -286,6 +282,31 @@ describe('drawClosingCard', () => {
     expect(getRandomPercentSpy).toHaveBeenCalledTimes(1)
     expect(result).toBeNull()
   })
+
+  it('should not exceed 5 open cards', () => {
+    const playedCards = [
+      MockedCards.Card_1,
+      MockedCards.Card_2,
+      MockedCards.Card_3,
+      MockedCards.Card_4_no_category,
+      MockedCards.Card_5_req_2_players,
+      MockedCards.Card_6_req_5_players,
+    ] as PlayedCard[]
+    const playedIds = new Set(playedCards.map(card => card.id))
+
+    const getUnplayedChildSpy = jest.spyOn(CardRelationManager, 'getUnplayedChild').mockReturnValue('1')
+
+    jest.spyOn(utils, 'getRandomPercent').mockReturnValue(Number.MAX_SAFE_INTEGER)
+    jest.spyOn(utils, 'getRandom').mockReturnValue(MockedCards.Card_3)
+    jest.spyOn(ConfigurationManager, 'get').mockReturnValueOnce({ number: 5 } as Configuration)
+    const logSpy = jest.spyOn(console, 'log')
+
+    const result = CardManager['drawClosingCard'](playedCards, playedIds, 1)
+
+    expect(getUnplayedChildSpy).toHaveBeenCalledTimes(playedCards.length)
+    expect(result?.id).toBe('3')
+    expect(logSpy).toHaveBeenLastCalledWith('Too many open cards, returning closing card...')
+  })
 })
 
 describe('getParentPlayerList', () => {
@@ -449,6 +470,7 @@ describe('drawCard', () => {
       },
     ])
 
+    CardManager['_items'] = undefined
     CardManager['set'](cards)
     const playlist: Set<Pack> = new Set([
       {
@@ -475,6 +497,7 @@ describe('drawCard', () => {
       },
     ])
 
+    CardManager['_items'] = undefined
     CardManager['set'](cards)
     const playlist: Set<Pack> = new Set([
       {
