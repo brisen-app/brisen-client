@@ -60,7 +60,7 @@ export function getRandom<T>(collection: Iterable<T>): T | null {
 
 export function useSheetHeight() {
   const inset = useSafeAreaInsets().bottom
-  const constant = ConfigurationManager.get('bottom_sheet_min_position')?.number ?? 64
+  const constant = ConfigurationManager.getValue('bottom_sheet_min_position') ?? 64
   return inset > 0 ? inset + constant : 16 + constant
 }
 

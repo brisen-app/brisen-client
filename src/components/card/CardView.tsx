@@ -46,7 +46,7 @@ export function CardView(props: Readonly<CardViewProps & ViewProps>) {
   function getGradient(): [string, string, ...string[]] {
     if (!category?.gradient)
       return (
-        (ConfigurationManager.get('default_gradient')?.list as [string, string, ...string[]]) ?? [
+        (ConfigurationManager.getValue('default_gradient') as [string, string, ...string[]]) ?? [
           Colors.accentColor,
           Colors.accentColor,
         ]

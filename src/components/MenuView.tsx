@@ -291,8 +291,8 @@ function LinksView(props: Readonly<ViewProps>) {
   const { style, ...viewProps } = props
   const storeURL =
     Platform.select({
-      ios: ConfigurationManager.get('app_store_url')?.string,
-      android: ConfigurationManager.get('play_store_url')?.string,
+      ios: ConfigurationManager.getValue('app_store_url'),
+      android: ConfigurationManager.getValue('play_store_url'),
     }) ?? undefined
 
   const onShare = async () => {
