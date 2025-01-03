@@ -1,9 +1,10 @@
-import { CardManager, Card, PlayedCard } from '@/src/managers/CardManager'
 import * as utils from '@/src/lib/utils'
-import { InsufficientCountError } from '@/src/models/Errors'
-import { Pack } from '@/src/managers/PackManager'
-import { Player } from '@/src/models/Player'
+import { Card, CardManager, PlayedCard } from '@/src/managers/CardManager'
 import { CardRelationManager } from '@/src/managers/CardRelationManager'
+import { Configuration, ConfigurationManager } from '@/src/managers/ConfigurationManager'
+import { Pack } from '@/src/managers/PackManager'
+import { InsufficientCountError } from '@/src/models/Errors'
+import { Player } from '@/src/models/Player'
 
 const MockedCards = {
   Card_1: { id: '1', category: 'cat1', content: 'Content of card 1', is_group: true } as Card,
@@ -57,12 +58,6 @@ const MockedPlayers = {
   Kevin: { name: 'Kevin', playCount: 0 } as Player,
 }
 
-jest.mock('@/src/managers/ConfigurationManager', () => ({
-  ConfigurationManager: {
-    get: () => ({ number: 10 }),
-  },
-}))
-
 jest.mock('@/src/lib/supabase', () => ({
   supabase: {
     from: () => ({
@@ -79,17 +74,15 @@ jest.mock('@/src/lib/supabase', () => ({
 }))
 
 beforeEach(() => {
-  // @ts-ignore
-  CardManager._items = null
-  // @ts-ignore
-  CardManager.cachedPlayerCounts = new Map()
+  CardManager['_items'] = undefined
+  CardManager['cachedPlayerCounts'].clear()
+  jest.clearAllMocks()
 })
 
 describe('insertPlayers', () => {
   it('should not change the content in place', () => {
     const testString = MockedCards.Card_6_req_5_players.content
-    // @ts-ignore
-    const result = CardManager.insertPlayers(testString, Object.values(MockedPlayers))
+    const result = CardManager['insertPlayers'](testString, Object.values(MockedPlayers))
     expect(testString).toBe(MockedCards.Card_6_req_5_players.content)
     expect(result).not.toBe(MockedCards.Card_6_req_5_players.content)
   })
@@ -106,15 +99,13 @@ describe('insertPlayers', () => {
 
   testCases.forEach(({ cardContent, players, expected }) => {
     it(`should return '${expected}' for "${cardContent}"`, () => {
-      // @ts-ignore
-      const result = CardManager.insertPlayers(cardContent, players)
+      const result = CardManager['insertPlayers'](cardContent, players)
       expect(result.formattedContent).toEqual(expected)
     })
   })
 
   it('should throw an error if a player index is out of bounds', () => {
-    // @ts-ignore
-    expect(() => CardManager.insertPlayers('Hello {player-11}', Object.values(MockedPlayers))).toThrow(
+    expect(() => CardManager['insertPlayers']('Hello {player-11}', Object.values(MockedPlayers))).toThrow(
       InsufficientCountError
     )
   })
@@ -167,15 +158,13 @@ describe('getRequiredPlayerCount', () => {
 
 describe('findCandidates', () => {
   beforeEach(() => {
-    // @ts-ignore
-    CardManager.set(Object.values(MockedCards))
+    CardManager['set'](Object.values(MockedCards))
   })
 
   it('should return cards from the playlist that have not been played', () => {
     const playlist = new Set([MockedPacks.Pack_with_1_and_3])
     const playedIds = new Set(['1'])
-    // @ts-ignore
-    const result = CardManager.findCandidates(playlist, playedIds, 0, new Set())
+    const result = CardManager['findCandidates'](playlist, playedIds, 0, new Set())
 
     const expected = new Map([[MockedCards.Card_3.id, MockedCards.Card_3.valueOf()]])
     expect(result).toEqual(expected)
@@ -183,8 +172,7 @@ describe('findCandidates', () => {
 
   it('should return cards that have no category', () => {
     const playlist = new Set([MockedPacks.Pack_with_2])
-    // @ts-ignore
-    const result = CardManager.findCandidates(playlist, new Set(), 2, new Set())
+    const result = CardManager['findCandidates'](playlist, new Set(), 2, new Set())
 
     const expected = new Map([[MockedCards.Card_2.id, MockedCards.Card_2.valueOf()]])
     expect(result).toEqual(expected)
@@ -193,8 +181,7 @@ describe('findCandidates', () => {
   it('should not return cards that have a category that is filtered', () => {
     const playlist = new Set([MockedPacks.Pack_with_1_and_3])
     const categoryFilter = new Set(['cat1'])
-    // @ts-ignore
-    const result = CardManager.findCandidates(playlist, new Set(), 0, categoryFilter)
+    const result = CardManager['findCandidates'](playlist, new Set(), 0, categoryFilter)
 
     const expected = new Map([[MockedCards.Card_3.id, MockedCards.Card_3.valueOf()]])
     expect(result).toEqual(expected)
@@ -202,8 +189,7 @@ describe('findCandidates', () => {
 
   it('should return cards that require 2 players or less', () => {
     const playlist = new Set([MockedPacks.Pack_with_1_and_5_and_6])
-    // @ts-ignore
-    const result = CardManager.findCandidates(playlist, new Set(), 2, new Set())
+    const result = CardManager['findCandidates'](playlist, new Set(), 2, new Set())
 
     const expected = new Map([
       [MockedCards.Card_1.id, MockedCards.Card_1.valueOf()],
@@ -215,8 +201,7 @@ describe('findCandidates', () => {
 
 describe('getNextCard', () => {
   beforeEach(() => {
-    // @ts-ignore
-    CardManager.set(Object.values(MockedCards))
+    CardManager['set'](Object.values(MockedCards))
   })
 
   it('should return the correct card based on arguments', () => {
@@ -249,8 +234,7 @@ describe('getNextCard', () => {
 
 describe('drawClosingCard', () => {
   beforeEach(() => {
-    // @ts-ignore
-    CardManager.set(Object.values(MockedCards))
+    CardManager['set'](Object.values(MockedCards))
     jest.clearAllMocks()
   })
 
@@ -273,8 +257,7 @@ describe('drawClosingCard', () => {
 
     const getRandomPercentSpy = jest.spyOn(utils, 'getRandomPercent').mockReturnValue(0)
 
-    // @ts-ignore
-    const result = CardManager.drawClosingCard(playedCards, playedIds, 10)
+    const result = CardManager['drawClosingCard'](playedCards, playedIds, 10)
 
     expect(getUnplayedChildSpy).toHaveBeenCalledTimes(5)
     expect(getRandomPercentSpy).toHaveBeenCalledTimes(1)
@@ -293,12 +276,36 @@ describe('drawClosingCard', () => {
     const getUnplayedChildSpy = jest.spyOn(CardRelationManager, 'getUnplayedChild').mockReturnValue(null)
     const getRandomPercentSpy = jest.spyOn(utils, 'getRandomPercent').mockReturnValue(0.2)
 
-    // @ts-ignore
-    const result = CardManager.drawClosingCard(playedCards, playedIds, 0)
+    const result = CardManager['drawClosingCard'](playedCards, playedIds, 0)
 
     expect(getUnplayedChildSpy).toHaveBeenCalledTimes(4)
     expect(getRandomPercentSpy).toHaveBeenCalledTimes(1)
     expect(result).toBeNull()
+  })
+
+  it('should not exceed 5 open cards', () => {
+    const playedCards = [
+      MockedCards.Card_1,
+      MockedCards.Card_2,
+      MockedCards.Card_3,
+      MockedCards.Card_4_no_category,
+      MockedCards.Card_5_req_2_players,
+      MockedCards.Card_6_req_5_players,
+    ] as PlayedCard[]
+    const playedIds = new Set(playedCards.map(card => card.id))
+
+    const getUnplayedChildSpy = jest.spyOn(CardRelationManager, 'getUnplayedChild').mockReturnValue('1')
+
+    jest.spyOn(utils, 'getRandomPercent').mockReturnValue(Number.MAX_SAFE_INTEGER)
+    jest.spyOn(utils, 'getRandom').mockReturnValue(MockedCards.Card_3)
+    jest.spyOn(ConfigurationManager, 'get').mockReturnValueOnce({ number: 5 } as Configuration)
+    const logSpy = jest.spyOn(console, 'log')
+
+    const result = CardManager['drawClosingCard'](playedCards, playedIds, 1)
+
+    expect(getUnplayedChildSpy).toHaveBeenCalledTimes(playedCards.length)
+    expect(result?.id).toBe('3')
+    expect(logSpy).toHaveBeenLastCalledWith('Too many open cards, returning closing card...')
   })
 })
 
@@ -309,15 +316,14 @@ describe('getParentPlayerList', () => {
 
   it('should return the players of the parent card', () => {
     const playedCards = [
-      { ...MockedCards.Card_1, players: new Set([MockedPlayers.Alice, MockedPlayers.Bob]) },
-      { ...MockedCards.Card_2, players: new Set([MockedPlayers.Charlie, MockedPlayers.David]) },
-    ]
+      { ...MockedCards.Card_1, players: [MockedPlayers.Alice, MockedPlayers.Bob] },
+      { ...MockedCards.Card_2, players: [MockedPlayers.Charlie, MockedPlayers.David] },
+    ] as PlayedCard[]
     const playedIds = new Set(playedCards.map(card => card.id))
 
     const spyOnGetPlayedParent = jest.spyOn(CardRelationManager, 'getPlayedParent').mockReturnValue('2')
 
-    // @ts-ignore
-    const result = CardManager.getParentPlayerList(MockedCards.Card_3, playedCards, playedIds)
+    const result = CardManager['getParentPlayerList'](MockedCards.Card_3, playedCards, playedIds)
 
     expect(spyOnGetPlayedParent).toHaveBeenCalledTimes(1)
     expect(result).toEqual(playedCards[1].players)
@@ -329,8 +335,7 @@ describe('getParentPlayerList', () => {
 
     const spyOnGetPlayedParent = jest.spyOn(CardRelationManager, 'getPlayedParent').mockReturnValue('-1')
 
-    // @ts-ignore
-    const result = CardManager.getParentPlayerList(MockedCards.Card_1, playedCards, playedIds)
+    const result = CardManager['getParentPlayerList'](MockedCards.Card_1, playedCards, playedIds)
 
     expect(spyOnGetPlayedParent).toHaveBeenCalledTimes(1)
     expect(result).toBeNull()
@@ -342,8 +347,7 @@ describe('getParentPlayerList', () => {
 
     const spyOnGetPlayedParent = jest.spyOn(CardRelationManager, 'getPlayedParent').mockReturnValue(null)
 
-    // @ts-ignore
-    const result = CardManager.getParentPlayerList(MockedCards.Card_1, playedCards, playedIds)
+    const result = CardManager['getParentPlayerList'](MockedCards.Card_1, playedCards, playedIds)
 
     expect(spyOnGetPlayedParent).toHaveBeenCalledTimes(1)
     expect(result).toBeNull()
@@ -352,18 +356,16 @@ describe('getParentPlayerList', () => {
 
 describe('drawCard', () => {
   beforeEach(() => {
-    // @ts-ignore
-    CardManager.set(Object.values(MockedCards))
+    CardManager['set'](Object.values(MockedCards))
     jest.restoreAllMocks()
   })
 
   it('should return null if no candidates are available', () => {
-    const cards = Object.values(MockedCards)
+    const cards = Object.values(MockedCards) as PlayedCard[]
     const playedIds = new Set(cards.map(card => card.id))
     const players = new Set(Object.values(MockedPlayers))
     const playlist = new Set([MockedPacks.Pack_with_all_cards])
 
-    // @ts-ignore
     const result = CardManager.drawCard(cards, playedIds, playlist, players, new Set())
 
     expect(result).toBeNull()
@@ -468,6 +470,7 @@ describe('drawCard', () => {
       },
     ])
 
+    CardManager['_items'] = undefined
     CardManager['set'](cards)
     const playlist: Set<Pack> = new Set([
       {
@@ -494,6 +497,7 @@ describe('drawCard', () => {
       },
     ])
 
+    CardManager['_items'] = undefined
     CardManager['set'](cards)
     const playlist: Set<Pack> = new Set([
       {

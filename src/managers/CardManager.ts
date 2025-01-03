@@ -97,6 +97,7 @@ class CardManagerSingleton extends SupabaseManager<Card> {
   private drawClosingCard(playedCards: PlayedCard[], playedIds: Set<string>, candidateCount: number) {
     const unplayedChildren = new Map<number, Card>()
     const maxAge = ConfigurationManager.get('max_unclosed_card_age')?.number ?? 10
+    const maxSimultanousOpenCards = ConfigurationManager.get('max_simultaneous_open_cards')?.number ?? 5
 
     for (let i = 0; i < playedCards.length; i++) {
       const card = playedCards[i]
@@ -113,6 +114,10 @@ class CardManagerSingleton extends SupabaseManager<Card> {
         console.log(`Drawing closing card ${child.id} with age ${age}`)
         return child
       }
+    }
+    if (unplayedChildren.size >= maxSimultanousOpenCards) {
+      console.log('Too many open cards, returning closing card...')
+      return getRandom(unplayedChildren.values())
     }
     return candidateCount === 0 ? getRandom(unplayedChildren.values()) : null
   }
