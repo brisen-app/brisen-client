@@ -40,7 +40,7 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     players: Set<Player>,
     categoryFilterIds: Set<string>
   ): PlayedCard | null {
-    console.log('Drawing card...')
+    console.debug('Drawing card...')
     let candidates = this.findCandidates(playlist, playedIds, players.size, categoryFilterIds)
     let card = this.drawClosingCard(playedCards, playedIds, candidates.size)
 
@@ -96,8 +96,8 @@ class CardManagerSingleton extends SupabaseManager<Card> {
 
   private drawClosingCard(playedCards: PlayedCard[], playedIds: Set<string>, candidateCount: number) {
     const unplayedChildren = new Map<number, Card>()
-    const maxAge = ConfigurationManager.get('max_unclosed_card_age')?.number ?? 10
-    const maxSimultanousOpenCards = ConfigurationManager.get('max_simultaneous_open_cards')?.number ?? 5
+    const maxAge = ConfigurationManager.getValue('max_unclosed_card_age') ?? 10
+    const maxSimultanousOpenCards = ConfigurationManager.getValue('max_simultaneous_open_cards') ?? 5
 
     for (let i = 0; i < playedCards.length; i++) {
       const card = playedCards[i]

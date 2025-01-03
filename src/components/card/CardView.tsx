@@ -46,7 +46,7 @@ export function CardView(props: Readonly<CardViewProps & ViewProps>) {
   function getGradient(): [string, string, ...string[]] {
     if (!category?.gradient)
       return (
-        (ConfigurationManager.get('default_gradient')?.list as [string, string, ...string[]]) ?? [
+        (ConfigurationManager.getValue('default_gradient') as [string, string, ...string[]]) ?? [
           Colors.accentColor,
           Colors.accentColor,
         ]
@@ -130,7 +130,7 @@ function Content(props: Readonly<{ content: string; player?: Player } & ViewProp
       )}
       <Text
         style={{
-          fontSize: Math.max(18, 28 / Math.max(1, content.length / 150)),
+          fontSize: Math.max(24, 32 / Math.max(1, content.length / 100)),
           fontWeight: '900',
           ...styles.textShadow,
           color: Color.white.string,

@@ -1,7 +1,7 @@
 import * as utils from '@/src/lib/utils'
 import { Card, CardManager, PlayedCard } from '@/src/managers/CardManager'
 import { CardRelationManager } from '@/src/managers/CardRelationManager'
-import { Configuration, ConfigurationManager } from '@/src/managers/ConfigurationManager'
+import { ConfigurationManager } from '@/src/managers/ConfigurationManager'
 import { Pack } from '@/src/managers/PackManager'
 import { InsufficientCountError } from '@/src/models/Errors'
 import { Player } from '@/src/models/Player'
@@ -25,6 +25,9 @@ const MockedCards = {
     is_group: true,
   } as Card,
 }
+
+// Suppress console.warn messages
+console.warn = jest.fn()
 
 const MockedPacks = {
   Pack_with_1_and_3: {
@@ -298,7 +301,8 @@ describe('drawClosingCard', () => {
 
     jest.spyOn(utils, 'getRandomPercent').mockReturnValue(Number.MAX_SAFE_INTEGER)
     jest.spyOn(utils, 'getRandom').mockReturnValue(MockedCards.Card_3)
-    jest.spyOn(ConfigurationManager, 'get').mockReturnValueOnce({ number: 5 } as Configuration)
+    jest.spyOn(ConfigurationManager, 'getValue').mockReturnValueOnce(10).mockReturnValueOnce(5)
+
     const logSpy = jest.spyOn(console, 'log')
 
     const result = CardManager['drawClosingCard'](playedCards, playedIds, 1)
