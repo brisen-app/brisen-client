@@ -23,6 +23,7 @@ jobs:
   update:
     runs-on: ubuntu-latest
     permissions:
+      actions: write
       contents: read
       pull-requests: write
     env:
