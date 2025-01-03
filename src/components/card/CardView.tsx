@@ -6,10 +6,12 @@ import { ConfigurationManager } from '@/src/managers/ConfigurationManager'
 import { Pack, PackManager } from '@/src/managers/PackManager'
 import Color from '@/src/models/Color'
 import { Player } from '@/src/models/Player'
+import { Ionicons } from '@expo/vector-icons'
 import { Image } from 'expo-image'
 import { LinearGradient } from 'expo-linear-gradient'
-import { Platform, StyleSheet, Text, View, ViewProps } from 'react-native'
-import Animated, { Easing, withTiming } from 'react-native-reanimated'
+import { useState } from 'react'
+import { Platform, StyleSheet, Text, TouchableOpacity, View, ViewProps } from 'react-native'
+import Animated, { AnimatedProps, Easing, FadeInDown, FadeOutDown, withTiming } from 'react-native-reanimated'
 
 export type CardViewProps = {
   card: PlayedCard
@@ -17,6 +19,7 @@ export type CardViewProps = {
 
 export function CardView(props: Readonly<CardViewProps & ViewProps>) {
   const { card, style } = props
+  const [showDetails, setShowDetails] = useState(false)
 
   const category = card.category ? CategoryManager.get(card.category) : undefined
 
@@ -54,6 +57,7 @@ export function CardView(props: Readonly<CardViewProps & ViewProps>) {
 
   return (
     <Animated.View
+      onTouchStart={() => setShowDetails(false)}
       entering={entering}
       style={[
         {
@@ -79,6 +83,8 @@ export function CardView(props: Readonly<CardViewProps & ViewProps>) {
         }}
       />
 
+      <Content content={content} player={target} />
+
       {/* Pack & Category */}
       <View
         style={{
@@ -86,12 +92,20 @@ export function CardView(props: Readonly<CardViewProps & ViewProps>) {
           padding: 24,
         }}
       >
-        {(category || card.header) && <CategoryView item={category} header={card.header ?? undefined} />}
-        <View style={{ flex: 1 }} />
-        {card.pack && <PackView pack={card.pack} />}
-      </View>
+        {(category || card.header) && <CategoryLabel item={category} header={card.header ?? undefined} />}
 
-      <Content content={content} player={target} />
+        <View style={{ flex: 1 }} />
+
+        {showDetails && <DetailsView category={category} pack={card.pack} />}
+
+        <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+          {card.pack && <PackLabel pack={card.pack} />}
+
+          <TouchableOpacity style={{ padding: 8 }} onPress={() => setShowDetails(!showDetails)}>
+            <Ionicons name='information-circle' size={32} color={Color.white.alpha(0.25).string} />
+          </TouchableOpacity>
+        </View>
+      </View>
     </Animated.View>
   )
 }
@@ -130,8 +144,8 @@ function Content(props: Readonly<{ content: string; player?: Player } & ViewProp
   )
 }
 
-function CategoryView(props: Readonly<{ item?: Category; header?: string } & ViewProps>) {
-  const { item, header, style, ...rest } = props
+function CategoryLabel(props: Readonly<{ item?: Category; header?: string; iconSize?: number } & ViewProps>) {
+  const { item, header, iconSize = 48, style, ...rest } = props
 
   const categoryTitle = item ? CategoryManager.getTitle(item) : header
 
@@ -140,7 +154,7 @@ function CategoryView(props: Readonly<{ item?: Category; header?: string } & Vie
       {...rest}
       style={[{ flexDirection: 'row', alignItems: 'center', alignSelf: 'center', gap: 4, borderRadius: 16 }, style]}
     >
-      {item?.icon && <Text style={[styles.textShadow, { fontSize: 48 }]}>{item?.icon}</Text>}
+      {item?.icon && <Text style={[styles.textShadow, { fontSize: iconSize }]}>{item?.icon}</Text>}
 
       <View>
         {categoryTitle && (
@@ -151,7 +165,21 @@ function CategoryView(props: Readonly<{ item?: Category; header?: string } & Vie
   )
 }
 
-function PackView(props: Readonly<{ pack: Pack } & ViewProps>) {
+function CategotyDetails(props: Readonly<{ category: Category } & ViewProps>) {
+  const { category, style, ...rest } = props
+  const description = CategoryManager.getDescription(category)
+
+  return (
+    <View style={[{ gap: 8, borderRadius: 16 }, style]} {...rest}>
+      <CategoryLabel item={category} style={{ alignSelf: 'flex-start' }} iconSize={FontStyles.LargeTitle.fontSize} />
+      <Text style={[FontStyles.AccentuatedBody, styles.textShadow, { color: Colors.secondaryText }]}>
+        {description}
+      </Text>
+    </View>
+  )
+}
+
+function PackLabel(props: Readonly<{ pack: Pack } & ViewProps>) {
   const { pack, style, ...rest } = props
 
   const { data: image, error } = PackManager.useImageQuery(pack.image)
@@ -181,6 +209,72 @@ function PackView(props: Readonly<{ pack: Pack } & ViewProps>) {
   )
 }
 
+function PackDetails(props: Readonly<{ pack: Pack } & ViewProps>) {
+  const { pack, style, ...rest } = props
+
+  return (
+    <View style={[{ gap: 8, borderRadius: 16 }, style]} {...rest}>
+      <PackLabel pack={pack} style={{ alignSelf: 'flex-start' }} />
+      <Text style={[FontStyles.AccentuatedBody, styles.textShadow, { color: Colors.secondaryText }]}>
+        {pack.description}
+      </Text>
+    </View>
+  )
+}
+
+function DetailsView(props: Readonly<{ category?: Category; pack: Pack | null } & AnimatedProps<ViewProps>>) {
+  const { category, pack, style, ...rest } = props
+  const BG_COLOR = Colors.secondaryBackground
+
+  return (
+    <Animated.View
+      entering={FadeInDown.easing(Easing.out(Easing.cubic))}
+      exiting={FadeOutDown.easing(Easing.out(Easing.cubic))}
+      style={[
+        {
+          gap: 32,
+          borderRadius: 16,
+          borderWidth: StyleSheet.hairlineWidth,
+          borderBlockColor: Colors.stroke,
+          backgroundColor: BG_COLOR,
+          padding: 16,
+          marginBottom: 16,
+        },
+        styles.bigShadow,
+        style,
+      ]}
+      {...rest}
+    >
+      {category && <CategotyDetails category={category} />}
+      {pack && <PackDetails pack={pack} />}
+      <View
+        style={{
+          alignItems: 'center',
+          position: 'absolute',
+          width: '100%',
+          marginHorizontal: 16,
+          bottom: -16,
+        }}
+      >
+        <View
+          style={{
+            width: 0,
+            height: 0,
+            backgroundColor: 'transparent',
+            transform: [{ rotate: '180deg' }],
+            borderLeftWidth: 16,
+            borderRightWidth: 16,
+            borderBottomWidth: 16,
+            borderLeftColor: 'transparent',
+            borderRightColor: 'transparent',
+            borderBottomColor: BG_COLOR,
+          }}
+        />
+      </View>
+    </Animated.View>
+  )
+}
+
 const shadowSize = 1.3
 const shadowOpacity = 0.3
 
@@ -207,6 +301,17 @@ const styles = StyleSheet.create({
       },
       android: {
         elevation: 2,
+      },
+    }) ?? {},
+  bigShadow:
+    Platform.select({
+      ios: {
+        shadowOffset: { width: 0, height: 8 },
+        shadowRadius: 10.32,
+        shadowOpacity: 0.44,
+      },
+      android: {
+        elevation: 16,
       },
     }) ?? {},
 })
