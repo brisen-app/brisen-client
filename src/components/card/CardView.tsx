@@ -9,17 +9,36 @@ import { Player } from '@/src/models/Player'
 import { Image } from 'expo-image'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Platform, StyleSheet, Text, View, ViewProps } from 'react-native'
+import Animated, { Easing, withTiming } from 'react-native-reanimated'
 
 export type CardViewProps = {
   card: PlayedCard
-  category?: Category
 }
 
 export function CardView(props: Readonly<CardViewProps & ViewProps>) {
-  const { card, category, style } = props
+  const { card, style } = props
+
+  const category = card.category ? CategoryManager.get(card.category) : undefined
 
   const target = card.is_group || card.players.length === 0 ? undefined : card.players[0]
   const content = card.formattedContent ?? card.content
+
+  const animationConfig = { duration: 300, easing: Easing.bezier(0, 0, 0.5, 1) }
+  const entering = () => {
+    'worklet'
+    const animations = {
+      opacity: withTiming(1, animationConfig),
+      transform: [{ scale: withTiming(1, animationConfig) }],
+    }
+    const initialValues = {
+      opacity: 0,
+      transform: [{ scale: 0.9 }],
+    }
+    return {
+      initialValues,
+      animations,
+    }
+  }
 
   function getGradient(): [string, string, ...string[]] {
     if (!category?.gradient)
@@ -34,7 +53,21 @@ export function CardView(props: Readonly<CardViewProps & ViewProps>) {
   }
 
   return (
-    <View style={[{ flex: 1, justifyContent: 'center', alignItems: 'center' }, style]}>
+    <Animated.View
+      entering={entering}
+      style={[
+        {
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          borderRadius: 32,
+          overflow: 'hidden',
+          borderColor: Colors.stroke,
+          borderWidth: StyleSheet.hairlineWidth,
+        },
+        style,
+      ]}
+    >
       <LinearGradient colors={getGradient()} start={{ x: 0, y: 1 }} end={{ x: 1, y: 0 }} style={Styles.absoluteFill} />
 
       {/* Grain */}
@@ -59,7 +92,7 @@ export function CardView(props: Readonly<CardViewProps & ViewProps>) {
       </View>
 
       <Content content={content} player={target} />
-    </View>
+    </Animated.View>
   )
 }
 

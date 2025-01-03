@@ -1,4 +1,3 @@
-import CardScreen from '@/src/components/card/CardScreen'
 import Colors from '@/src/constants/Colors'
 import { CardManager, PlayedCard } from '@/src/managers/CardManager'
 import { LocalizationManager } from '@/src/managers/LocalizationManager'
@@ -21,6 +20,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { FontStyles } from '../constants/Styles'
 import { useSheetHeight } from '../lib/utils'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
+import { CardView } from './card/CardView'
 import ScrollToBottomButton from './utils/ScrollToBottomButton'
 
 export type GameViewProps = {
@@ -108,9 +108,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
 
   const keyExtractor = (item: PlayedCard) => item.id
   const renderItem = useCallback(
-    ({ item }: { item: PlayedCard }) => (
-      <CardScreen card={item} style={{ height: cardHeight, marginBottom: PADDING }} />
-    ),
+    ({ item }: { item: PlayedCard }) => <CardView card={item} style={{ height: cardHeight, marginBottom: PADDING }} />,
     []
   )
 
