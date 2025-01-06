@@ -40,8 +40,9 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     players: Set<Player>,
     categoryFilterIds: Set<string>
   ): PlayedCard | null {
-    let card = this.drawClosingCard(playedCards, playedIds)
+    console.debug('Drawing card...')
     let candidates = this.findCandidates(playlist, playedIds, players.size, categoryFilterIds)
+    let card = this.drawClosingCard(playedCards, playedIds, candidates.size)
 
     candidates = this.getOrderedCards(candidates, 'starting')
     const endingCandidates = this.getOrderedCards(candidates, 'ending')
@@ -61,10 +62,16 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     const { formattedContent, featuredPlayers } = this.insertPlayers(card.content, playerList)
     if (!card.is_group && playerList.length > 0) featuredPlayers.set(playerList[0].name, playerList[0])
 
+    let pack = PackManager.getPackOf(card.id, playlist)
+    if (!pack) {
+      const parent = CardRelationManager.getPlayedParent(card.id, playedIds)
+      if (parent) pack = playedCards.find(c => c.id === parent)?.pack ?? null
+    }
+
     return {
       ...card,
       minPlayers: this.getRequiredPlayerCount(card),
-      pack: PackManager.getPackOf(card.id, playlist),
+      pack,
       players: playerList,
       featuredPlayers: new Set(featuredPlayers.values()),
       formattedContent,
@@ -87,9 +94,10 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     return results
   }
 
-  private drawClosingCard(playedCards: PlayedCard[], playedIds: Set<string>) {
+  private drawClosingCard(playedCards: PlayedCard[], playedIds: Set<string>, candidateCount: number) {
     const unplayedChildren = new Map<number, Card>()
-    const maxAge = ConfigurationManager.get('max_unclosed_card_age')?.number ?? 10
+    const maxAge = ConfigurationManager.getValue('max_unclosed_card_age') ?? 10
+    const maxSimultanousOpenCards = ConfigurationManager.getValue('max_simultaneous_open_cards') ?? 5
 
     for (let i = 0; i < playedCards.length; i++) {
       const card = playedCards[i]
@@ -102,9 +110,16 @@ class CardManagerSingleton extends SupabaseManager<Card> {
 
     const chance = getRandomPercent() * maxAge
     for (const [age, child] of unplayedChildren) {
-      if (age > 3 && age > chance) return child
+      if (age > 3 && age > chance) {
+        console.log(`Drawing closing card ${child.id} with age ${age}`)
+        return child
+      }
     }
-    return null
+    if (unplayedChildren.size >= maxSimultanousOpenCards) {
+      console.log('Too many open cards, returning closing card...')
+      return getRandom(unplayedChildren.values())
+    }
+    return candidateCount === 0 ? getRandom(unplayedChildren.values()) : null
   }
 
   private findCandidates(
@@ -112,14 +127,13 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     playedIds: Set<string>,
     playerCount: number,
     categoryFilterIds: Set<string>
-  ) {
+  ): Map<string, Card> {
     const candidates = new Map<string, Card>()
 
     for (const pack of playlist) {
       for (const cardId of pack.cards) {
         const card = this.get(cardId)!
         if (
-          card &&
           !playedIds.has(card.id) &&
           (!card.category || !categoryFilterIds.has(card.category)) &&
           playerCount >= CardRelationManager.getRequiredPlayerCount(card.id)

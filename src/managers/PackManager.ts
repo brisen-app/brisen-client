@@ -24,7 +24,6 @@ class PackManagerSingleton extends SupabaseManager<Pack> {
     for (const pack of playlist) {
       if (pack.cards.has(cardId)) return pack
     }
-    console.warn(`Card ${cardId} not found in any pack`)
     return null
   }
 

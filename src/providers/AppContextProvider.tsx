@@ -1,12 +1,13 @@
-import React, { createContext, Dispatch, ReactNode, useContext, useReducer } from 'react'
-import { Pack } from '@/src/managers/PackManager'
-import { Category } from '@/src/managers/CategoryManager'
 import { PlayedCard } from '@/src/managers/CardManager'
+import { Category } from '@/src/managers/CategoryManager'
+import { Pack } from '@/src/managers/PackManager'
 import { Player } from '@/src/models/Player'
+import React, { createContext, Dispatch, ReactNode, useContext, useReducer } from 'react'
 
 export type AppContextType = {
   categoryFilter: Set<string>
   playedCards: PlayedCard[]
+  currentCard?: PlayedCard
   playedIds: Set<string>
   players: Set<Player>
   playlist: Set<Pack>
@@ -20,6 +21,7 @@ export type AppContextAction =
   | { action: 'togglePack'; payload: Pack }
   | { action: 'togglePlayer'; payload: Player }
   | { action: 'incrementPlayCounts'; payload: Set<Player> }
+  | { action: 'currentCard'; payload?: PlayedCard }
 
 function toggleSet<T>(set: Set<T>, value: T): Set<T> {
   if (set.has(value)) return new Set([...set].filter(v => v !== value))
@@ -84,6 +86,10 @@ export function contextReducer(state: AppContextType, action: AppContextAction):
         players.add({ ...player, playCount: 0 })
       }
       return { ...state, players: players, playlist: new Set(), playedCards: [], playedIds: new Set() }
+    }
+
+    case 'currentCard': {
+      return { ...state, currentCard: payload }
     }
 
     default: {

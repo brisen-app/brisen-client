@@ -1,13 +1,19 @@
 import Colors from '@/src/constants/Colors'
+import { FontStyles } from '@/src/constants/Styles'
 import { Ionicons } from '@expo/vector-icons'
 import { TouchableOpacity } from '@gorhom/bottom-sheet'
-import { Platform, StyleSheet, TouchableOpacityProps } from 'react-native'
+import { Platform, StyleSheet, Text, TouchableOpacityProps } from 'react-native'
 import Animated, { Easing, FadeInRight, FadeOutRight } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-export default function ScrollToBottomButton(props: Readonly<TouchableOpacityProps>) {
+export type ScrollToBottomButtonProps = {
+  text?: string
+  icon?: keyof typeof Ionicons.glyphMap
+} & TouchableOpacityProps
+
+export default function ScrollToBottomButton(props: Readonly<ScrollToBottomButtonProps>) {
   const insets = useSafeAreaInsets()
-  const { style, ...rest } = props
+  const { text, icon = 'chevron-down', style, ...rest } = props
 
   return (
     <Animated.View
@@ -24,6 +30,7 @@ export default function ScrollToBottomButton(props: Readonly<TouchableOpacityPro
             bottom: insets.bottom,
             right: insets.right,
             backgroundColor: Colors.accentColor,
+            gap: 4,
             paddingVertical: 8,
             paddingHorizontal: 16,
             borderColor: Colors.stroke,
@@ -45,7 +52,8 @@ export default function ScrollToBottomButton(props: Readonly<TouchableOpacityPro
         ]}
         {...rest}
       >
-        <Ionicons name='chevron-down' size={24} color={Colors.background} />
+        {text && <Text style={[FontStyles.Button, { color: 'black' }]}>{text}</Text>}
+        <Ionicons name={icon} size={24} color={Colors.background} />
       </TouchableOpacity>
     </Animated.View>
   )

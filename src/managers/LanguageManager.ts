@@ -34,9 +34,9 @@ class LanguageManagerSingleton extends SupabaseManager<SupabaseLanguage> {
    * @returns {boolean} `true` if the display language has changed, otherwise `false`.
    */
   public hasChangedLanguage(): boolean {
-    if (ConfigurationManager.get('use_sfw_content')?.bool === true) return false
+    if (ConfigurationManager.getValue('use_sfw_content') === true) return false
     const userLocales = getLocales()
-    if (!userLocales) return false
+    if (!userLocales || userLocales.length === 0) return false
     const newSelectedLanguage = userLocales[0]?.languageCode
     return this._userSelectedLanguage !== newSelectedLanguage
   }
@@ -49,7 +49,7 @@ class LanguageManagerSingleton extends SupabaseManager<SupabaseLanguage> {
    * @throws Will throw an error if the SFW language is not found in the provided list.
    */
   private getSfwLanguage() {
-    const sfwLanguageId = ConfigurationManager.get('sfw_language')?.string
+    const sfwLanguageId = ConfigurationManager.getValue('sfw_language')
     if (!sfwLanguageId) throw new Error('Safe-for-work language ID not found')
     const sfwLanguage = this._items?.get(sfwLanguageId)
     if (!sfwLanguage) throw new Error('Safe-for-work language data not found')
@@ -69,7 +69,7 @@ class LanguageManagerSingleton extends SupabaseManager<SupabaseLanguage> {
    */
   public updateDisplayLanguage(): void {
     // If the app is configured to use safe-for-work content, force the display language to be the safe-for-work language
-    if (ConfigurationManager.get('use_sfw_content')?.bool === true) {
+    if (ConfigurationManager.getValue('use_sfw_content') === true) {
       console.log('Forcing safe-for-work language')
       this._displayLanguage = this.getSfwLanguage()
       return
@@ -110,7 +110,7 @@ class LanguageManagerSingleton extends SupabaseManager<SupabaseLanguage> {
    */
   private findDefaultLanguage() {
     console.log('Using default language')
-    const defaultLanguageId = ConfigurationManager.get('default_language')?.string ?? 'en'
+    const defaultLanguageId = ConfigurationManager.getValue('default_language') ?? 'en'
     const defaultLanguage = this.get(defaultLanguageId)
     if (!defaultLanguage) throw new Error('Default language not found')
     return defaultLanguage

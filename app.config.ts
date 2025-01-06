@@ -4,8 +4,10 @@ let bundleId = 'no.kallerud.brisen'
 let appName = 'Brisen'
 const appVersion = '1.0.0'
 
-const environment = process.env.EXPO_PUBLIC_ENV
-if (!environment) throw new Error('EXPO_PUBLIC_ENV not set')
+const environment = process.env.EXPO_PUBLIC_ENV ?? 'ci'
+if (environment === 'ci') {
+  console.warn('Environment variable EXPO_PUBLIC_ENV is not set, using default value "ci"')
+}
 
 if (environment !== 'production') {
   if (environment === 'release') appName += `-${appVersion}`
@@ -42,6 +44,7 @@ export default (): ExpoConfig => ({
   androidStatusBar: {
     backgroundColor: '#00000000',
     barStyle: 'light-content',
+    translucent: true,
   },
   androidNavigationBar: {
     backgroundColor: '#00000000',
