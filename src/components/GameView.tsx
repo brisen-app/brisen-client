@@ -1,4 +1,3 @@
-import CardScreen from '@/src/components/card/CardScreen'
 import Colors from '@/src/constants/Colors'
 import { CardManager, PlayedCard } from '@/src/managers/CardManager'
 import { LocalizationManager } from '@/src/managers/LocalizationManager'
@@ -11,49 +10,64 @@ import {
   PressableProps,
   Text,
   TouchableOpacity,
+  View,
   ViewProps,
   ViewToken,
 } from 'react-native'
+import { TouchableOpacityProps } from 'react-native-gesture-handler'
+import Animated from 'react-native-reanimated'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { FontStyles } from '../constants/Styles'
 import { useSheetHeight } from '../lib/utils'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
+import { CardView } from './card/CardView'
 import ScrollToBottomButton from './utils/ScrollToBottomButton'
 
 export type GameViewProps = {
   bottomSheetRef?: React.RefObject<BottomSheet>
 }
 
+const CARD_PEEK_HEIGHT = 16
+const PADDING = 16
+
 export default function GameView(props: Readonly<GameViewProps>) {
   const { bottomSheetRef } = props
+  const sheetHeight = useSheetHeight()
   const flatListRef = useRef<FlatList>(null)
   const { playlist, players, playedCards, playedIds, categoryFilter } = useAppContext()
   const setContext = useAppDispatchContext()
   const [isOutOfCards, setIsOutOfCards] = useState<boolean>(true)
   const [viewableItems, setViewableItems] = useState<ViewToken<PlayedCard>[] | undefined>(undefined)
-  const scrollButtonBottomPosition = useSheetHeight() - 8
+  const scrollButtonBottomPosition = sheetHeight - 8
+
+  const insets = useSafeAreaInsets()
+  const safeArea = {
+    paddingTop: Math.max(PADDING, insets.top),
+    marginLeft: insets.left,
+    marginRight: insets.right,
+  }
+
+  const cardHeight = Dimensions.get('screen').height - sheetHeight - insets.top - PADDING - CARD_PEEK_HEIGHT
 
   const showScrollButton = useCallback(() => {
-    if (viewableItems === undefined || viewableItems.length === 0) return false
-    if (isOutOfCards) return true
-    return viewableItems.some(
-      item => item.key !== playedCards[playedCards.length - 1].id && item.key !== playedCards[playedCards.length - 2].id
-    )
-  }, [viewableItems, isOutOfCards])
+    if (viewableItems === undefined) return false
+    if (isOutOfCards && viewableItems.some(item => item.index != null && item.index < playedCards.length - 1))
+      return true
+    return viewableItems.some(item => item.index != null && item.index < playedCards.length - 3)
+  }, [viewableItems])
 
-  const onPressNoCard = useCallback(() => {
-    bottomSheetRef?.current?.snapToIndex(1)
-  }, [])
+  const onPressNoCard = () => bottomSheetRef?.current?.snapToIndex(1)
 
-  const onPressScrollButton = useCallback(() => {
+  const onPressScrollButton = () => {
     if (isOutOfCards) {
       flatListRef.current?.scrollToEnd({ animated: true })
     } else {
       flatListRef.current?.scrollToIndex({ index: Math.max(0, playedCards.length - 2), animated: true })
     }
-  }, [playedCards.length, isOutOfCards])
+  }
 
   const addCard = async () => {
-    if (playlist.size === 0) return
+    if (playedCards.length === 0 && playlist.size === 0) return
 
     const newCard = CardManager.drawCard(playedCards, playedIds, playlist, players, categoryFilter)
     if (!newCard) {
@@ -76,6 +90,10 @@ export default function GameView(props: Readonly<GameViewProps>) {
     )
   }
 
+  useEffect(() => {
+    setContext({ action: 'currentCard', payload: viewableItems?.[0]?.item })
+  }, [viewableItems])
+
   // When the playlist or players change
   useEffect(() => {
     if (isOutOfCards) {
@@ -86,24 +104,56 @@ export default function GameView(props: Readonly<GameViewProps>) {
     const card = playedCards[playedCards.length - 1]
     setContext({ action: 'removeCachedPlayedCard', payload: card })
     console.log(`Removed card ${playedCards.length}:`, card.formattedContent ?? card.content)
-    setIsOutOfCards(true)
-  }, [playlist, players.size])
+  }, [playlist.size, players.size])
+
+  const keyExtractor = (item: PlayedCard) => item.id
+  const renderItem = useCallback(
+    ({ item }: { item: PlayedCard }) => <CardView card={item} style={{ height: cardHeight, marginBottom: PADDING }} />,
+    []
+  )
+
+  const getItemLayout = useCallback(
+    (_: ArrayLike<PlayedCard> | null | undefined, index: number) => ({
+      length: cardHeight + PADDING,
+      offset: (cardHeight + PADDING) * index,
+      index,
+    }),
+    []
+  )
+
+  const listFooter = () => (
+    <OutOfCardsView
+      onPress={onPressNoCard}
+      style={{
+        height: cardHeight,
+        marginBottom: sheetHeight + insets.top + PADDING + CARD_PEEK_HEIGHT,
+      }}
+    />
+  )
 
   if (playedCards.length === 0) return <NoCardsView onPress={onPressNoCard} />
 
   return (
     <>
-      <FlatList<PlayedCard>
+      <Animated.FlatList<PlayedCard>
         ref={flatListRef}
-        pagingEnabled
+        maxToRenderPerBatch={3}
+        windowSize={3}
         scrollsToTop={false}
         showsVerticalScrollIndicator={false}
+        style={[{ overflow: 'visible' }, safeArea]}
         data={playedCards}
+        decelerationRate={'fast'}
+        snapToInterval={cardHeight + PADDING}
+        disableIntervalMomentum
+        keyboardDismissMode='on-drag'
         onEndReachedThreshold={1.01}
         onEndReached={addCard}
-        onViewableItemsChanged={viewableItems => setViewableItems(viewableItems.viewableItems)}
-        ListFooterComponent={<OutOfCardsView onPress={onPressNoCard} />}
-        renderItem={({ item }) => <CardScreen card={item} />}
+        onViewableItemsChanged={info => setViewableItems(info.viewableItems)}
+        ListFooterComponent={listFooter}
+        keyExtractor={keyExtractor}
+        getItemLayout={getItemLayout}
+        renderItem={renderItem}
       />
       {showScrollButton() && (
         <ScrollToBottomButton onPress={onPressScrollButton} style={{ bottom: scrollButtonBottomPosition }} />
@@ -135,22 +185,22 @@ function NoCardsView(props: Readonly<PressableProps & ViewProps>) {
   )
 }
 
-type OutOfCardsViewProps = { onPress: () => void }
-function OutOfCardsView(props: Readonly<OutOfCardsViewProps>) {
+function OutOfCardsView(props: Readonly<TouchableOpacityProps>) {
+  const { onPress, style } = props
   const { playedCards } = useAppContext()
   const setContext = useAppDispatchContext()
 
   return (
-    <Pressable
-      style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        width: Dimensions.get('screen').width,
-        height: Dimensions.get('screen').height,
-        gap: 8,
-      }}
+    <View
       {...props}
+      style={[
+        {
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: 8,
+        },
+        style,
+      ]}
     >
       <Text
         style={{
@@ -163,7 +213,7 @@ function OutOfCardsView(props: Readonly<OutOfCardsViewProps>) {
       <TouchableOpacity
         disabled={playedCards.length === 0}
         onPress={() => {
-          props.onPress()
+          onPress?.()
           setContext({ action: 'restartGame' })
         }}
         style={{
@@ -182,6 +232,6 @@ function OutOfCardsView(props: Readonly<OutOfCardsViewProps>) {
           {LocalizationManager.get('restart_game')?.value ?? 'restart_game'}
         </Text>
       </TouchableOpacity>
-    </Pressable>
+    </View>
   )
 }

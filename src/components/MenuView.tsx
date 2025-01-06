@@ -1,6 +1,6 @@
 import Colors from '@/src/constants/Colors'
-import { FontStyles } from '@/src/constants/Styles'
-import { formatName as prettifyString } from '@/src/lib/utils'
+import { FontStyles, SHEET_HANDLE_HEIGHT } from '@/src/constants/Styles'
+import { formatName as prettifyString, useSheetHeight } from '@/src/lib/utils'
 import { Category, CategoryManager } from '@/src/managers/CategoryManager'
 import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import { PackManager } from '@/src/managers/PackManager'
@@ -35,6 +35,7 @@ import {
 import { TextInput } from 'react-native-gesture-handler'
 import Animated, {
   Easing,
+  Extrapolation,
   FadeInUp,
   LinearTransition,
   ZoomOut,
@@ -46,9 +47,12 @@ import { ConfigurationManager } from '../managers/ConfigurationManager'
 import Color from '../models/Color'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import DevMenu from './DevMenu'
+import MenuHudView from './MenuHudView'
 import PackPosterView from './pack/PackPosterView'
 import ScrollToBottomButton from './utils/ScrollToBottomButton'
 import Tag from './utils/Tag'
+
+const SHEET_TRASITION_POINT = 0.25
 
 export default function MenuView() {
   const insets = useSafeAreaInsets()
@@ -59,6 +63,8 @@ export default function MenuView() {
   const setContext = useAppDispatchContext()
   const showCollapseButton = playlist.size > 0
 
+  const closedSheetHeight = useSheetHeight() - SHEET_HANDLE_HEIGHT
+
   const sortedPlayers = useMemo(() => [...players].sort((a, b) => a.name.localeCompare(b.name)), [players])
   const sortedCategories = useMemo(() => CategoryManager.items, [CategoryManager.items])
 
@@ -67,25 +73,32 @@ export default function MenuView() {
   }
 
   const hideOnBottomStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(bottomSheet.animatedIndex.value, [0, 1], [0, 1]),
+    opacity: interpolate(bottomSheet.animatedIndex.value, [0, SHEET_TRASITION_POINT], [0, 1], Extrapolation.CLAMP),
+  }))
+
+  const hudStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(bottomSheet.animatedIndex.value, [0, SHEET_TRASITION_POINT], [1, 0]),
+    height: interpolate(
+      bottomSheet.animatedIndex.value,
+      [0, SHEET_TRASITION_POINT],
+      [closedSheetHeight - SHEET_HANDLE_HEIGHT, 0],
+      Extrapolation.CLAMP
+    ),
   }))
 
   return (
     <>
+      <MenuHudView style={hudStyle} />
       <BottomSheetScrollView
         ref={scrollViewRef}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ gap: 8 }}
         style={{ flex: 1, overflow: 'visible', marginHorizontal: 16 }}
       >
-        <AddPlayerField />
-
         <Animated.View style={[{ gap: 8 }, hideOnBottomStyle]}>
-          {players.size === 0 && (
-            <Text style={FontStyles.Subheading}>
-              {LocalizationManager.get('players_subtitle')?.value ?? 'players_subtitle'}
-            </Text>
-          )}
+          <Header titleKey='players' descriptionKey='players_subtitle' />
+          <AddPlayerField />
+
           {players.size > 0 && (
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
               {sortedPlayers.map(tag => (
@@ -139,6 +152,7 @@ export default function MenuView() {
       </BottomSheetScrollView>
       {showCollapseButton && (
         <ScrollToBottomButton
+          text={LocalizationManager.get('start_game')?.value ?? 'Start'}
           onPress={() => {
             Keyboard.dismiss()
             scrollViewRef.current?.scrollTo({ y: 0, animated: true })
@@ -277,8 +291,8 @@ function LinksView(props: Readonly<ViewProps>) {
   const { style, ...viewProps } = props
   const storeURL =
     Platform.select({
-      ios: ConfigurationManager.get('app_store_url')?.string,
-      android: ConfigurationManager.get('play_store_url')?.string,
+      ios: ConfigurationManager.getValue('app_store_url'),
+      android: ConfigurationManager.getValue('play_store_url'),
     }) ?? undefined
 
   const onShare = async () => {

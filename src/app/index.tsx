@@ -1,25 +1,24 @@
 import GameView from '@/src/components/GameView'
 import MenuView from '@/src/components/MenuView'
 import Colors from '@/src/constants/Colors'
-import { getRandom, useSheetHeight } from '@/src/lib/utils'
+import { useSheetHeight } from '@/src/lib/utils'
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetBackgroundProps,
   BottomSheetHandleProps,
 } from '@gorhom/bottom-sheet'
-import { Image } from 'expo-image'
-import { SplashScreen } from 'expo-router'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { Dimensions, Keyboard, Platform, View, ViewProps } from 'react-native'
-import Animated, { Extrapolation, interpolate, useAnimatedStyle } from 'react-native-reanimated'
+import { LinearGradient } from 'expo-linear-gradient'
+import { useCallback, useMemo, useRef } from 'react'
+import { Keyboard, Platform, View, ViewProps } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { PackManager } from '../managers/PackManager'
+import { SHEET_HANDLE_HEIGHT } from '../constants/Styles'
+import Color from '../models/Color'
 
 export default function App() {
   const insets = useSafeAreaInsets()
   const bottomSheetRef = useRef<BottomSheet>(null)
   const sheetHeight = useSheetHeight()
-  const snapPoints = useMemo(() => [sheetHeight, '100%'], [bottomSheetRef, insets])
+  const snapPoints = useMemo(() => [sheetHeight, '90%'], [bottomSheetRef, insets])
 
   const backdrop = useCallback(
     (props: any) => (
@@ -35,16 +34,25 @@ export default function App() {
     []
   )
 
-  useEffect(() => {
-    SplashScreen.hideAsync()
-  }, [])
-
   return (
     <>
+      <LinearGradient
+        colors={bezierGradient}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={{
+          position: 'absolute',
+          zIndex: Number.MAX_SAFE_INTEGER,
+          height: insets.top,
+          width: '100%',
+          opacity: 0.75,
+        }}
+      />
       <GameView bottomSheetRef={bottomSheetRef} />
       <BottomSheet
         ref={bottomSheetRef}
         index={1}
+        enableDynamicSizing={false}
         snapPoints={snapPoints}
         backdropComponent={backdrop}
         backgroundComponent={SheetMenuBackground}
@@ -57,25 +65,16 @@ export default function App() {
   )
 }
 
-const SheetMenuBackground: React.FC<BottomSheetBackgroundProps> = ({ style, animatedIndex }) => {
-  const pack = getRandom(PackManager.items ?? [])
-  const { data: image, error } = PackManager.useImageQuery(pack?.image)
-  if (error) console.warn(`Couldn't load image for pack ${pack?.name}:`, error)
-
-  const containerAnimatedStyle = useAnimatedStyle(() => ({
-    borderRadius: interpolate(animatedIndex.value, [0, 1], [16, 0], Extrapolation.CLAMP),
-    backgroundColor: 'black',
-    overflow: 'hidden',
-  }))
-
-  const backgroundAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(animatedIndex.value, [0, 1], [0.2, 0.1], Extrapolation.CLAMP),
-  }))
-
+const SheetMenuBackground: React.FC<BottomSheetBackgroundProps> = ({ style }) => {
   return (
-    <Animated.View
+    <View
       pointerEvents='none'
       style={[
+        {
+          borderRadius: 16,
+          backgroundColor: Colors.secondaryBackground,
+          overflow: 'hidden',
+        },
         style,
         Platform.select({
           ios: {
@@ -87,55 +86,43 @@ const SheetMenuBackground: React.FC<BottomSheetBackgroundProps> = ({ style, anim
             elevation: 32,
           },
         }) ?? {},
-        containerAnimatedStyle,
       ]}
-    >
-      <Animated.View style={backgroundAnimatedStyle}>
-        <Image
-          style={[
-            {
-              height: Dimensions.get('screen').height,
-            },
-          ]}
-          source={image}
-          blurRadius={256}
-        />
-      </Animated.View>
-    </Animated.View>
+    />
   )
 }
 
-const SheetHandle: React.FC<BottomSheetHandleProps & ViewProps> = ({ style, animatedIndex, animatedPosition }) => {
-  const insets = useSafeAreaInsets()
-
-  const handleHeight = 24
-
-  const containerAnimatedStyle = useAnimatedStyle(() => ({
-    height: !insets.top
-      ? handleHeight
-      : interpolate(animatedIndex.value, [0, 1], [handleHeight, insets.top], Extrapolation.CLAMP),
-    opacity: interpolate(animatedPosition.value, [insets.top, 0], [1 / 3, 0], Extrapolation.CLAMP),
-  }))
-
+const SheetHandle: React.FC<BottomSheetHandleProps & ViewProps> = ({ style }) => {
   return (
-    <Animated.View
-      renderToHardwareTextureAndroid={true}
-      style={[
-        {
-          justifyContent: 'center',
-          alignItems: 'center',
-        },
-        containerAnimatedStyle,
-      ]}
-    >
+    <View style={[{ height: SHEET_HANDLE_HEIGHT, justifyContent: 'center', alignItems: 'center' }, style]}>
       <View
-        style={{
-          height: 4,
-          width: 32,
-          backgroundColor: Colors.text,
-          borderRadius: Number.MAX_SAFE_INTEGER,
-        }}
+        style={[
+          {
+            height: 4,
+            width: 32,
+            backgroundColor: Colors.secondaryText,
+            borderRadius: Number.MAX_SAFE_INTEGER,
+          },
+        ]}
       />
-    </Animated.View>
+    </View>
   )
 }
+
+const bezierGradient: [string, string, ...string[]] = [
+  Color.black.alpha(1).string,
+  Color.black.alpha(1 - 0.1129).string,
+  Color.black.alpha(1 - 0.2204).string,
+  Color.black.alpha(1 - 0.3225).string,
+  Color.black.alpha(1 - 0.4188).string,
+  Color.black.alpha(1 - 0.5092).string,
+  Color.black.alpha(1 - 0.5933).string,
+  Color.black.alpha(1 - 0.6709).string,
+  Color.black.alpha(1 - 0.7416).string,
+  Color.black.alpha(1 - 0.805).string,
+  Color.black.alpha(1 - 0.8607).string,
+  Color.black.alpha(1 - 0.9081).string,
+  Color.black.alpha(1 - 0.9466).string,
+  Color.black.alpha(1 - 0.9754).string,
+  Color.black.alpha(1 - 0.9936).string,
+  Color.black.alpha(0).string,
+]

@@ -23,6 +23,8 @@ jobs:
   update:
     runs-on: ubuntu-latest
     permissions:
+      actions: write
+      contents: read
       pull-requests: write
     env:
       EXPO_PUBLIC_ENV: preview

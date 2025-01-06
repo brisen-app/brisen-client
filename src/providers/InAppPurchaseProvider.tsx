@@ -87,11 +87,8 @@ export function useInAppPurchaseContext() {
 function isSubscribed(customerInfo: CustomerInfo | undefined) {
   if (!customerInfo) return false
 
-  const brisenPlusId = ConfigurationManager.get('brisen_plus_id')?.string
-  if (!brisenPlusId) {
-    console.warn('Missing Brisen Plus ID')
-    return false
-  }
+  const brisenPlusId = ConfigurationManager.getValue('brisen_plus_id')
+  if (!brisenPlusId) return false
 
   const brisenPlusEntitlement = customerInfo.entitlements.active[brisenPlusId]
   const isSubscribed = brisenPlusEntitlement?.isActive === true

@@ -1,4 +1,3 @@
-import FetchErrorView from '@/src/components/FetchErrorView'
 import { CardManager } from '@/src/managers/CardManager'
 import { CardRelationManager } from '@/src/managers/CardRelationManager'
 import { CategoryManager } from '@/src/managers/CategoryManager'
@@ -9,8 +8,9 @@ import { PackManager } from '@/src/managers/PackManager'
 import SupabaseManager, { SupabaseItem } from '@/src/managers/SupabaseManager'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { ReactNode, useEffect, useRef } from 'react'
-import { AppState, Platform } from 'react-native'
-import ActivityIndicatorView from '../components/ActivityIndicatorView'
+import { ActivityIndicator, AppState, Platform, View } from 'react-native'
+import FetchErrorView from '../components/FetchErrorView'
+import Colors from '../constants/Colors'
 
 function useSupabase(manager: SupabaseManager<SupabaseItem>, enabled = true) {
   const response = useQuery({
@@ -36,7 +36,18 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
   const packResponse = useSupabase(PackManager, languageResponse.isSuccess)
   const localizationResponse = useSupabase(LocalizationManager, languageResponse.isSuccess)
 
+  const responses = [
+    configResonse,
+    languageResponse,
+    categoryResponse,
+    packResponse,
+    cardResponse,
+    cardRelationResponse,
+    localizationResponse,
+  ]
+
   useEffect(() => {
+    // For Android: Handle user changing language in settings
     const stateListener = AppState.addEventListener('change', nextAppState => {
       if (
         Platform.OS === 'android' &&
@@ -56,29 +67,18 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
     return () => stateListener.remove()
   }, [])
 
-  const isSuccess =
-    configResonse.isSuccess &&
-    languageResponse.isSuccess &&
-    categoryResponse.isSuccess &&
-    packResponse.isSuccess &&
-    cardResponse.isSuccess &&
-    cardRelationResponse.isSuccess &&
-    localizationResponse.isSuccess
+  if (responses.some(r => r.isError)) {
+    const errors = responses.reduce((acc, r) => (r.error ? [...acc, r.error] : acc), new Array<Error>())
+    return <FetchErrorView errors={errors} onRetry={() => queryClient.refetchQueries()} />
+  }
 
-  const failedResponses = [
-    configResonse,
-    languageResponse,
-    categoryResponse,
-    packResponse,
-    cardResponse,
-    cardRelationResponse,
-    localizationResponse,
-  ].filter(response => !!response.error) as { error: Error }[]
+  if (queryClient.isFetching() || responses.some(r => r.isPending)) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator size='large' color={Colors.text} />
+      </View>
+    )
+  }
 
-  if (failedResponses.length > 0)
-    return <FetchErrorView errors={failedResponses.map(r => r.error)} onRetry={() => queryClient.invalidateQueries()} />
-
-  if (!isSuccess || queryClient.isFetching())
-    return <ActivityIndicatorView text={LocalizationManager.get('loading')?.value} />
   return props.children
 }
