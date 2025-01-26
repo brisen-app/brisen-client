@@ -141,7 +141,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
         windowSize={3}
         scrollsToTop={false}
         showsVerticalScrollIndicator={false}
-        style={[{ overflow: 'visible' }, safeArea]}
+        style={safeArea}
         data={playedCards}
         decelerationRate={'fast'}
         snapToInterval={cardHeight + PADDING}
