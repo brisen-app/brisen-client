@@ -27,7 +27,7 @@ export type AppContextAction =
   | { action: 'incrementPlayCounts'; payload: Player[] }
   | { action: 'currentCard'; payload?: string }
 
-function getInitialContext(): AppContextType {
+export function initialContext(): AppContextType {
   return {
     categoryFilter: [],
     playedCards: [],
@@ -190,7 +190,7 @@ export function AppContextProvider(props: Readonly<{ children: ReactNode }>) {
     // Load context from AsyncStorage before rendering the app
     loadContext().then(context => {
       if (context) setContext(context)
-      else setContext(getInitialContext())
+      else setContext(initialContext())
     })
   }, [])
 

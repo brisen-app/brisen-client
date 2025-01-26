@@ -1,16 +1,8 @@
-import { Pack } from '@/src/managers/PackManager'
-import { Category } from '@/src/managers/CategoryManager'
 import { PlayedCard } from '@/src/managers/CardManager'
+import { Category } from '@/src/managers/CategoryManager'
+import { Pack } from '@/src/managers/PackManager'
 import { Player } from '@/src/models/Player'
-import { AppContextAction, AppContextType, contextReducer } from '@/src/providers/AppContextProvider'
-
-const emptyState = {
-  categoryFilter: new Set<string>(),
-  playedCards: [],
-  playedIds: new Set<string>(),
-  players: new Set<Player>(),
-  playlist: new Set<Pack>(),
-} as AppContextType
+import { AppContextAction, AppContextType, contextReducer, initialContext } from '@/src/providers/AppContextProvider'
 
 // Mock Data
 const mockPack = { id: 'pack1' } as Pack
@@ -22,19 +14,19 @@ const mockPlayer2 = { name: 'Player 2', playCount: 0 } as Player
 
 describe('contextReducer', () => {
   it('should toggle pack', () => {
-    let state = emptyState
-    const action = { action: 'togglePack', payload: mockPack } as AppContextAction
+    let state = initialContext()
+    const action = { action: 'togglePack', payload: mockPack.id } satisfies AppContextAction
 
     state = contextReducer(state, action)
-    expect(state.playlist.has(mockPack)).toBe(true)
+    expect(state.playlist.includes(mockPack.id)).toBe(true)
 
     state = contextReducer(state, action)
-    expect(state.playlist.has(mockPack)).toBe(false)
+    expect(state.playlist.includes(mockPack.id)).toBe(false)
   })
 
   it('should toggle player', () => {
-    let state = emptyState
-    const action = { action: 'togglePlayer', payload: mockPlayer1 } as AppContextAction
+    let state = initialContext()
+    const action = { action: 'togglePlayer', payload: mockPlayer1 } satisfies AppContextAction
 
     state = contextReducer(state, action)
     expect(state.players.has(mockPlayer1)).toBe(true)
@@ -44,8 +36,8 @@ describe('contextReducer', () => {
   })
 
   it('should increment play counts', () => {
-    let state = { players: new Set<Player>([mockPlayer1, mockPlayer2]) } as AppContextType
-    const action = { action: 'incrementPlayCounts', payload: new Set<Player>([mockPlayer1]) } as AppContextAction
+    let state = { ...initialContext(), players: new Set<Player>([mockPlayer1, mockPlayer2]) }
+    const action = { action: 'incrementPlayCounts', payload: [mockPlayer1] } satisfies AppContextAction
 
     state = contextReducer(state, action)
     expect([...state.players][0].playCount).toBe(1)
@@ -56,58 +48,61 @@ describe('contextReducer', () => {
   })
 
   it('should toggle category', () => {
-    let state = { categoryFilter: new Set<string>() } as AppContextType
-    const action = { action: 'toggleCategory', payload: mockCategory } as AppContextAction
+    let state = { ...initialContext(), categoryFilter: new Array<string>() }
+    const action = { action: 'toggleCategory', payload: mockCategory } satisfies AppContextAction
 
     state = contextReducer(state, action)
-    expect(state.categoryFilter.has(mockCategory.id)).toBe(true)
+    expect(state.categoryFilter.includes(mockCategory.id)).toBe(true)
 
     state = contextReducer(state, action)
-    expect(state.categoryFilter.has(mockCategory.id)).toBe(false)
+    expect(state.categoryFilter.includes(mockCategory.id)).toBe(false)
   })
 
   it('should add played card', () => {
-    let state = emptyState
+    let state = initialContext()
 
-    const action1 = { action: 'addPlayedCard', payload: mockPlayedCard1 } as AppContextAction
+    const action1 = { action: 'addPlayedCard', payload: mockPlayedCard1 } satisfies AppContextAction
     state = contextReducer(state, action1)
     expect(state.playedCards).toEqual([mockPlayedCard1])
 
-    const action2 = { action: 'addPlayedCard', payload: mockPlayedCard2 } as AppContextAction
+    const action2 = { action: 'addPlayedCard', payload: mockPlayedCard2 } satisfies AppContextAction
     state = contextReducer(state, action2)
     expect(state.playedCards).toEqual([mockPlayedCard1, mockPlayedCard2])
   })
 
   it('should restart game', () => {
-    let state = {
-      categoryFilter: new Set<string>([mockCategory.id]),
+    let state: AppContextType = {
+      ...initialContext(),
+      categoryFilter: [mockCategory.id],
       playedCards: [mockPlayedCard1, mockPlayedCard2],
       playedIds: new Set<string>([mockPlayedCard1.id, mockPlayedCard2.id]),
       players: new Set<Player>([
         { ...mockPlayer1, playCount: 1 },
         { ...mockPlayer2, playCount: 2 },
       ]),
-      playlist: new Set<Pack>([mockPack]),
-    } as AppContextType
+      playlist: [mockPack.id],
+    }
     state.playedCards = [mockPlayedCard1, mockPlayedCard2]
 
-    const action = { action: 'restartGame' } as AppContextAction
+    const action = { action: 'restartGame' } satisfies AppContextAction
+
     state = contextReducer(state, action)
     expect(state).toStrictEqual({
-      categoryFilter: new Set<string>([mockCategory.id]),
+      ...initialContext(),
+      categoryFilter: [mockCategory.id],
       playedCards: [],
       playedIds: new Set(),
       players: new Set<Player>([
         { ...mockPlayer1, playCount: 0 },
         { ...mockPlayer2, playCount: 0 },
       ]),
-      playlist: new Set(),
-    })
+      playlist: [],
+    } satisfies AppContextType)
   })
 
   it('should throw if action type is not recognized', () => {
     // @ts-ignore
     const action = { action: 'unknown' } as AppContextAction
-    expect(() => contextReducer(emptyState, action)).toThrow("Unhandled action type: 'unknown'")
+    expect(() => contextReducer(initialContext(), action)).toThrow("Unhandled action type: 'unknown'")
   })
 })
