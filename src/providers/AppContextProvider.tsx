@@ -1,34 +1,53 @@
 import { PlayedCard } from '@/src/managers/CardManager'
 import { Category } from '@/src/managers/CategoryManager'
-import { Pack } from '@/src/managers/PackManager'
 import { Player } from '@/src/models/Player'
-import React, { createContext, Dispatch, ReactNode, useContext, useReducer } from 'react'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import React, { createContext, Dispatch, ReactNode, useContext, useEffect, useReducer, useState } from 'react'
+import { Serializable } from '../lib/utils'
+
+export const APP_CONTEXT_KEY = 'context'
 
 export type AppContextType = {
-  categoryFilter: Set<string>
+  categoryFilter: string[]
   playedCards: PlayedCard[]
-  currentCard?: PlayedCard
+  currentCard?: string
   playedIds: Set<string>
   players: Set<Player>
-  playlist: Set<Pack>
+  playlist: string[]
 }
 
 export type AppContextAction =
+  | { action: 'setContext'; payload: AppContextType }
   | { action: 'addPlayedCard'; payload: PlayedCard }
   | { action: 'removeCachedPlayedCard'; payload: PlayedCard }
   | { action: 'restartGame'; payload?: never }
   | { action: 'toggleCategory'; payload: Category }
-  | { action: 'togglePack'; payload: Pack }
+  | { action: 'togglePack'; payload: string }
   | { action: 'togglePlayer'; payload: Player }
-  | { action: 'incrementPlayCounts'; payload: Set<Player> }
-  | { action: 'currentCard'; payload?: PlayedCard }
+  | { action: 'incrementPlayCounts'; payload: Player[] }
+  | { action: 'currentCard'; payload?: string }
+
+function getInitialContext(): AppContextType {
+  return {
+    categoryFilter: [],
+    playedCards: [],
+    playedIds: new Set(),
+    players: new Set(),
+    playlist: [],
+  }
+}
 
 function toggleSet<T>(set: Set<T>, value: T): Set<T> {
   if (set.has(value)) return new Set([...set].filter(v => v !== value))
   return new Set([...set, value])
 }
 
-function incrementPlayCounts(players: Set<Player>, state: AppContextType, amount = 1): Set<Player> {
+function toggleList<T>(list: T[], value: T): T[] {
+  if (list.includes(value)) return list.filter(v => v !== value)
+  return [...list, value]
+}
+
+function incrementPlayCounts(players: Player[], state: AppContextType, amount = 1): Set<Player> {
   const playersToUpdate = [...players].map(player => player.name)
   const updatedPlayers = new Set<Player>()
   for (const player of state.players) {
@@ -45,39 +64,46 @@ function incrementPlayCounts(players: Set<Player>, state: AppContextType, amount
 
 export function contextReducer(state: AppContextType, action: AppContextAction): AppContextType {
   const { action: type, payload } = action
+  let newContext: AppContextType
 
   switch (type) {
     case 'togglePack': {
-      return { ...state, playlist: toggleSet(state.playlist, payload) }
+      newContext = { ...state, playlist: toggleList(state.playlist, payload) }
+      break
     }
 
     case 'togglePlayer': {
-      return { ...state, players: toggleSet(state.players, payload) }
+      newContext = { ...state, players: toggleSet(state.players, payload) }
+      break
     }
 
     case 'incrementPlayCounts': {
-      return { ...state, players: incrementPlayCounts(payload, state) }
+      newContext = { ...state, players: incrementPlayCounts(payload, state) }
+      break
     }
 
     case 'toggleCategory': {
-      return { ...state, categoryFilter: toggleSet(state.categoryFilter, payload.id) }
+      newContext = { ...state, categoryFilter: toggleList(state.categoryFilter, payload.id) }
+      break
     }
 
     case 'addPlayedCard': {
-      return {
+      newContext = {
         ...state,
         playedCards: [...state.playedCards, payload],
         playedIds: new Set([...state.playedIds, payload.id]),
       }
+      break
     }
 
     case 'removeCachedPlayedCard': {
-      return {
+      newContext = {
         ...state,
         players: incrementPlayCounts(payload.featuredPlayers, state, -1),
         playedCards: state.playedCards.filter(card => card.id !== payload.id),
         playedIds: new Set([...state.playedIds].filter(id => id !== payload.id)),
       }
+      break
     }
 
     case 'restartGame': {
@@ -85,17 +111,26 @@ export function contextReducer(state: AppContextType, action: AppContextAction):
       for (const player of state.players) {
         players.add({ ...player, playCount: 0 })
       }
-      return { ...state, players: players, playlist: new Set(), playedCards: [], playedIds: new Set() }
+      newContext = { ...state, players: players, playlist: [], playedCards: [], playedIds: new Set() }
+      break
     }
 
     case 'currentCard': {
-      return { ...state, currentCard: payload }
+      newContext = { ...state, currentCard: payload }
+      break
+    }
+
+    case 'setContext': {
+      return payload
     }
 
     default: {
       throw new Error(`Unhandled action type: '${type}'`)
     }
   }
+
+  saveContext(newContext)
+  return newContext
 }
 
 const AppContext = createContext<AppContextType | null>(null)
@@ -113,14 +148,58 @@ export function useAppDispatchContext() {
   return context
 }
 
+export async function loadContext(): Promise<AppContextType | undefined> {
+  try {
+    const context = await AsyncStorage.getItem(APP_CONTEXT_KEY)
+    if (!context) {
+      console.log('No context found in AsyncStorage')
+      return
+    }
+    const parsedContext: Serializable<AppContextType> = JSON.parse(context)
+    console.log('Loaded context from AsyncStorage')
+    return {
+      ...parsedContext,
+      playedIds: new Set(parsedContext.playedIds),
+      players: new Set(parsedContext.players),
+    }
+  } catch (error) {
+    console.error('Failed to load context from AsyncStorage', error)
+    return
+  }
+}
+
+async function saveContext(context: AppContextType) {
+  try {
+    const parsedContext = JSON.stringify({
+      ...context,
+      playedIds: Array.from(context.playedIds),
+      players: Array.from(context.players),
+    } satisfies Serializable<AppContextType>)
+
+    await AsyncStorage.setItem(APP_CONTEXT_KEY, parsedContext)
+    console.log('Stored context in AsyncStorage')
+  } catch (error) {
+    console.error('Failed to store context in AsyncStorage', error)
+  }
+}
+
 export function AppContextProvider(props: Readonly<{ children: ReactNode }>) {
-  const [context, setContext] = useReducer(contextReducer, {
-    playedCards: [],
-    playedIds: new Set(),
-    playlist: new Set(),
-    players: new Set(),
-    categoryFilter: new Set(),
-  } as AppContextType)
+  const [context, setContext] = useState(undefined as AppContextType | undefined)
+
+  useEffect(() => {
+    // Load context from AsyncStorage before rendering the app
+    loadContext().then(context => {
+      if (context) setContext(context)
+      else setContext(getInitialContext())
+    })
+  }, [])
+
+  if (!context) return null // TODO: Add a loading screen
+  return <AppContextWrapper initialContext={context}>{props.children}</AppContextWrapper>
+}
+
+export function AppContextWrapper(props: Readonly<{ children: ReactNode; initialContext: AppContextType }>) {
+  const [context, setContext] = useReducer(contextReducer, props.initialContext)
 
   return (
     <AppContext.Provider value={context}>

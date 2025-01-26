@@ -64,7 +64,7 @@ export default function MenuView() {
 
   const { playlist, players, categoryFilter } = useAppContext()
   const setContext = useAppDispatchContext()
-  const showCollapseButton = playlist.size > 0
+  const showCollapseButton = playlist.length > 0
 
   const closedSheetHeight = useSheetHeight() - SHEET_HANDLE_HEIGHT
 
@@ -132,7 +132,7 @@ export default function MenuView() {
               <CategoryTag
                 key={category.id}
                 category={category}
-                isSelected={!categoryFilter.has(category.id)}
+                isSelected={!categoryFilter.includes(category.id)}
                 onPress={onPressCategory}
               />
             ))}
@@ -401,12 +401,12 @@ function AppDetailsView() {
 function LanguageSelector() {
   const queryClient = useQueryClient()
 
-  const selectedLanguage = LanguageManager.getDisplayLanguage()
+  const selectedLanguage = LanguageManager.getLanguage()
   const languages = LanguageManager.getAvailableLanguages()
 
   function handleLanguageChange(language: string) {
     console.log('Language changed to:', language)
-    LanguageManager.setLanguage(language)
+    LanguageManager.setUserSelectedLanguage(language)
     queryClient.invalidateQueries()
   }
 

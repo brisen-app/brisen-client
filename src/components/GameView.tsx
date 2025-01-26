@@ -34,7 +34,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
   const { bottomSheetRef } = props
   const sheetHeight = useSheetHeight()
   const flatListRef = useRef<FlatList>(null)
-  const { playlist, players, playedCards, playedIds, categoryFilter } = useAppContext()
+  const { playlist, players, playedCards, playedIds, categoryFilter, currentCard } = useAppContext()
   const setContext = useAppDispatchContext()
   const [isOutOfCards, setIsOutOfCards] = useState<boolean>(true)
   const [viewableItems, setViewableItems] = useState<ViewToken<PlayedCard>[] | undefined>(undefined)
@@ -67,9 +67,9 @@ export default function GameView(props: Readonly<GameViewProps>) {
   }
 
   const addCard = async () => {
-    if (playedCards.length === 0 && playlist.size === 0) return
+    if (playedCards.length === 0 && playlist.length === 0) return
 
-    const newCard = CardManager.drawCard(playedCards, playedIds, playlist, players, categoryFilter)
+    const newCard = CardManager.drawCard(playedCards, playedIds, playlist, players, new Set(categoryFilter))
     if (!newCard) {
       setIsOutOfCards(true)
       return
@@ -85,13 +85,30 @@ export default function GameView(props: Readonly<GameViewProps>) {
 
     console.log(
       `Added card ${playedCards.length + 1}:`,
-      (newCard.featuredPlayers.size && !newCard.is_group ? newCard.players[0].name + ', ' : '') +
+      (newCard.featuredPlayers.length && !newCard.is_group ? newCard.players[0].name + ', ' : '') +
         (newCard.formattedContent ?? newCard.content)
     )
   }
 
   useEffect(() => {
-    setContext({ action: 'currentCard', payload: viewableItems?.[0]?.item })
+    if (!currentCard) return
+    const currentCardIndex = playedCards.findIndex(c => c.id === currentCard)
+    console.debug('Scrolling to card:', currentCard)
+    console.debug(
+      'list:',
+      playedCards.map(c => c.id)
+    )
+    console.debug('Found at index:', currentCardIndex)
+    if (currentCardIndex <= 0) return
+    flatListRef.current?.scrollToOffset({
+      offset: currentCardIndex * (cardHeight + PADDING),
+      animated: false,
+    })
+  }, [])
+
+  useEffect(() => {
+    console.log('Updating current card:', viewableItems?.[0]?.item?.id)
+    setContext({ action: 'currentCard', payload: viewableItems?.[0]?.item.id })
   }, [viewableItems])
 
   // When the playlist or players change
@@ -104,7 +121,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
     const card = playedCards[playedCards.length - 1]
     setContext({ action: 'removeCachedPlayedCard', payload: card })
     console.log(`Removed card ${playedCards.length}:`, card.formattedContent ?? card.content)
-  }, [playlist.size, players.size])
+  }, [playlist.length, players.size])
 
   const keyExtractor = (item: PlayedCard) => item.id
   const renderItem = useCallback(
