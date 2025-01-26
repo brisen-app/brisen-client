@@ -9,7 +9,7 @@ export type Language = Partial<Locale> & SupabaseLanguage
 
 class LanguageManagerSingleton extends SupabaseManager<SupabaseLanguage> {
   protected _displayLanguage: Language | undefined
-  private _userSelectedLanguage: string | undefined
+  private _userSelectedLanguage: Language | undefined
 
   constructor() {
     super(tableName)
@@ -17,7 +17,16 @@ class LanguageManagerSingleton extends SupabaseManager<SupabaseLanguage> {
 
   getDisplayLanguage() {
     if (!this._displayLanguage) throw new Error('Display language has not been set')
-    return this._displayLanguage
+    return this._userSelectedLanguage ?? this._displayLanguage
+  }
+
+  setLanguage(languageId: string) {
+    this._userSelectedLanguage = this.get(languageId)
+  }
+
+  isSfwLanguage() {
+    if (!this._displayLanguage) return false
+    return this._displayLanguage?.id === ConfigurationManager.getValue('sfw_language')
   }
 
   protected set(items: Iterable<SupabaseLanguage>) {
@@ -26,6 +35,10 @@ class LanguageManagerSingleton extends SupabaseManager<SupabaseLanguage> {
     this._items = new Map([...items]?.map(item => [item.id, item]))
 
     this.updateDisplayLanguage()
+  }
+
+  getAvailableLanguages() {
+    return Array.from(this.items ?? []).filter(item => item.public)
   }
 
   /**
@@ -38,7 +51,7 @@ class LanguageManagerSingleton extends SupabaseManager<SupabaseLanguage> {
     const userLocales = getLocales()
     if (!userLocales || userLocales.length === 0) return false
     const newSelectedLanguage = userLocales[0]?.languageCode
-    return this._userSelectedLanguage !== newSelectedLanguage
+    return this._displayLanguage?.id !== newSelectedLanguage
   }
 
   /**
@@ -76,9 +89,6 @@ class LanguageManagerSingleton extends SupabaseManager<SupabaseLanguage> {
     }
 
     const userLocales = getLocales() ?? []
-
-    // Store the user's selected language
-    this._userSelectedLanguage = userLocales[0]?.languageCode ?? undefined
 
     // Find the language that matches the user's locale
     const userLocale = userLocales?.find(item => !!item.languageCode && this.get(item.languageCode)?.public)
