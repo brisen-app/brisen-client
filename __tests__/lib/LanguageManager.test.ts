@@ -90,7 +90,7 @@ beforeEach(() => {
 
 afterEach(() => {
   LanguageManager['_items'] = undefined
-  LanguageManager['_displayLanguage'] = undefined
+  LanguageManager['_detectedLanguage'] = undefined
   LanguageManager['_userSelectedLanguage'] = undefined
   jest.clearAllMocks()
   jest.restoreAllMocks()
@@ -98,16 +98,16 @@ afterEach(() => {
 
 describe('getDisplayLanguage', () => {
   it('should return the display language', () => {
-    LanguageManager['_displayLanguage'] = mockedItems[1]
-    const displayLanguage = LanguageManager.getDisplayLanguage()
+    LanguageManager['_detectedLanguage'] = mockedItems[1]
+    const displayLanguage = LanguageManager.getLanguage()
 
     expect(displayLanguage).toEqual(mockedItems[1])
   })
 
   it('should throw an error if no display language is set', () => {
-    LanguageManager['_displayLanguage'] = undefined
+    LanguageManager['_detectedLanguage'] = undefined
 
-    const displayLanguage = () => LanguageManager.getDisplayLanguage()
+    const displayLanguage = () => LanguageManager.getLanguage()
 
     expect(displayLanguage).toThrow(Error)
   })
@@ -115,14 +115,14 @@ describe('getDisplayLanguage', () => {
 
 describe('hasChangedLanguage', () => {
   it('should return true if the display language has changed', () => {
-    LanguageManager['_userSelectedLanguage'] = 'en'
+    LanguageManager['_userSelectedLanguage'] = { id: 'en' } as Language
     const hasChanged = LanguageManager.hasChangedLanguage()
 
     expect(hasChanged).toBeTruthy()
   })
 
   it('should return false if the SFW configuration is set', () => {
-    ConfigurationManager.get = jest.fn().mockReturnValue({ bool: true })
+    jest.spyOn(ConfigurationManager, 'getValue').mockReturnValueOnce(true)
 
     const hasChanged = LanguageManager.hasChangedLanguage()
 
@@ -130,7 +130,8 @@ describe('hasChangedLanguage', () => {
   })
 
   it('should return false if the display language has not changed', () => {
-    LanguageManager['_userSelectedLanguage'] = 'aa'
+    LanguageManager['_detectedLanguage'] = { id: 'aa' } as Language
+    LanguageManager['_userSelectedLanguage'] = { id: 'aa' } as Language
     const hasChanged = LanguageManager.hasChangedLanguage()
 
     expect(hasChanged).toBeFalsy()
@@ -145,21 +146,21 @@ describe('hasChangedLanguage', () => {
 })
 
 describe('updateDisplayLanguage', () => {
-  it('should update the display language to the first public language', () => {
+  it('should update the detected language to the first public language', () => {
     LanguageManager['_items'] = mockedItemMap
 
-    LanguageManager.updateDisplayLanguage()
+    LanguageManager.detectLanguage()
 
-    expect(LanguageManager['_displayLanguage']?.['id']).toEqual(mockedItems[0].id)
-    expect(LanguageManager['_userSelectedLanguage']).toEqual('aa')
+    expect(LanguageManager['_detectedLanguage']?.['id']).toEqual(mockedItems[0].id)
+    expect(LanguageManager['_userSelectedLanguage']).toBeUndefined()
   })
 
   it('should update the display language to the safe-for-work language if the configuration is set', () => {
     jest.spyOn(ConfigurationManager, 'getValue').mockReturnValueOnce(true).mockReturnValueOnce('sfw')
 
-    LanguageManager.updateDisplayLanguage()
+    LanguageManager.detectLanguage()
 
-    expect(LanguageManager['_displayLanguage']?.['id']).toEqual('sfw')
+    expect(LanguageManager['_detectedLanguage']?.['id']).toEqual('sfw')
   })
 
   it('should throw an error if the SFW language ID is not found', () => {
@@ -167,7 +168,7 @@ describe('updateDisplayLanguage', () => {
     LanguageManager['_items'] = new Map([
       ['default', { id: 'default', name: 'Default', public: true } as SupabaseLanguage],
     ])
-    const act = () => LanguageManager.updateDisplayLanguage()
+    const act = () => LanguageManager.detectLanguage()
 
     expect(act).toThrow('Safe-for-work language ID not found')
   })
@@ -177,7 +178,7 @@ describe('updateDisplayLanguage', () => {
     LanguageManager['_items'] = new Map<string, SupabaseLanguage>()
     LanguageManager['_items'].set('default', { id: 'default', name: 'Default', public: true } as SupabaseLanguage)
 
-    const act = () => LanguageManager.updateDisplayLanguage()
+    const act = () => LanguageManager.detectLanguage()
 
     expect(act).toThrow('Safe-for-work language data not found')
   })
@@ -187,15 +188,15 @@ describe('updateDisplayLanguage', () => {
       ['default', { id: 'default', name: 'Default', public: true } as SupabaseLanguage],
     ])
 
-    LanguageManager.updateDisplayLanguage()
+    LanguageManager.detectLanguage()
 
-    expect(LanguageManager['_displayLanguage']?.['id']).toEqual('default')
+    expect(LanguageManager['_detectedLanguage']?.['id']).toEqual('default')
   })
 
   it('should throw an error if the default language is not found', () => {
     LanguageManager['_items'] = new Map<string, SupabaseLanguage>()
 
-    const act = () => LanguageManager.updateDisplayLanguage()
+    const act = () => LanguageManager.detectLanguage()
 
     expect(act).toThrow('Default language not found')
   })
@@ -230,7 +231,7 @@ describe('set', () => {
       expoLocalization.getLocales = jest.fn().mockReturnValue(userLocales)
 
       LanguageManager['set'](mockedItems)
-      const displayLanguage = LanguageManager.getDisplayLanguage()
+      const displayLanguage = LanguageManager.getLanguage()
 
       expect(expoLocalization.getLocales).toHaveBeenCalledTimes(1)
       expect(displayLanguage?.id).toEqual(expectedLangCode)
@@ -261,7 +262,7 @@ describe('set', () => {
 
     LanguageManager['_items'] = undefined
     LanguageManager['set'](mockedItems)
-    const displayLanguage = LanguageManager.getDisplayLanguage()
+    const displayLanguage = LanguageManager.getLanguage()
 
     expect(displayLanguage.id).toEqual('sfw')
   })
