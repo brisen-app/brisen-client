@@ -3,6 +3,7 @@ import { Category } from '@/src/managers/CategoryManager'
 import { Player } from '@/src/models/Player'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import React, { createContext, Dispatch, ReactNode, useContext, useEffect, useReducer } from 'react'
+import { AppState } from 'react-native'
 import { Serializable } from '../lib/utils'
 
 export const APP_CONTEXT_KEY = 'context'
@@ -26,6 +27,7 @@ export type AppContextAction =
   | { action: 'togglePlayer'; payload: Player }
   | { action: 'incrementPlayCounts'; payload: Player[] }
   | { action: 'currentCard'; payload?: string }
+  | { action: 'storeState'; payload?: never }
 
 export function initialContext(): AppContextType {
   return {
@@ -64,73 +66,57 @@ function incrementPlayCounts(players: Player[], state: AppContextType, amount = 
 
 export function contextReducer(state: AppContextType, action: AppContextAction): AppContextType {
   const { action: type, payload } = action
-  let newContext: AppContextType
 
   switch (type) {
-    case 'togglePack': {
-      newContext = { ...state, playlist: toggleList(state.playlist, payload) }
-      break
-    }
+    case 'togglePack':
+      return { ...state, playlist: toggleList(state.playlist, payload) }
 
-    case 'togglePlayer': {
-      newContext = { ...state, players: toggleSet(state.players, payload) }
-      break
-    }
+    case 'togglePlayer':
+      return { ...state, players: toggleSet(state.players, payload) }
 
-    case 'incrementPlayCounts': {
-      newContext = { ...state, players: incrementPlayCounts(payload, state) }
-      break
-    }
+    case 'incrementPlayCounts':
+      return { ...state, players: incrementPlayCounts(payload, state) }
 
-    case 'toggleCategory': {
-      newContext = { ...state, categoryFilter: toggleList(state.categoryFilter, payload.id) }
-      break
-    }
+    case 'toggleCategory':
+      return { ...state, categoryFilter: toggleList(state.categoryFilter, payload.id) }
 
-    case 'addPlayedCard': {
-      newContext = {
+    case 'addPlayedCard':
+      return {
         ...state,
         playedCards: [...state.playedCards, payload],
         playedIds: new Set([...state.playedIds, payload.id]),
       }
-      break
-    }
 
-    case 'removeCachedPlayedCard': {
-      newContext = {
+    case 'removeCachedPlayedCard':
+      return {
         ...state,
         players: incrementPlayCounts(payload.featuredPlayers, state, -1),
         playedCards: state.playedCards.filter(card => card.id !== payload.id),
         playedIds: new Set([...state.playedIds].filter(id => id !== payload.id)),
       }
-      break
-    }
 
     case 'restartGame': {
       const players = new Set<Player>()
       for (const player of state.players) {
         players.add({ ...player, playCount: 0 })
       }
-      newContext = { ...state, players: players, playlist: [], playedCards: [], playedIds: new Set() }
-      break
+      return { ...state, players: players, playlist: [], playedCards: [], playedIds: new Set() }
     }
 
-    case 'currentCard': {
-      newContext = { ...state, currentCard: payload }
-      break
-    }
+    case 'currentCard':
+      return { ...state, currentCard: payload }
 
-    case 'setContext': {
+    case 'setContext':
       return payload
+
+    case 'storeState': {
+      saveContext(state)
+      return state
     }
 
-    default: {
+    default:
       throw new Error(`Unhandled action type: '${type}'`)
-    }
   }
-
-  saveContext(newContext)
-  return newContext
 }
 
 const AppContext = createContext<AppContextType | null>(null)
@@ -191,6 +177,12 @@ export function AppContextProvider(props: Readonly<{ children: ReactNode }>) {
     loadContext().then(context => {
       if (context) setContext({ action: 'setContext', payload: context })
     })
+
+    const stateListener = AppState.addEventListener('change', nextAppState => {
+      if (nextAppState !== 'active') setContext({ action: 'storeState' })
+    })
+
+    return () => stateListener.remove()
   }, [])
 
   return (
