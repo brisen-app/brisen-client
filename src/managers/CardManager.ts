@@ -1,17 +1,17 @@
-import { getRandom, getRandomPercent, shuffled } from '../lib/utils'
 import { InsufficientCountError } from '@/src/models/Errors'
-import { Pack, PackManager } from './PackManager'
-import { Tables } from '@/src/models/supabase'
-import SupabaseManager from './SupabaseManager'
-import { CardRelationManager } from './CardRelationManager'
 import { Player } from '@/src/models/Player'
+import { Tables } from '@/src/models/supabase'
+import { getRandom, getRandomPercent, shuffled } from '../lib/utils'
+import { CardRelationManager } from './CardRelationManager'
 import { ConfigurationManager } from './ConfigurationManager'
+import { Pack, PackManager } from './PackManager'
+import SupabaseManager from './SupabaseManager'
 
 const tableName = 'cards'
 const playerTemplateRegex = /\{player\W*(\d+)\}/gi
 export type Card = Tables<typeof tableName>
 export type PlayedCard = {
-  featuredPlayers: Set<Player> // The players featured in the card content
+  featuredPlayers: Player[] // The players featured in the card content
   formattedContent: string | undefined // The card content with player names inserted
   minPlayers: number // Minimum number of players required to play the card
   pack: Pack | null // The pack to which the card belongs
@@ -36,11 +36,12 @@ class CardManagerSingleton extends SupabaseManager<Card> {
   drawCard(
     playedCards: PlayedCard[],
     playedIds: Set<string>,
-    playlist: Set<Pack>,
+    playlistIds: string[],
     players: Set<Player>,
     categoryFilterIds: Set<string>
   ): PlayedCard | null {
     console.debug('Drawing card...')
+    const playlist = new Set(playlistIds.map(id => PackManager.get(id)!))
     let candidates = this.findCandidates(playlist, playedIds, players.size, categoryFilterIds)
     let card = this.drawClosingCard(playedCards, playedIds, candidates.size)
 
@@ -73,7 +74,7 @@ class CardManagerSingleton extends SupabaseManager<Card> {
       minPlayers: this.getRequiredPlayerCount(card),
       pack,
       players: playerList,
-      featuredPlayers: new Set(featuredPlayers.values()),
+      featuredPlayers: Array.from(featuredPlayers.values()),
       formattedContent,
     }
   }

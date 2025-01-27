@@ -3,7 +3,6 @@ import { Dispatch, ReactNode, createContext, useContext, useEffect, useReducer }
 import { Alert, Platform } from 'react-native'
 import Purchases, { CustomerInfo } from 'react-native-purchases'
 import RevenueCatUI, { PAYWALL_RESULT } from 'react-native-purchases-ui'
-import ActivityIndicatorView from '../components/ActivityIndicatorView'
 import FetchErrorView from '../components/FetchErrorView'
 import env from '../lib/env'
 import { LocalizationManager } from '../managers/LocalizationManager'
@@ -136,16 +135,15 @@ export default function InAppPurchaseProvider(props: Readonly<{ children: ReactN
   const [context, setContext] = useReducer(InAppPurchaseContextReducer, {
     customerInfo: undefined,
     customerInfoError: undefined,
-  } as InAppPurchaseContextType)
+  } satisfies InAppPurchaseContextType)
 
   useEffect(() => {
     initInAppPurchases(setContext)
   }, [])
 
-  if (context.customerInfoError)
+  if (context.customerInfoError) {
     return <FetchErrorView errors={[context.customerInfoError]} onRetry={() => initInAppPurchases(setContext)} />
-
-  if (!context.customerInfo) return <ActivityIndicatorView />
+  }
 
   return (
     <InAppPurchaseContext.Provider value={context}>

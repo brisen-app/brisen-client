@@ -31,21 +31,21 @@ const mockedPacks = [
     name: 'Pack 1',
     description: 'This is a pack',
     image: 'pack1.png',
-    cards: new Set(['1', '2']),
+    cards: ['1', '2'],
   },
   {
     id: 'pack3',
     name: 'Pack 3',
     description: 'This is a third pack',
     image: 'pack3.png',
-    cards: new Set(['3', '4']),
+    cards: ['3', '4'],
   },
   {
     id: 'pack2',
     name: 'Pack 2',
     description: 'This is another pack',
     image: 'pack2.png',
-    cards: new Set(['2', '3']),
+    cards: ['2', '3'],
   },
 ] as Pack[]
 
@@ -93,7 +93,7 @@ jest.mock('@/src/lib/utils', () => ({
 
 jest.mock('@/src/managers/LanguageManager', () => ({
   LanguageManager: {
-    getDisplayLanguage: () => ({ id: 'en' }),
+    getLanguage: () => ({ id: 'en' }),
   },
 }))
 

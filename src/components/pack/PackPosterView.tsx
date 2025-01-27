@@ -24,8 +24,8 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
   const { isSubscribed } = useInAppPurchaseContext()
   const setContext = useAppDispatchContext()
   const width = props.width ?? 256
-  const isSelected = playlist.has(pack)
-  const isNoneSelected = playlist.size === 0
+  const isSelected = playlist.includes(pack.id)
+  const isNoneSelected = playlist.length === 0
   const isAvailable = pack.is_free || isSubscribed
 
   const { data: image, isLoading, error } = PackManager.useImageQuery(pack.image)
@@ -82,7 +82,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
     >
       <Pressable
         onPress={() => {
-          if (isAvailable) setContext({ action: 'togglePack', payload: pack })
+          if (isAvailable) setContext({ action: 'togglePack', payload: pack.id })
           else presentPaywall()
         }}
       >
@@ -175,7 +175,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
         </Text>
 
         <Text numberOfLines={2} style={{ ...styles.text, color: Colors.secondaryText }}>
-          {pack.description ? pack.description : pack.cards.size + ' cards'}
+          {pack.description ? pack.description : pack.cards.length + ' cards'}
         </Text>
       </Pressable>
     </Animated.View>
