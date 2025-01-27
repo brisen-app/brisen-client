@@ -2,7 +2,7 @@ import * as utils from '@/src/lib/utils'
 import { Card, CardManager, PlayedCard } from '@/src/managers/CardManager'
 import { CardRelationManager } from '@/src/managers/CardRelationManager'
 import { ConfigurationManager } from '@/src/managers/ConfigurationManager'
-import { Pack } from '@/src/managers/PackManager'
+import { Pack, PackManager } from '@/src/managers/PackManager'
 import { InsufficientCountError } from '@/src/models/Errors'
 import { Player } from '@/src/models/Player'
 
@@ -31,19 +31,24 @@ console.warn = jest.fn()
 
 const MockedPacks = {
   Pack_with_1_and_3: {
-    cards: new Set(['1', '3']),
+    id: '1',
+    cards: ['1', '3'],
   } as Pack,
   Pack_with_2: {
-    cards: new Set(['2']),
+    id: '2',
+    cards: ['2'],
   } as Pack,
   Pack_with_1_and_5_and_6: {
-    cards: new Set(['1', '5', '6']),
+    id: '3',
+    cards: ['1', '5', '6'],
   } as Pack,
   Pack_with_8: {
-    cards: new Set(['8']),
+    id: '4',
+    cards: ['8'],
   } as Pack,
   Pack_with_all_cards: {
-    cards: new Set(Object.values(MockedCards).map(card => card.id)),
+    id: '5',
+    cards: Object.values(MockedCards).map(card => card.id),
   } as Pack,
 }
 
@@ -205,12 +210,13 @@ describe('findCandidates', () => {
 describe('getNextCard', () => {
   beforeEach(() => {
     CardManager['set'](Object.values(MockedCards))
+    PackManager['set'](Object.values(MockedPacks))
   })
 
   it('should return the correct card based on arguments', () => {
     const playedCards = [MockedCards.Card_1, MockedCards.Card_3, MockedCards.Card_4_no_category] as PlayedCard[]
     const playedIds = new Set(playedCards.map(card => card.id))
-    const playlist = new Set([MockedPacks.Pack_with_all_cards])
+    const playlist = [MockedPacks.Pack_with_all_cards.id]
     const players = new Set([MockedPlayers.Alice, MockedPlayers.Bob])
     const categoryFilter = new Set(['cat1', 'cat2', 'cat3', 'cat8', 'cat9'])
 
@@ -225,7 +231,7 @@ describe('getNextCard', () => {
   it('should return null if no cards are available', () => {
     const playedCards = [MockedCards.Card_1, MockedCards.Card_3, MockedCards.Card_4_no_category] as PlayedCard[]
     const playedIds = new Set(playedCards.map(card => card.id))
-    const playlist = new Set([MockedPacks.Pack_with_all_cards])
+    const playlist = [MockedPacks.Pack_with_all_cards.id]
     const players = new Set([MockedPlayers.Alice])
     const categoryFilter = new Set(['cat1', 'cat2', 'cat3', 'cat8'])
     const _ = jest.spyOn(utils, 'shuffled').mockReturnValueOnce(Object.values(MockedPlayers))
@@ -361,6 +367,7 @@ describe('getParentPlayerList', () => {
 describe('drawCard', () => {
   beforeEach(() => {
     CardManager['set'](Object.values(MockedCards))
+    PackManager['set'](Object.values(MockedPacks))
     jest.restoreAllMocks()
   })
 
@@ -368,7 +375,7 @@ describe('drawCard', () => {
     const cards = Object.values(MockedCards) as PlayedCard[]
     const playedIds = new Set(cards.map(card => card.id))
     const players = new Set(Object.values(MockedPlayers))
-    const playlist = new Set([MockedPacks.Pack_with_all_cards])
+    const playlist = [MockedPacks.Pack_with_all_cards.id]
 
     const result = CardManager.drawCard(cards, playedIds, playlist, players, new Set())
 
@@ -377,7 +384,7 @@ describe('drawCard', () => {
 
   it('should not return null if closing cards are available', () => {
     const cards = [] as PlayedCard[]
-    const playlist = new Set([MockedPacks.Pack_with_all_cards])
+    const playlist = [MockedPacks.Pack_with_all_cards.id]
 
     // @ts-ignore
     const spyOnClosingCard = jest.spyOn(CardManager, 'drawClosingCard').mockReturnValue(MockedCards.Card_3)
@@ -391,15 +398,15 @@ describe('drawCard', () => {
   it('should return an unplayed card', () => {
     const playedCards = [MockedCards.Card_1] as PlayedCard[]
     const playedIds = new Set(playedCards.map(card => card.id))
-    const playlist = new Set([MockedPacks.Pack_with_1_and_3])
+    const playlist = [MockedPacks.Pack_with_1_and_3.id]
 
     const result = CardManager.drawCard(playedCards, playedIds, playlist, new Set(), new Set())
 
-    expect(result?.id).toBe('3')
+    expect(result?.id).toBe(MockedCards.Card_3.id)
   })
 
   it('should return an unplayed card with a category that is not filtered', () => {
-    const playlist = new Set([MockedPacks.Pack_with_1_and_3])
+    const playlist = [MockedPacks.Pack_with_1_and_3.id]
     const categoryFilter = new Set(['cat1'])
 
     const spyOnGetRandom = jest.spyOn(utils, 'getRandom').mockImplementation(list => {
@@ -417,7 +424,7 @@ describe('drawCard', () => {
   it('it should use parent cards player list', () => {
     const playedCards = [MockedCards.Card_1] as PlayedCard[]
     const playedIds = new Set(playedCards.map(card => card.id))
-    const playlist = new Set([MockedPacks.Pack_with_1_and_3])
+    const playlist = [MockedPacks.Pack_with_1_and_3.id]
 
     // @ts-ignore
     const spyOnGetParentPlayerList = jest.spyOn(CardManager, 'getParentPlayerList').mockReturnValue(
@@ -432,7 +439,7 @@ describe('drawCard', () => {
   })
 
   it('should prioritize players with the lowest play count', () => {
-    const playlist = new Set([MockedPacks.Pack_with_8])
+    const playlist = [MockedPacks.Pack_with_8.id]
     const players = [
       {
         ...MockedPlayers.Alice,
@@ -457,15 +464,16 @@ describe('drawCard', () => {
     const result = CardManager.drawCard([], new Set(), playlist, new Set(players), new Set())
 
     expect(spyOnShuffled).toHaveBeenCalledTimes(1)
-    expect(result?.formattedContent).toEqual('Content of card 8 Charlie Alice')
-    expect(result?.featuredPlayers).toEqual(new Set([players[0], players[2]]))
-    expect(result?.players).toEqual([players[2], players[0], players[1], players[3]])
+    expect(result).not.toBeNull()
+    expect(result!.formattedContent).toEqual('Content of card 8 Charlie Alice')
+    expect(result!.featuredPlayers).toEqual([players[2], players[0]])
+    expect(result!.players).toEqual([players[2], players[0], players[1], players[3]])
   })
 
   it('should always return starting cards first', () => {
     const cards: Set<Card> = new Set([
       {
-        ...MockedCards.Card_2,
+        ...MockedCards.Card_3,
         order: 'ending',
       },
       {
@@ -476,14 +484,10 @@ describe('drawCard', () => {
 
     CardManager['_items'] = undefined
     CardManager['set'](cards)
-    const playlist: Set<Pack> = new Set([
-      {
-        cards: new Set(['1', '2']),
-      } as Pack,
-    ])
+
     const players = new Set([MockedPlayers.Alice, MockedPlayers.Bob])
 
-    const result = CardManager.drawCard([], new Set(), playlist, players, new Set())
+    const result = CardManager.drawCard([], new Set(), ['1'], players, new Set())
 
     expect(result?.id).toBe('1')
   })
@@ -503,17 +507,13 @@ describe('drawCard', () => {
 
     CardManager['_items'] = undefined
     CardManager['set'](cards)
-    const playlist: Set<Pack> = new Set([
-      {
-        cards: new Set(['1', '2', '3']),
-      } as Pack,
-    ])
+
     const players = new Set([MockedPlayers.Alice, MockedPlayers.Bob])
 
     const result = CardManager.drawCard(
       [MockedCards.Card_1 as PlayedCard, MockedCards.Card_2 as PlayedCard],
       new Set(['1', '2']),
-      playlist,
+      ['1'],
       players,
       new Set()
     )
