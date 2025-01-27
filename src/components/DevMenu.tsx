@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useQueryClient } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
-import { ActivityIndicator, AppState, ColorValue, Text, TouchableOpacity, View } from 'react-native'
+import { useState } from 'react'
+import { ActivityIndicator, ColorValue, Text, TouchableOpacity, View } from 'react-native'
 import Colors from '../constants/Colors'
 import { FontStyles } from '../constants/Styles'
 import env from '../lib/env'
@@ -12,33 +12,20 @@ export default function DevMenu() {
   const { userId } = useInAppPurchaseContext()
   const queryClient = useQueryClient()
   const language = LanguageManager.getLanguage()
-  const { isProd, environment } = env
-  const [storage, setStorage] = useState<Awaited<ReturnType<typeof AsyncStorage.multiGet>> | null | undefined>(
-    undefined
-  )
+  const { environment } = env
+  const [storage, setStorage] = useState<Awaited<ReturnType<typeof AsyncStorage.multiGet>> | null | undefined>(null)
 
   const readAsyncStorage = async () => {
     setStorage(undefined)
     const keys = await AsyncStorage.getAllKeys()
     if (!keys.length) {
-      setStorage(null)
+      setStorage([])
       return
     }
     setStorage(await AsyncStorage.multiGet(keys))
   }
 
-  useEffect(() => {
-    readAsyncStorage()
-    const stateListener = AppState.addEventListener('change', nextAppState => {
-      if (nextAppState === 'active') {
-        readAsyncStorage()
-      }
-    })
-
-    return () => stateListener.remove()
-  }, [])
-
-  if (isProd) return undefined
+  if (environment === 'production' || environment === 'preview') return undefined
 
   return (
     <View
@@ -61,7 +48,7 @@ export default function DevMenu() {
       <>
         <Text style={[{ paddingBottom: 8 }, FontStyles.Title]}>AsyncStorage</Text>
         {storage === undefined && <ActivityIndicator />}
-        {storage === null && <Text style={{ color: Colors.secondaryText }}>Empty</Text>}
+        {storage === null && <Text style={{ color: Colors.secondaryText }}>Not read</Text>}
         {storage?.map(([key, value]) => (
           <InfoRow key={key} title={key} value={value ?? 'None'} />
         ))}
