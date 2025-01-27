@@ -124,8 +124,8 @@ export default function GameView(props: Readonly<GameViewProps>) {
   }, [playlist.length, players.size])
 
   const keyExtractor = (item: PlayedCard) => item.id
-  const renderItem = useCallback(
-    ({ item }: { item: PlayedCard }) => <CardView card={item} style={{ height: cardHeight, marginBottom: PADDING }} />,
+  const renderItem: ({ item }: { item: PlayedCard }) => React.JSX.Element = useCallback(
+    ({ item }) => <CardView card={item} style={{ height: cardHeight, marginBottom: PADDING }} />,
     []
   )
 
