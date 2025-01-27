@@ -2,7 +2,7 @@ import { PlayedCard } from '@/src/managers/CardManager'
 import { Category } from '@/src/managers/CategoryManager'
 import { Player } from '@/src/models/Player'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import React, { createContext, Dispatch, ReactNode, useContext, useEffect, useReducer, useState } from 'react'
+import React, { createContext, Dispatch, ReactNode, useContext, useEffect, useReducer } from 'react'
 import { Serializable } from '../lib/utils'
 
 export const APP_CONTEXT_KEY = 'context'
@@ -184,22 +184,14 @@ async function saveContext(context: AppContextType) {
 }
 
 export function AppContextProvider(props: Readonly<{ children: ReactNode }>) {
-  const [context, setContext] = useState(undefined as AppContextType | undefined)
+  const [context, setContext] = useReducer(contextReducer, initialContext())
 
   useEffect(() => {
     // Load context from AsyncStorage before rendering the app
     loadContext().then(context => {
-      if (context) setContext(context)
-      else setContext(initialContext())
+      if (context) setContext({ action: 'setContext', payload: context })
     })
   }, [])
-
-  if (!context) return null // TODO: Add a loading screen
-  return <AppContextWrapper initialContext={context}>{props.children}</AppContextWrapper>
-}
-
-export function AppContextWrapper(props: Readonly<{ children: ReactNode; initialContext: AppContextType }>) {
-  const [context, setContext] = useReducer(contextReducer, props.initialContext)
 
   return (
     <AppContext.Provider value={context}>
