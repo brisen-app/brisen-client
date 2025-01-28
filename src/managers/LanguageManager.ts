@@ -1,23 +1,61 @@
 import { Tables } from '@/src/models/supabase'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { getLocales, Locale } from 'expo-localization'
 import { ConfigurationManager } from './ConfigurationManager'
 import SupabaseManager from './SupabaseManager'
+
+export const LANGUAGE_STORAGE_KEY = 'selected_language'
 
 const tableName = 'languages'
 export type SupabaseLanguage = Tables<typeof tableName>
 export type Language = Partial<Locale> & SupabaseLanguage
 
 class LanguageManagerSingleton extends SupabaseManager<SupabaseLanguage> {
-  protected _displayLanguage: Language | undefined
-  private _userSelectedLanguage: string | undefined
+  protected _detectedLanguage: Language | undefined
+  private _userSelectedLanguage: Language | undefined
 
   constructor() {
     super(tableName)
   }
 
-  getDisplayLanguage() {
-    if (!this._displayLanguage) throw new Error('Display language has not been set')
-    return this._displayLanguage
+  getLanguage() {
+    if (this._userSelectedLanguage) return this._userSelectedLanguage
+    if (this._detectedLanguage) return this._detectedLanguage
+    throw new Error('No language has been set')
+  }
+
+  async loadStoredLanguage() {
+    try {
+      const languageId = await AsyncStorage.getItem(LANGUAGE_STORAGE_KEY)
+      if (languageId) {
+        console.log(`Loaded language '${languageId}' from AsyncStorage`)
+        return this.setUserSelectedLanguage(languageId)
+      }
+      console.log('No language found in AsyncStorage')
+    } catch (error) {
+      console.error('Failed to load language from AsyncStorage', error)
+    }
+  }
+
+  private async storeSelectedLanguage(languageId: string) {
+    try {
+      await AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, languageId)
+      console.log(`Stored language '${languageId}' in AsyncStorage`)
+    } catch (error) {
+      console.error('Failed to store language in AsyncStorage', error)
+    }
+  }
+
+  setUserSelectedLanguage(languageId: string) {
+    this._userSelectedLanguage = this.get(languageId)
+    if (!this._userSelectedLanguage) console.error(`Language '${languageId}' not found in language list`)
+    else this.storeSelectedLanguage(languageId)
+    return this._userSelectedLanguage
+  }
+
+  isSfwLanguage() {
+    if (!this._detectedLanguage) return false
+    return this._detectedLanguage?.id === ConfigurationManager.getValue('sfw_language')
   }
 
   protected set(items: Iterable<SupabaseLanguage>) {
@@ -25,7 +63,11 @@ class LanguageManagerSingleton extends SupabaseManager<SupabaseLanguage> {
     // Store the SupabaseLanguages in a map for easy access
     this._items = new Map([...items]?.map(item => [item.id, item]))
 
-    this.updateDisplayLanguage()
+    this.detectLanguage()
+  }
+
+  getAvailableLanguages() {
+    return Array.from(this.items ?? []).filter(item => item.public)
   }
 
   /**
@@ -38,7 +80,7 @@ class LanguageManagerSingleton extends SupabaseManager<SupabaseLanguage> {
     const userLocales = getLocales()
     if (!userLocales || userLocales.length === 0) return false
     const newSelectedLanguage = userLocales[0]?.languageCode
-    return this._userSelectedLanguage !== newSelectedLanguage
+    return this._detectedLanguage?.id !== newSelectedLanguage
   }
 
   /**
@@ -67,37 +109,35 @@ class LanguageManagerSingleton extends SupabaseManager<SupabaseLanguage> {
    *
    * @returns {void}
    */
-  public updateDisplayLanguage(): void {
+  public detectLanguage(): void {
     // If the app is configured to use safe-for-work content, force the display language to be the safe-for-work language
     if (ConfigurationManager.getValue('use_sfw_content') === true) {
       console.log('Forcing safe-for-work language')
-      this._displayLanguage = this.getSfwLanguage()
+      this._detectedLanguage = this.getSfwLanguage()
       return
     }
 
     const userLocales = getLocales() ?? []
 
-    // Store the user's selected language
-    this._userSelectedLanguage = userLocales[0]?.languageCode ?? undefined
-
-    // Find the language that matches the user's locale
-    const userLocale = userLocales?.find(item => !!item.languageCode && this.get(item.languageCode)?.public)
+    // Find the the first locale that matches a public language
+    const userLocale = userLocales.find(item => item.languageCode && this.get(item.languageCode)?.public)
 
     // If no matches are found, use the default language
-    if (!userLocale) {
+    if (!userLocale?.languageCode) {
       const language = this.findDefaultLanguage()
-      this._displayLanguage = language
+      this._detectedLanguage = language
       return
     }
 
     // Use the first language that matches the user's language
-    const language = this.get(userLocale.languageCode!)
-    this._displayLanguage = {
+    // This will never be undefinded since we have already checked for public languages
+    const language = this.get(userLocale.languageCode)!
+    this._detectedLanguage = {
       ...userLocale,
       ...language,
-    } as Language
+    } satisfies Language
 
-    console.log('Found language:', this._displayLanguage.id)
+    console.log('Detected language:', this._detectedLanguage.id)
   }
 
   /**

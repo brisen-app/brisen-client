@@ -1,28 +1,25 @@
-import { LanguageManager } from '@/src/managers/LanguageManager'
-import { LocalizationManager, Localization } from '@/src/managers/LocalizationManager'
 import { supabase } from '@/src/lib/supabase'
+import { Language, LanguageManager } from '@/src/managers/LanguageManager'
+import { Localization, LocalizationManager } from '@/src/managers/LocalizationManager'
 import { NotFoundError } from '@/src/models/Errors'
 
-const mockedItems: Localization[] = [
-  // @ts-ignore
+const mockedItems = [
   {
     id: '1',
     language: 'nb',
     value: 'Content of Localization 1',
   },
-  // @ts-ignore
   {
     id: '3',
     language: 'en',
     value: 'Content of Localization 3',
   },
-  // @ts-ignore
   {
     id: '2',
     language: 'nb',
     value: 'Content of Localization 2',
   },
-]
+] as Localization[]
 
 jest.mock('@/src/lib/supabase', () => ({
   supabase: {
@@ -45,13 +42,12 @@ jest.mock('@/src/lib/supabase', () => ({
 
 jest.mock('@/src/managers/LanguageManager', () => ({
   LanguageManager: {
-    getDisplayLanguage: () => ({ id: 'nb' }),
+    getLanguage: () => ({ id: 'nb' }),
   },
 }))
 
 beforeEach(() => {
-  // @ts-ignore
-  LocalizationManager['_items'] = null
+  LocalizationManager['_items'] = undefined
 })
 
 describe('fetch', () => {
@@ -76,7 +72,6 @@ describe('fetch', () => {
     const LocalizationID = '1'
     jest.spyOn(supabase, 'from').mockReturnValueOnce({
       select: () => ({
-        // @ts-ignore
         throwOnError: () => ({ error: new Error() }),
       }),
     })
@@ -91,9 +86,8 @@ describe('fetchAll', () => {
   ]
 
   testCases.forEach(language => {
-    it(`should return all Localizations with language ${language}`, async () => {
-      // @ts-ignore
-      jest.spyOn(LanguageManager, 'getDisplayLanguage').mockReturnValueOnce({ id: language.lang })
+    it(`should return all Localizations with language ${language.lang}`, async () => {
+      jest.spyOn(LanguageManager, 'getLanguage').mockReturnValueOnce({ id: language.lang } as Language)
       const localizations = await LocalizationManager.fetchAll()
       expect(localizations.length).toEqual(language.expectedAmount)
       localizations.forEach(localization => {
@@ -106,7 +100,6 @@ describe('fetchAll', () => {
     jest.spyOn(supabase, 'from').mockReturnValueOnce({
       select: () => ({
         eq: () => ({
-          // @ts-ignore
           throwOnError: () => ({ data: [] }),
         }),
       }),
