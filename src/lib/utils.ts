@@ -73,3 +73,13 @@ const emptyQuery = {
 }
 
 export { emptyQuery }
+
+export type Serializable<T> = T extends Set<infer U>
+  ? U[]
+  : T extends Map<infer K, infer V>
+  ? [K, V][]
+  : T extends Array<infer U>
+  ? Serializable<U>[]
+  : T extends object
+  ? { [K in keyof T]: Serializable<T[K]> }
+  : T

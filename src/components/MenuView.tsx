@@ -13,6 +13,8 @@ import {
   TouchableOpacity,
   useBottomSheet,
 } from '@gorhom/bottom-sheet'
+import { Picker } from '@react-native-picker/picker'
+import { useQueryClient } from '@tanstack/react-query'
 import * as Application from 'expo-application'
 import * as Clipboard from 'expo-clipboard'
 import { Image } from 'expo-image'
@@ -44,6 +46,7 @@ import Animated, {
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ConfigurationManager } from '../managers/ConfigurationManager'
+import { LanguageManager } from '../managers/LanguageManager'
 import Color from '../models/Color'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import DevMenu from './DevMenu'
@@ -61,7 +64,7 @@ export default function MenuView() {
 
   const { playlist, players, categoryFilter } = useAppContext()
   const setContext = useAppDispatchContext()
-  const showCollapseButton = playlist.size > 0
+  const showCollapseButton = playlist.length > 0
 
   const closedSheetHeight = useSheetHeight() - SHEET_HANDLE_HEIGHT
 
@@ -129,7 +132,7 @@ export default function MenuView() {
               <CategoryTag
                 key={category.id}
                 category={category}
-                isSelected={!categoryFilter.has(category.id)}
+                isSelected={!categoryFilter.includes(category.id)}
                 onPress={onPressCategory}
               />
             ))}
@@ -142,6 +145,8 @@ export default function MenuView() {
               marginVertical: 8,
             }}
           />
+
+          {Platform.OS === 'android' && !LanguageManager.isSfwLanguage() && <LanguageSelector />}
 
           <LinksView />
           <AppDetailsView />
@@ -390,5 +395,38 @@ function AppDetailsView() {
         {appName} v{appVersion}
       </Text>
     </Pressable>
+  )
+}
+
+function LanguageSelector() {
+  const queryClient = useQueryClient()
+
+  const selectedLanguage = LanguageManager.getLanguage()
+  const languages = LanguageManager.getAvailableLanguages()
+
+  function handleLanguageChange(language: string) {
+    console.log('Language changed to:', language)
+    LanguageManager.setUserSelectedLanguage(language)
+    queryClient.invalidateQueries()
+  }
+
+  return (
+    <Picker
+      dropdownIconColor={Colors.accentColor}
+      selectedValue={selectedLanguage.id}
+      onValueChange={handleLanguageChange}
+      mode={Picker.MODE_DROPDOWN}
+      placeholder='Select language'
+    >
+      {[...languages].map(language => (
+        <Picker.Item
+          style={{ backgroundColor: Colors.secondaryBackground }}
+          key={language.id}
+          label={`${language.icon} ${language.name}`}
+          value={language.id}
+          color={Colors.text}
+        />
+      ))}
+    </Picker>
   )
 }

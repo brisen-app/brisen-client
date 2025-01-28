@@ -7,10 +7,9 @@ import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import { PackManager } from '@/src/managers/PackManager'
 import SupabaseManager, { SupabaseItem } from '@/src/managers/SupabaseManager'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { ReactNode, useEffect, useRef } from 'react'
-import { ActivityIndicator, AppState, Platform, View } from 'react-native'
+import { ReactNode, useEffect, useState } from 'react'
+import { AppState, Platform } from 'react-native'
 import FetchErrorView from '../components/FetchErrorView'
-import Colors from '../constants/Colors'
 
 function useSupabase(manager: SupabaseManager<SupabaseItem>, enabled = true) {
   const response = useQuery({
@@ -26,15 +25,15 @@ function useSupabase(manager: SupabaseManager<SupabaseItem>, enabled = true) {
 
 export default function AppDataProvider(props: Readonly<{ children: ReactNode }>) {
   const queryClient = useQueryClient()
-  const appState = useRef(AppState.currentState)
+  const [hasLoadedLanguage, setHasLoadedLanguage] = useState(false)
 
   const configResonse = useSupabase(ConfigurationManager)
   const languageResponse = useSupabase(LanguageManager, configResonse.isSuccess)
   const categoryResponse = useSupabase(CategoryManager)
   const cardResponse = useSupabase(CardManager)
   const cardRelationResponse = useSupabase(CardRelationManager)
-  const packResponse = useSupabase(PackManager, languageResponse.isSuccess)
-  const localizationResponse = useSupabase(LocalizationManager, languageResponse.isSuccess)
+  const packResponse = useSupabase(PackManager, hasLoadedLanguage)
+  const localizationResponse = useSupabase(LocalizationManager, hasLoadedLanguage)
 
   const responses = [
     configResonse,
@@ -47,6 +46,11 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
   ]
 
   useEffect(() => {
+    if (!languageResponse.isSuccess) return
+    LanguageManager.loadStoredLanguage().then(() => setHasLoadedLanguage(true))
+  }, [languageResponse.isSuccess])
+
+  useEffect(() => {
     // For Android: Handle user changing language in settings
     const stateListener = AppState.addEventListener('change', nextAppState => {
       if (
@@ -55,13 +59,12 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
         languageResponse.isSuccess &&
         LanguageManager.hasChangedLanguage()
       ) {
-        LanguageManager.updateDisplayLanguage()
+        LanguageManager.detectLanguage()
         queryClient.invalidateQueries({ queryKey: [PackManager.tableName] })
         queryClient.invalidateQueries({ queryKey: [LocalizationManager.tableName] })
       }
 
-      appState.current = nextAppState
-      console.log('AppState', appState.current)
+      console.log('AppState', nextAppState)
     })
 
     return () => stateListener.remove()
@@ -72,13 +75,6 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
     return <FetchErrorView errors={errors} onRetry={() => queryClient.refetchQueries()} />
   }
 
-  if (queryClient.isFetching() || responses.some(r => r.isPending)) {
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <ActivityIndicator size='large' color={Colors.text} />
-      </View>
-    )
-  }
-
+  if (queryClient.isFetching() || responses.some(r => r.isPending)) return undefined
   return props.children
 }

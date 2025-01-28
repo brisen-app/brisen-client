@@ -8,7 +8,7 @@ import SupabaseManager from './SupabaseManager'
 
 const tableName = 'packs'
 const select = '*, cards(id)'
-export type Pack = Tables<typeof tableName> & { cards: Set<string> }
+export type Pack = Tables<typeof tableName> & { cards: string[] }
 
 class PackManagerSingleton extends SupabaseManager<Pack> {
   constructor() {
@@ -22,31 +22,31 @@ class PackManagerSingleton extends SupabaseManager<Pack> {
 
   getPackOf(cardId: string, playlist: Set<Pack>) {
     for (const pack of playlist) {
-      if (pack.cards.has(cardId)) return pack
+      if (pack.cards.includes(cardId)) return pack
     }
     return null
   }
 
   getPacksOf(cardId: string) {
     if (!this._items) return []
-    return [...this._items.values()].filter(pack => pack.cards.has(cardId)) ?? []
+    return [...this._items.values()].filter(pack => pack.cards.includes(cardId)) ?? []
   }
 
   async fetchAll(): Promise<Pack[]> {
     const { data } = await supabase
       .from(tableName)
       .select(select)
-      .eq('language', LanguageManager.getDisplayLanguage().id)
+      .eq('language', LanguageManager.getLanguage().id)
       .order('name')
       .throwOnError()
     if (!data || data.length === 0)
       throw new NotFoundError(
-        `No data found in table '${this.tableName}' for language '${LanguageManager.getDisplayLanguage().id}'`
+        `No data found in table '${this.tableName}' for language '${LanguageManager.getLanguage().id}'`
       )
 
     const packs = data.map(pack => ({
       ...pack,
-      cards: new Set(pack.cards.map(card => card.id)),
+      cards: pack.cards.map(card => card.id),
     }))
 
     this.set(packs)
