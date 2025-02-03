@@ -15,9 +15,7 @@ import Colors from '../constants/Colors'
 function useSupabase(manager: SupabaseManager<SupabaseItem>, enabled = true) {
   const response = useQuery({
     queryKey: [manager.tableName],
-    queryFn: async () => {
-      return await manager.fetchAllOrRetrieve()
-    },
+    queryFn: async () => await manager.fetchAllOrRetrieve(),
     enabled: enabled,
   })
   if (response.error) console.warn(response.error)
