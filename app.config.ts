@@ -21,7 +21,7 @@ export default (): ExpoConfig => ({
   description: "Let's get Brisen together!",
   version: appVersion,
   runtimeVersion: {
-    policy: 'fingerprint',
+    policy: 'nativeVersion',
   },
   githubUrl: 'https://github.com/brisen-app/brisen-client',
   orientation: 'portrait',
