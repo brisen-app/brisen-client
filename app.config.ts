@@ -20,7 +20,7 @@ export default (): ExpoConfig => ({
   slug: 'brisen-client',
   description: "Let's get Brisen together!",
   version: appVersion,
-  runtimeVersion: '1',
+  runtimeVersion: '2',
   githubUrl: 'https://github.com/brisen-app/brisen-client',
   orientation: 'portrait',
   scheme: 'no.kallerud',
@@ -29,10 +29,6 @@ export default (): ExpoConfig => ({
   primaryColor: '#f3a000',
   backgroundColor: '#000000',
   platforms: ['ios', 'android'],
-  splash: {
-    image: './src/assets/images/splash-screen/splash-screen.png',
-    resizeMode: 'cover',
-  },
   locales: {
     en: {},
     nb: {},
@@ -84,6 +80,14 @@ export default (): ExpoConfig => ({
         ios: {
           deploymentTarget: '15.1',
         },
+      },
+    ],
+    [
+      'expo-splash-screen',
+      {
+        image: './src/assets/images/app-icon/icon-android-foreground.png',
+        imageWidth: 200,
+        backgroundColor: '#000000',
       },
     ],
   ],
