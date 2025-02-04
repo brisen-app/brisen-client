@@ -31,8 +31,7 @@ export default (): ExpoConfig => ({
   platforms: ['ios', 'android'],
   splash: {
     image: './src/assets/images/splash-screen/splash-screen.png',
-    resizeMode: 'contain',
-    backgroundColor: '#000000',
+    resizeMode: 'cover',
   },
   locales: {
     en: {},
@@ -52,9 +51,9 @@ export default (): ExpoConfig => ({
     supportsTablet: true,
     bundleIdentifier: bundleId,
     icon: {
-      light: './src/assets/images/app-icon/icon.png',
-      dark: './src/assets/images/app-icon/foreground-ios.png',
-      tinted: './src/assets/images/app-icon/mono-ios.png',
+      light: './src/assets/images/app-icon/icon-ios.png',
+      dark: './src/assets/images/app-icon/icon-ios-foreground.png',
+      tinted: './src/assets/images/app-icon/icon-ios-adaptive.png',
     },
     config: {
       usesNonExemptEncryption: false,
@@ -66,9 +65,9 @@ export default (): ExpoConfig => ({
   android: {
     package: bundleId,
     adaptiveIcon: {
-      foregroundImage: './src/assets/images/app-icon/foreground.png',
-      monochromeImage: './src/assets/images/app-icon/mono.png',
-      backgroundImage: './src/assets/images/app-icon/background.png',
+      foregroundImage: './src/assets/images/app-icon/icon-android-foreground.png',
+      monochromeImage: './src/assets/images/app-icon/icon-android-adaptive.png',
+      backgroundImage: './src/assets/images/app-icon/icon-background.png',
     },
     allowBackup: false,
   },
