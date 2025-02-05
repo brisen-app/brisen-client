@@ -388,7 +388,7 @@ function AppDetailsView() {
   return (
     <Pressable style={{ alignItems: 'center', gap: 2 }} onLongPress={handleLongPress}>
       <Image
-        source={require('../assets/images/app-icon/icon.png')}
+        source={require('../assets/images/app-icon/icon-ios.png')}
         style={{ width: iconSize, aspectRatio: 1, borderRadius: iconSize / 4.4, marginVertical: 8 }}
       />
       <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>

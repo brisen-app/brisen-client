@@ -34,8 +34,8 @@ export default function Layout() {
   return (
     <GestureHandlerRootView>
       <QueryClientProvider client={queryClient}>
-        <AppDataProvider>
-          <AppContextProvider>
+        <AppContextProvider>
+          <AppDataProvider>
             <InAppPurchaseProvider>
               <StatusBar style='auto' translucent backgroundColor={Color.transparent.string} />
               <Stack
@@ -45,8 +45,8 @@ export default function Layout() {
                 }}
               />
             </InAppPurchaseProvider>
-          </AppContextProvider>
-        </AppDataProvider>
+          </AppDataProvider>
+        </AppContextProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>
   )

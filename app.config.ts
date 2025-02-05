@@ -20,9 +20,7 @@ export default (): ExpoConfig => ({
   slug: 'brisen-client',
   description: "Let's get Brisen together!",
   version: appVersion,
-  runtimeVersion: {
-    policy: 'fingerprint',
-  },
+  runtimeVersion: '2',
   githubUrl: 'https://github.com/brisen-app/brisen-client',
   orientation: 'portrait',
   scheme: 'no.kallerud',
@@ -31,11 +29,6 @@ export default (): ExpoConfig => ({
   primaryColor: '#f3a000',
   backgroundColor: '#000000',
   platforms: ['ios', 'android'],
-  splash: {
-    image: './src/assets/images/splash-screen/splash-screen.png',
-    resizeMode: 'contain',
-    backgroundColor: '#000000',
-  },
   locales: {
     en: {},
     nb: {},
@@ -54,9 +47,9 @@ export default (): ExpoConfig => ({
     supportsTablet: true,
     bundleIdentifier: bundleId,
     icon: {
-      light: './src/assets/images/app-icon/icon.png',
-      dark: './src/assets/images/app-icon/foreground-ios.png',
-      tinted: './src/assets/images/app-icon/mono-ios.png',
+      light: './src/assets/images/app-icon/icon-ios.png',
+      dark: './src/assets/images/app-icon/icon-ios-foreground.png',
+      tinted: './src/assets/images/app-icon/icon-ios-adaptive.png',
     },
     config: {
       usesNonExemptEncryption: false,
@@ -68,9 +61,9 @@ export default (): ExpoConfig => ({
   android: {
     package: bundleId,
     adaptiveIcon: {
-      foregroundImage: './src/assets/images/app-icon/foreground.png',
-      monochromeImage: './src/assets/images/app-icon/mono.png',
-      backgroundImage: './src/assets/images/app-icon/background.png',
+      foregroundImage: './src/assets/images/app-icon/icon-android-foreground.png',
+      monochromeImage: './src/assets/images/app-icon/icon-android-adaptive.png',
+      backgroundImage: './src/assets/images/app-icon/icon-background.png',
     },
     allowBackup: false,
   },
@@ -87,6 +80,14 @@ export default (): ExpoConfig => ({
         ios: {
           deploymentTarget: '15.1',
         },
+      },
+    ],
+    [
+      'expo-splash-screen',
+      {
+        image: './src/assets/images/app-icon/icon-android-foreground.png',
+        imageWidth: 200,
+        backgroundColor: '#000000',
       },
     ],
   ],
