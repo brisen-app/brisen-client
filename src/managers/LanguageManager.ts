@@ -54,8 +54,8 @@ class LanguageManagerSingleton extends SupabaseManager<SupabaseLanguage> {
   }
 
   isSfwLanguage() {
-    if (!this._detectedLanguage) return false
-    return this._detectedLanguage?.id === ConfigurationManager.getValue('sfw_language')
+    if (!this.getLanguage()) return false
+    return this.getLanguage().id === ConfigurationManager.getValue('sfw_language')
   }
 
   protected set(items: Iterable<SupabaseLanguage>) {

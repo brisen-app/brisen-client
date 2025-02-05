@@ -8,15 +8,14 @@ import { PackManager } from '@/src/managers/PackManager'
 import SupabaseManager, { SupabaseItem } from '@/src/managers/SupabaseManager'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { ReactNode, useEffect, useState } from 'react'
-import { AppState, Platform } from 'react-native'
+import { ActivityIndicator, AppState, Platform } from 'react-native'
 import FetchErrorView from '../components/FetchErrorView'
+import Colors from '../constants/Colors'
 
 function useSupabase(manager: SupabaseManager<SupabaseItem>, enabled = true) {
   const response = useQuery({
     queryKey: [manager.tableName],
-    queryFn: async () => {
-      return await manager.fetchAllOrRetrieve()
-    },
+    queryFn: async () => await manager.fetchAllOrRetrieve(),
     enabled: enabled,
   })
   if (response.error) console.warn(response.error)
@@ -75,6 +74,6 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
     return <FetchErrorView errors={errors} onRetry={() => queryClient.refetchQueries()} />
   }
 
-  if (queryClient.isFetching() || responses.some(r => r.isPending)) return undefined
+  if (!responses.every(r => r.isSuccess)) return <ActivityIndicator color={Colors.text} style={{ flex: 1 }} />
   return props.children
 }
