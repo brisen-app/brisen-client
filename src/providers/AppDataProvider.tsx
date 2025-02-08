@@ -45,8 +45,8 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
   ]
 
   useEffect(() => {
-    if (!languageResponse.isSuccess) return
-    LanguageManager.loadStoredLanguage().then(() => setHasLoadedLanguage(true))
+    if (!languageResponse.isSuccess) setHasLoadedLanguage(false)
+    else LanguageManager.loadStoredLanguage().then(() => setHasLoadedLanguage(true))
   }, [languageResponse.isSuccess])
 
   useEffect(() => {
@@ -74,6 +74,7 @@ export default function AppDataProvider(props: Readonly<{ children: ReactNode }>
     return <FetchErrorView errors={errors} onRetry={() => queryClient.refetchQueries()} />
   }
 
-  if (!responses.every(r => r.isSuccess)) return <ActivityIndicator color={Colors.text} style={{ flex: 1 }} />
+  if (!responses.every(r => r.isSuccess) || queryClient.isFetching())
+    return <ActivityIndicator color={Colors.text} style={{ flex: 1 }} />
   return props.children
 }
