@@ -18,7 +18,7 @@ export default function App() {
   const insets = useSafeAreaInsets()
   const bottomSheetRef = useRef<BottomSheet>(null)
   const sheetHeight = useSheetHeight()
-  const snapPoints = useMemo(() => [sheetHeight, '90%'], [bottomSheetRef, insets])
+  const snapPoints = useMemo(() => [sheetHeight], [bottomSheetRef, insets])
 
   const backdrop = useCallback(
     (props: any) => (
@@ -52,7 +52,8 @@ export default function App() {
       <BottomSheet
         ref={bottomSheetRef}
         index={1}
-        enableDynamicSizing={false}
+        containerStyle={{ marginTop: insets.top + 16 }}
+        enableDynamicSizing
         snapPoints={snapPoints}
         backdropComponent={backdrop}
         backgroundComponent={SheetMenuBackground}

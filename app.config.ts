@@ -20,7 +20,7 @@ export default (): ExpoConfig => ({
   slug: 'brisen-client',
   description: "Let's get Brisen together!",
   version: appVersion,
-  runtimeVersion: '2',
+  runtimeVersion: '4',
   githubUrl: 'https://github.com/brisen-app/brisen-client',
   orientation: 'portrait',
   scheme: 'no.kallerud',
