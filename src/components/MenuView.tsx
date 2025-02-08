@@ -17,9 +17,10 @@ import { Picker } from '@react-native-picker/picker'
 import { useQueryClient } from '@tanstack/react-query'
 import * as Application from 'expo-application'
 import * as Clipboard from 'expo-clipboard'
+import * as Device from 'expo-device'
 import { Image } from 'expo-image'
 import { openSettings, openURL } from 'expo-linking'
-import React, { useMemo, useRef } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Alert,
   Dimensions,
@@ -212,9 +213,16 @@ export function Header(props: Readonly<{ titleKey?: string; descriptionKey?: str
 }
 
 function PackSection(props: Readonly<ViewProps>) {
-  const packWidth = Dimensions.get('window').width
+  const windowWidth = Dimensions.get('window').width
   const packs = useMemo(() => PackManager.items, [PackManager.items])
+  const [packsPerRow, setPacksPerRow] = useState(2)
   const { isSubscribed } = useInAppPurchaseContext()
+
+  useEffect(() => {
+    Device.getDeviceTypeAsync().then(deviceType => {
+      if (deviceType === Device.DeviceType.TABLET) setPacksPerRow(3)
+    })
+  }, [])
 
   const sortedPacks = useMemo(() => {
     if (isSubscribed || !packs) return packs
@@ -231,7 +239,7 @@ function PackSection(props: Readonly<ViewProps>) {
     <View style={{ flexWrap: 'wrap', flexDirection: 'row', gap: 16 }} {...props}>
       {sortedPacks?.map(pack => (
         <View key={pack.id}>
-          <PackPosterView width={(packWidth - 48) / 2} pack={pack} />
+          <PackPosterView width={(windowWidth - 32 - 16 * (packsPerRow - 1)) / packsPerRow} pack={pack} />
         </View>
       ))}
     </View>
