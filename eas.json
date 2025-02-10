@@ -6,6 +6,7 @@
   "build": {
     "base": {
       "distribution": "internal",
+      "autoIncrement": true,
       "android": {
         "image": "latest"
       },
@@ -39,7 +40,6 @@
     "production": {
       "extends": "base",
       "channel": "production",
-      "autoIncrement": true,
       "distribution": "store",
       "env": {
         "EXPO_PUBLIC_ENV": "production"
