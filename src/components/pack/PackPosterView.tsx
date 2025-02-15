@@ -7,7 +7,7 @@ import { Image } from 'expo-image'
 import { Alert, Platform, Pressable, StyleSheet, Text, View, ViewProps } from 'react-native'
 import Animated, { Easing, useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import { useAppContext, useAppDispatchContext } from '../../providers/AppContextProvider'
-import { presentPaywall } from '../../providers/InAppPurchaseProvider'
+import { presentPaywall, useInAppPurchaseContext } from '../../providers/InAppPurchaseProvider'
 import Skeleton from '../utils/Skeleton'
 
 export type PackViewProps = {
@@ -21,7 +21,7 @@ export type PackPosterViewProps = {
 export default function PackPosterView(props: Readonly<PackPosterViewProps & PackViewProps & ViewProps>) {
   const { pack, style } = props
   const { playlist, players, categoryFilter } = useAppContext()
-  const isSubscribed = true
+  const { isSubscribed } = useInAppPurchaseContext()
   const setContext = useAppDispatchContext()
   const width = props.width ?? 256
   const isSelected = playlist.includes(pack.id)
