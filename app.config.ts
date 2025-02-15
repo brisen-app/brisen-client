@@ -2,7 +2,7 @@ import { ExpoConfig } from 'expo/config'
 
 let bundleId = 'no.kallerud.brisen'
 let appName = 'Brisen'
-const appVersion = '1.0.0'
+const appVersion = '1.0.1'
 
 const environment = process.env.EXPO_PUBLIC_ENV ?? 'ci'
 if (environment === 'ci') {
