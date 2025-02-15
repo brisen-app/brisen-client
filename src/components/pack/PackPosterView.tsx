@@ -1,10 +1,10 @@
 import Colors from '@/src/constants/Colors'
+import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import { Pack, PackManager } from '@/src/managers/PackManager'
 import Color from '@/src/models/Color'
-import { useInAppPurchaseContext } from '@/src/providers/InAppPurchaseProvider'
 import { Ionicons } from '@expo/vector-icons'
 import { Image } from 'expo-image'
-import { Platform, Pressable, StyleSheet, Text, View, ViewProps } from 'react-native'
+import { Alert, Platform, Pressable, StyleSheet, Text, View, ViewProps } from 'react-native'
 import Animated, { Easing, useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import { useAppContext, useAppDispatchContext } from '../../providers/AppContextProvider'
 import { presentPaywall } from '../../providers/InAppPurchaseProvider'
@@ -20,13 +20,20 @@ export type PackPosterViewProps = {
 
 export default function PackPosterView(props: Readonly<PackPosterViewProps & PackViewProps & ViewProps>) {
   const { pack, style } = props
-  const { playlist } = useAppContext()
-  const { isSubscribed } = useInAppPurchaseContext()
+  const { playlist, players, categoryFilter } = useAppContext()
+  const isSubscribed = true
   const setContext = useAppDispatchContext()
   const width = props.width ?? 256
   const isSelected = playlist.includes(pack.id)
   const isNoneSelected = playlist.length === 0
-  const isAvailable = pack.is_free || isSubscribed
+  const isPlayable = PackManager.isPlayable(pack, players, categoryFilter)
+  const isAvailable = isSelected || (isPlayable && (pack.is_free || isSubscribed))
+
+  const addMorePlayersTitle =
+    LocalizationManager.get('pack_unplayable_title')?.value ?? 'More players or categories required'
+  const addMorePlayersMessage =
+    LocalizationManager.get('pack_unplayable_msg')?.value ??
+    'To play this pack, you need to add more players or remove some category filters.'
 
   const { data: image, isLoading, error } = PackManager.useImageQuery(pack.image)
   if (error) console.warn(`Couldn't load image for pack ${pack.name}:`, error)
@@ -47,18 +54,18 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
     }
   }, [isSelected])
 
-  const isAvailableStyle = useAnimatedStyle(() => {
+  const isSelectableStyle = useAnimatedStyle(() => {
     return {
       opacity: withTiming(isAvailable ? 1 : 0.2, animationConfig),
     }
-  }, [isSubscribed])
+  }, [isSelected, isPlayable, isSubscribed])
 
-  const lockStyle = useAnimatedStyle(() => {
+  const iconStyle = useAnimatedStyle(() => {
     return {
       opacity: withTiming(!isAvailable ? 1 : 0, animationConfig),
       transform: [{ scale: withTiming(!isAvailable ? 1 : 0.9, animationConfig) }],
     }
-  }, [isSubscribed])
+  }, [isSelected, isPlayable, isSubscribed])
 
   if (isLoading) {
     return (
@@ -83,6 +90,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
       <Pressable
         onPress={() => {
           if (isAvailable) setContext({ action: 'togglePack', payload: pack.id })
+          else if (!isPlayable) Alert.alert(addMorePlayersTitle, addMorePlayersMessage)
           else presentPaywall()
         }}
       >
@@ -100,7 +108,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
             },
           ]}
         >
-          <Animated.View style={isAvailableStyle}>
+          <Animated.View style={isSelectableStyle}>
             <Image
               style={{
                 width: width,
@@ -144,15 +152,16 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
             style={[
               {
                 position: 'absolute',
+                alignItems: 'center',
               },
-              lockStyle,
+              iconStyle,
             ]}
           >
             <Ionicons
-              name='lock-closed'
+              name={isSubscribed ? 'people' : 'lock-closed'}
               size={32 + 16}
               style={[
-                { padding: 8, color: Color.white.string },
+                { color: Color.white.string },
                 Platform.select({
                   ios: {
                     shadowOffset: { width: 0, height: 8 },
@@ -167,6 +176,13 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
                 }) ?? {},
               ]}
             />
+            {!isPlayable && (
+              <Text
+                style={{ color: Color.white.string, fontSize: 12, fontWeight: 'bold', padding: 8, textAlign: 'center' }}
+              >
+                {addMorePlayersTitle}
+              </Text>
+            )}
           </Animated.View>
         </View>
 
