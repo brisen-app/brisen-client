@@ -15,6 +15,7 @@ type ConfigurationItem =
   | { key: 'default_language'; value: string }
   | { key: 'play_store_url'; value: string }
   | { key: 'sfw_language'; value: string }
+  | { key: 'min_playable_cards'; value: number }
 
 class ConfigurationManagerSingleton extends SupabaseManager<Configuration> {
   constructor() {

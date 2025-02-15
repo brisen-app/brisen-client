@@ -1,5 +1,8 @@
 import { Pack, PackManager } from '@/src/managers/PackManager'
 import { supabase } from '@/src/lib/supabase'
+import { ConfigurationManager } from '@/src/managers/ConfigurationManager'
+import { Card, CardManager } from '@/src/managers/CardManager'
+import { Player } from '@/src/models/Player'
 
 const mockedSupabasePacks = [
   {
@@ -199,5 +202,64 @@ describe('getPacskOf', () => {
   it('should return an empty list if card is not found', () => {
     const packs = PackManager.getPacksOf('10')
     expect(packs).toHaveLength(0)
+  })
+})
+
+describe('isPlayable', () => {
+  it('should return true if the pack has enough available cards', () => {
+    const players = new Set([{ name: '1' }, { name: '2' }]) as Set<Player>
+    const categoryFilter = ['cat1']
+
+    jest.spyOn(ConfigurationManager, 'getValue').mockReturnValueOnce(1)
+    const spyOnRequiredPlayCount = jest
+      .spyOn(CardManager, 'getRequiredPlayerCount')
+      .mockReturnValueOnce(0)
+      .mockReturnValueOnce(10)
+    const spyOnGetCard = jest.spyOn(CardManager, 'get').mockReturnValue({ category: 'cat2' } as Card)
+
+    const isPlayable = PackManager.isPlayable(mockedPacks[0], players, categoryFilter)
+
+    expect(spyOnGetCard).toHaveBeenCalledTimes(2)
+    expect(spyOnRequiredPlayCount).toHaveBeenCalledTimes(2)
+    expect(isPlayable).toBeTruthy()
+  })
+
+  it('should return false if there arent enough players', () => {
+    const players = new Set([{ name: '1' }, { name: '2' }]) as Set<Player>
+    const categoryFilter = ['cat1']
+
+    jest.spyOn(ConfigurationManager, 'getValue').mockReturnValueOnce(1)
+    jest.spyOn(CardManager, 'getRequiredPlayerCount').mockReturnValue(10)
+    jest.spyOn(CardManager, 'get').mockReturnValue({ category: 'cat2' } as Card)
+
+    const isPlayable = PackManager.isPlayable(mockedPacks[0], players, categoryFilter)
+
+    expect(isPlayable).toBeFalsy()
+  })
+
+  it('should return false if categories are filtered out', () => {
+    const players = new Set([{ name: '1' }, { name: '2' }]) as Set<Player>
+    const categoryFilter = ['cat1']
+
+    jest.spyOn(ConfigurationManager, 'getValue').mockReturnValueOnce(1)
+    jest.spyOn(CardManager, 'getRequiredPlayerCount').mockReturnValue(0)
+    jest.spyOn(CardManager, 'get').mockReturnValue({ category: 'cat1' } as Card)
+
+    const isPlayable = PackManager.isPlayable(mockedPacks[0], players, categoryFilter)
+
+    expect(isPlayable).toBeFalsy()
+  })
+
+  it('should return true if original amount of cards are less than limit', () => {
+    const players = new Set([{ name: '1' }, { name: '2' }]) as Set<Player>
+    const categoryFilter = ['cat2']
+
+    jest.spyOn(ConfigurationManager, 'getValue').mockReturnValueOnce(10)
+    jest.spyOn(CardManager, 'getRequiredPlayerCount').mockReturnValue(0)
+    jest.spyOn(CardManager, 'get').mockReturnValue({ category: 'cat1' } as Card)
+
+    const isPlayable = PackManager.isPlayable(mockedPacks[0], players, categoryFilter)
+
+    expect(isPlayable).toBeTruthy()
   })
 })
