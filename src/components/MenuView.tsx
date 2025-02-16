@@ -313,7 +313,7 @@ function LinksView(props: Readonly<ViewProps>) {
       {
         title: shareTitle,
         url: storeURL,
-        message: `${shareMsg} ${storeURL}`,
+        message: shareMsg,
       },
       {
         dialogTitle: shareTitle,
