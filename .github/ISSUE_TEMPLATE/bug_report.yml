@@ -2,6 +2,7 @@ name: 🐞 Bug Report
 description: File a bug or issue report.
 title: '[Bug] '
 labels: ['type:bug']
+type: Bug
 body:
   - type: markdown
     attributes:
@@ -14,10 +15,10 @@ body:
       label: Severity
       description: How severe is this bug?
       options:
-        - Critical - Bug prevents use of feature
-        - High - Bug causes feature to not work as expected
-        - Medium - Bug is annoying but has a workaround
-        - Low - Bug is minor and does not affect functionality
+        - Critical - Bug prevents use of the app
+        - High - Bug causes features to not work as expected
+        - Medium - Bug has a workaround
+        - Low - Bug does not affect functionality, but should be fixed
       default: 2
     validations:
       required: true
@@ -26,7 +27,7 @@ body:
     id: platform
     attributes:
       label: Platform
-      description: What platform are you experiencing this bug on?
+      description: On what platform are you experiencing this bug?
       multiple: true
       options:
         - iOS
@@ -47,8 +48,6 @@ body:
       label: App version
       description: What version of the app are you running? (Check the bottom of the menu)
       placeholder: 1.0.2
-    validations:
-      required: true
 
   - type: textarea
     id: what-happened

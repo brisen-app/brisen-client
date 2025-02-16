@@ -123,6 +123,10 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     return candidateCount === 0 ? getRandom(unplayedChildren.values()) : null
   }
 
+  getPlayableCards(pack: Pack, playerCount: number, categoryFilter: Set<string>) {
+    return this.findCandidates(new Set([pack]), new Set(), playerCount, categoryFilter)
+  }
+
   private findCandidates(
     playlist: Set<Pack>,
     playedIds: Set<string>,

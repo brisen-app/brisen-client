@@ -2,8 +2,9 @@ package/**
 .expo/**
 coverage/**
 node_modules/**
-models/supabase.ts
+src/models/supabase.ts
 ios/**
 android/**
 tsconfig.json
 package.json
+package-lock.json

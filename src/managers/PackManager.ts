@@ -3,8 +3,6 @@ import { NotFoundError } from '@/src/models/Errors'
 import { Tables } from '@/src/models/supabase'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
-import { Player } from '../models/Player'
-import { CardManager } from './CardManager'
 import { ConfigurationManager } from './ConfigurationManager'
 import { LanguageManager } from './LanguageManager'
 import SupabaseManager from './SupabaseManager'
@@ -56,20 +54,9 @@ class PackManagerSingleton extends SupabaseManager<Pack> {
     return packs
   }
 
-  isPlayable(pack: Pack, players: Set<Player>, categoryFilter: string[]) {
+  isPlayable(playableCardCount: number) {
     const minPlayableCards = ConfigurationManager.getValue('min_playable_cards') ?? 10
-
-    const playableCardCount = pack.cards.filter(cardId => {
-      const card = CardManager.get(cardId)
-      if (!card) return false
-      if (card.category && categoryFilter.includes(card.category)) return false
-      if (CardManager.getRequiredPlayerCount(card) > players.size) return false
-      return true
-    }).length
-
-    if (playableCardCount === 0) return false
-    if (pack.cards.length < minPlayableCards) return true
-    return playableCardCount >= minPlayableCards
+    return playableCardCount > 0 && playableCardCount >= minPlayableCards
   }
 
   useImageQuery(imageName: string | null | undefined, enabled = true) {

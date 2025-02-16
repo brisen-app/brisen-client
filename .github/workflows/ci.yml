@@ -25,6 +25,9 @@ jobs:
 
       - uses: actions/setup-node@v4
 
+      - name: 📃 Check formatting
+        run: npx prettier . --check
+
       - name: 📦 Install dependencies
         run: npm ci
 
