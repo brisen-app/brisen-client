@@ -2,20 +2,12 @@ name: 🚀 Feature Request
 description: Suggest a new feature.
 title: '[Feature Request] '
 labels: ['type:feature']
+type: Feature
 body:
   - type: markdown
     attributes:
       value: |
         *Please add an appropriate title for this feature request, and relevant tags.*
-
-  - type: dropdown
-    attributes:
-      label: Confirmations
-      multiple: true
-      options:
-        - I have checked that this feature is not already requested or implemented
-    validations:
-      required: true
 
   - type: textarea
     id: details
