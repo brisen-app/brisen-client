@@ -6,6 +6,8 @@ import { Pack, PackManager } from '@/src/managers/PackManager'
 import { InsufficientCountError } from '@/src/models/Errors'
 import { Player } from '@/src/models/Player'
 
+//#region Mocks
+
 const MockedCards = {
   Card_1: { id: '1', category: 'cat1', content: 'Content of card 1', is_group: true } as Card,
   Card_2: { id: '2', category: 'cat2', content: 'Content of card 2', is_group: true } as Card,
@@ -81,11 +83,15 @@ jest.mock('@/src/lib/supabase', () => ({
   },
 }))
 
+//#endregion
+
 beforeEach(() => {
   CardManager['_items'] = undefined
   CardManager['cachedPlayerCounts'].clear()
   jest.clearAllMocks()
 })
+
+//#region insertPlayers
 
 describe('insertPlayers', () => {
   it('should not change the content in place', () => {
@@ -118,6 +124,10 @@ describe('insertPlayers', () => {
     )
   })
 })
+
+//#endregion
+
+//#region getRequiredPlayerCount
 
 describe('getRequiredPlayerCount', () => {
   const testCases = [
@@ -164,6 +174,29 @@ describe('getRequiredPlayerCount', () => {
   })
 })
 
+//#endregion
+
+//#region getPlayableCards
+
+describe('getPlayableCards', () => {
+  beforeEach(() => {
+    CardManager['set'](Object.values(MockedCards))
+  })
+
+  it('should return cards that are playable based on player count and category filter', () => {
+    const categoryFilter = new Set(['cat1'])
+
+    const result = CardManager.getPlayableCards(MockedPacks.Pack_with_1_and_5_and_6, 2, categoryFilter)
+
+    expect(result.keys()).toContain(MockedCards.Card_5_req_2_players.id)
+    expect(result.size).toBe(1)
+  })
+})
+
+//#endregion
+
+//#region findCandidates
+
 describe('findCandidates', () => {
   beforeEach(() => {
     CardManager['set'](Object.values(MockedCards))
@@ -207,6 +240,10 @@ describe('findCandidates', () => {
   })
 })
 
+//#endregion
+
+//#region getNextCard
+
 describe('getNextCard', () => {
   beforeEach(() => {
     CardManager['set'](Object.values(MockedCards))
@@ -240,6 +277,10 @@ describe('getNextCard', () => {
     expect(result).toBeNull()
   })
 })
+
+//#endregion
+
+//#region drawClosingCard
 
 describe('drawClosingCard', () => {
   beforeEach(() => {
@@ -319,6 +360,10 @@ describe('drawClosingCard', () => {
   })
 })
 
+//#endregion
+
+//#region getParentPlayerList
+
 describe('getParentPlayerList', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -363,6 +408,10 @@ describe('getParentPlayerList', () => {
     expect(result).toBeNull()
   })
 })
+
+//#endregion
+
+//#region drawCard
 
 describe('drawCard', () => {
   beforeEach(() => {
@@ -521,3 +570,5 @@ describe('drawCard', () => {
     expect(result?.id).toBe('3')
   })
 })
+
+//#endregion
