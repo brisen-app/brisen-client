@@ -16,13 +16,11 @@ import {
 import { Picker } from '@react-native-picker/picker'
 import { useQueryClient } from '@tanstack/react-query'
 import * as Application from 'expo-application'
-import * as Clipboard from 'expo-clipboard'
 import * as Device from 'expo-device'
 import { Image } from 'expo-image'
 import { openSettings, openURL } from 'expo-linking'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import {
-  Alert,
   Dimensions,
   Keyboard,
   NativeSyntheticEvent,
@@ -386,11 +384,10 @@ function AppDetailsView() {
   const fontSize = 12
 
   const appName = LocalizationManager.get('app_name')?.value ?? 'app_name'
-  const copiedTitle = LocalizationManager.get('copied_to_clipboard')?.value ?? 'copied_to_clipboard'
 
   const handleLongPress = () => {
-    Clipboard.setStringAsync(userId ?? '')
-    Alert.alert(copiedTitle, userId ?? '')
+    if (!userId) return
+    Share.share({ message: userId })
   }
 
   return (
