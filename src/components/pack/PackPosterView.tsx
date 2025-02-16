@@ -9,6 +9,7 @@ import Animated, { Easing, useAnimatedStyle, withTiming } from 'react-native-rea
 import { useAppContext, useAppDispatchContext } from '../../providers/AppContextProvider'
 import { presentPaywall, useInAppPurchaseContext } from '../../providers/InAppPurchaseProvider'
 import Skeleton from '../utils/Skeleton'
+import { CardManager } from '@/src/managers/CardManager'
 
 export type PackViewProps = {
   pack: Pack
@@ -26,8 +27,12 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
   const width = props.width ?? 256
   const isSelected = playlist.includes(pack.id)
   const isNoneSelected = playlist.length === 0
-  const isPlayable = PackManager.isPlayable(pack, players, categoryFilter)
-  const isAvailable = isSelected || (isPlayable && (pack.is_free || isSubscribed))
+
+  const playableCardCount = CardManager.getPlayableCards(pack, players.size, new Set(categoryFilter)).size
+
+  const isPlayable = PackManager.isPlayable(playableCardCount)
+  const isAvailable = pack.is_free || isSubscribed
+  const isSelectable = isSelected || (isPlayable && isAvailable)
 
   const addMorePlayersTitle =
     LocalizationManager.get('pack_unplayable_title')?.value ?? 'More players or categories required'
@@ -56,16 +61,16 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
 
   const isSelectableStyle = useAnimatedStyle(() => {
     return {
-      opacity: withTiming(isAvailable ? 1 : 0.2, animationConfig),
+      opacity: withTiming(isSelectable ? 1 : 0.2, animationConfig),
     }
-  }, [isSelected, isPlayable, isSubscribed])
+  }, [isSelectable])
 
   const iconStyle = useAnimatedStyle(() => {
     return {
-      opacity: withTiming(!isAvailable ? 1 : 0, animationConfig),
-      transform: [{ scale: withTiming(!isAvailable ? 1 : 0.9, animationConfig) }],
+      opacity: withTiming(!isSelectable ? 1 : 0, animationConfig),
+      transform: [{ scale: withTiming(!isSelectable ? 1 : 0.9, animationConfig) }],
     }
-  }, [isSelected, isPlayable, isSubscribed])
+  }, [isSelectable])
 
   if (isLoading) {
     return (
@@ -89,7 +94,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
     >
       <Pressable
         onPress={() => {
-          if (isAvailable) setContext({ action: 'togglePack', payload: pack.id })
+          if (isSelectable) setContext({ action: 'togglePack', payload: pack.id })
           else if (!isPlayable) Alert.alert(addMorePlayersTitle, addMorePlayersMessage)
           else presentPaywall()
         }}
@@ -158,7 +163,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
             ]}
           >
             <Ionicons
-              name={isSubscribed ? 'people' : 'lock-closed'}
+              name={isAvailable ? 'people' : 'cart'}
               size={32 + 16}
               style={[
                 { color: Color.white.string },
@@ -176,7 +181,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
                 }) ?? {},
               ]}
             />
-            {!isPlayable && (
+            {isAvailable && !isPlayable && (
               <Text
                 style={{ color: Color.white.string, fontSize: 12, fontWeight: 'bold', padding: 8, textAlign: 'center' }}
               >
