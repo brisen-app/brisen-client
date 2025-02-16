@@ -29,7 +29,7 @@ export default (): ExpoConfig => ({
   runtimeVersion: runtimeVersion,
   githubUrl: 'https://github.com/brisen-app/brisen-client',
   orientation: 'portrait',
-  scheme: 'no.kallerud',
+  scheme: 'brisen',
   userInterfaceStyle: 'dark',
   assetBundlePatterns: ['**/*'],
   primaryColor: '#f3a000',
