@@ -1,15 +1,18 @@
+import { runtimeVersion } from '@/app.config'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useQueryClient } from '@tanstack/react-query'
+import { nativeApplicationVersion, nativeBuildVersion } from 'expo-application'
 import { useState } from 'react'
 import { ActivityIndicator, ColorValue, Text, TouchableOpacity, View } from 'react-native'
 import Colors from '../constants/Colors'
+import { appVersion } from '../constants/Constants'
 import { FontStyles } from '../constants/Styles'
 import env from '../lib/env'
 import { LanguageManager } from '../managers/LanguageManager'
 import { useInAppPurchaseContext } from '../providers/InAppPurchaseProvider'
 
 export default function DevMenu() {
-  const { userId } = useInAppPurchaseContext()
+  const { userId, isSubscribed } = useInAppPurchaseContext()
   const queryClient = useQueryClient()
   const language = LanguageManager.getLanguage()
   const { environment } = env
@@ -42,8 +45,13 @@ export default function DevMenu() {
     >
       <Text style={[{ paddingBottom: 8 }, FontStyles.LargeTitle]}>Dev Menu</Text>
       <InfoRow title='Environment' value={environment} />
+      <InfoRow title='Application version' value={nativeApplicationVersion ?? '-'} />
+      <InfoRow title='Build version' value={nativeBuildVersion ?? '-'} />
+      <InfoRow title='Bundle version' value={appVersion} />
+      <InfoRow title='Runtime version' value={runtimeVersion} />
       <InfoRow title='Language' value={`${language.icon} ${language.name} (${language.id})`} />
       <InfoRow title='RevenueCat ID' value={userId} />
+      <InfoRow title='Subscription status' value={isSubscribed ? 'Active' : 'Inactive'} />
       <View />
       <>
         <Text style={[{ paddingBottom: 8 }, FontStyles.Title]}>AsyncStorage</Text>
