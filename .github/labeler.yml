@@ -19,4 +19,3 @@ eas-build-all:develop:
       - base-branch: 'main'
       - changed-files:
           - any-glob-to-any-file: ['src/constants/Constants.ts', 'app.config.ts', 'eas.json', 'src/assets/**/*']
-
