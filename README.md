@@ -1,6 +1,6 @@
-<p align="center">
-  <img src="https://media.githubusercontent.com/media/brisen-app/brisen-assets/refs/heads/main/assets/logo/logo-text.png" alt="Brisen" width="265">
-</p>
+<div align="center">
+  <img src="https://media.githubusercontent.com/media/brisen-app/brisen-assets/refs/heads/main/assets/logo/logo-text.png" alt="Brisen" height=100px>
+</div>
 
 <p align="center">
   A trivia game for Android and iOS, built with React Native.
@@ -18,6 +18,15 @@
   </a>
   <a href="https://sonarqube.kallerud.no/dashboard?id=brisen-app_brisen-client_26c99873-d531-464d-a9a9-0ea569442bdd">
     <img src="https://sonarqube.kallerud.no/api/project_badges/measure?project=brisen-app_brisen-client_26c99873-d531-464d-a9a9-0ea569442bdd&metric=coverage&token=sqb_fb9cf3e8f814b6cb097b5b0c7290a06d0544dac4" alt="Coverage">
+  </a>
+</div>
+
+<div align="center">
+  <a href="[https://apps.apple.com/us/app/sql-play/id1546888933?itsct=apps_box&amp;itscg=30200](https://apps.apple.com/us/app/brisen/id6480421611)">
+    <img height=50px src="http://sqlplay.net/images/app-store-badge.svg" alt="Download on the App Store">
+  </a>
+  <a href="https://play.google.com/store/apps/details?id=com.sql_playground&amp;hl=en_US&amp;gl=US&amp;pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1">
+    <img height=50px alt="Get it on Google Play" src="https://sqlplay.net/images/google_play_badge.svg">
   </a>
 </div>
 
