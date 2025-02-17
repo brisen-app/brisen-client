@@ -14,16 +14,9 @@ type:release:
   - head-branch: ['^release', 'release']
 
 # Add build deployment method to PRs that increment the runtime version
-deploy:build:
+eas-build-all:develop:
   - all:
       - base-branch: 'main'
       - changed-files:
-          - any-glob-to-any-file: ['package.json', 'app.config.ts', 'eas.json', 'src/assets/**/*']
+          - any-glob-to-any-file: ['src/constants/Constants.ts', 'app.config.ts', 'eas.json', 'src/assets/**/*']
 
-# Add deploy method to PRs that change the typescript source code
-deploy:update:
-  - all:
-      - base-branch: 'main'
-      - changed-files:
-          - any-glob-to-any-file: 'src/**/*'
-          - all-globs-to-all-files: ['!package.json', '!app.config.ts', '!eas.json', '!src/assets/**/*']
