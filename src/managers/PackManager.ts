@@ -54,9 +54,9 @@ class PackManagerSingleton extends SupabaseManager<Pack> {
     return packs
   }
 
-  isPlayable(playableCardCount: number) {
+  isPlayable(totalCardCount: number, playableCardCount: number) {
     const minPlayableCards = ConfigurationManager.getValue('min_playable_cards') ?? 10
-    return playableCardCount > 0 && playableCardCount >= minPlayableCards
+    return playableCardCount > 0 && (playableCardCount >= minPlayableCards || totalCardCount < minPlayableCards)
   }
 
   useImageQuery(imageName: string | null | undefined, enabled = true) {
