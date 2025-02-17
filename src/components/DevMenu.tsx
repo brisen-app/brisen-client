@@ -28,7 +28,7 @@ export default function DevMenu() {
     setStorage(await AsyncStorage.multiGet(keys))
   }
 
-  if (environment === 'production' || environment === 'preview') return undefined
+  if (environment === 'production') return undefined
 
   return (
     <View
