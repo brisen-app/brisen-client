@@ -6,11 +6,6 @@ on:
       - main
     paths:
       - src/**
-      - app.config.ts
-      - eas.json
-      - package.json
-      - package-lock.json
-      - .github/workflows/update_prod.yml
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
