@@ -16,8 +16,7 @@ if (environment === 'ci') {
 }
 
 if (environment !== 'production') {
-  if (environment === 'release') appName += `-${appVersion}`
-  else appName += `-${environment}`
+  appName += `-${runtimeVersion}`
   bundleId += `.${environment}`
 }
 
@@ -29,7 +28,7 @@ export default (): ExpoConfig => ({
   runtimeVersion: runtimeVersion,
   githubUrl: 'https://github.com/brisen-app/brisen-client',
   orientation: 'portrait',
-  scheme: 'brisen',
+  scheme: appName.toLowerCase(),
   userInterfaceStyle: 'dark',
   assetBundlePatterns: ['**/*'],
   primaryColor: '#f3a000',

@@ -30,7 +30,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
 
   const playableCardCount = CardManager.getPlayableCards(pack, players.size, new Set(categoryFilter)).size
 
-  const isPlayable = PackManager.isPlayable(playableCardCount)
+  const isPlayable = PackManager.isPlayable(pack.cards.length, playableCardCount)
   const isAvailable = pack.is_free || isSubscribed
   const isSelectable = isSelected || (isPlayable && isAvailable)
 
