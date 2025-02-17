@@ -205,17 +205,18 @@ describe('getPacskOf', () => {
 
 describe('isPlayable', () => {
   const testCases = [
-    { minPlayableCards: 1, playableCardCount: 1, expected: true },
-    { minPlayableCards: 2, playableCardCount: 1, expected: false },
-    { minPlayableCards: 10, playableCardCount: 11, expected: true },
-    { minPlayableCards: 0, playableCardCount: 0, expected: false },
+    { minPlayableCards: 1, totalCardCount: 1, playableCardCount: 1, expected: true },
+    { minPlayableCards: 2, totalCardCount: 2, playableCardCount: 1, expected: false },
+    { minPlayableCards: 10, totalCardCount: 1, playableCardCount: 11, expected: true },
+    { minPlayableCards: 2, totalCardCount: 1, playableCardCount: 1, expected: true },
+    { minPlayableCards: 0, totalCardCount: 0, playableCardCount: 0, expected: false },
   ]
 
-  testCases.forEach(({ minPlayableCards, playableCardCount, expected }) => {
-    it(`should return ${expected} if playableCardCount is ${playableCardCount} and minPlayableCards is ${minPlayableCards}`, () => {
+  testCases.forEach(({ minPlayableCards, totalCardCount, playableCardCount, expected }) => {
+    it(`should return ${expected} if totalCardCount is ${totalCardCount}, playableCardCount is ${playableCardCount} and minPlayableCards is ${minPlayableCards}`, () => {
       jest.spyOn(ConfigurationManager, 'getValue').mockReturnValueOnce(minPlayableCards)
 
-      const isPlayable = PackManager.isPlayable(playableCardCount)
+      const isPlayable = PackManager.isPlayable(totalCardCount, playableCardCount)
 
       expect(isPlayable).toBe(expected)
     })
