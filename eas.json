@@ -30,13 +30,6 @@
         "EXPO_PUBLIC_ENV": "develop"
       }
     },
-    "release": {
-      "extends": "base",
-      "channel": "release",
-      "env": {
-        "EXPO_PUBLIC_ENV": "release"
-      }
-    },
     "production": {
       "extends": "base",
       "channel": "production",
