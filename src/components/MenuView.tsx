@@ -15,7 +15,6 @@ import {
 } from '@gorhom/bottom-sheet'
 import { Picker } from '@react-native-picker/picker'
 import { useQueryClient } from '@tanstack/react-query'
-import * as Application from 'expo-application'
 import * as Device from 'expo-device'
 import { Image } from 'expo-image'
 import { openSettings, openURL } from 'expo-linking'
@@ -44,6 +43,7 @@ import Animated, {
   useAnimatedStyle,
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { appVersion } from '../constants/Constants'
 import { ConfigurationManager } from '../managers/ConfigurationManager'
 import { LanguageManager } from '../managers/LanguageManager'
 import Color from '../models/Color'
@@ -381,12 +381,9 @@ function LinksView(props: Readonly<ViewProps>) {
 
 function AppDetailsView() {
   const { userId } = useInAppPurchaseContext()
-  const appVersion = Application.nativeApplicationVersion
 
   const iconSize = 48
   const fontSize = 12
-
-  const appName = LocalizationManager.get('app_name')?.value ?? 'app_name'
 
   const handleLongPress = () => {
     if (!userId) return
@@ -399,9 +396,7 @@ function AppDetailsView() {
         source={require('../assets/images/app-icon/icon-ios.png')}
         style={{ width: iconSize, aspectRatio: 1, borderRadius: iconSize / 4.4, marginVertical: 8 }}
       />
-      <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>
-        {appName} v{appVersion}
-      </Text>
+      <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>v{appVersion}</Text>
     </Pressable>
   )
 }
