@@ -147,7 +147,7 @@ function Content(props: Readonly<{ content: string; player?: Player } & ViewProp
 function CategoryLabel(props: Readonly<{ item?: Category; header?: string; iconSize?: number } & ViewProps>) {
   const { item, header, iconSize = 48, style, ...rest } = props
 
-  const categoryTitle = item ? CategoryManager.getTitle(item) : header
+  const categoryTitle = item ? CategoryManager.getTitle(item) : null
 
   return (
     <View
@@ -157,9 +157,12 @@ function CategoryLabel(props: Readonly<{ item?: Category; header?: string; iconS
       {item?.icon && <Text style={[styles.textShadow, { fontSize: iconSize }]}>{item?.icon}</Text>}
 
       <View>
-        {categoryTitle && (
-          <Text style={[FontStyles.Title, styles.textShadow, { color: Color.white.string }]}>{categoryTitle}</Text>
-        )}
+        {categoryTitle ||
+          (header && (
+            <Text style={[FontStyles.Title, styles.textShadow, { color: Color.white.string }]}>
+              {header ?? categoryTitle}
+            </Text>
+          ))}
       </View>
     </View>
   )
