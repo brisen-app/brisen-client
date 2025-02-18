@@ -157,12 +157,11 @@ function CategoryLabel(props: Readonly<{ item?: Category; header?: string; iconS
       {item?.icon && <Text style={[styles.textShadow, { fontSize: iconSize }]}>{item?.icon}</Text>}
 
       <View>
-        {categoryTitle ||
-          (header && (
-            <Text style={[FontStyles.Title, styles.textShadow, { color: Color.white.string }]}>
-              {header ?? categoryTitle}
-            </Text>
-          ))}
+        {(categoryTitle || header) && (
+          <Text style={[FontStyles.Title, styles.textShadow, { color: Color.white.string }]}>
+            {header ?? categoryTitle}
+          </Text>
+        )}
       </View>
     </View>
   )
