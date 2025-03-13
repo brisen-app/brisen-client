@@ -21,9 +21,9 @@ class PackManagerSingleton extends SupabaseManager<Pack> {
     return [...this._items.values()]?.sort((a, b) => a.name.localeCompare(b.name))
   }
 
-  getPackOf(cardId: string, playlist: Set<Pack>) {
+  getPackOf(cardId: string, playlist: Set<Pack | undefined>) {
     for (const pack of playlist) {
-      if (pack.cards.includes(cardId)) return pack
+      if (pack?.cards.includes(cardId)) return pack
     }
     return null
   }

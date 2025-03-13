@@ -41,7 +41,7 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     categoryFilterIds: Set<string>
   ): PlayedCard | null {
     console.debug('Drawing card...')
-    const playlist = new Set(playlistIds.map(id => PackManager.get(id)!))
+    const playlist = new Set(playlistIds.map(id => PackManager.get(id)))
     let candidates = this.findCandidates(playlist, playedIds, players.size, categoryFilterIds)
     let card = this.drawClosingCard(playedCards, playedIds, candidates.size)
 
@@ -128,7 +128,7 @@ class CardManagerSingleton extends SupabaseManager<Card> {
   }
 
   private findCandidates(
-    playlist: Set<Pack>,
+    playlist: Set<Pack | undefined>,
     playedIds: Set<string>,
     playerCount: number,
     categoryFilterIds: Set<string>
@@ -136,14 +136,17 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     const candidates = new Map<string, Card>()
 
     for (const pack of playlist) {
+      if (!pack) continue
       for (const cardId of pack.cards) {
-        const card = this.get(cardId)!
+        const card = this.get(cardId)
         if (
+          card &&
           !playedIds.has(card.id) &&
           (!card.category || !categoryFilterIds.has(card.category)) &&
           playerCount >= CardRelationManager.getRequiredPlayerCount(card.id)
-        )
+        ) {
           candidates.set(card.id, card)
+        }
       }
     }
 
