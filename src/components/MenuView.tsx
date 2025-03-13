@@ -20,6 +20,7 @@ import { Image } from 'expo-image'
 import { openSettings, openURL } from 'expo-linking'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import {
+  Alert,
   Dimensions,
   Keyboard,
   NativeSyntheticEvent,
@@ -250,13 +251,19 @@ function AddPlayerField(props: Readonly<ViewProps>) {
   const setContext = useAppDispatchContext()
   const textInputRef = useRef<TextInput>(null)
 
+  const playerExistsTitle = LocalizationManager.get('player_exists_title')?.value ?? 'Player already exists'
+  const playerExistsMessage = LocalizationManager.get('player_exists_msg')?.value ?? 'Please enter a different name'
+
   const handleAddPlayer = (e: NativeSyntheticEvent<TextInputSubmitEditingEventData>) => {
     e.preventDefault()
     if (e.nativeEvent.text.trim().length === 0) return
+    const lowestPlayCount = Math.min(...[...players].map(p => p.playCount))
 
     const formattedText = prettifyString(e.nativeEvent.text)
-    if (new Set([...players].map(p => p.name)).has(formattedText)) console.warn('Player already exists')
-    else setContext({ action: 'togglePlayer', payload: { name: formattedText, playCount: 0 } })
+    if (new Set([...players].map(p => p.name)).has(formattedText)) {
+      console.warn(`Player ${formattedText} already exists`)
+      Alert.alert(playerExistsTitle, playerExistsMessage)
+    } else setContext({ action: 'togglePlayer', payload: { name: formattedText, playCount: lowestPlayCount } })
     textInputRef.current?.clear()
   }
 
