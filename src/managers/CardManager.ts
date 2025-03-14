@@ -37,12 +37,12 @@ class CardManagerSingleton extends SupabaseManager<Card> {
     playedCards: PlayedCard[],
     playedIds: Set<string>,
     playlistIds: string[],
-    players: Set<Player>,
+    players: Player[],
     categoryFilterIds: Set<string>
   ): PlayedCard | null {
     console.debug('Drawing card...')
     const playlist = new Set(playlistIds.map(id => PackManager.get(id)))
-    let candidates = this.findCandidates(playlist, playedIds, players.size, categoryFilterIds)
+    let candidates = this.findCandidates(playlist, playedIds, players.length, categoryFilterIds)
     let card = this.drawClosingCard(playedCards, playedIds, candidates.size)
 
     candidates = this.getOrderedCards(candidates, 'starting')

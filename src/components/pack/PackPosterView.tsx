@@ -28,7 +28,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
   const isSelected = playlist.includes(pack.id)
   const isNoneSelected = playlist.length === 0
 
-  const playableCardCount = CardManager.getPlayableCards(pack, players.size, new Set(categoryFilter)).size
+  const playableCardCount = CardManager.getPlayableCards(pack, players.length, new Set(categoryFilter)).size
 
   const isPlayable = PackManager.isPlayable(pack.cards.length, playableCardCount)
   const isAvailable = pack.is_free || isSubscribed

@@ -121,7 +121,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
     const card = playedCards[playedCards.length - 1]
     setContext({ action: 'removeCachedPlayedCard', payload: card })
     console.log(`Removed card ${playedCards.length}:`, card.formattedContent ?? card.content)
-  }, [playlist.length, players.size])
+  }, [playlist.length, players.length])
 
   const keyExtractor = (item: PlayedCard) => item.id
   const renderItem: ({ item }: { item: PlayedCard }) => React.JSX.Element = useCallback(
