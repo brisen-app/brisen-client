@@ -3,8 +3,9 @@ import { Category } from '@/src/managers/CategoryManager'
 import { Player } from '@/src/models/Player'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import React, { createContext, Dispatch, ReactNode, useContext, useEffect, useReducer } from 'react'
-import { AppState } from 'react-native'
+import { Alert, AppState } from 'react-native'
 import { Serializable } from '../lib/utils'
+import { LocalizationManager } from '../managers/LocalizationManager'
 
 export const APP_CONTEXT_KEY = 'context'
 
@@ -24,7 +25,8 @@ export type AppContextAction =
   | { action: 'restartGame'; payload?: never }
   | { action: 'toggleCategory'; payload: Category }
   | { action: 'togglePack'; payload: string }
-  | { action: 'togglePlayer'; payload: Player }
+  | { action: 'togglePlayer'; payload: string }
+  | { action: 'clearPlayers'; payload?: never }
   | { action: 'incrementPlayCounts'; payload: Player[] }
   | { action: 'currentCard'; payload?: string }
   | { action: 'storeState'; payload?: never }
@@ -71,8 +73,20 @@ export function contextReducer(state: AppContextType, action: AppContextAction):
     case 'togglePack':
       return { ...state, playlist: toggleList(state.playlist, payload) }
 
-    case 'togglePlayer':
-      return { ...state, players: toggleSet(state.players, payload) }
+    case 'togglePlayer': {
+      const lowestPlayCount = Math.min(...[...state.players].map(p => p.playCount))
+
+      if (state.players.values().some(p => p.name === payload)) {
+        const playerExistsTitle = LocalizationManager.get('player_exists_title')?.value ?? 'Player already exists'
+        const playerExistsMessage =
+          LocalizationManager.get('player_exists_msg')?.value ?? 'Please enter a different name'
+        console.warn(`Player ${payload} already exists`)
+        Alert.alert(playerExistsTitle, playerExistsMessage)
+        return state
+      }
+
+      return { ...state, players: toggleSet(state.players, { name: payload, playCount: lowestPlayCount }) }
+    }
 
     case 'incrementPlayCounts':
       return { ...state, players: incrementPlayCounts(payload, state) }
