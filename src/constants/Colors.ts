@@ -1,7 +1,9 @@
 import Color from '@/src/models/Color'
 
+const accentColor = Color.hex('#F3A000').string
+
 export default {
-  accentColor: Color.hex('#f3a000').string,
+  accentColor: accentColor,
 
   text: Color.white.string,
   secondaryText: Color.brightness(2 / 3).string,
@@ -12,4 +14,14 @@ export default {
   stroke: Color.white.alpha(0.1).string,
 
   placeholder: Color.white.alpha(0.1).string,
+
+  green: {
+    light: Color.hex('#3ED68C').string,
+    dark: Color.hex('#142D21').string,
+  },
+
+  orange: {
+    light: accentColor,
+    dark: Color.hex('#2D1F00').string,
+  },
 }
