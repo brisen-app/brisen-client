@@ -43,12 +43,7 @@ describe('contextReducer', () => {
     const action = { action: 'addPlayer', payload: mockPlayer1.name } satisfies AppContextAction
 
     state = contextReducer(state, action)
-    expect(
-      state.players
-        .values()
-        .filter(p => p.name == mockPlayer1.name)
-        .toArray().length
-    ).toBe(1)
+    expect(state.players.filter(p => p.name == mockPlayer1.name).length).toBe(1)
   })
 
   it('should clear players', () => {
