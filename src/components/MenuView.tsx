@@ -112,7 +112,7 @@ export default function MenuView() {
                   entering={FadeInUp.easing(Easing.out(Easing.quad))}
                   exiting={ZoomOut.easing(Easing.out(Easing.quad))}
                 >
-                  <Tag text={tag.name} onPress={() => setContext({ action: 'addPlayer', payload: tag.name })} />
+                  <Tag text={tag.name} onPress={() => setContext({ action: 'removePlayer', payload: tag.name })} />
                 </Animated.View>
               ))}
             </View>
