@@ -24,4 +24,9 @@ export default {
     light: accentColor,
     dark: Color.hex('#2D1F00').string,
   },
+
+  yellow: {
+    light: Color.hex('#FFC916').string,
+    dark: Color.hex('#412700').string,
+  },
 }

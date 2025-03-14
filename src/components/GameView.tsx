@@ -8,6 +8,7 @@ import {
   FlatList,
   Pressable,
   PressableProps,
+  StyleSheet,
   Text,
   TouchableOpacity,
   View,
@@ -234,14 +235,16 @@ function OutOfCardsView(props: Readonly<TouchableOpacityProps>) {
           setContext({ action: 'restartGame' })
         }}
         style={{
-          backgroundColor: Colors.accentColor,
+          backgroundColor: Colors.orange.dark,
           borderRadius: Number.MAX_SAFE_INTEGER,
+          borderWidth: StyleSheet.hairlineWidth,
+          borderColor: Colors.stroke,
         }}
       >
         <Text
           style={{
             ...FontStyles.Button,
-            color: Colors.background,
+            color: Colors.orange.light,
             paddingVertical: 12,
             paddingHorizontal: 48,
           }}
