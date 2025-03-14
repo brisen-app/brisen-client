@@ -103,7 +103,7 @@ export default function MenuView() {
           <Header titleKey='players' descriptionKey='players_subtitle' />
           <AddPlayerField />
 
-          {players.size > 0 && (
+          {players.length > 0 && (
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
               {sortedPlayers.map(tag => (
                 <Animated.View
@@ -112,7 +112,7 @@ export default function MenuView() {
                   entering={FadeInUp.easing(Easing.out(Easing.quad))}
                   exiting={ZoomOut.easing(Easing.out(Easing.quad))}
                 >
-                  <Tag text={tag.name} onPress={() => setContext({ action: 'togglePlayer', payload: tag.name })} />
+                  <Tag text={tag.name} onPress={() => setContext({ action: 'addPlayer', payload: tag.name })} />
                 </Animated.View>
               ))}
             </View>
@@ -249,7 +249,7 @@ function PackSection(props: Readonly<ViewProps>) {
 function AddPlayerField(props: Readonly<ViewProps>) {
   const { style } = props
   const { players } = useAppContext()
-  const playerCount = players.size
+  const playerCount = players.length
   const setContext = useAppDispatchContext()
   const textInputRef = useRef<TextInput>(null)
 
@@ -257,7 +257,7 @@ function AddPlayerField(props: Readonly<ViewProps>) {
     e.preventDefault()
     const formattedText = prettifyString(e.nativeEvent.text)
     if (formattedText.length === 0) return
-    setContext({ action: 'togglePlayer', payload: formattedText })
+    setContext({ action: 'addPlayer', payload: formattedText })
     textInputRef.current?.clear()
   }
 
