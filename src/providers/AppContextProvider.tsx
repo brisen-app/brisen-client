@@ -6,6 +6,7 @@ import React, { createContext, Dispatch, ReactNode, useContext, useEffect, useRe
 import { Alert, AppState } from 'react-native'
 import { Serializable } from '../lib/utils'
 import { LocalizationManager } from '../managers/LocalizationManager'
+import { Pack } from '../managers/PackManager'
 
 export const APP_CONTEXT_KEY = 'context'
 
@@ -23,6 +24,7 @@ export type AppContextAction =
   | { action: 'addPlayedCard'; payload: PlayedCard }
   | { action: 'removeCachedPlayedCard'; payload: PlayedCard }
   | { action: 'restartGame'; payload?: never }
+  | { action: 'restartPack'; payload: Pack }
   | { action: 'toggleCategory'; payload: Category }
   | { action: 'togglePack'; payload: string }
   | { action: 'addPlayer'; payload: string }
@@ -119,6 +121,12 @@ export function contextReducer(state: AppContextType, action: AppContextAction):
     case 'restartGame': {
       const players = state.players.map(player => ({ ...player, playCount: 0 }))
       return { ...state, players: players, playlist: [], playedCards: [], playedIds: new Set() }
+    }
+
+    case 'restartPack': {
+      const playedCards = state.playedCards.filter(card => !payload.cards.includes(card.id))
+      const playedIds = new Set([...state.playedIds].filter(id => !payload.cards.includes(id)))
+      return { ...state, playedIds: playedIds, playedCards: playedCards }
     }
 
     case 'currentCard':
