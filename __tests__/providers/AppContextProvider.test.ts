@@ -35,7 +35,7 @@ describe('contextReducer', () => {
     const action = { action: 'addPlayer', payload: mockPlayer1.name } satisfies AppContextAction
 
     state = contextReducer(state, action)
-    expect(state.players.values().some(p => p.name == mockPlayer1.name)).toBeTruthy()
+    expect(state.players.some(p => p.name == mockPlayer1.name)).toBeTruthy()
   })
 
   it('should not add existing player', () => {
