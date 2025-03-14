@@ -73,7 +73,14 @@ export default function Tag(props: Readonly<TagListProps>) {
           gap: 4,
         }}
       >
-        {!hideIcon ? <MaterialIcons name='close' size={sizes.fontSize} color={Colors.secondaryText} /> : null}
+        {!hideIcon ? (
+          <MaterialIcons
+            name='close'
+            size={sizes.fontSize}
+            color={labelColor ?? Colors.text}
+            style={{ opacity: 0.5 }}
+          />
+        ) : null}
         <Text style={{ color: labelColor ?? Colors.text, fontSize: sizes.fontSize }}>{text}</Text>
       </TouchableOpacity>
     </Animated.View>
