@@ -324,7 +324,7 @@ function AddPlayerField(props: Readonly<ViewProps>) {
         <Animated.View entering={SlideInRight} exiting={SlideOutRight}>
           <TouchableOpacity
             style={{
-              backgroundColor: Colors.accentColor,
+              backgroundColor: Colors.orange.light,
               alignItems: 'center',
               justifyContent: 'center',
               paddingVertical: 4,
@@ -333,7 +333,7 @@ function AddPlayerField(props: Readonly<ViewProps>) {
             }}
             onPress={handleClearPlayers}
           >
-            <Text style={[FontStyles.Button, { color: Colors.background }]} numberOfLines={1}>
+            <Text style={[FontStyles.Button, { color: Colors.orange.dark }]} numberOfLines={1}>
               {LocalizationManager.get('clear')?.value ?? 'Clear'}
             </Text>
           </TouchableOpacity>
