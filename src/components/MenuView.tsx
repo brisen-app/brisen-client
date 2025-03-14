@@ -1,3 +1,5 @@
+//#region Imports
+
 import Colors from '@/src/constants/Colors'
 import { FontStyles, SHEET_HANDLE_HEIGHT } from '@/src/constants/Styles'
 import { formatName as prettifyString, useSheetHeight } from '@/src/lib/utils'
@@ -56,7 +58,11 @@ import PackPosterView from './pack/PackPosterView'
 import ScrollToBottomButton from './utils/ScrollToBottomButton'
 import Tag from './utils/Tag'
 
+//#endregion
+
 const SHEET_TRASITION_POINT = 0.25
+
+//#region MenuView
 
 export default function MenuView() {
   const insets = useSafeAreaInsets()
@@ -170,6 +176,10 @@ export default function MenuView() {
   )
 }
 
+//#endregion
+
+//#region CategoryTag
+
 function CategoryTag(
   props: Readonly<{ category: Category; isSelected: boolean; onPress: (category: Category) => void } & ViewProps>
 ) {
@@ -192,6 +202,10 @@ function CategoryTag(
   )
 }
 
+//#endregion
+
+//#region Header
+
 export function Header(props: Readonly<{ titleKey?: string; descriptionKey?: string }>) {
   const { titleKey, descriptionKey } = props
 
@@ -211,6 +225,10 @@ export function Header(props: Readonly<{ titleKey?: string; descriptionKey?: str
     </View>
   )
 }
+
+//#endregion
+
+//#region PackSection
 
 function PackSection(props: Readonly<ViewProps>) {
   const windowWidth = Dimensions.get('window').width
@@ -245,6 +263,8 @@ function PackSection(props: Readonly<ViewProps>) {
     </View>
   )
 }
+
+//#region AddPlayerField
 
 function AddPlayerField(props: Readonly<ViewProps>) {
   const { style } = props
@@ -322,6 +342,10 @@ function AddPlayerField(props: Readonly<ViewProps>) {
     </Animated.View>
   )
 }
+
+//#endregion
+
+//#region LinksView
 
 function LinksView(props: Readonly<ViewProps>) {
   const { managementURL, isSubscribed } = useInAppPurchaseContext()
@@ -405,6 +429,10 @@ function LinksView(props: Readonly<ViewProps>) {
   )
 }
 
+//#endregion
+
+//#region AppDetailsView
+
 function AppDetailsView() {
   const { userId } = useInAppPurchaseContext()
 
@@ -426,6 +454,10 @@ function AppDetailsView() {
     </Pressable>
   )
 }
+
+//#endregion
+
+//#region LanguageSelector
 
 function LanguageSelector() {
   const queryClient = useQueryClient()
@@ -459,3 +491,5 @@ function LanguageSelector() {
     </Picker>
   )
 }
+
+//#endregion
