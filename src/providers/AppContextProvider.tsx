@@ -3,8 +3,9 @@ import { Category } from '@/src/managers/CategoryManager'
 import { Player } from '@/src/models/Player'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import React, { createContext, Dispatch, ReactNode, useContext, useEffect, useReducer } from 'react'
-import { AppState } from 'react-native'
+import { Alert, AppState } from 'react-native'
 import { Serializable } from '../lib/utils'
+import { LocalizationManager } from '../managers/LocalizationManager'
 
 export const APP_CONTEXT_KEY = 'context'
 
@@ -13,7 +14,7 @@ export type AppContextType = {
   playedCards: PlayedCard[]
   currentCard?: string
   playedIds: Set<string>
-  players: Set<Player>
+  players: Player[]
   playlist: string[]
 }
 
@@ -24,7 +25,9 @@ export type AppContextAction =
   | { action: 'restartGame'; payload?: never }
   | { action: 'toggleCategory'; payload: Category }
   | { action: 'togglePack'; payload: string }
-  | { action: 'togglePlayer'; payload: Player }
+  | { action: 'addPlayer'; payload: string }
+  | { action: 'removePlayer'; payload: string }
+  | { action: 'clearPlayers'; payload?: never }
   | { action: 'incrementPlayCounts'; payload: Player[] }
   | { action: 'currentCard'; payload?: string }
   | { action: 'storeState'; payload?: never }
@@ -34,7 +37,7 @@ export function initialContext(): AppContextType {
     categoryFilter: [],
     playedCards: [],
     playedIds: new Set(),
-    players: new Set(),
+    players: [],
     playlist: [],
   }
 }
@@ -49,15 +52,15 @@ function toggleList<T>(list: T[], value: T): T[] {
   return [...list, value]
 }
 
-function incrementPlayCounts(players: Player[], state: AppContextType, amount = 1): Set<Player> {
+function incrementPlayCounts(players: Player[], state: AppContextType, amount = 1): Player[] {
   const playersToUpdate = [...players].map(player => player.name)
-  const updatedPlayers = new Set<Player>()
+  const updatedPlayers: Player[] = []
   for (const player of state.players) {
     if (!playersToUpdate.includes(player.name)) {
-      updatedPlayers.add(player)
+      updatedPlayers.push(player)
       console.log(player)
     } else {
-      updatedPlayers.add({ ...player, playCount: player.playCount + amount })
+      updatedPlayers.push({ ...player, playCount: player.playCount + amount })
       console.log({ ...player, playCount: player.playCount + amount })
     }
   }
@@ -71,8 +74,26 @@ export function contextReducer(state: AppContextType, action: AppContextAction):
     case 'togglePack':
       return { ...state, playlist: toggleList(state.playlist, payload) }
 
-    case 'togglePlayer':
-      return { ...state, players: toggleSet(state.players, payload) }
+    case 'addPlayer': {
+      const lowestPlayCount = Math.min(...state.players.map(p => p.playCount))
+
+      if (state.players.some(p => p.name === payload)) {
+        const playerExistsTitle = LocalizationManager.get('player_exists_title')?.value ?? 'Player already exists'
+        const playerExistsMessage =
+          LocalizationManager.get('player_exists_msg')?.value ?? 'Please enter a different name'
+        Alert.alert(playerExistsTitle, playerExistsMessage)
+        console.warn(`Player ${payload} already exists`)
+        return state
+      }
+
+      return { ...state, players: [...state.players, { name: payload, playCount: lowestPlayCount }] }
+    }
+
+    case 'removePlayer':
+      return { ...state, players: [...state.players].filter(player => player.name !== payload) }
+
+    case 'clearPlayers':
+      return { ...state, players: [] }
 
     case 'incrementPlayCounts':
       return { ...state, players: incrementPlayCounts(payload, state) }
@@ -96,10 +117,7 @@ export function contextReducer(state: AppContextType, action: AppContextAction):
       }
 
     case 'restartGame': {
-      const players = new Set<Player>()
-      for (const player of state.players) {
-        players.add({ ...player, playCount: 0 })
-      }
+      const players = state.players.map(player => ({ ...player, playCount: 0 }))
       return { ...state, players: players, playlist: [], playedCards: [], playedIds: new Set() }
     }
 
@@ -146,7 +164,6 @@ export async function loadContext(): Promise<AppContextType | undefined> {
     return {
       ...parsedContext,
       playedIds: new Set(parsedContext.playedIds),
-      players: new Set(parsedContext.players),
     }
   } catch (error) {
     console.error('Failed to load context from AsyncStorage', error)

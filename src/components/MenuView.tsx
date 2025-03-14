@@ -38,6 +38,8 @@ import Animated, {
   Extrapolation,
   FadeInUp,
   LinearTransition,
+  SlideInRight,
+  SlideOutRight,
   ZoomOut,
   interpolate,
   useAnimatedStyle,
@@ -101,7 +103,7 @@ export default function MenuView() {
           <Header titleKey='players' descriptionKey='players_subtitle' />
           <AddPlayerField />
 
-          {players.size > 0 && (
+          {players.length > 0 && (
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
               {sortedPlayers.map(tag => (
                 <Animated.View
@@ -110,7 +112,7 @@ export default function MenuView() {
                   entering={FadeInUp.easing(Easing.out(Easing.quad))}
                   exiting={ZoomOut.easing(Easing.out(Easing.quad))}
                 >
-                  <Tag text={tag.name} onPress={() => setContext({ action: 'togglePlayer', payload: tag })} />
+                  <Tag text={tag.name} onPress={() => setContext({ action: 'addPlayer', payload: tag.name })} />
                 </Animated.View>
               ))}
             </View>
@@ -247,52 +249,76 @@ function PackSection(props: Readonly<ViewProps>) {
 function AddPlayerField(props: Readonly<ViewProps>) {
   const { style } = props
   const { players } = useAppContext()
+  const playerCount = players.length
   const setContext = useAppDispatchContext()
   const textInputRef = useRef<TextInput>(null)
 
   const handleAddPlayer = (e: NativeSyntheticEvent<TextInputSubmitEditingEventData>) => {
     e.preventDefault()
-    if (e.nativeEvent.text.trim().length === 0) return
-
     const formattedText = prettifyString(e.nativeEvent.text)
-    if (new Set([...players].map(p => p.name)).has(formattedText)) console.warn('Player already exists')
-    else setContext({ action: 'togglePlayer', payload: { name: formattedText, playCount: 0 } })
+    if (formattedText.length === 0) return
+    setContext({ action: 'addPlayer', payload: formattedText })
     textInputRef.current?.clear()
   }
 
+  const handleClearPlayers = () => setContext({ action: 'clearPlayers' })
+
   return (
-    <Animated.View
-      {...props}
-      style={[
-        {
-          flexDirection: 'row',
-          backgroundColor: Color.hex(Colors.background).alpha(0.5).string,
-          borderWidth: StyleSheet.hairlineWidth,
-          borderColor: Colors.stroke,
-          alignItems: 'center',
-          borderRadius: 12,
-          padding: 8,
-          gap: 4,
-        },
-        style,
-      ]}
-    >
-      <AntDesign name='plus' size={18} color={Colors.secondaryText} />
-      <BottomSheetTextInput
-        ref={textInputRef}
-        placeholder={LocalizationManager.get('add_players')?.value ?? 'add_players'}
-        placeholderTextColor={Colors.secondaryText}
-        returnKeyType='done'
-        enablesReturnKeyAutomatically
-        autoCapitalize='words'
-        autoComplete='off'
-        maxLength={32}
-        inputMode='text'
-        submitBehavior='submit'
-        onSubmitEditing={handleAddPlayer}
-        selectionColor={Colors.accentColor}
-        style={{ flex: 1, fontSize: 18, color: Colors.text }}
-      />
+    <Animated.View layout={LinearTransition} style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+      <View
+        {...props}
+        style={[
+          {
+            flex: 1,
+            flexDirection: 'row',
+            backgroundColor: Color.hex(Colors.background).alpha(0.5).string,
+            borderWidth: StyleSheet.hairlineWidth,
+            borderColor: Colors.stroke,
+            alignItems: 'center',
+            borderRadius: 12,
+            padding: 8,
+            gap: 4,
+          },
+          style,
+        ]}
+      >
+        <AntDesign name='plus' size={18} color={Colors.secondaryText} />
+        <BottomSheetTextInput
+          ref={textInputRef}
+          placeholder={LocalizationManager.get('add_players')?.value ?? 'add_players'}
+          placeholderTextColor={Colors.secondaryText}
+          returnKeyType='done'
+          enablesReturnKeyAutomatically
+          autoCapitalize='words'
+          autoComplete='off'
+          maxLength={32}
+          inputMode='text'
+          submitBehavior='submit'
+          onSubmitEditing={handleAddPlayer}
+          selectionColor={Colors.accentColor}
+          style={{ flex: 1, fontSize: 18, color: Colors.text }}
+        />
+      </View>
+
+      {playerCount > 0 && (
+        <Animated.View entering={SlideInRight} exiting={SlideOutRight}>
+          <TouchableOpacity
+            style={{
+              backgroundColor: Colors.accentColor,
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingVertical: 4,
+              paddingHorizontal: 8,
+              borderRadius: 8,
+            }}
+            onPress={handleClearPlayers}
+          >
+            <Text style={[FontStyles.Button, { color: Colors.background }]} numberOfLines={1}>
+              {LocalizationManager.get('clear')?.value ?? 'Clear'}
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
+      )}
     </Animated.View>
   )
 }
