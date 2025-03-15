@@ -5,7 +5,7 @@ import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import { Pack, PackManager } from '@/src/managers/PackManager'
 import { Ionicons } from '@expo/vector-icons'
 import { Image } from 'expo-image'
-import { Alert, Platform, Pressable, StyleSheet, Text, TouchableOpacity, View, ViewProps } from 'react-native'
+import { Alert, Platform, Pressable, StyleSheet, Text, View, ViewProps } from 'react-native'
 import Animated, { Easing, FadeIn, FadeOut, useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import { useAppContext, useAppDispatchContext } from '../../providers/AppContextProvider'
 import { presentPaywall, useInAppPurchaseContext } from '../../providers/InAppPurchaseProvider'
@@ -14,7 +14,6 @@ import Skeleton from '../utils/Skeleton'
 export type PackViewProps = ViewProps & {
   pack: Pack
   onAddPlayersConfirm?: () => void
-  onRestartPress?: () => void
 }
 
 export type PackPosterViewProps = PackViewProps & {
@@ -31,23 +30,24 @@ function validatePlayability(
   pack: Pack,
   playerCount: number,
   categoryFilter: string[]
-): UnplayableReason | undefined {
+): Set<UnplayableReason> {
+  const reasons: Set<UnplayableReason> = new Set()
   const playableCardCount = CardManager.getPlayableCards(pack, playerCount, new Set(categoryFilter)).size
-  if (!PackManager.isPlayable(pack.cards.length, playableCardCount)) return 'cardCount'
-  if (!pack.is_free && !isSubscribed) return 'subscription'
+  if (!PackManager.isPlayable(pack.cards.length, playableCardCount)) reasons.add('cardCount')
+  if (!pack.is_free && !isSubscribed) reasons.add('subscription')
+  return reasons
 }
 
 export default function PackPosterView(props: Readonly<PackPosterViewProps>) {
-  const { pack, style, width = DEFAULT_WIDTH, onRestartPress, onAddPlayersConfirm } = props
-  const { playlist, players, categoryFilter, playedCards } = useAppContext()
+  const { pack, style, width = DEFAULT_WIDTH, onAddPlayersConfirm } = props
+  const { playlist, players, categoryFilter } = useAppContext()
   const { isSubscribed } = useInAppPurchaseContext()
   const setContext = useAppDispatchContext()
 
   const isSelected = playlist.includes(pack.id)
   const isNoneSelected = playlist.length === 0
 
-  const isStarted = playedCards.some(card => card.pack?.id === pack.id)
-  const unplayableReason = validatePlayability(isSubscribed, pack, players.length, categoryFilter)
+  const unplayableReasons = validatePlayability(isSubscribed, pack, players.length, categoryFilter)
 
   const addMorePlayersTitle =
     LocalizationManager.get('pack_unplayable_title')?.value ?? 'More players or categories required'
@@ -66,22 +66,10 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps>) {
   }, [isSelected, isNoneSelected])
 
   function handlePackPress() {
-    switch (unplayableReason) {
-      case 'subscription':
-        return presentPaywall()
-      case 'cardCount': {
-        Alert.alert(addMorePlayersTitle, addMorePlayersMessage, [{ onPress: onAddPlayersConfirm }])
-        return
-      }
-      default:
-        setContext({ action: 'togglePack', payload: pack.id })
-    }
-  }
-
-  function handleRestartPress() {
-    setContext({ action: 'restartPack', payload: pack })
-    setContext({ action: 'removePacks', payload: [pack.id] })
-    onRestartPress?.()
+    if (unplayableReasons.has('subscription')) presentPaywall()
+    else if (unplayableReasons.has('cardCount'))
+      Alert.alert(addMorePlayersTitle, addMorePlayersMessage, [{ onPress: onAddPlayersConfirm }])
+    else setContext({ action: 'togglePack', payload: pack.id })
   }
 
   if (isLoading) return <SkeletonView {...props} />
@@ -109,14 +97,8 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps>) {
             alignItems: 'center',
           }}
         >
-          <PackImageView {...props} image={image} unplayableReason={unplayableReason} />
-          <PackImageOverlay
-            {...props}
-            unplayableReason={unplayableReason}
-            isStarted={isStarted}
-            isSelected={isSelected}
-            handleRestartPress={handleRestartPress}
-          />
+          <PackImageView {...props} image={image} isSelectable={unplayableReasons.size === 0} />
+          <PackImageOverlay {...props} unplayableReasons={unplayableReasons} isSelected={isSelected} />
         </View>
 
         <Text numberOfLines={1} style={[styles.text, styles.header]}>
@@ -135,17 +117,17 @@ function PackImageView(
   props: Readonly<
     PackPosterViewProps & {
       image: string | null | undefined
-      unplayableReason: UnplayableReason | undefined
+      isSelectable?: boolean
     }
   >
 ) {
-  const { style, width, image, unplayableReason } = props
+  const { style, width, image, isSelectable } = props
 
   const availabilityStyle = useAnimatedStyle(() => {
     return {
-      opacity: withTiming(!unplayableReason ? 1 : 0.2, animationConfig),
+      opacity: withTiming(isSelectable ? 1 : 0.2, animationConfig),
     }
-  }, [unplayableReason])
+  }, [isSelectable])
 
   return (
     <Animated.View
@@ -175,14 +157,12 @@ function PackImageView(
 function PackImageOverlay(
   props: Readonly<
     PackPosterViewProps & {
-      unplayableReason: UnplayableReason | undefined
-      isStarted: boolean
+      unplayableReasons: Set<UnplayableReason>
       isSelected: boolean
-      handleRestartPress: () => void
     }
   >
 ) {
-  const { unplayableReason, isStarted, isSelected, handleRestartPress } = props
+  const { unplayableReasons, isSelected } = props
 
   const enterAnimation = FadeIn.duration(animationConfig.duration).easing(Easing.in(animationConfig.easing.factory()))
   const exitAnimation = FadeOut.duration(animationConfig.duration).easing(Easing.out(animationConfig.easing.factory()))
@@ -200,13 +180,13 @@ function PackImageOverlay(
         },
       ]}
     >
-      {unplayableReason === 'subscription' && (
+      {unplayableReasons.has('subscription') && (
         <Animated.View entering={enterAnimation} exiting={exitAnimation}>
           <IconTag icon='cart' color={Colors.green.light} backgroundColor={Colors.green.dark} />
         </Animated.View>
       )}
 
-      {unplayableReason === 'cardCount' && (
+      {unplayableReasons.has('cardCount') && (
         <Animated.View entering={enterAnimation} exiting={exitAnimation}>
           <IconTag icon='people' color={Colors.orange.light} backgroundColor={Colors.orange.dark} />
         </Animated.View>
@@ -217,14 +197,6 @@ function PackImageOverlay(
       {isSelected && (
         <Animated.View entering={enterAnimation} exiting={exitAnimation}>
           <IconTag icon='checkmark-circle' />
-        </Animated.View>
-      )}
-
-      {unplayableReason !== 'subscription' && isStarted && (
-        <Animated.View entering={enterAnimation} exiting={exitAnimation}>
-          <TouchableOpacity onPress={handleRestartPress}>
-            <IconTag icon='close' color={Colors.yellow.dark} backgroundColor={Colors.yellow.light} />
-          </TouchableOpacity>
         </Animated.View>
       )}
     </View>

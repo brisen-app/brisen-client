@@ -228,12 +228,14 @@ function PackSection(props: Readonly<ViewProps>) {
         backgroundColor={Colors.orange.dark}
       />
 
-      <Callout
-        icon='cart'
-        content={LocalizationManager.get('pack_tag_info_purchase')?.value ?? 'pack_tag_info_purchase'}
-        foregroundColor={Colors.green.light}
-        backgroundColor={Colors.green.dark}
-      />
+      {!isSubscribed && packs.some(pack => !pack.is_free) && (
+        <Callout
+          icon='cart'
+          content={LocalizationManager.get('pack_tag_info_purchase')?.value ?? 'pack_tag_info_purchase'}
+          foregroundColor={Colors.green.light}
+          backgroundColor={Colors.green.dark}
+        />
+      )}
     </>
   )
 }
@@ -326,7 +328,7 @@ function AddPlayerField(props: Readonly<ViewProps>) {
         <Animated.View entering={SlideInRight} exiting={SlideOutRight}>
           <TouchableOpacity
             style={{
-              backgroundColor: Colors.orange.light,
+              backgroundColor: Colors.yellow.light,
               alignItems: 'center',
               justifyContent: 'center',
               paddingVertical: 4,
@@ -335,7 +337,7 @@ function AddPlayerField(props: Readonly<ViewProps>) {
             }}
             onPress={handleClearPlayers}
           >
-            <Text style={[FontStyles.Button, { color: Colors.orange.dark }]} numberOfLines={1}>
+            <Text style={[FontStyles.Button, { color: Colors.yellow.dark }]} numberOfLines={1}>
               {LocalizationManager.get('clear')?.value ?? 'Clear'}
             </Text>
           </TouchableOpacity>
