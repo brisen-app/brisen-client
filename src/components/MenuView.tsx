@@ -212,7 +212,7 @@ function PackSection(props: Readonly<ViewProps>) {
         ))}
       </View>
 
-      <Header titleKey='packs' descriptionKey='packs_subtitle' />
+      <Header titleKey='info' descriptionKey='info_subtitle' />
 
       <Callout
         icon='checkmark-circle'
