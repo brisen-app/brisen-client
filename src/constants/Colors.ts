@@ -29,4 +29,9 @@ export default {
     light: Color.hex('#FFC916').string,
     dark: Color.hex('#412700').string,
   },
+
+  red: {
+    light: Color.hex('#F31111').string,
+    dark: Color.hex('#450000').string,
+  },
 }
