@@ -4,7 +4,7 @@ import { FontStyles, SHEET_HANDLE_HEIGHT } from '@/src/constants/Styles'
 import { formatName as prettifyString, useSheetHeight } from '@/src/lib/utils'
 import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import { PackManager } from '@/src/managers/PackManager'
-import { useInAppPurchaseContext } from '@/src/providers/InAppPurchaseProvider'
+import { presentPaywall, useInAppPurchaseContext } from '@/src/providers/InAppPurchaseProvider'
 import { AntDesign, Feather, Ionicons } from '@expo/vector-icons'
 import {
   BottomSheetScrollView,
@@ -224,40 +224,44 @@ function PackSection(props: Readonly<ViewProps>) {
 
       <Header titleKey='info' descriptionKey='info_subtitle' />
 
-      <Callout
-        icon='checkmark-circle'
-        content={LocalizationManager.get('icon_info_selected')?.value ?? 'icon_info_selected'}
-        foregroundColor={Colors.yellow.light}
-        backgroundColor={Colors.yellow.dark}
-      />
-
-      <Callout
-        icon='reload'
-        content={LocalizationManager.get('icon_info_restart')?.value ?? 'icon_info_restart'}
-        foregroundColor={Colors.yellow.light}
-        backgroundColor={Colors.yellow.dark}
-      />
-
-      <Callout
-        icon='people'
-        content={LocalizationManager.get('pack_unplayable_msg')?.value ?? 'pack_unplayable_msg'}
-        foregroundColor={Colors.orange.light}
-        backgroundColor={Colors.orange.dark}
-      />
-
-      {!isSubscribed && packs.some(pack => !pack.is_free) && (
-        <Callout
-          icon='cart'
-          content={LocalizationManager.get('icon_info_purchase')?.value ?? 'icon_info_purchase'}
-          foregroundColor={Colors.green.light}
-          backgroundColor={Colors.green.dark}
+      <View style={{ gap: 16 }}>
+        <IconInfo
+          icon='checkmark-circle'
+          content={LocalizationManager.get('icon_info_selected')?.value ?? 'icon_info_selected'}
+          foregroundColor={Colors.yellow.light}
+          backgroundColor={Colors.yellow.dark}
         />
-      )}
+
+        <IconInfo
+          icon='people'
+          content={LocalizationManager.get('pack_unplayable_msg')?.value ?? 'pack_unplayable_msg'}
+          foregroundColor={Colors.orange.light}
+          backgroundColor={Colors.orange.dark}
+        />
+
+        {!isSubscribed && (
+          <TouchableOpacity onPress={() => presentPaywall()}>
+            <IconInfo
+              icon='cart'
+              content={LocalizationManager.get('icon_info_purchase')?.value ?? 'icon_info_purchase'}
+              foregroundColor={Colors.green.light}
+              backgroundColor={Colors.green.dark}
+            />
+          </TouchableOpacity>
+        )}
+
+        <IconInfo
+          icon='reload'
+          content={LocalizationManager.get('icon_info_restart')?.value ?? 'icon_info_restart'}
+          foregroundColor={Colors.yellow.light}
+          backgroundColor={Colors.yellow.dark}
+        />
+      </View>
     </>
   )
 }
 
-function Callout(
+function IconInfo(
   props: Readonly<{
     icon?: keyof typeof Ionicons.glyphMap
     content: string
@@ -267,20 +271,21 @@ function Callout(
 ) {
   const { icon, content, foregroundColor = Colors.text, backgroundColor = Colors.secondaryBackground } = props
   return (
-    <View
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 12,
-        backgroundColor: backgroundColor,
-        borderColor: foregroundColor,
-        borderWidth: StyleSheet.hairlineWidth,
-        borderRadius: 8,
-        gap: 8,
-      }}
-    >
-      {icon && <Ionicons name={icon} size={18} color={foregroundColor} />}
-      <Text style={[FontStyles.Subheading, { flex: 1, color: foregroundColor }]}>{content}</Text>
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          padding: 6,
+          backgroundColor: backgroundColor,
+          borderColor: Colors.stroke,
+          borderWidth: StyleSheet.hairlineWidth,
+          borderRadius: 8,
+        }}
+      >
+        {icon && <Ionicons name={icon} size={18} color={foregroundColor} />}
+      </View>
+      <Text style={{ flex: 1, color: Colors.text }}>{content}</Text>
     </View>
   )
 }
