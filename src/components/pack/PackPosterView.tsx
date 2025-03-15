@@ -6,14 +6,14 @@ import { Pack, PackManager } from '@/src/managers/PackManager'
 import { Ionicons } from '@expo/vector-icons'
 import { Image } from 'expo-image'
 import { Alert, Platform, Pressable, StyleSheet, Text, TouchableOpacity, View, ViewProps } from 'react-native'
-import Animated, { Easing, FadeInDown, FadeOutDown, useAnimatedStyle, withTiming } from 'react-native-reanimated'
+import Animated, { Easing, FadeIn, FadeOut, useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import { useAppContext, useAppDispatchContext } from '../../providers/AppContextProvider'
 import { presentPaywall, useInAppPurchaseContext } from '../../providers/InAppPurchaseProvider'
 import Skeleton from '../utils/Skeleton'
-import Color from '@/src/models/Color'
 
 export type PackViewProps = ViewProps & {
   pack: Pack
+  onRestartPress?: () => void
 }
 
 export type PackPosterViewProps = PackViewProps & {
@@ -37,15 +37,15 @@ function validatePlayability(
 }
 
 export default function PackPosterView(props: Readonly<PackPosterViewProps>) {
-  const { pack, style, width = DEFAULT_WIDTH } = props
-  const { playlist, players, categoryFilter, playedIds } = useAppContext()
+  const { pack, style, width = DEFAULT_WIDTH, onRestartPress } = props
+  const { playlist, players, categoryFilter, playedCards } = useAppContext()
   const { isSubscribed } = useInAppPurchaseContext()
   const setContext = useAppDispatchContext()
 
   const isSelected = playlist.includes(pack.id)
   const isNoneSelected = playlist.length === 0
 
-  const isStarted = [...playedIds].filter(id => pack.cards.includes(id)).length > 5
+  const isStarted = playedCards.some(card => card.pack?.id === pack.id)
   const unplayableReason = validatePlayability(isSubscribed, pack, players.length, categoryFilter)
 
   const addMorePlayersTitle =
@@ -64,13 +64,6 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps>) {
     }
   }, [isSelected, isNoneSelected])
 
-  const isSelectedBorderStyle = useAnimatedStyle(() => {
-    return {
-      borderWidth: withTiming(isSelected ? 4 : 0, animationConfig),
-      borderColor: Colors.accentColor,
-    }
-  }, [isSelected])
-
   function handlePackPress() {
     switch (unplayableReason) {
       case 'subscription':
@@ -80,6 +73,12 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps>) {
       default:
         setContext({ action: 'togglePack', payload: pack.id })
     }
+  }
+
+  function handleRestartPress() {
+    setContext({ action: 'restartPack', payload: pack })
+    setContext({ action: 'togglePack', payload: pack.id })
+    onRestartPress?.()
   }
 
   if (isLoading) return <SkeletonView {...props} />
@@ -107,10 +106,14 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps>) {
             alignItems: 'center',
           }}
         >
-          <PackImageView {...props} image={image} isSelected={isSelected} unplayableReason={unplayableReason} />
-          <PackImageOverlay {...props} unplayableReason={unplayableReason} isStarted={isStarted} />
-
-          <Animated.View style={[Styles.absoluteFill, { borderRadius: 16 }, isSelectedBorderStyle]} />
+          <PackImageView {...props} image={image} unplayableReason={unplayableReason} />
+          <PackImageOverlay
+            {...props}
+            unplayableReason={unplayableReason}
+            isStarted={isStarted}
+            isSelected={isSelected}
+            handleRestartPress={handleRestartPress}
+          />
         </View>
 
         <Text numberOfLines={1} style={[styles.text, styles.header]}>
@@ -129,7 +132,6 @@ function PackImageView(
   props: Readonly<
     PackPosterViewProps & {
       image: string | null | undefined
-      isSelected: boolean
       unplayableReason: UnplayableReason | undefined
     }
   >
@@ -168,43 +170,54 @@ function PackImageView(
 }
 
 function PackImageOverlay(
-  props: Readonly<PackPosterViewProps & { unplayableReason: UnplayableReason | undefined; isStarted: boolean }>
+  props: Readonly<
+    PackPosterViewProps & {
+      unplayableReason: UnplayableReason | undefined
+      isStarted: boolean
+      isSelected: boolean
+      handleRestartPress: () => void
+    }
+  >
 ) {
-  const setContext = useAppDispatchContext()
-  const { unplayableReason, isStarted } = props
-  const showIcons = !!unplayableReason || isStarted
+  const { unplayableReason, isStarted, isSelected, handleRestartPress } = props
 
-  function handleRestartPress() {
-    setContext({ action: 'restartPack', payload: props.pack })
-  }
+  const enterAnimation = FadeIn.duration(animationConfig.duration).easing(Easing.in(animationConfig.easing.factory()))
+  const exitAnimation = FadeOut.duration(animationConfig.duration).easing(Easing.out(animationConfig.easing.factory()))
 
-  return !showIcons ? null : (
-    <Animated.View
-      entering={FadeInDown.easing(animationConfig.easing.factory())}
-      exiting={FadeOutDown.easing(animationConfig.easing.factory())}
+  return (
+    <View
       style={[
         StyleSheet.absoluteFill,
         {
           flexDirection: 'row',
           alignItems: 'flex-end',
-          justifyContent: 'space-between',
+          justifyContent: 'flex-end',
+          gap: 4,
           padding: 8,
         },
       ]}
     >
-      <View>
-        {unplayableReason === 'subscription' && <IconTag icon='cart' />}
-        {unplayableReason === 'cardCount' && (
-          <IconTag icon='people' color={Colors.orange.light} backgroundColor={Colors.orange.dark} />
-        )}
-      </View>
+      {unplayableReason === 'subscription' && <IconTag icon='cart' />}
+      {unplayableReason === 'cardCount' && (
+        <IconTag icon='people' color={Colors.yellow.light} backgroundColor={Colors.yellow.dark} />
+      )}
+
+      <View style={{ flex: 1 }} />
+
+      {isSelected && (
+        <Animated.View entering={enterAnimation} exiting={exitAnimation}>
+          <IconTag icon='checkmark-circle' color={Colors.orange.light} backgroundColor={Colors.orange.dark} />
+        </Animated.View>
+      )}
 
       {unplayableReason !== 'subscription' && isStarted && (
-        <TouchableOpacity onPress={handleRestartPress}>
-          <IconTag icon='reload' color={Colors.orange.dark} backgroundColor={Colors.accentColor} />
-        </TouchableOpacity>
+        <Animated.View entering={enterAnimation} exiting={exitAnimation}>
+          <TouchableOpacity onPress={handleRestartPress}>
+            <IconTag icon='reload' color={Colors.orange.dark} backgroundColor={Colors.accentColor} />
+          </TouchableOpacity>
+        </Animated.View>
       )}
-    </Animated.View>
+    </View>
   )
 }
 
@@ -224,6 +237,8 @@ function IconTag(props: Readonly<IconTagProps>) {
           backgroundColor: backgroundColor,
           padding: size / 3,
           borderRadius: size / 2,
+          borderWidth: StyleSheet.hairlineWidth,
+          borderColor: Colors.stroke,
         },
         Platform.select({
           ios: {

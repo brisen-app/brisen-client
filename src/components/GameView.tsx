@@ -23,6 +23,8 @@ import { useSheetHeight } from '../lib/utils'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import { CardView } from './card/CardView'
 import ScrollToBottomButton from './utils/ScrollToBottomButton'
+import { PackManager } from '../managers/PackManager'
+import { useInAppPurchaseContext } from '../providers/InAppPurchaseProvider'
 
 export type GameViewProps = {
   bottomSheetRef?: React.RefObject<BottomSheet>
@@ -40,6 +42,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
   const [isOutOfCards, setIsOutOfCards] = useState<boolean>(true)
   const [viewableItems, setViewableItems] = useState<ViewToken<PlayedCard>[] | undefined>(undefined)
   const scrollButtonBottomPosition = sheetHeight - 8
+  const { isSubscribed } = useInAppPurchaseContext()
 
   const insets = useSafeAreaInsets()
   const safeArea = {
@@ -114,7 +117,19 @@ export default function GameView(props: Readonly<GameViewProps>) {
 
   // When the playlist or players change
   useEffect(() => {
-    if (isOutOfCards) {
+    setContext({
+      action: 'removePacks',
+      payload: playlist.filter(p => {
+        const pack = PackManager.get(p)
+        if (!pack) return true
+        const playableCards = CardManager.getPlayableCards(pack, players.length, new Set(categoryFilter))
+        if (!PackManager.isPlayable(pack.cards.length, playableCards.size)) return true
+        if (!pack.is_free && !isSubscribed) return true
+        return false
+      }),
+    })
+
+    if (isOutOfCards || playedCards.length === 0) {
       addCard()
       return
     }

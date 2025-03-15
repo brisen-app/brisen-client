@@ -27,6 +27,7 @@ export type AppContextAction =
   | { action: 'restartPack'; payload: Pack }
   | { action: 'toggleCategory'; payload: Category }
   | { action: 'togglePack'; payload: string }
+  | { action: 'removePacks'; payload: string[] }
   | { action: 'addPlayer'; payload: string }
   | { action: 'removePlayer'; payload: string }
   | { action: 'clearPlayers'; payload?: never }
@@ -76,6 +77,9 @@ export function contextReducer(state: AppContextType, action: AppContextAction):
     case 'togglePack':
       return { ...state, playlist: toggleList(state.playlist, payload) }
 
+    case 'removePacks':
+      return { ...state, playlist: state.playlist.filter(id => !payload.includes(id)) }
+
     case 'addPlayer': {
       const lowestPlayCount = Math.min(...state.players.map(p => p.playCount))
 
@@ -124,8 +128,9 @@ export function contextReducer(state: AppContextType, action: AppContextAction):
     }
 
     case 'restartPack': {
-      const playedCards = state.playedCards.filter(card => !payload.cards.includes(card.id))
-      const playedIds = new Set([...state.playedIds].filter(id => !payload.cards.includes(id)))
+      const playlistWithoutPack = state.playlist.filter(id => id !== payload.id)
+      const playedCards = state.playedCards.filter(card => !card.pack || playlistWithoutPack.includes(card.pack.id))
+      const playedIds = new Set(playedCards.map(card => card.id))
       return { ...state, playedIds: playedIds, playedCards: playedCards }
     }
 
