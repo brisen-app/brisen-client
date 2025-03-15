@@ -22,9 +22,10 @@ import { FontStyles } from '../constants/Styles'
 import { useSheetHeight } from '../lib/utils'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import { CardView } from './card/CardView'
-import ScrollToBottomButton from './utils/ScrollToBottomButton'
+import HoverButtons from './utils/HoverButtons'
 import { PackManager } from '../managers/PackManager'
 import { useInAppPurchaseContext } from '../providers/InAppPurchaseProvider'
+import { Ionicons } from '@expo/vector-icons'
 
 export type GameViewProps = {
   bottomSheetRef?: React.RefObject<BottomSheet>
@@ -189,7 +190,15 @@ export default function GameView(props: Readonly<GameViewProps>) {
         renderItem={renderItem}
       />
       {showScrollButton() && (
-        <ScrollToBottomButton onPress={onPressScrollButton} style={{ bottom: scrollButtonBottomPosition }} />
+        <HoverButtons
+          buttons={[
+            {
+              icon: 'chevron-down',
+              onPress: onPressScrollButton,
+              style: { paddingHorizontal: 16, bottom: scrollButtonBottomPosition },
+            },
+          ]}
+        />
       )}
     </>
   )
@@ -250,18 +259,23 @@ function OutOfCardsView(props: Readonly<TouchableOpacityProps>) {
           setContext({ action: 'restartGame' })
         }}
         style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
           backgroundColor: Colors.yellow.dark,
+          paddingVertical: 12,
+          paddingHorizontal: 36,
           borderRadius: Number.MAX_SAFE_INTEGER,
           borderWidth: StyleSheet.hairlineWidth,
           borderColor: Colors.stroke,
+          gap: 4,
         }}
       >
+        <Ionicons name='reload' size={18} color={Colors.yellow.light} />
         <Text
           style={{
             ...FontStyles.Button,
             color: Colors.yellow.light,
-            paddingVertical: 12,
-            paddingHorizontal: 48,
           }}
         >
           {LocalizationManager.get('restart_game')?.value ?? 'restart_game'}

@@ -53,7 +53,7 @@ import { useAppContext, useAppDispatchContext } from '../providers/AppContextPro
 import DevMenu from './DevMenu'
 import MenuHudView from './MenuHudView'
 import PackPosterView from './pack/PackPosterView'
-import ScrollToBottomButton from './utils/ScrollToBottomButton'
+import HoverButtons from './utils/HoverButtons'
 import Tag from './utils/Tag'
 
 //#endregion
@@ -138,13 +138,24 @@ export default function MenuView() {
         </Animated.View>
       </BottomSheetScrollView>
       {showCollapseButton && (
-        <ScrollToBottomButton
-          text={LocalizationManager.get('start_game')?.value ?? 'Start'}
-          onPress={() => {
-            Keyboard.dismiss()
-            scrollViewRef.current?.scrollTo({ y: 0, animated: true })
-            bottomSheet.collapse()
-          }}
+        <HoverButtons
+          buttons={[
+            {
+              icon: 'reload',
+              onPress: () => setContext({ action: 'restartGame' }),
+              foregroundColor: Colors.yellow.light,
+              backgroundColor: Colors.yellow.dark,
+            },
+            {
+              icon: 'chevron-down',
+              text: LocalizationManager.get('start_game')?.value,
+              onPress: () => {
+                Keyboard.dismiss()
+                scrollViewRef.current?.scrollTo({ y: 0, animated: true })
+                bottomSheet.collapse()
+              },
+            },
+          ]}
         />
       )}
     </>
