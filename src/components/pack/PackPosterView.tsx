@@ -202,12 +202,13 @@ function PackImageOverlay(
     >
       {unplayableReason === 'subscription' && (
         <Animated.View entering={enterAnimation} exiting={exitAnimation}>
-          <IconTag icon='cart' />
+          <IconTag icon='cart' color={Colors.green.light} backgroundColor={Colors.green.dark} />
         </Animated.View>
       )}
+
       {unplayableReason === 'cardCount' && (
         <Animated.View entering={enterAnimation} exiting={exitAnimation}>
-          <IconTag icon='people' color={Colors.yellow.light} backgroundColor={Colors.yellow.dark} />
+          <IconTag icon='people' color={Colors.orange.light} backgroundColor={Colors.orange.dark} />
         </Animated.View>
       )}
 
@@ -215,14 +216,14 @@ function PackImageOverlay(
 
       {isSelected && (
         <Animated.View entering={enterAnimation} exiting={exitAnimation}>
-          <IconTag icon='checkmark-circle' color={Colors.orange.light} backgroundColor={Colors.orange.dark} />
+          <IconTag icon='checkmark-circle' />
         </Animated.View>
       )}
 
       {unplayableReason !== 'subscription' && isStarted && (
         <Animated.View entering={enterAnimation} exiting={exitAnimation}>
           <TouchableOpacity onPress={handleRestartPress}>
-            <IconTag icon='reload' color={Colors.orange.dark} backgroundColor={Colors.accentColor} />
+            <IconTag icon='close' color={Colors.yellow.dark} backgroundColor={Colors.yellow.light} />
           </TouchableOpacity>
         </Animated.View>
       )}
@@ -238,7 +239,7 @@ type IconTagProps = {
 }
 
 function IconTag(props: Readonly<IconTagProps>) {
-  const { icon, color = Colors.green.light, backgroundColor = Colors.green.dark, size = 18 } = props
+  const { icon, color = Colors.yellow.light, backgroundColor = Colors.yellow.dark, size = 18 } = props
   return (
     <View
       style={[

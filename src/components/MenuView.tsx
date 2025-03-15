@@ -1,12 +1,11 @@
 //#region Imports
-
 import Colors from '@/src/constants/Colors'
 import { FontStyles, SHEET_HANDLE_HEIGHT } from '@/src/constants/Styles'
 import { formatName as prettifyString, useSheetHeight } from '@/src/lib/utils'
 import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import { PackManager } from '@/src/managers/PackManager'
 import { useInAppPurchaseContext } from '@/src/providers/InAppPurchaseProvider'
-import { AntDesign, Feather } from '@expo/vector-icons'
+import { AntDesign, Feather, Ionicons } from '@expo/vector-icons'
 import {
   BottomSheetScrollView,
   BottomSheetScrollViewMethods,
@@ -19,7 +18,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import * as Device from 'expo-device'
 import { Image } from 'expo-image'
 import { openSettings, openURL } from 'expo-linking'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { default as React, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Dimensions,
   Keyboard,
@@ -204,12 +203,65 @@ function PackSection(props: Readonly<ViewProps>) {
 
   if (!packs) return undefined
   return (
-    <View style={{ flexWrap: 'wrap', flexDirection: 'row', gap: 16 }} {...props}>
-      {sortedPacks?.map(pack => (
-        <View key={pack.id}>
-          <PackPosterView width={(windowWidth - 32 - 16 * (packsPerRow - 1)) / packsPerRow} pack={pack} />
-        </View>
-      ))}
+    <>
+      <View style={{ flexWrap: 'wrap', flexDirection: 'row', gap: 16 }} {...props}>
+        {sortedPacks?.map(pack => (
+          <View key={pack.id}>
+            <PackPosterView width={(windowWidth - 32 - 16 * (packsPerRow - 1)) / packsPerRow} pack={pack} />
+          </View>
+        ))}
+      </View>
+
+      <Header titleKey='packs' descriptionKey='packs_subtitle' />
+
+      <Callout
+        icon='checkmark-circle'
+        content={LocalizationManager.get('pack_tag_info_selected')?.value ?? 'pack_tag_info_selected'}
+        foregroundColor={Colors.yellow.light}
+        backgroundColor={Colors.yellow.dark}
+      />
+
+      <Callout
+        icon='people'
+        content={LocalizationManager.get('pack_unplayable_msg')?.value ?? 'pack_unplayable_msg'}
+        foregroundColor={Colors.orange.light}
+        backgroundColor={Colors.orange.dark}
+      />
+
+      <Callout
+        icon='cart'
+        content={LocalizationManager.get('pack_tag_info_purchase')?.value ?? 'pack_tag_info_purchase'}
+        foregroundColor={Colors.green.light}
+        backgroundColor={Colors.green.dark}
+      />
+    </>
+  )
+}
+
+function Callout(
+  props: Readonly<{
+    icon?: keyof typeof Ionicons.glyphMap
+    content: string
+    foregroundColor?: string
+    backgroundColor?: string
+  }>
+) {
+  const { icon, content, foregroundColor = Colors.text, backgroundColor = Colors.secondaryBackground } = props
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 12,
+        backgroundColor: backgroundColor,
+        borderColor: foregroundColor,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderRadius: 8,
+        gap: 8,
+      }}
+    >
+      {icon && <Ionicons name={icon} size={18} color={foregroundColor} />}
+      <Text style={[FontStyles.Subheading, { color: foregroundColor }]}>{content}</Text>
     </View>
   )
 }

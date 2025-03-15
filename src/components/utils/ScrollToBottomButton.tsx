@@ -29,7 +29,7 @@ export default function ScrollToBottomButton(props: Readonly<ScrollToBottomButto
             justifyContent: 'center',
             bottom: insets.bottom,
             right: insets.right,
-            backgroundColor: Colors.orange.light,
+            backgroundColor: Colors.yellow.light,
             gap: 4,
             paddingVertical: 8,
             paddingHorizontal: 16,
@@ -52,8 +52,8 @@ export default function ScrollToBottomButton(props: Readonly<ScrollToBottomButto
         ]}
         {...rest}
       >
-        {text && <Text style={[FontStyles.Button, { color: Colors.orange.dark }]}>{text}</Text>}
-        <Ionicons name={icon} size={24} color={Colors.orange.dark} />
+        {text && <Text style={[FontStyles.Button, { color: Colors.yellow.dark }]}>{text}</Text>}
+        <Ionicons name={icon} size={24} color={Colors.yellow.dark} />
       </TouchableOpacity>
     </Animated.View>
   )

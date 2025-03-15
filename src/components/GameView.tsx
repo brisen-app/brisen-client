@@ -250,7 +250,7 @@ function OutOfCardsView(props: Readonly<TouchableOpacityProps>) {
           setContext({ action: 'restartGame' })
         }}
         style={{
-          backgroundColor: Colors.orange.dark,
+          backgroundColor: Colors.yellow.dark,
           borderRadius: Number.MAX_SAFE_INTEGER,
           borderWidth: StyleSheet.hairlineWidth,
           borderColor: Colors.stroke,
@@ -259,7 +259,7 @@ function OutOfCardsView(props: Readonly<TouchableOpacityProps>) {
         <Text
           style={{
             ...FontStyles.Button,
-            color: Colors.orange.light,
+            color: Colors.yellow.light,
             paddingVertical: 12,
             paddingHorizontal: 48,
           }}

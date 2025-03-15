@@ -20,14 +20,19 @@ export default {
     dark: Color.hex('#142D21').string,
   },
 
-  orange: {
+  yellow: {
     light: accentColor,
-    dark: Color.hex('#2D1F00').string,
+    dark: Color.hex('#331D00').string,
   },
 
-  yellow: {
-    light: Color.hex('#FFC916').string,
-    dark: Color.hex('#412700').string,
+  orange: {
+    light: Color.hex('#FF7B25').string,
+    dark: Color.hex('#311400').string,
+  },
+
+  blue: {
+    light: Color.hex('#0090FF').string,
+    dark: Color.hex('#0C2643').string,
   },
 
   red: {
