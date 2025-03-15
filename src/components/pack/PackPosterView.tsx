@@ -13,6 +13,7 @@ import Skeleton from '../utils/Skeleton'
 
 export type PackViewProps = ViewProps & {
   pack: Pack
+  onAddPlayersConfirm?: () => void
   onRestartPress?: () => void
 }
 
@@ -37,7 +38,7 @@ function validatePlayability(
 }
 
 export default function PackPosterView(props: Readonly<PackPosterViewProps>) {
-  const { pack, style, width = DEFAULT_WIDTH, onRestartPress } = props
+  const { pack, style, width = DEFAULT_WIDTH, onRestartPress, onAddPlayersConfirm } = props
   const { playlist, players, categoryFilter, playedCards } = useAppContext()
   const { isSubscribed } = useInAppPurchaseContext()
   const setContext = useAppDispatchContext()
@@ -68,8 +69,10 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps>) {
     switch (unplayableReason) {
       case 'subscription':
         return presentPaywall()
-      case 'cardCount':
-        return Alert.alert(addMorePlayersTitle, addMorePlayersMessage)
+      case 'cardCount': {
+        Alert.alert(addMorePlayersTitle, addMorePlayersMessage, [{ onPress: onAddPlayersConfirm }])
+        return
+      }
       default:
         setContext({ action: 'togglePack', payload: pack.id })
     }
@@ -77,7 +80,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps>) {
 
   function handleRestartPress() {
     setContext({ action: 'restartPack', payload: pack })
-    setContext({ action: 'togglePack', payload: pack.id })
+    setContext({ action: 'removePacks', payload: [pack.id] })
     onRestartPress?.()
   }
 
@@ -140,7 +143,7 @@ function PackImageView(
 
   const availabilityStyle = useAnimatedStyle(() => {
     return {
-      opacity: withTiming(!unplayableReason ? 1 : 0.4, animationConfig),
+      opacity: withTiming(!unplayableReason ? 1 : 0.2, animationConfig),
     }
   }, [unplayableReason])
 
@@ -197,9 +200,15 @@ function PackImageOverlay(
         },
       ]}
     >
-      {unplayableReason === 'subscription' && <IconTag icon='cart' />}
+      {unplayableReason === 'subscription' && (
+        <Animated.View entering={enterAnimation} exiting={exitAnimation}>
+          <IconTag icon='cart' />
+        </Animated.View>
+      )}
       {unplayableReason === 'cardCount' && (
-        <IconTag icon='people' color={Colors.yellow.light} backgroundColor={Colors.yellow.dark} />
+        <Animated.View entering={enterAnimation} exiting={exitAnimation}>
+          <IconTag icon='people' color={Colors.yellow.light} backgroundColor={Colors.yellow.dark} />
+        </Animated.View>
       )}
 
       <View style={{ flex: 1 }} />
