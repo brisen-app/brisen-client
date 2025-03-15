@@ -69,18 +69,13 @@ export default function MenuView() {
   const bottomSheet = useBottomSheet()
   const scrollViewRef = useRef<BottomSheetScrollViewMethods>(null)
 
-  const { playlist, players, categoryFilter } = useAppContext()
+  const { playlist, players } = useAppContext()
   const setContext = useAppDispatchContext()
   const showCollapseButton = playlist.length > 0
 
   const closedSheetHeight = useSheetHeight() - SHEET_HANDLE_HEIGHT
 
   const sortedPlayers = useMemo(() => [...players].sort((a, b) => a.name.localeCompare(b.name)), [players])
-  const sortedCategories = useMemo(() => CategoryManager.items, [CategoryManager.items])
-
-  const onPressCategory = (category: Category) => {
-    setContext({ action: 'toggleCategory', payload: category })
-  }
 
   const hideOnBottomStyle = useAnimatedStyle(() => ({
     opacity: interpolate(bottomSheet.animatedIndex.value, [0, SHEET_TRASITION_POINT], [0, 1], Extrapolation.CLAMP),
@@ -127,24 +122,6 @@ export default function MenuView() {
           <Header titleKey='packs' descriptionKey='packs_subtitle' />
           <PackSection />
 
-          <Header titleKey='categories' descriptionKey='categories_subtitle' />
-          <View
-            style={{
-              flexDirection: 'row',
-              flexWrap: 'wrap',
-              gap: 8,
-            }}
-          >
-            {sortedCategories?.map(category => (
-              <CategoryTag
-                key={category.id}
-                category={category}
-                isSelected={!categoryFilter.includes(category.id)}
-                onPress={onPressCategory}
-              />
-            ))}
-          </View>
-
           <View
             style={{
               borderColor: Colors.stroke,
@@ -173,32 +150,6 @@ export default function MenuView() {
         />
       )}
     </>
-  )
-}
-
-//#endregion
-
-//#region CategoryTag
-
-function CategoryTag(
-  props: Readonly<{ category: Category; isSelected: boolean; onPress: (category: Category) => void } & ViewProps>
-) {
-  const { category, isSelected, onPress, style } = props
-  const title = CategoryManager.getTitle(category)
-
-  return (
-    <Tag
-      {...props}
-      text={category.icon + (title ? ` ${title}` : '')}
-      style={[
-        {
-          opacity: isSelected ? 1 : 0.25,
-        },
-        style,
-      ]}
-      hideIcon
-      onPress={() => onPress(category)}
-    />
   )
 }
 
