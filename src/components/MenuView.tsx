@@ -1,11 +1,11 @@
+//#region Imports
 import Colors from '@/src/constants/Colors'
 import { FontStyles, SHEET_HANDLE_HEIGHT } from '@/src/constants/Styles'
 import { formatName as prettifyString, useSheetHeight } from '@/src/lib/utils'
-import { Category, CategoryManager } from '@/src/managers/CategoryManager'
 import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import { PackManager } from '@/src/managers/PackManager'
-import { useInAppPurchaseContext } from '@/src/providers/InAppPurchaseProvider'
-import { AntDesign, Feather } from '@expo/vector-icons'
+import { presentPaywall, useInAppPurchaseContext } from '@/src/providers/InAppPurchaseProvider'
+import { AntDesign, Feather, Ionicons } from '@expo/vector-icons'
 import {
   BottomSheetScrollView,
   BottomSheetScrollViewMethods,
@@ -18,7 +18,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import * as Device from 'expo-device'
 import { Image } from 'expo-image'
 import { openSettings, openURL } from 'expo-linking'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { default as React, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Dimensions,
   Keyboard,
@@ -53,28 +53,26 @@ import { useAppContext, useAppDispatchContext } from '../providers/AppContextPro
 import DevMenu from './DevMenu'
 import MenuHudView from './MenuHudView'
 import PackPosterView from './pack/PackPosterView'
-import ScrollToBottomButton from './utils/ScrollToBottomButton'
+import HoverButtons from './utils/HoverButtons'
 import Tag from './utils/Tag'
 
+//#endregion
+
 const SHEET_TRASITION_POINT = 0.25
+
+//#region MenuView
 
 export default function MenuView() {
   const insets = useSafeAreaInsets()
   const bottomSheet = useBottomSheet()
   const scrollViewRef = useRef<BottomSheetScrollViewMethods>(null)
 
-  const { playlist, players, categoryFilter } = useAppContext()
+  const { playlist, players, playedIds } = useAppContext()
   const setContext = useAppDispatchContext()
-  const showCollapseButton = playlist.length > 0
 
   const closedSheetHeight = useSheetHeight() - SHEET_HANDLE_HEIGHT
 
   const sortedPlayers = useMemo(() => [...players].sort((a, b) => a.name.localeCompare(b.name)), [players])
-  const sortedCategories = useMemo(() => CategoryManager.items, [CategoryManager.items])
-
-  const onPressCategory = (category: Category) => {
-    setContext({ action: 'toggleCategory', payload: category })
-  }
 
   const hideOnBottomStyle = useAnimatedStyle(() => ({
     opacity: interpolate(bottomSheet.animatedIndex.value, [0, SHEET_TRASITION_POINT], [0, 1], Extrapolation.CLAMP),
@@ -112,7 +110,7 @@ export default function MenuView() {
                   entering={FadeInUp.easing(Easing.out(Easing.quad))}
                   exiting={ZoomOut.easing(Easing.out(Easing.quad))}
                 >
-                  <Tag text={tag.name} onPress={() => setContext({ action: 'addPlayer', payload: tag.name })} />
+                  <Tag text={tag.name} onPress={() => setContext({ action: 'removePlayer', payload: tag.name })} />
                 </Animated.View>
               ))}
             </View>
@@ -120,24 +118,6 @@ export default function MenuView() {
 
           <Header titleKey='packs' descriptionKey='packs_subtitle' />
           <PackSection />
-
-          <Header titleKey='categories' descriptionKey='categories_subtitle' />
-          <View
-            style={{
-              flexDirection: 'row',
-              flexWrap: 'wrap',
-              gap: 8,
-            }}
-          >
-            {sortedCategories?.map(category => (
-              <CategoryTag
-                key={category.id}
-                category={category}
-                isSelected={!categoryFilter.includes(category.id)}
-                onPress={onPressCategory}
-              />
-            ))}
-          </View>
 
           <View
             style={{
@@ -156,41 +136,34 @@ export default function MenuView() {
           <View style={{ height: insets.bottom ? insets.bottom : 16 + 8 }} />
         </Animated.View>
       </BottomSheetScrollView>
-      {showCollapseButton && (
-        <ScrollToBottomButton
-          text={LocalizationManager.get('start_game')?.value ?? 'Start'}
-          onPress={() => {
-            Keyboard.dismiss()
-            scrollViewRef.current?.scrollTo({ y: 0, animated: true })
-            bottomSheet.collapse()
-          }}
+      {(playlist.length > 0 || playedIds.size > 0) && (
+        <HoverButtons
+          buttons={[
+            {
+              icon: 'reload',
+              onPress: () => setContext({ action: 'restartGame' }),
+              foregroundColor: Colors.yellow.light,
+              backgroundColor: Colors.yellow.dark,
+            },
+            {
+              icon: 'chevron-down',
+              text: LocalizationManager.get('start_game')?.value,
+              onPress: () => {
+                Keyboard.dismiss()
+                scrollViewRef.current?.scrollTo({ y: 0, animated: true })
+                bottomSheet.collapse()
+              },
+            },
+          ]}
         />
       )}
     </>
   )
 }
 
-function CategoryTag(
-  props: Readonly<{ category: Category; isSelected: boolean; onPress: (category: Category) => void } & ViewProps>
-) {
-  const { category, isSelected, onPress, style } = props
-  const title = CategoryManager.getTitle(category)
+//#endregion
 
-  return (
-    <Tag
-      {...props}
-      text={category.icon + (title ? ` ${title}` : '')}
-      style={[
-        {
-          opacity: isSelected ? 1 : 0.25,
-        },
-        style,
-      ]}
-      hideIcon
-      onPress={() => onPress(category)}
-    />
-  )
-}
+//#region Header
 
 export function Header(props: Readonly<{ titleKey?: string; descriptionKey?: string }>) {
   const { titleKey, descriptionKey } = props
@@ -211,6 +184,10 @@ export function Header(props: Readonly<{ titleKey?: string; descriptionKey?: str
     </View>
   )
 }
+
+//#endregion
+
+//#region PackSection
 
 function PackSection(props: Readonly<ViewProps>) {
   const windowWidth = Dimensions.get('window').width
@@ -236,15 +213,84 @@ function PackSection(props: Readonly<ViewProps>) {
 
   if (!packs) return undefined
   return (
-    <View style={{ flexWrap: 'wrap', flexDirection: 'row', gap: 16 }} {...props}>
-      {sortedPacks?.map(pack => (
-        <View key={pack.id}>
-          <PackPosterView width={(windowWidth - 32 - 16 * (packsPerRow - 1)) / packsPerRow} pack={pack} />
-        </View>
-      ))}
+    <>
+      <View style={{ flexWrap: 'wrap', flexDirection: 'row', gap: 16 }} {...props}>
+        {sortedPacks?.map(pack => (
+          <View key={pack.id}>
+            <PackPosterView width={(windowWidth - 32 - 16 * (packsPerRow - 1)) / packsPerRow} pack={pack} />
+          </View>
+        ))}
+      </View>
+
+      <Header titleKey='info' descriptionKey='info_subtitle' />
+
+      <View style={{ gap: 16 }}>
+        <IconInfo
+          icon='checkmark-circle'
+          content={LocalizationManager.get('icon_info_selected')?.value ?? 'icon_info_selected'}
+          foregroundColor={Colors.yellow.light}
+          backgroundColor={Colors.yellow.dark}
+        />
+
+        <IconInfo
+          icon='people'
+          content={LocalizationManager.get('pack_unplayable_msg')?.value ?? 'pack_unplayable_msg'}
+          foregroundColor={Colors.orange.light}
+          backgroundColor={Colors.orange.dark}
+        />
+
+        {!isSubscribed && (
+          <TouchableOpacity onPress={() => presentPaywall()}>
+            <IconInfo
+              icon='cart'
+              content={LocalizationManager.get('icon_info_purchase')?.value ?? 'icon_info_purchase'}
+              foregroundColor={Colors.green.light}
+              backgroundColor={Colors.green.dark}
+            />
+          </TouchableOpacity>
+        )}
+
+        <IconInfo
+          icon='reload'
+          content={LocalizationManager.get('icon_info_restart')?.value ?? 'icon_info_restart'}
+          foregroundColor={Colors.yellow.light}
+          backgroundColor={Colors.yellow.dark}
+        />
+      </View>
+    </>
+  )
+}
+
+function IconInfo(
+  props: Readonly<{
+    icon?: keyof typeof Ionicons.glyphMap
+    content: string
+    foregroundColor?: string
+    backgroundColor?: string
+  }>
+) {
+  const { icon, content, foregroundColor = Colors.text, backgroundColor = Colors.secondaryBackground } = props
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          padding: 6,
+          backgroundColor: backgroundColor,
+          borderColor: Colors.stroke,
+          borderWidth: StyleSheet.hairlineWidth,
+          borderRadius: 8,
+        }}
+      >
+        {icon && <Ionicons name={icon} size={18} color={foregroundColor} />}
+      </View>
+      <Text style={{ flex: 1, color: Colors.text }}>{content}</Text>
     </View>
   )
 }
+
+//#region AddPlayerField
 
 function AddPlayerField(props: Readonly<ViewProps>) {
   const { style } = props
@@ -304,7 +350,7 @@ function AddPlayerField(props: Readonly<ViewProps>) {
         <Animated.View entering={SlideInRight} exiting={SlideOutRight}>
           <TouchableOpacity
             style={{
-              backgroundColor: Colors.accentColor,
+              backgroundColor: Colors.yellow.light,
               alignItems: 'center',
               justifyContent: 'center',
               paddingVertical: 4,
@@ -313,7 +359,7 @@ function AddPlayerField(props: Readonly<ViewProps>) {
             }}
             onPress={handleClearPlayers}
           >
-            <Text style={[FontStyles.Button, { color: Colors.background }]} numberOfLines={1}>
+            <Text style={[FontStyles.Button, { color: Colors.yellow.dark }]} numberOfLines={1}>
               {LocalizationManager.get('clear')?.value ?? 'Clear'}
             </Text>
           </TouchableOpacity>
@@ -322,6 +368,10 @@ function AddPlayerField(props: Readonly<ViewProps>) {
     </Animated.View>
   )
 }
+
+//#endregion
+
+//#region LinksView
 
 function LinksView(props: Readonly<ViewProps>) {
   const { managementURL, isSubscribed } = useInAppPurchaseContext()
@@ -405,6 +455,10 @@ function LinksView(props: Readonly<ViewProps>) {
   )
 }
 
+//#endregion
+
+//#region AppDetailsView
+
 function AppDetailsView() {
   const { userId } = useInAppPurchaseContext()
 
@@ -426,6 +480,10 @@ function AppDetailsView() {
     </Pressable>
   )
 }
+
+//#endregion
+
+//#region LanguageSelector
 
 function LanguageSelector() {
   const queryClient = useQueryClient()
@@ -459,3 +517,5 @@ function LanguageSelector() {
     </Picker>
   )
 }
+
+//#endregion

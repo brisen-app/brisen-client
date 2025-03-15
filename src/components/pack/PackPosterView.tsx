@@ -1,38 +1,53 @@
 import Colors from '@/src/constants/Colors'
+import { FontStyles, Styles } from '@/src/constants/Styles'
+import { CardManager } from '@/src/managers/CardManager'
 import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import { Pack, PackManager } from '@/src/managers/PackManager'
-import Color from '@/src/models/Color'
 import { Ionicons } from '@expo/vector-icons'
 import { Image } from 'expo-image'
 import { Alert, Platform, Pressable, StyleSheet, Text, View, ViewProps } from 'react-native'
-import Animated, { Easing, useAnimatedStyle, withTiming } from 'react-native-reanimated'
+import Animated, { Easing, FadeIn, FadeOut, useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import { useAppContext, useAppDispatchContext } from '../../providers/AppContextProvider'
 import { presentPaywall, useInAppPurchaseContext } from '../../providers/InAppPurchaseProvider'
 import Skeleton from '../utils/Skeleton'
-import { CardManager } from '@/src/managers/CardManager'
 
-export type PackViewProps = {
+export type PackViewProps = ViewProps & {
   pack: Pack
+  onAddPlayersConfirm?: () => void
 }
 
-export type PackPosterViewProps = {
+export type PackPosterViewProps = PackViewProps & {
   width?: number
 }
 
-export default function PackPosterView(props: Readonly<PackPosterViewProps & PackViewProps & ViewProps>) {
-  const { pack, style } = props
+type UnplayableReason = 'subscription' | 'cardCount'
+
+const DEFAULT_WIDTH = 256
+const animationConfig = { duration: 150, easing: Easing.bezier(0, 0, 0.5, 1) }
+
+function validatePlayability(
+  isSubscribed: boolean,
+  pack: Pack,
+  playerCount: number,
+  categoryFilter: string[]
+): Set<UnplayableReason> {
+  const reasons: Set<UnplayableReason> = new Set()
+  const playableCardCount = CardManager.getPlayableCards(pack, playerCount, new Set(categoryFilter)).size
+  if (!PackManager.isPlayable(pack.cards.length, playableCardCount)) reasons.add('cardCount')
+  if (!pack.is_free && !isSubscribed) reasons.add('subscription')
+  return reasons
+}
+
+export default function PackPosterView(props: Readonly<PackPosterViewProps>) {
+  const { pack, style, width = DEFAULT_WIDTH, onAddPlayersConfirm } = props
   const { playlist, players, categoryFilter } = useAppContext()
   const { isSubscribed } = useInAppPurchaseContext()
   const setContext = useAppDispatchContext()
-  const width = props.width ?? 256
+
   const isSelected = playlist.includes(pack.id)
   const isNoneSelected = playlist.length === 0
 
-  const playableCardCount = CardManager.getPlayableCards(pack, players.size, new Set(categoryFilter)).size
-
-  const isPlayable = PackManager.isPlayable(pack.cards.length, playableCardCount)
-  const isAvailable = pack.is_free || isSubscribed
-  const isSelectable = isSelected || (isPlayable && isAvailable)
+  const unplayableReasons = validatePlayability(isSubscribed, pack, players.length, categoryFilter)
 
   const addMorePlayersTitle =
     LocalizationManager.get('pack_unplayable_title')?.value ?? 'More players or categories required'
@@ -43,8 +58,6 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
   const { data: image, isLoading, error } = PackManager.useImageQuery(pack.image)
   if (error) console.warn(`Couldn't load image for pack ${pack.name}:`, error)
 
-  const animationConfig = { duration: 150, easing: Easing.bezier(0, 0, 0.5, 1) }
-
   const isSelectedStyle = useAnimatedStyle(() => {
     return {
       opacity: withTiming(isSelected || isNoneSelected ? 1 : 0.5, animationConfig),
@@ -52,35 +65,14 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
     }
   }, [isSelected, isNoneSelected])
 
-  const checkmarkStyle = useAnimatedStyle(() => {
-    return {
-      opacity: withTiming(isSelected ? 1 : 0, animationConfig),
-      transform: [{ scale: withTiming(isSelected ? 1 : 0.75, animationConfig) }],
-    }
-  }, [isSelected])
-
-  const isSelectableStyle = useAnimatedStyle(() => {
-    return {
-      opacity: withTiming(isSelectable ? 1 : 0.2, animationConfig),
-    }
-  }, [isSelectable])
-
-  const iconStyle = useAnimatedStyle(() => {
-    return {
-      opacity: withTiming(!isSelectable ? 1 : 0, animationConfig),
-      transform: [{ scale: withTiming(!isSelectable ? 1 : 0.9, animationConfig) }],
-    }
-  }, [isSelectable])
-
-  if (isLoading) {
-    return (
-      <View style={[{ width, gap: 8 }, style]}>
-        <Skeleton height={width} borderRadius={16} />
-        <Skeleton height={18} width={width * 0.75} />
-        <Skeleton height={32} />
-      </View>
-    )
+  function handlePackPress() {
+    if (unplayableReasons.has('subscription')) presentPaywall()
+    else if (unplayableReasons.has('cardCount'))
+      Alert.alert(addMorePlayersTitle, addMorePlayersMessage, [{ onPress: onAddPlayersConfirm }])
+    else setContext({ action: 'togglePack', payload: pack.id })
   }
+
+  if (isLoading) return <SkeletonView {...props} />
 
   return (
     <Animated.View
@@ -92,103 +84,21 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
         isSelectedStyle,
       ]}
     >
-      <Pressable
-        onPress={() => {
-          if (isSelectable) setContext({ action: 'togglePack', payload: pack.id })
-          else if (!isPlayable) Alert.alert(addMorePlayersTitle, addMorePlayersMessage)
-          else presentPaywall()
-        }}
-      >
+      <Pressable onPress={handlePackPress}>
         <View
-          style={[
-            {
-              height: width,
-              overflow: 'hidden',
-              borderRadius: 16,
-              marginBottom: 8,
-              borderColor: Colors.stroke,
-              borderWidth: StyleSheet.hairlineWidth,
-              justifyContent: 'center',
-              alignItems: 'center',
-            },
-          ]}
+          style={{
+            height: width,
+            overflow: 'hidden',
+            borderRadius: 16,
+            marginBottom: 8,
+            borderColor: Colors.stroke,
+            borderWidth: StyleSheet.hairlineWidth,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
         >
-          <Animated.View style={isSelectableStyle}>
-            <Image
-              style={{
-                width: width,
-                aspectRatio: 1,
-              }}
-              source={image}
-              transition={200}
-            />
-            <Animated.View
-              style={[
-                {
-                  position: 'absolute',
-                  bottom: 0,
-                  right: 0,
-                },
-                checkmarkStyle,
-              ]}
-            >
-              <Ionicons
-                name='checkmark-circle'
-                size={32 + 16 + 8}
-                style={[
-                  { padding: 8, color: Colors.accentColor },
-                  Platform.select({
-                    ios: {
-                      shadowOffset: { width: 0, height: 8 },
-                      shadowRadius: 8,
-                      shadowOpacity: 0.75,
-                    },
-                    android: {
-                      textShadowOffset: { width: 0, height: 8 },
-                      textShadowRadius: 16,
-                      textShadowColor: Color.black.alpha(0.5).string,
-                    },
-                  }) ?? {},
-                ]}
-              />
-            </Animated.View>
-          </Animated.View>
-          <Animated.View
-            style={[
-              {
-                position: 'absolute',
-                alignItems: 'center',
-              },
-              iconStyle,
-            ]}
-          >
-            <Ionicons
-              name={isAvailable ? 'people' : 'cart'}
-              size={32 + 16}
-              style={[
-                { color: Color.white.string },
-                Platform.select({
-                  ios: {
-                    shadowOffset: { width: 0, height: 8 },
-                    shadowRadius: 8,
-                    shadowOpacity: 0.5,
-                  },
-                  android: {
-                    textShadowOffset: { width: 0, height: 8 },
-                    textShadowRadius: 16,
-                    textShadowColor: Color.black.alpha(0.5).string,
-                  },
-                }) ?? {},
-              ]}
-            />
-            {isAvailable && !isPlayable && (
-              <Text
-                style={{ color: Color.white.string, fontSize: 12, fontWeight: 'bold', padding: 8, textAlign: 'center' }}
-              >
-                {addMorePlayersTitle}
-              </Text>
-            )}
-          </Animated.View>
+          <PackImageView {...props} image={image} isSelectable={unplayableReasons.size === 0} />
+          <PackImageOverlay {...props} unplayableReasons={unplayableReasons} isSelected={isSelected} />
         </View>
 
         <Text numberOfLines={1} style={[styles.text, styles.header]}>
@@ -200,6 +110,143 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps & Pac
         </Text>
       </Pressable>
     </Animated.View>
+  )
+}
+
+function PackImageView(
+  props: Readonly<
+    PackPosterViewProps & {
+      image: string | null | undefined
+      isSelectable?: boolean
+    }
+  >
+) {
+  const { style, width, image, isSelectable } = props
+
+  const availabilityStyle = useAnimatedStyle(() => {
+    return {
+      opacity: withTiming(isSelectable ? 1 : 0.2, animationConfig),
+    }
+  }, [isSelectable])
+
+  return (
+    <Animated.View
+      style={[
+        { alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.placeholder },
+        Styles.absoluteFill,
+        style,
+        availabilityStyle,
+      ]}
+    >
+      {image ? (
+        <Image
+          style={{
+            width: width,
+            aspectRatio: 1,
+          }}
+          source={image}
+          transition={200}
+        />
+      ) : (
+        <Text style={FontStyles.LargeTitle}>😵</Text>
+      )}
+    </Animated.View>
+  )
+}
+
+function PackImageOverlay(
+  props: Readonly<
+    PackPosterViewProps & {
+      unplayableReasons: Set<UnplayableReason>
+      isSelected: boolean
+    }
+  >
+) {
+  const { unplayableReasons, isSelected } = props
+
+  const enterAnimation = FadeIn.duration(animationConfig.duration).easing(Easing.in(animationConfig.easing.factory()))
+  const exitAnimation = FadeOut.duration(animationConfig.duration).easing(Easing.out(animationConfig.easing.factory()))
+
+  return (
+    <View
+      style={[
+        StyleSheet.absoluteFill,
+        {
+          flexDirection: 'row',
+          alignItems: 'flex-end',
+          justifyContent: 'flex-end',
+          gap: 4,
+          padding: 8,
+        },
+      ]}
+    >
+      {unplayableReasons.has('subscription') && (
+        <Animated.View entering={enterAnimation} exiting={exitAnimation}>
+          <IconTag icon='cart' color={Colors.green.light} backgroundColor={Colors.green.dark} />
+        </Animated.View>
+      )}
+
+      {unplayableReasons.has('cardCount') && (
+        <Animated.View entering={enterAnimation} exiting={exitAnimation}>
+          <IconTag icon='people' color={Colors.orange.light} backgroundColor={Colors.orange.dark} />
+        </Animated.View>
+      )}
+
+      <View style={{ flex: 1 }} />
+
+      {isSelected && (
+        <Animated.View entering={enterAnimation} exiting={exitAnimation}>
+          <IconTag icon='checkmark-circle' />
+        </Animated.View>
+      )}
+    </View>
+  )
+}
+
+type IconTagProps = {
+  icon: keyof typeof Ionicons.glyphMap
+  color?: string
+  backgroundColor?: string
+  size?: number
+}
+
+function IconTag(props: Readonly<IconTagProps>) {
+  const { icon, color = Colors.yellow.light, backgroundColor = Colors.yellow.dark, size = 18 } = props
+  return (
+    <View
+      style={[
+        {
+          backgroundColor: backgroundColor,
+          padding: size / 3,
+          borderRadius: size / 2,
+          borderWidth: StyleSheet.hairlineWidth,
+          borderColor: Colors.stroke,
+        },
+        Platform.select({
+          ios: {
+            shadowOffset: { width: 0, height: 8 },
+            shadowRadius: 10.32,
+            shadowOpacity: 0.44,
+          },
+          android: {
+            elevation: 16,
+          },
+        }) ?? {},
+      ]}
+    >
+      <Ionicons name={icon} size={size} style={{ color: color }} />
+    </View>
+  )
+}
+
+function SkeletonView(props: Readonly<PackPosterViewProps>) {
+  const { style, width = DEFAULT_WIDTH } = props
+  return (
+    <View style={[{ width, gap: 8 }, style]}>
+      <Skeleton height={width} borderRadius={16} />
+      <Skeleton height={18} width={width * 0.75} />
+      <Skeleton height={32} />
+    </View>
   )
 }
 

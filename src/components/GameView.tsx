@@ -8,6 +8,7 @@ import {
   FlatList,
   Pressable,
   PressableProps,
+  StyleSheet,
   Text,
   TouchableOpacity,
   View,
@@ -21,7 +22,10 @@ import { FontStyles } from '../constants/Styles'
 import { useSheetHeight } from '../lib/utils'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import { CardView } from './card/CardView'
-import ScrollToBottomButton from './utils/ScrollToBottomButton'
+import HoverButtons from './utils/HoverButtons'
+import { PackManager } from '../managers/PackManager'
+import { useInAppPurchaseContext } from '../providers/InAppPurchaseProvider'
+import { Ionicons } from '@expo/vector-icons'
 
 export type GameViewProps = {
   bottomSheetRef?: React.RefObject<BottomSheet>
@@ -39,6 +43,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
   const [isOutOfCards, setIsOutOfCards] = useState<boolean>(true)
   const [viewableItems, setViewableItems] = useState<ViewToken<PlayedCard>[] | undefined>(undefined)
   const scrollButtonBottomPosition = sheetHeight - 8
+  const { isSubscribed } = useInAppPurchaseContext()
 
   const insets = useSafeAreaInsets()
   const safeArea = {
@@ -113,7 +118,19 @@ export default function GameView(props: Readonly<GameViewProps>) {
 
   // When the playlist or players change
   useEffect(() => {
-    if (isOutOfCards) {
+    setContext({
+      action: 'removePacks',
+      payload: playlist.filter(p => {
+        const pack = PackManager.get(p)
+        if (!pack) return true
+        const playableCards = CardManager.getPlayableCards(pack, players.length, new Set(categoryFilter))
+        if (!PackManager.isPlayable(pack.cards.length, playableCards.size)) return true
+        if (!pack.is_free && !isSubscribed) return true
+        return false
+      }),
+    })
+
+    if (isOutOfCards || playedCards.length === 0) {
       addCard()
       return
     }
@@ -121,7 +138,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
     const card = playedCards[playedCards.length - 1]
     setContext({ action: 'removeCachedPlayedCard', payload: card })
     console.log(`Removed card ${playedCards.length}:`, card.formattedContent ?? card.content)
-  }, [playlist.length, players.size])
+  }, [playlist.length, players.length])
 
   const keyExtractor = (item: PlayedCard) => item.id
   const renderItem: ({ item }: { item: PlayedCard }) => React.JSX.Element = useCallback(
@@ -173,7 +190,15 @@ export default function GameView(props: Readonly<GameViewProps>) {
         renderItem={renderItem}
       />
       {showScrollButton() && (
-        <ScrollToBottomButton onPress={onPressScrollButton} style={{ bottom: scrollButtonBottomPosition }} />
+        <HoverButtons
+          buttons={[
+            {
+              icon: 'chevron-down',
+              onPress: onPressScrollButton,
+              style: { paddingHorizontal: 16, bottom: scrollButtonBottomPosition },
+            },
+          ]}
+        />
       )}
     </>
   )
@@ -234,16 +259,23 @@ function OutOfCardsView(props: Readonly<TouchableOpacityProps>) {
           setContext({ action: 'restartGame' })
         }}
         style={{
-          backgroundColor: Colors.accentColor,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: Colors.yellow.dark,
+          paddingVertical: 12,
+          paddingHorizontal: 36,
           borderRadius: Number.MAX_SAFE_INTEGER,
+          borderWidth: StyleSheet.hairlineWidth,
+          borderColor: Colors.stroke,
+          gap: 4,
         }}
       >
+        <Ionicons name='reload' size={18} color={Colors.yellow.light} />
         <Text
           style={{
             ...FontStyles.Button,
-            color: Colors.background,
-            paddingVertical: 12,
-            paddingHorizontal: 48,
+            color: Colors.yellow.light,
           }}
         >
           {LocalizationManager.get('restart_game')?.value ?? 'restart_game'}

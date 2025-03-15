@@ -25,6 +25,7 @@ export type AppContextAction =
   | { action: 'restartGame'; payload?: never }
   | { action: 'toggleCategory'; payload: Category }
   | { action: 'togglePack'; payload: string }
+  | { action: 'removePacks'; payload: string[] }
   | { action: 'addPlayer'; payload: string }
   | { action: 'removePlayer'; payload: string }
   | { action: 'clearPlayers'; payload?: never }
@@ -73,6 +74,9 @@ export function contextReducer(state: AppContextType, action: AppContextAction):
   switch (type) {
     case 'togglePack':
       return { ...state, playlist: toggleList(state.playlist, payload) }
+
+    case 'removePacks':
+      return { ...state, playlist: state.playlist.filter(id => !payload.includes(id)) }
 
     case 'addPlayer': {
       const lowestPlayCount = Math.min(...state.players.map(p => p.playCount))
