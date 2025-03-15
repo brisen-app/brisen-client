@@ -226,7 +226,14 @@ function PackSection(props: Readonly<ViewProps>) {
 
       <Callout
         icon='checkmark-circle'
-        content={LocalizationManager.get('pack_tag_info_selected')?.value ?? 'pack_tag_info_selected'}
+        content={LocalizationManager.get('icon_info_selected')?.value ?? 'icon_info_selected'}
+        foregroundColor={Colors.yellow.light}
+        backgroundColor={Colors.yellow.dark}
+      />
+
+      <Callout
+        icon='reload'
+        content={LocalizationManager.get('icon_info_restart')?.value ?? 'icon_info_restart'}
         foregroundColor={Colors.yellow.light}
         backgroundColor={Colors.yellow.dark}
       />
@@ -241,7 +248,7 @@ function PackSection(props: Readonly<ViewProps>) {
       {!isSubscribed && packs.some(pack => !pack.is_free) && (
         <Callout
           icon='cart'
-          content={LocalizationManager.get('pack_tag_info_purchase')?.value ?? 'pack_tag_info_purchase'}
+          content={LocalizationManager.get('icon_info_purchase')?.value ?? 'icon_info_purchase'}
           foregroundColor={Colors.green.light}
           backgroundColor={Colors.green.dark}
         />
@@ -273,7 +280,7 @@ function Callout(
       }}
     >
       {icon && <Ionicons name={icon} size={18} color={foregroundColor} />}
-      <Text style={[FontStyles.Subheading, { color: foregroundColor }]}>{content}</Text>
+      <Text style={[FontStyles.Subheading, { flex: 1, color: foregroundColor }]}>{content}</Text>
     </View>
   )
 }
