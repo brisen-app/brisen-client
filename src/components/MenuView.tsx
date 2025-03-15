@@ -67,9 +67,8 @@ export default function MenuView() {
   const bottomSheet = useBottomSheet()
   const scrollViewRef = useRef<BottomSheetScrollViewMethods>(null)
 
-  const { playlist, players } = useAppContext()
+  const { playlist, players, playedIds } = useAppContext()
   const setContext = useAppDispatchContext()
-  const showCollapseButton = playlist.length > 0
 
   const closedSheetHeight = useSheetHeight() - SHEET_HANDLE_HEIGHT
 
@@ -137,7 +136,7 @@ export default function MenuView() {
           <View style={{ height: insets.bottom ? insets.bottom : 16 + 8 }} />
         </Animated.View>
       </BottomSheetScrollView>
-      {showCollapseButton && (
+      {(playlist.length > 0 || playedIds.size > 0) && (
         <HoverButtons
           buttons={[
             {
