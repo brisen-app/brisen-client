@@ -1,5 +1,5 @@
 import Colors from '@/src/constants/Colors'
-import { CardManager, PlayedCard } from '@/src/managers/CardManager'
+import { PlayedCard } from '@/src/managers/CardManager'
 import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import { Ionicons } from '@expo/vector-icons'
 import BottomSheet from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet'
@@ -20,6 +20,7 @@ import { TouchableOpacityProps } from 'react-native-gesture-handler'
 import Animated from 'react-native-reanimated'
 import { FontStyles } from '../constants/Styles'
 import { useSheetBottomInset } from '../lib/utils'
+import { drawCard, getPlayableCards } from '../managers/GameManager'
 import { PackManager } from '../managers/PackManager'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import { useInAppPurchaseContext } from '../providers/InAppPurchaseProvider'
@@ -34,7 +35,8 @@ export default function GameView(props: Readonly<GameViewProps>) {
   const { bottomSheetRef } = props
   const sheetHeight = useSheetBottomInset()
   const flatListRef = useRef<FlatList>(null)
-  const { playlist, players, playedCards, playedIds, categoryFilter, currentCard } = useAppContext()
+  const c = useAppContext()
+  const { playlist, players, playedCards, currentCard } = c
   const setContext = useAppDispatchContext()
   const [isOutOfCards, setIsOutOfCards] = useState<boolean>(true)
   const [viewableItems, setViewableItems] = useState<ViewToken<PlayedCard>[] | undefined>(undefined)
@@ -62,7 +64,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
   const addCard = async () => {
     if (playedCards.length === 0 && playlist.length === 0) return
 
-    const newCard = CardManager.drawCard(playedCards, playedIds, playlist, players, new Set(categoryFilter))
+    const newCard = drawCard(c)
     if (!newCard) {
       setIsOutOfCards(true)
       return
@@ -111,7 +113,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
       payload: playlist.filter(p => {
         const pack = PackManager.get(p)
         if (!pack) return true
-        const playableCards = CardManager.getPlayableCards(pack, players.length, new Set(categoryFilter))
+        const playableCards = getPlayableCards(pack.id, c)
         if (!PackManager.isPlayable(pack.cards.length, playableCards.size)) return true
         if (!pack.is_free && !isSubscribed) return true
         return false

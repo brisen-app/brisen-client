@@ -1,13 +1,13 @@
 import Colors from '@/src/constants/Colors'
 import { FontStyles, Styles } from '@/src/constants/Styles'
-import { CardManager } from '@/src/managers/CardManager'
+import { getPlayableCards } from '@/src/managers/GameManager'
 import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import { Pack, PackManager } from '@/src/managers/PackManager'
 import { Ionicons } from '@expo/vector-icons'
 import { Image } from 'expo-image'
 import { Alert, Platform, Pressable, StyleSheet, Text, View, ViewProps } from 'react-native'
 import Animated, { Easing, FadeIn, FadeOut, useAnimatedStyle, withTiming } from 'react-native-reanimated'
-import { useAppContext, useAppDispatchContext } from '../../providers/AppContextProvider'
+import { AppContextType, useAppContext, useAppDispatchContext } from '../../providers/AppContextProvider'
 import { presentPaywall, useInAppPurchaseContext } from '../../providers/InAppPurchaseProvider'
 import Skeleton from '../utils/Skeleton'
 
@@ -25,14 +25,9 @@ type UnplayableReason = 'subscription' | 'cardCount'
 const DEFAULT_WIDTH = 256
 const animationConfig = { duration: 150, easing: Easing.bezier(0, 0, 0.5, 1) }
 
-function validatePlayability(
-  isSubscribed: boolean,
-  pack: Pack,
-  playerCount: number,
-  categoryFilter: string[]
-): Set<UnplayableReason> {
+function validatePlayability(isSubscribed: boolean, pack: Pack, c: AppContextType): Set<UnplayableReason> {
   const reasons: Set<UnplayableReason> = new Set()
-  const playableCardCount = CardManager.getPlayableCards(pack, playerCount, new Set(categoryFilter)).size
+  const playableCardCount = getPlayableCards(pack.id, c).size
   if (!PackManager.isPlayable(pack.cards.length, playableCardCount)) reasons.add('cardCount')
   if (!pack.is_free && !isSubscribed) reasons.add('subscription')
   return reasons
@@ -40,14 +35,14 @@ function validatePlayability(
 
 export default function PackPosterView(props: Readonly<PackPosterViewProps>) {
   const { pack, style, width = DEFAULT_WIDTH, onAddPlayersConfirm } = props
-  const { playlist, players, categoryFilter } = useAppContext()
+  const c = useAppContext()
   const { isSubscribed } = useInAppPurchaseContext()
   const setContext = useAppDispatchContext()
 
-  const isSelected = playlist.includes(pack.id)
-  const isNoneSelected = playlist.length === 0
+  const isSelected = c.playlist.includes(pack.id)
+  const isNoneSelected = c.playlist.length === 0
 
-  const unplayableReasons = validatePlayability(isSubscribed, pack, players.length, categoryFilter)
+  const unplayableReasons = validatePlayability(isSubscribed, pack, c)
 
   const addMorePlayersTitle =
     LocalizationManager.get('pack_unplayable_title')?.value ?? 'More players or categories required'
