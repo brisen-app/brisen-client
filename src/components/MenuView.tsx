@@ -1,7 +1,7 @@
 //#region Imports
 import Colors from '@/src/constants/Colors'
 import { FontStyles, SHEET_HANDLE_HEIGHT } from '@/src/constants/Styles'
-import { formatName as prettifyString, useSheetHeight } from '@/src/lib/utils'
+import { formatName as prettifyString, useSheetBottomInset } from '@/src/lib/utils'
 import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import { PackManager } from '@/src/managers/PackManager'
 import { presentPaywall, useInAppPurchaseContext } from '@/src/providers/InAppPurchaseProvider'
@@ -70,7 +70,7 @@ export default function MenuView() {
   const { playlist, players, playedIds } = useAppContext()
   const setContext = useAppDispatchContext()
 
-  const closedSheetHeight = useSheetHeight() - SHEET_HANDLE_HEIGHT
+  const closedSheetHeight = useSheetBottomInset() - SHEET_HANDLE_HEIGHT
 
   const sortedPlayers = useMemo(() => [...players].sort((a, b) => a.name.localeCompare(b.name)), [players])
 

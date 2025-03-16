@@ -1,5 +1,6 @@
 import Colors from '@/src/constants/Colors'
 import { FontStyles, Styles } from '@/src/constants/Styles'
+import { useSheetBottomInset } from '@/src/lib/utils'
 import { PlayedCard } from '@/src/managers/CardManager'
 import { Category, CategoryManager } from '@/src/managers/CategoryManager'
 import { ConfigurationManager } from '@/src/managers/ConfigurationManager'
@@ -12,14 +13,25 @@ import { LinearGradient } from 'expo-linear-gradient'
 import { useState } from 'react'
 import { Platform, StyleSheet, Text, TouchableOpacity, View, ViewProps } from 'react-native'
 import Animated, { AnimatedProps, Easing, FadeInDown, FadeOutDown, withTiming } from 'react-native-reanimated'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export type CardViewProps = {
   card: PlayedCard
 }
 
+const PADDING = 24
+
 export function CardView(props: Readonly<CardViewProps & ViewProps>) {
   const { card, style } = props
   const [showDetails, setShowDetails] = useState(false)
+  const insets = useSafeAreaInsets()
+  const sheetHeight = useSheetBottomInset()
+  const safeAreaStyle = {
+    paddingTop: insets.top > 0 ? insets.top : PADDING,
+    paddingBottom: sheetHeight + PADDING,
+    paddingLeft: insets.left > 0 ? insets.left : PADDING,
+    paddingRight: insets.right > 0 ? insets.right : PADDING,
+  }
 
   const category = card.category ? CategoryManager.get(card.category) : undefined
 
@@ -30,10 +42,12 @@ export function CardView(props: Readonly<CardViewProps & ViewProps>) {
   const entering = () => {
     'worklet'
     const animations = {
+      borderRadius: withTiming(0, animationConfig),
       opacity: withTiming(1, animationConfig),
       transform: [{ scale: withTiming(1, animationConfig) }],
     }
     const initialValues = {
+      borderRadius: 64,
       opacity: 0,
       transform: [{ scale: 0.9 }],
     }
@@ -64,7 +78,6 @@ export function CardView(props: Readonly<CardViewProps & ViewProps>) {
           flex: 1,
           justifyContent: 'center',
           alignItems: 'center',
-          borderRadius: 32,
           overflow: 'hidden',
           borderColor: Colors.stroke,
           borderWidth: StyleSheet.hairlineWidth,
@@ -83,15 +96,10 @@ export function CardView(props: Readonly<CardViewProps & ViewProps>) {
         }}
       />
 
-      <Content content={content} player={target} />
+      <Content style={[{ flex: 1, justifyContent: 'center' }, safeAreaStyle]} content={content} player={target} />
 
       {/* Pack & Category */}
-      <View
-        style={{
-          ...Styles.absoluteFill,
-          padding: 24,
-        }}
-      >
+      <View style={[Styles.absoluteFill, safeAreaStyle]}>
         {(category || card.header) && <CategoryLabel item={category} header={card.header ?? undefined} />}
 
         <View style={{ flex: 1 }} />
@@ -135,7 +143,6 @@ function Content(props: Readonly<{ content: string; player?: Player } & ViewProp
           ...styles.textShadow,
           color: Color.white.string,
           textAlign: 'center',
-          paddingHorizontal: 32,
         }}
       >
         {content}
@@ -192,12 +199,10 @@ function PackLabel(props: Readonly<{ pack: Pack } & ViewProps>) {
       {image && (
         <Image
           source={image}
-          transition={200}
           style={[
             {
               height: 48,
               aspectRatio: 1,
-              backgroundColor: Color.black.alpha(0.5).string,
               borderColor: Colors.stroke,
               borderWidth: StyleSheet.hairlineWidth,
               borderRadius: 12,
