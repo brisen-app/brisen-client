@@ -1,7 +1,7 @@
 import GameView from '@/src/components/GameView'
 import MenuView from '@/src/components/MenuView'
 import Colors from '@/src/constants/Colors'
-import { useSheetHeight } from '@/src/lib/utils'
+import { useSheetBottomInset } from '@/src/lib/utils'
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetBackgroundProps,
@@ -17,7 +17,7 @@ import Color from '../models/Color'
 export default function App() {
   const insets = useSafeAreaInsets()
   const bottomSheetRef = useRef<BottomSheet>(null)
-  const sheetHeight = useSheetHeight()
+  const sheetHeight = useSheetBottomInset()
   const snapPoints = useMemo(() => [sheetHeight], [bottomSheetRef, insets])
 
   const backdrop = useCallback(

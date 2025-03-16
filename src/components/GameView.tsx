@@ -1,6 +1,7 @@
 import Colors from '@/src/constants/Colors'
 import { CardManager, PlayedCard } from '@/src/managers/CardManager'
 import { LocalizationManager } from '@/src/managers/LocalizationManager'
+import { Ionicons } from '@expo/vector-icons'
 import BottomSheet from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import {
@@ -17,42 +18,29 @@ import {
 } from 'react-native'
 import { TouchableOpacityProps } from 'react-native-gesture-handler'
 import Animated from 'react-native-reanimated'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { FontStyles } from '../constants/Styles'
-import { useSheetHeight } from '../lib/utils'
+import { useSheetBottomInset } from '../lib/utils'
+import { PackManager } from '../managers/PackManager'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
+import { useInAppPurchaseContext } from '../providers/InAppPurchaseProvider'
 import { CardView } from './card/CardView'
 import HoverButtons from './utils/HoverButtons'
-import { PackManager } from '../managers/PackManager'
-import { useInAppPurchaseContext } from '../providers/InAppPurchaseProvider'
-import { Ionicons } from '@expo/vector-icons'
 
 export type GameViewProps = {
   bottomSheetRef?: React.RefObject<BottomSheet>
 }
 
-const CARD_PEEK_HEIGHT = 16
-const PADDING = 16
-
 export default function GameView(props: Readonly<GameViewProps>) {
   const { bottomSheetRef } = props
-  const sheetHeight = useSheetHeight()
+  const sheetHeight = useSheetBottomInset()
   const flatListRef = useRef<FlatList>(null)
   const { playlist, players, playedCards, playedIds, categoryFilter, currentCard } = useAppContext()
   const setContext = useAppDispatchContext()
   const [isOutOfCards, setIsOutOfCards] = useState<boolean>(true)
   const [viewableItems, setViewableItems] = useState<ViewToken<PlayedCard>[] | undefined>(undefined)
-  const scrollButtonBottomPosition = sheetHeight - 8
   const { isSubscribed } = useInAppPurchaseContext()
 
-  const insets = useSafeAreaInsets()
-  const safeArea = {
-    paddingTop: Math.max(PADDING, insets.top),
-    marginLeft: insets.left,
-    marginRight: insets.right,
-  }
-
-  const cardHeight = Dimensions.get('screen').height - sheetHeight - insets.top - PADDING - CARD_PEEK_HEIGHT
+  const screenHeight = Dimensions.get('window').height
 
   const showScrollButton = useCallback(() => {
     if (viewableItems === undefined) return false
@@ -106,7 +94,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
     console.debug('Found at index:', currentCardIndex)
     if (currentCardIndex <= 0) return
     flatListRef.current?.scrollToOffset({
-      offset: currentCardIndex * (cardHeight + PADDING),
+      offset: currentCardIndex * screenHeight,
       animated: false,
     })
   }, [])
@@ -142,14 +130,14 @@ export default function GameView(props: Readonly<GameViewProps>) {
 
   const keyExtractor = (item: PlayedCard) => item.id
   const renderItem: ({ item }: { item: PlayedCard }) => React.JSX.Element = useCallback(
-    ({ item }) => <CardView card={item} style={{ height: cardHeight, marginBottom: PADDING }} />,
+    ({ item }) => <CardView card={item} style={{ height: screenHeight }} />,
     []
   )
 
   const getItemLayout = useCallback(
     (_: ArrayLike<PlayedCard> | null | undefined, index: number) => ({
-      length: cardHeight + PADDING,
-      offset: (cardHeight + PADDING) * index,
+      length: screenHeight,
+      offset: screenHeight * index,
       index,
     }),
     []
@@ -159,8 +147,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
     <OutOfCardsView
       onPress={onPressNoCard}
       style={{
-        height: cardHeight,
-        marginBottom: sheetHeight + insets.top + PADDING + CARD_PEEK_HEIGHT,
+        height: screenHeight,
       }}
     />
   )
@@ -175,13 +162,11 @@ export default function GameView(props: Readonly<GameViewProps>) {
         windowSize={3}
         scrollsToTop={false}
         showsVerticalScrollIndicator={false}
-        style={safeArea}
         data={playedCards}
-        decelerationRate={'fast'}
-        snapToInterval={cardHeight + PADDING}
+        pagingEnabled
         disableIntervalMomentum
         keyboardDismissMode='on-drag'
-        onEndReachedThreshold={1.01}
+        onEndReachedThreshold={1}
         onEndReached={addCard}
         onViewableItemsChanged={info => setViewableItems(info.viewableItems)}
         ListFooterComponent={listFooter}
@@ -195,7 +180,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
             {
               icon: 'chevron-down',
               onPress: onPressScrollButton,
-              style: { paddingHorizontal: 16, bottom: scrollButtonBottomPosition },
+              style: { paddingHorizontal: 16, bottom: sheetHeight + 64 },
             },
           ]}
         />

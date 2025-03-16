@@ -58,7 +58,7 @@ export function getRandom<T>(collection: Iterable<T>): T | null {
   return array[Math.floor((Crypto.getRandomValues(new Uint32Array(1))[0] / 0xffffffff) * array.length) % array.length]
 }
 
-export function useSheetHeight() {
+export function useSheetBottomInset() {
   const inset = useSafeAreaInsets().bottom
   const constant = ConfigurationManager.getValue('bottom_sheet_min_position') ?? 64
   return inset > 0 ? inset + constant : 16 + constant
