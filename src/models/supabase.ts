@@ -287,7 +287,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      card_order: "starting" | "ending"
+      card_order: "starting" | "next" | "ending"
     }
     CompositeTypes: {
       [_ in never]: never
