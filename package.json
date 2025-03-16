@@ -10,7 +10,7 @@
     "web": "expo start --web",
     "upgrade": "npm install -g npm@latest && npm update && npm install expo@latest && npx expo install --fix",
     "doctor": "npx expo-doctor",
-    "generate-types": "npx supabase gen types typescript --project-id tlnldlywflpgvjepxwxz --schema public > models/supabase.ts",
+    "generate-types": "npx supabase gen types typescript --project-id tlnldlywflpgvjepxwxz --schema public > src/models/supabase.ts",
     "build:android": "eas build -p android --local --profile develop --non-interactive",
     "build:ios": "eas build -p ios --local --profile develop --non-interactive",
     "test": "jest --watchAll",
