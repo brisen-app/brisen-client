@@ -199,12 +199,10 @@ function PackLabel(props: Readonly<{ pack: Pack } & ViewProps>) {
       {image && (
         <Image
           source={image}
-          transition={200}
           style={[
             {
               height: 48,
               aspectRatio: 1,
-              backgroundColor: Color.black.alpha(0.5).string,
               borderColor: Colors.stroke,
               borderWidth: StyleSheet.hairlineWidth,
               borderRadius: 12,
