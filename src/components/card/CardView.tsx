@@ -42,10 +42,12 @@ export function CardView(props: Readonly<CardViewProps & ViewProps>) {
   const entering = () => {
     'worklet'
     const animations = {
+      borderRadius: withTiming(0, animationConfig),
       opacity: withTiming(1, animationConfig),
       transform: [{ scale: withTiming(1, animationConfig) }],
     }
     const initialValues = {
+      borderRadius: 64,
       opacity: 0,
       transform: [{ scale: 0.9 }],
     }
