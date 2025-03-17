@@ -18,9 +18,9 @@ jest.mock('@/src/lib/utils', () => ({
 //#region Mocks
 
 const MockedCards = {
-  Card_1: { id: '1', category: 'cat1', content: 'Content of card 1', is_group: true, order: 'starting' } as Card,
-  Card_2: { id: '2', category: 'cat2', content: 'Content of card 2', is_group: true, order: 'next' } as Card,
-  Card_3: { id: '3', category: 'cat3', content: 'Content of card 3', is_group: true, order: 'ending' } as Card,
+  Card_1: { id: '1', category: 'cat1', content: 'Content of card 1', is_group: true } as Card,
+  Card_2: { id: '2', category: 'cat2', content: 'Content of card 2', is_group: true } as Card,
+  Card_3: { id: '3', category: 'cat3', content: 'Content of card 3', is_group: true } as Card,
   Card_4_no_category: { id: '4', content: 'Content of card 4', is_group: true } as Card,
   Card_5_req_2_players: { id: '5', content: 'Content of card 5 {player-0} {player-1}', is_group: false } as Card,
   Card_6_req_5_players: {
@@ -337,6 +337,33 @@ describe('drawCard', () => {
     const nextResult = GameManager.drawCard(context)
 
     expect(nextResult?.id).toBe(MockedCards.Card_1.id)
+  })
+
+  it('should always choose card marked "next" after parent is played', () => {
+    const playedCards = [
+      {
+        ...MockedCards.Card_1,
+        pack: MockedPacks.Pack_with_1_and_3,
+      } as PlayedCard,
+    ]
+
+    CardManager['_items'] = undefined
+    CardManager['set']([
+      MockedCards.Card_1,
+      MockedCards.Card_2,
+      MockedCards.Card_3,
+      { ...MockedCards.Card_4_no_category, order: 'next' },
+    ])
+
+    const context = {
+      ...MockedContext,
+      playedCards,
+      playedIds: new Set(playedCards.map(c => c.id)),
+    } as AppContextType
+
+    const result = GameManager.drawCard(context)
+
+    expect(result?.id).toBe(MockedCards.Card_4_no_category.id)
   })
 })
 

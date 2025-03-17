@@ -1,7 +1,7 @@
 export default class Color {
   // Docs: https://reactnative.dev/docs/colors
 
-  private static hexPattern = RegExp(/^#(?:[\da-f]{3,4}){1,2}$/i)
+  private static readonly hexPattern = RegExp(/^#(?:[\da-f]{3,4}){1,2}$/i)
 
   private readonly hex: string // #rrggbb
   private readonly a: number // 0-1
