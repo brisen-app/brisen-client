@@ -4,6 +4,8 @@ import { Pack } from '@/src/managers/PackManager'
 import { Player } from '@/src/models/Player'
 import { AppContextAction, AppContextType, contextReducer, initialContext } from '@/src/providers/AppContextProvider'
 
+// Suppress console.warn messages
+console.warn = jest.fn()
 jest.mock('@/src/managers/LocalizationManager', () => ({
   LocalizationManager: {
     get: (key: string) => key,
