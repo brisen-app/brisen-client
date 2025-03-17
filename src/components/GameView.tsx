@@ -20,7 +20,7 @@ import { TouchableOpacityProps } from 'react-native-gesture-handler'
 import Animated from 'react-native-reanimated'
 import { FontStyles } from '../constants/Styles'
 import { useSheetBottomInset } from '../lib/utils'
-import { drawCard, getPlayableCards } from '../managers/GameManager'
+import GameManager from '../managers/GameManager'
 import { PackManager } from '../managers/PackManager'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import { useInAppPurchaseContext } from '../providers/InAppPurchaseProvider'
@@ -64,7 +64,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
   const addCard = async () => {
     if (playedCards.length === 0 && playlist.length === 0) return
 
-    const newCard = drawCard(c)
+    const newCard = GameManager.drawCard(c)
     if (!newCard) {
       setIsOutOfCards(true)
       return
@@ -113,7 +113,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
       payload: playlist.filter(p => {
         const pack = PackManager.get(p)
         if (!pack) return true
-        const playableCards = getPlayableCards(pack.id, c)
+        const playableCards = GameManager.getPlayableCards(pack.id, c)
         if (!PackManager.isPlayable(pack.cards.length, playableCards.size)) return true
         if (!pack.is_free && !isSubscribed) return true
         return false

@@ -1,6 +1,6 @@
 import Colors from '@/src/constants/Colors'
 import { FontStyles, Styles } from '@/src/constants/Styles'
-import { getPlayableCards } from '@/src/managers/GameManager'
+import GameManager from '@/src/managers/GameManager'
 import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import { Pack, PackManager } from '@/src/managers/PackManager'
 import { Ionicons } from '@expo/vector-icons'
@@ -27,7 +27,7 @@ const animationConfig = { duration: 150, easing: Easing.bezier(0, 0, 0.5, 1) }
 
 function validatePlayability(isSubscribed: boolean, pack: Pack, c: AppContextType): Set<UnplayableReason> {
   const reasons: Set<UnplayableReason> = new Set()
-  const playableCardCount = getPlayableCards(pack.id, c).size
+  const playableCardCount = GameManager.getPlayableCards(pack.id, c).size
   if (!PackManager.isPlayable(pack.cards.length, playableCardCount)) reasons.add('cardCount')
   if (!pack.is_free && !isSubscribed) reasons.add('subscription')
   return reasons

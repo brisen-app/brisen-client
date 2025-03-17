@@ -10,7 +10,7 @@ export type PlayedCard = {
   featuredPlayers: Player[] // The players featured in the card content
   formattedContent: string | undefined // The card content with player names inserted
   minPlayers: number // Minimum number of players required to play the card
-  pack: Pack | null // The pack to which the card belongs
+  pack: Pack // The pack to which the card belongs
   players: Player[] // The order of all players in this series of cards
 } & Card
 
