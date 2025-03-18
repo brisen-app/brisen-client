@@ -222,3 +222,72 @@ describe('isPlayable', () => {
     })
   })
 })
+
+describe('isDateLimited', () => {
+  function toDateString(date: Date) {
+    return date.toISOString().slice(0, 10) // YYYY-MM-DD
+  }
+
+  it('should return true if both start_date and end_date are null', () => {
+    expect(PackManager.isWithinDateRange({ start_date: null, end_date: null } as Pack)).toBe(true)
+  })
+
+  it('should return true if start_date is before today', () => {
+    const today = new Date('2020-02-03')
+    const start_date = '0001-02-04'
+    expect(PackManager.isWithinDateRange({ start_date, end_date: null } as Pack, today)).toBe(true)
+  })
+
+  it('should return true if start_date is on today', () => {
+    const today = new Date()
+    expect(PackManager.isWithinDateRange({ start_date: toDateString(today), end_date: null } as Pack, today)).toBe(true)
+  })
+
+  it('should return false if start_date is after today', () => {
+    const today = new Date('0001-02-03')
+    const start_date = '0001-02-04'
+    expect(PackManager.isWithinDateRange({ start_date, end_date: null } as Pack, today)).toBe(false)
+  })
+
+  it('should return false if end_date is before today', () => {
+    const today = new Date('2020-05-05')
+    const end_date = '1999-02-04'
+    expect(PackManager.isWithinDateRange({ start_date: null, end_date } as Pack, today)).toBe(false)
+  })
+
+  it('should return true if end_date is on today', () => {
+    const today = new Date()
+    expect(PackManager.isWithinDateRange({ start_date: null, end_date: toDateString(today) } as Pack, today)).toBe(true)
+  })
+
+  it('should return true if end_date is after today', () => {
+    const today = new Date('2020-06-23')
+    const end_date = '2020-10-01'
+    expect(PackManager.isWithinDateRange({ start_date: null, end_date } as Pack, today)).toBe(true)
+  })
+
+  it('should return true if today is after start_date and before end_date', () => {
+    const today = new Date('2020-06-23')
+    const start_date = '0000-05-30'
+    const end_date = '0000-10-01'
+
+    expect(PackManager.isWithinDateRange({ start_date, end_date } as Pack, today)).toBe(true)
+  })
+
+  it('should return false if today is before start_date and after end_date', () => {
+    const today = new Date('2000-06-23')
+    const start_date = '0000-10-01'
+    const end_date = '0000-05-30'
+
+    expect(PackManager.isWithinDateRange({ start_date, end_date } as Pack, today)).toBe(false)
+  })
+
+  it('should return true if today is on start_date and end_date', () => {
+    expect(
+      PackManager.isWithinDateRange({
+        start_date: toDateString(new Date()),
+        end_date: toDateString(new Date()),
+      } as Pack)
+    ).toBe(true)
+  })
+})
