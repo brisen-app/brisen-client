@@ -54,6 +54,27 @@ class PackManagerSingleton extends SupabaseManager<Pack> {
     return packs
   }
 
+  isWithinDateRange(pack: Pack, today: Date = new Date()): boolean {
+    if (!pack.start_date && !pack.end_date) return true
+
+    const startDate = pack.start_date ? new Date(pack.start_date) : null
+    const endDate = pack.end_date ? new Date(pack.end_date) : null
+    endDate?.setDate(endDate.getDate() + 1) // Include full end date
+
+    if (startDate && !endDate) return startDate <= today
+    if (endDate && !startDate) return today <= endDate
+
+    const yearlessToday = today.toISOString().slice(5, 10)
+    const yearlessStartDate = pack.start_date!.slice(5, 10)
+    const yearlessEndDate = pack.end_date!.slice(5, 10)
+
+    if (yearlessStartDate > yearlessEndDate) {
+      return yearlessStartDate <= yearlessToday || yearlessToday <= yearlessEndDate
+    }
+
+    return yearlessStartDate <= yearlessToday && yearlessToday <= yearlessEndDate
+  }
+
   isPlayable(totalCardCount: number, playableCardCount: number) {
     const minPlayableCards = ConfigurationManager.getValue('min_playable_cards') ?? 10
     return playableCardCount > 0 && (playableCardCount >= minPlayableCards || totalCardCount < minPlayableCards)
