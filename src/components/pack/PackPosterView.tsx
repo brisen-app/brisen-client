@@ -20,7 +20,7 @@ export type PackPosterViewProps = PackViewProps & {
   width?: number
 }
 
-type UnplayableReason = 'subscription' | 'cardCount'
+type UnplayableReason = 'subscription' | 'cardCount' | 'dateRestriction'
 
 const DEFAULT_WIDTH = 256
 const animationConfig = { duration: 150, easing: Easing.bezier(0, 0, 0.5, 1) }
@@ -29,6 +29,7 @@ function validatePlayability(isSubscribed: boolean, pack: Pack, c: AppContextTyp
   const reasons: Set<UnplayableReason> = new Set()
   const playableCardCount = GameManager.getPlayableCards(pack.id, c).size
   if (!PackManager.isPlayable(pack.cards.length, playableCardCount)) reasons.add('cardCount')
+  if (!PackManager.isWithinDateRange(pack)) reasons.add('dateRestriction')
   if (!pack.is_free && !isSubscribed) reasons.add('subscription')
   return reasons
 }
@@ -64,6 +65,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps>) {
     if (unplayableReasons.has('subscription')) presentPaywall()
     else if (unplayableReasons.has('cardCount'))
       Alert.alert(addMorePlayersTitle, addMorePlayersMessage, [{ onPress: onAddPlayersConfirm }])
+    else if (unplayableReasons.has('dateRestriction')) Alert.alert('Coming soon!', `This pack is not available yet. ${pack.start_date}`)
     else setContext({ action: 'togglePack', payload: pack.id })
   }
 
@@ -184,6 +186,12 @@ function PackImageOverlay(
       {unplayableReasons.has('cardCount') && (
         <Animated.View entering={enterAnimation} exiting={exitAnimation}>
           <IconTag icon='people' color={Colors.orange.light} backgroundColor={Colors.orange.dark} />
+        </Animated.View>
+      )}
+
+      {unplayableReasons.has('dateRestriction') && (
+        <Animated.View entering={enterAnimation} exiting={exitAnimation}>
+          <IconTag icon='calendar' color={Colors.blue.light} backgroundColor={Colors.blue.dark} />
         </Animated.View>
       )}
 
