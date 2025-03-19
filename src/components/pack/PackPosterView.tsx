@@ -191,7 +191,7 @@ function PackImageOverlay(
 
       {unplayableReasons.has('dateRestriction') && (
         <Animated.View entering={enterAnimation} exiting={exitAnimation}>
-          <IconTag icon='calendar' color={Colors.blue.light} backgroundColor={Colors.blue.dark} />
+          <IconTag icon='hourglass' color={Colors.blue.light} backgroundColor={Colors.blue.dark} />
         </Animated.View>
       )}
 
