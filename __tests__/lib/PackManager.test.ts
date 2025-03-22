@@ -291,3 +291,22 @@ describe('isDateLimited', () => {
     ).toBe(true)
   })
 })
+
+describe('daysUntil', () => {
+  it('should return 0 if the date is today', () => {
+    const today = new Date('2020-06-23')
+    expect(PackManager.daysUntil(today, today)).toBe(0)
+  })
+
+  it('should return 1 if the date is tomorrow', () => {
+    const today = new Date('2020-06-23')
+    const date = new Date('2020-06-24')
+    expect(PackManager.daysUntil(date, today)).toBe(1)
+  })
+
+  it('should return 364 if the date is yesterday', () => {
+    const today = new Date('2020-06-23')
+    const date = new Date('2020-06-22')
+    expect(PackManager.daysUntil(date, today)).toBe(364)
+  })
+})

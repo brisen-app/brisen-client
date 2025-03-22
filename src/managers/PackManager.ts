@@ -9,7 +9,9 @@ import SupabaseManager from './SupabaseManager'
 
 const tableName = 'packs'
 const select = '*, cards(id)'
+
 export type Pack = Tables<typeof tableName> & { cards: string[] }
+export type UnplayableReason = 'subscription' | 'cardCount' | 'dateRestriction'
 
 class PackManagerSingleton extends SupabaseManager<Pack> {
   constructor() {
@@ -75,9 +77,41 @@ class PackManagerSingleton extends SupabaseManager<Pack> {
     return yearlessStartDate <= yearlessToday && yearlessToday <= yearlessEndDate
   }
 
+  /**
+   * Returns the number of days until the given date, ignoring the year.
+   * If the date is in the past, it will return the number of days until the same date next year.
+   * @returns The number of days until the given date
+   */
+  daysUntil(date: Date, today: Date = new Date()): number {
+    if (date.toISOString().slice(0, 10) < today.toISOString().slice(0, 10)) {
+      date.setFullYear(today.getFullYear() + 1)
+    }
+
+    return Math.max(0, this.msToDays(date.getTime() - today.getTime()))
+  }
+
+  isComingSoon(pack: Pack, today: Date = new Date()): boolean | undefined {
+    const dayLimit = ConfigurationManager.getValue('coming_soon_period_length') ?? 14
+    if (!pack.start_date) return undefined
+    return !this.isWithinDateRange(pack, today) && this.daysUntil(new Date(pack.start_date), today) <= dayLimit
+  }
+
+  private msToDays(ms: number) {
+    return Math.round(ms / (1000 * 60 * 60 * 24))
+  }
+
   isPlayable(totalCardCount: number, playableCardCount: number) {
     const minPlayableCards = ConfigurationManager.getValue('min_playable_cards') ?? 10
     return playableCardCount > 0 && (playableCardCount >= minPlayableCards || totalCardCount < minPlayableCards)
+  }
+
+  validatePlayability(isSubscribed: boolean, pack: Pack, playableCardCount: number): Set<UnplayableReason> {
+    const reasons: Set<UnplayableReason> = new Set()
+
+    if (!PackManager.isPlayable(pack.cards.length, playableCardCount)) reasons.add('cardCount')
+    if (!PackManager.isWithinDateRange(pack)) reasons.add('dateRestriction')
+    if (!pack.is_free && !isSubscribed) reasons.add('subscription')
+    return reasons
   }
 
   useImageQuery(imageName: string | null | undefined, enabled = true) {
