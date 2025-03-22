@@ -205,9 +205,8 @@ function PackSection(props: Readonly<ViewProps & { textInputRef: React.RefObject
 
   const sortedPacks = useMemo(() => {
     if (isSubscribed || !packs) return packs
-    const packList = [...packs]
 
-    return packList.sort((a, b) => {
+    return [...packs].sort((a, b) => {
       if (a.is_free === b.is_free) return 0
       return a.is_free ? -1 : 1
     })
@@ -216,10 +215,14 @@ function PackSection(props: Readonly<ViewProps & { textInputRef: React.RefObject
   if (!packs) return undefined
   return (
     <>
-      <View style={{ flexWrap: 'wrap', flexDirection: 'row', gap: 16 }} {...props}>
+      <View style={{ flexWrap: 'wrap', flexDirection: 'row', gap: 16 }} {...viewProps}>
         {sortedPacks?.map(pack => (
           <View key={pack.id}>
-            <PackPosterView width={(windowWidth - 32 - 16 * (packsPerRow - 1)) / packsPerRow} pack={pack} />
+            <PackPosterView
+              width={(windowWidth - 32 - 16 * (packsPerRow - 1)) / packsPerRow}
+              pack={pack}
+              onAddPlayersConfirm={() => textInputRef.current?.focus()}
+            />
           </View>
         ))}
       </View>
@@ -298,6 +301,8 @@ function IconInfo(
     </View>
   )
 }
+
+//#endregion
 
 //#region AddPlayerField
 
