@@ -18,7 +18,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import * as Device from 'expo-device'
 import { Image } from 'expo-image'
 import { openSettings, openURL } from 'expo-linking'
-import { default as React, useEffect, useMemo, useRef, useState } from 'react'
+import { RefObject, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Dimensions,
   Keyboard,
@@ -118,7 +118,7 @@ export default function MenuView() {
           )}
 
           <Header titleKey='packs' descriptionKey='packs_subtitle' />
-          <PackSection textInputRef={textInputRef} />
+          <PackSection scrollViewRef={scrollViewRef} textInputRef={textInputRef} />
 
           <View
             style={{
@@ -190,8 +190,12 @@ export function Header(props: Readonly<{ titleKey?: string; descriptionKey?: str
 
 //#region PackSection
 
-function PackSection(props: Readonly<ViewProps & { textInputRef: React.RefObject<TextInput> }>) {
-  const { textInputRef, ...viewProps } = props
+function PackSection(
+  props: Readonly<
+    ViewProps & { scrollViewRef: RefObject<BottomSheetScrollViewMethods>; textInputRef: RefObject<TextInput> }
+  >
+) {
+  const { scrollViewRef, textInputRef, ...viewProps } = props
   const windowWidth = Dimensions.get('window').width
   const packs = useMemo(() => PackManager.items, [PackManager.items])
   const [packsPerRow, setPacksPerRow] = useState(2)
@@ -223,7 +227,10 @@ function PackSection(props: Readonly<ViewProps & { textInputRef: React.RefObject
             <PackPosterView
               width={(windowWidth - 32 - 16 * (packsPerRow - 1)) / packsPerRow}
               pack={pack}
-              onAddPlayersConfirm={() => textInputRef.current?.focus()}
+              onAddPlayersConfirm={() => {
+                scrollViewRef.current?.scrollTo({ y: 0, animated: true })
+                textInputRef.current?.focus()
+              }}
             />
           </View>
         ))}
