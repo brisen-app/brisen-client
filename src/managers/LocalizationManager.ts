@@ -12,6 +12,26 @@ class LocalizationManagerSingleton extends SupabaseManager<Localization> {
     super(tableName)
   }
 
+  dayCountToLocaleString(days: number): string {
+    switch (days) {
+      case 0:
+        return this.get('today')?.value ?? 'today'
+      case 1:
+        return this.get('tomorrow')?.value ?? 'tomorrow'
+      case 7:
+        return this.get('in_one_week')?.value ?? 'in one week'
+      case 8 - 28:
+        return (
+          this.get('in_x_weeks')?.value?.replace('{0}', Math.round(days / 7).toString()) ??
+          `in ${Math.round(days / 7)} weeks`
+        )
+      case 29 - 31:
+        return this.get('in_one_month')?.value ?? 'in one month'
+      default:
+        return this.get('in_days')?.value?.replace('{0}', days.toString()) ?? `in ${days} days`
+    }
+  }
+
   async fetch(id: string) {
     const { data } = await supabase
       .from(tableName)
