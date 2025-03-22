@@ -232,7 +232,13 @@ describe('isPlayable', () => {
 
 describe('getAvailability', () => {
   function toDateString(date: Date) {
-    return date.toISOString().slice(0, 10) // YYYY-MM-DD
+    return (
+      date.getFullYear().toString().padStart(4, '0') +
+      '-' +
+      (date.getMonth() + 1).toString().padStart(2, '0') +
+      '-' +
+      date.getDate().toString().padStart(2, '0')
+    )
   }
 
   it('should return available true when no dates are provided', () => {
@@ -253,17 +259,16 @@ describe('getAvailability', () => {
 
     it('should return 0 days until start when start day is today', () => {
       const today = new Date()
-
       const result = PackManager.getAvailability({ start_date: toDateString(today), end_date: null }, today)
 
       expect(result.isAvailable).toBe(true)
       expect(result.start?.soon).toBe(false)
-      expect(result.start?.daysUntil === 0).toBeTruthy()
+      expect(result.start?.daysUntil).toBe(0)
     })
 
     it('should return 1 day until start when start day is tomorrow', () => {
-      const today = new Date('0001-02-03')
-      const start_date = '0001-02-04'
+      const today = new Date('1000-02-03')
+      const start_date = '1000-02-04'
 
       const result = PackManager.getAvailability({ start_date, end_date: null }, today)
 
@@ -307,8 +312,8 @@ describe('getAvailability', () => {
     })
 
     it('should return 1 day until end when end day is tomorrow', () => {
-      const today = new Date('0001-02-03')
-      const end_date = '0001-02-04'
+      const today = new Date('1000-02-03')
+      const end_date = '1000-02-04'
 
       const result = PackManager.getAvailability({ start_date: null, end_date }, today)
 
@@ -413,6 +418,18 @@ describe('getAvailability', () => {
       expect(result.start?.daysUntil === 0).toBeTruthy()
       expect(result.end?.soon).toBe(true)
       expect(result.end?.daysUntil === 0).toBeTruthy()
+    })
+
+    it('when today is on start_date', () => {
+      const today = new Date('2020-01-01T00:00:00.000+01:00')
+
+      const result = PackManager.getAvailability({ start_date: toDateString(today), end_date: '2020-02-01' }, today)
+
+      expect(result.isAvailable).toBe(true)
+      expect(result.start?.soon).toBe(false)
+      expect(result.start?.daysUntil).toBe(0)
+      expect(result.end?.soon).toBe(false)
+      expect(result.end?.daysUntil).toBe(31)
     })
   })
 })

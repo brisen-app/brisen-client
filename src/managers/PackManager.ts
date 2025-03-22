@@ -72,7 +72,7 @@ class PackManagerSingleton extends SupabaseManager<Pack> {
     if (!pack.start_date && !pack.end_date) return { isAvailable: true }
 
     const dayLimit = ConfigurationManager.getValue('pre_period_days') ?? 14
-    const today = new Date(todayArg.toISOString().slice(0, 10))
+    const today = new Date(todayArg.getFullYear(), todayArg.getMonth(), todayArg.getDate())
 
     if (pack.start_date && !pack.end_date) return this.checkStartDate(pack.start_date, dayLimit, today)
     if (!pack.start_date && pack.end_date) return this.checkEndDate(pack.end_date, dayLimit, today)
@@ -97,7 +97,7 @@ class PackManagerSingleton extends SupabaseManager<Pack> {
   }
 
   private checkDateRange(startDate: string, endDate: string, dayLimit: number, today: Date) {
-    const todayYearless = today.toISOString().slice(5, 10)
+    const todayYearless = this.dateToYearless(today)
     const yearlessStartDate = startDate.slice(5, 10)
     const yearlessEndDate = endDate.slice(5, 10)
 
@@ -135,10 +135,14 @@ class PackManagerSingleton extends SupabaseManager<Pack> {
       throw new Error(`Invalid yearless date: '${yearlessDate}'`)
     }
 
-    const yearlessToday = today.toISOString().slice(5, 10)
+    const yearlessToday = this.dateToYearless(today)
     const year = today.getFullYear() + (yearlessDate < yearlessToday ? 1 : 0)
     const date = new Date(`${year}-${yearlessDate}`)
     return this.daysUntil(date, today)
+  }
+
+  private dateToYearless(date: Date) {
+    return (date.getMonth() + 1).toString().padStart(2, '0') + '-' + date.getDate().toString().padStart(2, '0')
   }
 
   private msToDays(ms: number) {
