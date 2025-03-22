@@ -5,17 +5,18 @@ const tableName = 'configurations'
 export type Configuration = Tables<typeof tableName>
 export type ConfigurationKey = ConfigurationItem['key']
 type ConfigurationItem =
-  | { key: 'use_sfw_content'; value: boolean }
-  | { key: 'default_gradient'; value: string[] }
+  | { key: 'app_store_url'; value: string }
   | { key: 'bottom_sheet_min_position'; value: number }
+  | { key: 'brisen_plus_id'; value: string }
+  | { key: 'coming_soon_period_length'; value: number }
+  | { key: 'default_gradient'; value: string[] }
+  | { key: 'default_language'; value: string }
   | { key: 'max_simultaneous_open_cards'; value: number }
   | { key: 'max_unclosed_card_age'; value: number }
-  | { key: 'app_store_url'; value: string }
-  | { key: 'brisen_plus_id'; value: string }
-  | { key: 'default_language'; value: string }
+  | { key: 'min_playable_cards'; value: number }
   | { key: 'play_store_url'; value: string }
   | { key: 'sfw_language'; value: string }
-  | { key: 'min_playable_cards'; value: number }
+  | { key: 'use_sfw_content'; value: boolean }
 
 class ConfigurationManagerSingleton extends SupabaseManager<Configuration> {
   constructor() {
