@@ -66,6 +66,7 @@ export default function MenuView() {
   const insets = useSafeAreaInsets()
   const bottomSheet = useBottomSheet()
   const scrollViewRef = useRef<BottomSheetScrollViewMethods>(null)
+  const textInputRef = useRef<TextInput>(null)
 
   const { playlist, players, playedIds } = useAppContext()
   const setContext = useAppDispatchContext()
@@ -99,7 +100,7 @@ export default function MenuView() {
       >
         <Animated.View style={[{ gap: 8 }, hideOnBottomStyle]}>
           <Header titleKey='players' descriptionKey='players_subtitle' />
-          <AddPlayerField />
+          <AddPlayerField textInputRef={textInputRef} />
 
           {players.length > 0 && (
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
@@ -117,7 +118,7 @@ export default function MenuView() {
           )}
 
           <Header titleKey='packs' descriptionKey='packs_subtitle' />
-          <PackSection />
+          <PackSection textInputRef={textInputRef} />
 
           <View
             style={{
@@ -189,7 +190,8 @@ export function Header(props: Readonly<{ titleKey?: string; descriptionKey?: str
 
 //#region PackSection
 
-function PackSection(props: Readonly<ViewProps>) {
+function PackSection(props: Readonly<ViewProps & { textInputRef: React.RefObject<TextInput> }>) {
+  const { textInputRef, ...viewProps } = props
   const windowWidth = Dimensions.get('window').width
   const packs = useMemo(() => PackManager.items, [PackManager.items])
   const [packsPerRow, setPacksPerRow] = useState(2)
@@ -292,12 +294,11 @@ function IconInfo(
 
 //#region AddPlayerField
 
-function AddPlayerField(props: Readonly<ViewProps>) {
-  const { style } = props
+function AddPlayerField(props: Readonly<ViewProps & { textInputRef: React.RefObject<TextInput> }>) {
+  const { textInputRef, style } = props
   const { players } = useAppContext()
   const playerCount = players.length
   const setContext = useAppDispatchContext()
-  const textInputRef = useRef<TextInput>(null)
 
   const handleAddPlayer = (e: NativeSyntheticEvent<TextInputSubmitEditingEventData>) => {
     e.preventDefault()
