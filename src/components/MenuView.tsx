@@ -241,6 +241,13 @@ function PackSection(props: Readonly<ViewProps & { textInputRef: React.RefObject
           backgroundColor={Colors.orange.dark}
         />
 
+        <IconInfo
+          icon='hourglass'
+          content={LocalizationManager.get('coming_soon_about')?.value ?? 'coming_soon_about'}
+          foregroundColor={Colors.blue.light}
+          backgroundColor={Colors.blue.dark}
+        />
+
         {!isSubscribed && (
           <TouchableOpacity onPress={() => presentPaywall()}>
             <IconInfo
