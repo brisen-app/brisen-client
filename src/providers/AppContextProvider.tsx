@@ -122,7 +122,7 @@ export function contextReducer(state: AppContextType, action: AppContextAction):
 
     case 'restartGame': {
       const players = state.players.map(player => ({ ...player, playCount: 0 }))
-      return { ...state, players: players, playlist: [], playedCards: [], playedIds: new Set() }
+      return { ...state, players: players, playlist: [], playedCards: [], playedIds: new Set(), currentCard: undefined }
     }
 
     case 'currentCard':

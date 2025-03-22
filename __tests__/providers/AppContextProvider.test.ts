@@ -118,6 +118,7 @@ describe('contextReducer', () => {
         { ...mockPlayer2, playCount: 0 },
       ],
       playlist: [],
+      currentCard: undefined,
     } satisfies AppContextType)
   })
 

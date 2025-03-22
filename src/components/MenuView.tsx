@@ -52,7 +52,7 @@ import Color from '../models/Color'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import DevMenu from './DevMenu'
 import MenuHudView from './MenuHudView'
-import PackPosterView from './pack/PackPosterView'
+import PackPosterView, { IconTag } from './pack/PackPosterView'
 import HoverButtons from './utils/HoverButtons'
 import Tag from './utils/Tag'
 
@@ -206,10 +206,12 @@ function PackSection(props: Readonly<ViewProps & { textInputRef: React.RefObject
   const sortedPacks = useMemo(() => {
     if (isSubscribed || !packs) return packs
 
-    return [...packs].sort((a, b) => {
-      if (a.is_free === b.is_free) return 0
-      return a.is_free ? -1 : 1
-    })
+    return [...packs]
+      .filter(p => p.availability.isAvailable || p.availability.start?.soon)
+      .sort((a, b) => {
+        if (isSubscribed || a.is_free === b.is_free) return 0
+        return a.is_free ? -1 : 1
+      })
   }, [packs])
 
   if (!packs) return undefined
@@ -240,6 +242,13 @@ function PackSection(props: Readonly<ViewProps & { textInputRef: React.RefObject
         <IconInfo
           icon='people'
           content={LocalizationManager.get('pack_unplayable_msg')?.value ?? 'pack_unplayable_msg'}
+          foregroundColor={Colors.orange.light}
+          backgroundColor={Colors.orange.dark}
+        />
+
+        <IconInfo
+          icon='hourglass'
+          content={LocalizationManager.get('leaving_soon_about')?.value ?? 'leaving_soon_about'}
           foregroundColor={Colors.orange.light}
           backgroundColor={Colors.orange.dark}
         />
@@ -284,19 +293,7 @@ function IconInfo(
   const { icon, content, foregroundColor = Colors.text, backgroundColor = Colors.secondaryBackground } = props
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          padding: 6,
-          backgroundColor: backgroundColor,
-          borderColor: Colors.stroke,
-          borderWidth: StyleSheet.hairlineWidth,
-          borderRadius: 8,
-        }}
-      >
-        {icon && <Ionicons name={icon} size={18} color={foregroundColor} />}
-      </View>
+      {icon && <IconTag icon={icon} color={foregroundColor} backgroundColor={backgroundColor} />}
       <Text style={{ flex: 1, color: Colors.text }}>{content}</Text>
     </View>
   )

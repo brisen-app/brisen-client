@@ -113,10 +113,8 @@ export default function GameView(props: Readonly<GameViewProps>) {
       payload: playlist.filter(p => {
         const pack = PackManager.get(p)
         if (!pack) return true
-        const playableCards = GameManager.getPlayableCards(pack.id, c)
-        if (!PackManager.isPlayable(pack.cards.length, playableCards.size)) return true
-        if (!pack.is_free && !isSubscribed) return true
-        return false
+        const playableCardCount = GameManager.getPlayableCards(p, c).size
+        return PackManager.validatePlayability(isSubscribed, pack, playableCardCount).size > 0
       }),
     })
 

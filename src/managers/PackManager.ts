@@ -10,8 +10,13 @@ import SupabaseManager from './SupabaseManager'
 const tableName = 'packs'
 const select = '*, cards(id)'
 
-export type Pack = Tables<typeof tableName> & { cards: string[] }
+export type Pack = Tables<typeof tableName> & { cards: string[] } & { availability: PackAvailability }
 export type UnplayableReason = 'subscription' | 'cardCount' | 'dateRestriction'
+export type PackAvailability = {
+  isAvailable: boolean
+  start?: { soon: boolean; daysUntil: number }
+  end?: { soon: boolean; daysUntil: number }
+}
 
 class PackManagerSingleton extends SupabaseManager<Pack> {
   constructor() {
@@ -47,60 +52,100 @@ class PackManagerSingleton extends SupabaseManager<Pack> {
         `No data found in table '${this.tableName}' for language '${LanguageManager.getLanguage().id}'`
       )
 
-    const packs = data.map(pack => ({
-      ...pack,
-      cards: pack.cards.map(card => card.id),
-    }))
+    const packs = data.map(
+      pack =>
+        ({
+          ...pack,
+          cards: pack.cards.map(card => card.id),
+          availability: this.getAvailability(pack),
+        } satisfies Pack)
+    )
 
     this.set(packs)
     return packs
   }
 
-  isWithinDateRange(pack: Pack, today: Date = new Date()): boolean {
-    if (!pack.start_date && !pack.end_date) return true
+  getAvailability(
+    pack: { start_date: string | null; end_date: string | null },
+    todayArg: Date = new Date()
+  ): PackAvailability {
+    if (!pack.start_date && !pack.end_date) return { isAvailable: true }
 
-    const startDate = pack.start_date ? new Date(pack.start_date) : null
-    const endDate = pack.end_date ? new Date(pack.end_date) : null
-    endDate?.setDate(endDate.getDate() + 1) // Include full end date
+    const dayLimit = ConfigurationManager.getValue('pre_period_days') ?? 14
+    const today = new Date(todayArg.toISOString().slice(0, 10))
 
-    if (startDate && !endDate) return startDate <= today
-    if (endDate && !startDate) return today <= endDate
+    if (pack.start_date && !pack.end_date) return this.checkStartDate(pack.start_date, dayLimit, today)
+    if (!pack.start_date && pack.end_date) return this.checkEndDate(pack.end_date, dayLimit, today)
 
-    const yearlessToday = today.toISOString().slice(5, 10)
-    const yearlessStartDate = pack.start_date!.slice(5, 10)
-    const yearlessEndDate = pack.end_date!.slice(5, 10)
+    return this.checkDateRange(pack.start_date!, pack.end_date!, dayLimit, today)
+  }
 
-    if (yearlessStartDate > yearlessEndDate) {
-      return yearlessStartDate <= yearlessToday || yearlessToday <= yearlessEndDate
+  private checkStartDate(date: string, dayLimit: number, today: Date) {
+    const daysUntil = this.daysUntil(new Date(date), today)
+    return {
+      isAvailable: daysUntil <= 0,
+      start: { soon: daysUntil > 0 && daysUntil <= dayLimit, daysUntil },
     }
+  }
 
-    return yearlessStartDate <= yearlessToday && yearlessToday <= yearlessEndDate
+  private checkEndDate(date: string, dayLimit: number, today: Date) {
+    const daysUntil = this.daysUntil(new Date(date), today)
+    return {
+      isAvailable: daysUntil >= 0,
+      end: { soon: daysUntil > 0 && daysUntil <= dayLimit, daysUntil },
+    }
+  }
+
+  private checkDateRange(startDate: string, endDate: string, dayLimit: number, today: Date) {
+    const todayYearless = today.toISOString().slice(5, 10)
+    const yearlessStartDate = startDate.slice(5, 10)
+    const yearlessEndDate = endDate.slice(5, 10)
+
+    const isCrossingYearBoundary = yearlessStartDate > yearlessEndDate
+
+    const daysUntilStart = this.daysUntilYearless(yearlessStartDate, today)
+    const daysUntilEnd = this.daysUntilYearless(yearlessEndDate, today)
+
+    const isAvailable = isCrossingYearBoundary
+      ? todayYearless >= yearlessStartDate || todayYearless <= yearlessEndDate
+      : todayYearless >= yearlessStartDate && todayYearless <= yearlessEndDate
+
+    return {
+      isAvailable,
+      start: { soon: !isAvailable && daysUntilStart <= dayLimit, daysUntil: daysUntilStart },
+      end: { soon: isAvailable && daysUntilEnd <= dayLimit, daysUntil: daysUntilEnd },
+    }
   }
 
   /**
    * Returns the number of days until the given date, ignoring the year.
    * If the date is in the past, it will return the number of days until the same date next year.
-   * @returns The number of days until the given date
+   * @returns The number of days until the given date, positive if in the future, negative if in the past
    */
-  daysUntil(date: Date, today: Date = new Date()): number {
-    if (date.toISOString().slice(0, 10) < today.toISOString().slice(0, 10)) {
-      date.setFullYear(today.getFullYear() + 1)
-    }
-
-    return Math.max(0, this.msToDays(date.getTime() - today.getTime()))
+  private daysUntil(date: Date, today: Date = new Date()): number {
+    return this.msToDays(date.getTime() - today.getTime())
   }
 
-  isComingSoon(pack: Pack, today: Date = new Date()): boolean | undefined {
-    const dayLimit = ConfigurationManager.getValue('coming_soon_period_length') ?? 14
-    if (!pack.start_date) return undefined
-    return !this.isWithinDateRange(pack, today) && this.daysUntil(new Date(pack.start_date), today) <= dayLimit
+  /**
+   * Returns the number of days until the next ocurrence given yearless date.
+   * @returns The number of days until the given date, always positive
+   */
+  private daysUntilYearless(yearlessDate: string, today: Date = new Date()): number {
+    if (yearlessDate.length !== 5 && yearlessDate[2] !== '-') {
+      throw new Error(`Invalid yearless date: '${yearlessDate}'`)
+    }
+
+    const yearlessToday = today.toISOString().slice(5, 10)
+    const year = today.getFullYear() + (yearlessDate < yearlessToday ? 1 : 0)
+    const date = new Date(`${year}-${yearlessDate}`)
+    return this.daysUntil(date, today)
   }
 
   private msToDays(ms: number) {
-    return Math.round(ms / (1000 * 60 * 60 * 24))
+    return Math.floor(ms / (1000 * 60 * 60 * 24))
   }
 
-  isPlayable(totalCardCount: number, playableCardCount: number) {
+  private isPlayable(totalCardCount: number, playableCardCount: number) {
     const minPlayableCards = ConfigurationManager.getValue('min_playable_cards') ?? 10
     return playableCardCount > 0 && (playableCardCount >= minPlayableCards || totalCardCount < minPlayableCards)
   }
@@ -108,8 +153,8 @@ class PackManagerSingleton extends SupabaseManager<Pack> {
   validatePlayability(isSubscribed: boolean, pack: Pack, playableCardCount: number): Set<UnplayableReason> {
     const reasons: Set<UnplayableReason> = new Set()
 
-    if (!PackManager.isPlayable(pack.cards.length, playableCardCount)) reasons.add('cardCount')
-    if (!PackManager.isWithinDateRange(pack)) reasons.add('dateRestriction')
+    if (!this.isPlayable(pack.cards.length, playableCardCount)) reasons.add('cardCount')
+    if (!pack.availability.isAvailable) reasons.add('dateRestriction')
     if (!pack.is_free && !isSubscribed) reasons.add('subscription')
     return reasons
   }

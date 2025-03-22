@@ -1,5 +1,5 @@
 import { supabase } from '@/src/lib/supabase'
-import { ConfigurationManager } from '@/src/managers/ConfigurationManager'
+import { Configuration, ConfigurationManager } from '@/src/managers/ConfigurationManager'
 import { Pack, PackManager } from '@/src/managers/PackManager'
 
 const mockedSupabasePacks = [
@@ -33,22 +33,25 @@ const mockedPacks = [
     description: 'This is a pack',
     image: 'pack1.png',
     cards: ['1', '2'],
-  },
+    availability: { isAvailable: true },
+  } as Pack,
   {
     id: 'pack3',
     name: 'Pack 3',
     description: 'This is a third pack',
     image: 'pack3.png',
     cards: ['3', '4'],
-  },
+    availability: { isAvailable: true },
+  } as Pack,
   {
     id: 'pack2',
     name: 'Pack 2',
     description: 'This is another pack',
     image: 'pack2.png',
+    availability: { isAvailable: true },
     cards: ['2', '3'],
-  },
-] as Pack[]
+  } as Pack,
+]
 
 const mockedSortedPacks = [...mockedPacks].sort((a, b) => a.name.localeCompare(b.name))
 
@@ -97,6 +100,10 @@ jest.mock('@/src/managers/LanguageManager', () => ({
     getLanguage: () => ({ id: 'en' }),
   },
 }))
+
+beforeAll(() => {
+  ConfigurationManager['set']([{ id: 'pre_period_days', data_type: 'number', number: 14 } as Configuration])
+})
 
 afterEach(() => {
   PackManager['_items'] = undefined
@@ -216,97 +223,215 @@ describe('isPlayable', () => {
     it(`should return ${expected} if totalCardCount is ${totalCardCount}, playableCardCount is ${playableCardCount} and minPlayableCards is ${minPlayableCards}`, () => {
       jest.spyOn(ConfigurationManager, 'getValue').mockReturnValueOnce(minPlayableCards)
 
-      const isPlayable = PackManager.isPlayable(totalCardCount, playableCardCount)
+      const isPlayable = PackManager['isPlayable'](totalCardCount, playableCardCount)
 
       expect(isPlayable).toBe(expected)
     })
   })
 })
 
-describe('isDateLimited', () => {
+describe('getAvailability', () => {
   function toDateString(date: Date) {
     return date.toISOString().slice(0, 10) // YYYY-MM-DD
   }
 
-  it('should return true if both start_date and end_date are null', () => {
-    expect(PackManager.isWithinDateRange({ start_date: null, end_date: null } as Pack)).toBe(true)
+  it('should return available true when no dates are provided', () => {
+    expect(PackManager.getAvailability({ start_date: null, end_date: null })).toEqual({ isAvailable: true })
   })
 
-  it('should return true if start_date is before today', () => {
-    const today = new Date('2020-02-03')
-    const start_date = '0001-02-04'
-    expect(PackManager.isWithinDateRange({ start_date, end_date: null } as Pack, today)).toBe(true)
+  describe('when only start date provided', () => {
+    it('should return -1 day until start when start day is yesterday', () => {
+      const today = new Date('2020-02-03')
+      const start_date = '2020-02-02'
+
+      const result = PackManager.getAvailability({ start_date, end_date: null }, today)
+
+      expect(result.isAvailable).toBe(true)
+      expect(result.start?.soon).toBe(false)
+      expect(result.start?.daysUntil).toBe(-1)
+    })
+
+    it('should return 0 days until start when start day is today', () => {
+      const today = new Date()
+
+      const result = PackManager.getAvailability({ start_date: toDateString(today), end_date: null }, today)
+
+      expect(result.isAvailable).toBe(true)
+      expect(result.start?.soon).toBe(false)
+      expect(result.start?.daysUntil === 0).toBeTruthy()
+    })
+
+    it('should return 1 day until start when start day is tomorrow', () => {
+      const today = new Date('0001-02-03')
+      const start_date = '0001-02-04'
+
+      const result = PackManager.getAvailability({ start_date, end_date: null }, today)
+
+      expect(result.isAvailable).toBe(false)
+      expect(result.start?.soon).toBe(true)
+      expect(result.start?.daysUntil).toBe(1)
+    })
+
+    it('should not return soon start when start day is in a year', () => {
+      const today = new Date('1997-01-31')
+      const start_date = '1998-01-31'
+
+      const result = PackManager.getAvailability({ start_date, end_date: null }, today)
+
+      expect(result.isAvailable).toBe(false)
+      expect(result.start?.soon).toBe(false)
+      expect(result.start?.daysUntil).toBe(365)
+    })
   })
 
-  it('should return true if start_date is on today', () => {
-    const today = new Date()
-    expect(PackManager.isWithinDateRange({ start_date: toDateString(today), end_date: null } as Pack, today)).toBe(true)
+  describe('when only end date provided', () => {
+    it('should return -1 day until end when end day is yesterday', () => {
+      const today = new Date('2020-02-03')
+      const end_date = '2020-02-02'
+
+      const result = PackManager.getAvailability({ start_date: null, end_date }, today)
+
+      expect(result.isAvailable).toBe(false)
+      expect(result.end?.soon).toBe(false)
+      expect(result.end?.daysUntil).toBe(-1)
+    })
+
+    it('should return 0 days until end when end day is today', () => {
+      const today = new Date()
+
+      const result = PackManager.getAvailability({ start_date: null, end_date: toDateString(today) }, today)
+
+      expect(result.isAvailable).toBe(true)
+      expect(result.end?.soon).toBe(false)
+      expect(result.end?.daysUntil === 0).toBeTruthy()
+    })
+
+    it('should return 1 day until end when end day is tomorrow', () => {
+      const today = new Date('0001-02-03')
+      const end_date = '0001-02-04'
+
+      const result = PackManager.getAvailability({ start_date: null, end_date }, today)
+
+      expect(result.isAvailable).toBe(true)
+      expect(result.end?.soon).toBe(true)
+      expect(result.end?.daysUntil).toBe(1)
+    })
+
+    it('should not return soon end when end day is in a year', () => {
+      const today = new Date('1997-01-31')
+      const end_date = '1998-01-31'
+
+      const result = PackManager.getAvailability({ start_date: null, end_date }, today)
+
+      expect(result.isAvailable).toBe(true)
+      expect(result.end?.soon).toBe(false)
+      expect(result.end?.daysUntil).toBe(365)
+    })
   })
 
-  it('should return false if start_date is after today', () => {
-    const today = new Date('0001-02-03')
-    const start_date = '0001-02-04'
-    expect(PackManager.isWithinDateRange({ start_date, end_date: null } as Pack, today)).toBe(false)
-  })
+  describe('when both start and end dates provided', () => {
+    it('when today is between start and end date no crossing year', () => {
+      const today = new Date('2020-06-01')
+      const start_date = '0004-05-01'
+      const end_date = '0000-07-01'
 
-  it('should return false if end_date is before today', () => {
-    const today = new Date('2020-05-05')
-    const end_date = '1999-02-04'
-    expect(PackManager.isWithinDateRange({ start_date: null, end_date } as Pack, today)).toBe(false)
-  })
+      const result = PackManager.getAvailability({ start_date, end_date }, today)
 
-  it('should return true if end_date is on today', () => {
-    const today = new Date()
-    expect(PackManager.isWithinDateRange({ start_date: null, end_date: toDateString(today) } as Pack, today)).toBe(true)
-  })
+      expect(result.isAvailable).toBe(true)
+      expect(result.start?.soon).toBe(false)
+      expect(result.start?.daysUntil).toBe(334)
+      expect(result.end?.soon).toBe(false)
+      expect(result.end?.daysUntil).toBe(30)
+    })
 
-  it('should return true if end_date is after today', () => {
-    const today = new Date('2020-06-23')
-    const end_date = '2020-10-01'
-    expect(PackManager.isWithinDateRange({ start_date: null, end_date } as Pack, today)).toBe(true)
-  })
+    it('when start date is soon', () => {
+      const today = new Date('2020-01-20')
+      const start_date = '0004-01-21'
+      const end_date = '0000-12-22'
 
-  it('should return true if today is after start_date and before end_date', () => {
-    const today = new Date('2020-06-23')
-    const start_date = '0000-05-30'
-    const end_date = '0000-10-01'
+      const result = PackManager.getAvailability({ start_date, end_date }, today)
 
-    expect(PackManager.isWithinDateRange({ start_date, end_date } as Pack, today)).toBe(true)
-  })
+      expect(result.isAvailable).toBe(false)
+      expect(result.start?.soon).toBe(true)
+      expect(result.start?.daysUntil).toBe(1)
+      expect(result.end?.soon).toBe(false)
+      expect(result.end?.daysUntil).toBe(337)
+    })
 
-  it('should return false if today is before start_date and after end_date', () => {
-    const today = new Date('2000-06-23')
-    const start_date = '0000-10-01'
-    const end_date = '0000-05-30'
+    it('when today is between start and end date with crossing year', () => {
+      const today = new Date('2020-01-01')
+      const start_date = '0004-12-01'
+      const end_date = '0000-02-01'
 
-    expect(PackManager.isWithinDateRange({ start_date, end_date } as Pack, today)).toBe(false)
-  })
+      const result = PackManager.getAvailability({ start_date, end_date }, today)
 
-  it('should return true if today is on start_date and end_date', () => {
-    expect(
-      PackManager.isWithinDateRange({
-        start_date: toDateString(new Date()),
-        end_date: toDateString(new Date()),
-      } as Pack)
-    ).toBe(true)
+      expect(result.isAvailable).toBe(true)
+      expect(result.start?.soon).toBe(false)
+      expect(result.start?.daysUntil).toBe(335)
+      expect(result.end?.soon).toBe(false)
+      expect(result.end?.daysUntil).toBe(31)
+    })
+
+    it('when end date is soon', () => {
+      const today = new Date('2025-03-22T20:26:00.000+01:00')
+      const start_date = toDateString(new Date(today.getTime() - 1000 * 60 * 60 * 24 * 10))
+      const end_date = toDateString(new Date(today.getTime() + 1000 * 60 * 60 * 24))
+
+      const result = PackManager.getAvailability({ start_date, end_date }, today)
+
+      expect(result.isAvailable).toBe(true)
+      expect(result.start?.soon).toBe(false)
+      expect(result.start?.daysUntil).toBe(355)
+      expect(result.end?.soon).toBe(true)
+      expect(result.end?.daysUntil).toBe(1)
+    })
+
+    it('when today is not between start and end date with crossing year', () => {
+      const today = new Date('2020-03-01')
+      const start_date = '0004-12-01'
+      const end_date = '0000-02-01'
+
+      const result = PackManager.getAvailability({ start_date, end_date }, today)
+
+      expect(result.isAvailable).toBe(false)
+      expect(result.start?.soon).toBe(false)
+      expect(result.start?.daysUntil).toBe(275)
+      expect(result.end?.soon).toBe(false)
+      expect(result.end?.daysUntil).toBe(337)
+    })
+
+    it('when today is on start_date and end_date', () => {
+      const today = new Date('2020-01-01')
+
+      const result = PackManager.getAvailability(
+        { start_date: toDateString(today), end_date: toDateString(today) },
+        today
+      )
+
+      expect(result.isAvailable).toBe(true)
+      expect(result.start?.soon).toBe(false)
+      expect(result.start?.daysUntil === 0).toBeTruthy()
+      expect(result.end?.soon).toBe(true)
+      expect(result.end?.daysUntil === 0).toBeTruthy()
+    })
   })
 })
 
 describe('daysUntil', () => {
   it('should return 0 if the date is today', () => {
     const today = new Date('2020-06-23')
-    expect(PackManager.daysUntil(today, today)).toBe(0)
+    expect(PackManager['daysUntil'](today, today)).toBe(0)
   })
 
   it('should return 1 if the date is tomorrow', () => {
     const today = new Date('2020-06-23')
     const date = new Date('2020-06-24')
-    expect(PackManager.daysUntil(date, today)).toBe(1)
+    expect(PackManager['daysUntil'](date, today)).toBe(1)
   })
 
   it('should return 364 if the date is yesterday', () => {
     const today = new Date('2020-06-23')
     const date = new Date('2020-06-22')
-    expect(PackManager.daysUntil(date, today)).toBe(364)
+    expect(PackManager['daysUntil'](date, today)).toBe(-1)
   })
 })

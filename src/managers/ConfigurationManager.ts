@@ -8,13 +8,13 @@ type ConfigurationItem =
   | { key: 'app_store_url'; value: string }
   | { key: 'bottom_sheet_min_position'; value: number }
   | { key: 'brisen_plus_id'; value: string }
-  | { key: 'coming_soon_period_length'; value: number }
   | { key: 'default_gradient'; value: string[] }
   | { key: 'default_language'; value: string }
   | { key: 'max_simultaneous_open_cards'; value: number }
   | { key: 'max_unclosed_card_age'; value: number }
   | { key: 'min_playable_cards'; value: number }
   | { key: 'play_store_url'; value: string }
+  | { key: 'pre_period_days'; value: number }
   | { key: 'sfw_language'; value: string }
   | { key: 'use_sfw_content'; value: boolean }
 

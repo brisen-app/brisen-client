@@ -10,6 +10,7 @@ import Animated, { Easing, FadeIn, FadeOut, useAnimatedStyle, withTiming } from 
 import { AppContextType, useAppContext, useAppDispatchContext } from '../../providers/AppContextProvider'
 import { presentPaywall, useInAppPurchaseContext } from '../../providers/InAppPurchaseProvider'
 import Skeleton from '../utils/Skeleton'
+import { LinearGradient } from 'expo-linear-gradient'
 
 export type PackViewProps = ViewProps & {
   pack: Pack
@@ -29,9 +30,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps>) {
 
   const isSelected = c.playlist.includes(pack.id)
   const isNoneSelected = c.playlist.length === 0
-  const { showPack, onPress, unplayableReasons, localizations } = getAvailability(pack, c, onAddPlayersConfirm)
-
-  if (!showPack) return undefined
+  const { onPress, unplayableReasons, localizations } = getPackDetails(pack, c, onAddPlayersConfirm)
 
   const { data: image, isLoading, error } = PackManager.useImageQuery(pack.image)
   if (error) console.warn(`Couldn't load image for pack ${pack.name}:`, error)
@@ -45,7 +44,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps>) {
 
   if (isLoading) return <SkeletonView {...props} />
 
-  const descriptionField = unplayableReasons.has('dateRestriction')
+  const descriptionField = pack.availability.start?.soon
     ? localizations.comingSoonMsg ?? localizations.comingSoonTitle
     : pack.description ?? pack.cards.length + ' cards'
 
@@ -137,7 +136,7 @@ function PackImageOverlay(
     }
   >
 ) {
-  const { unplayableReasons, isSelected } = props
+  const { pack, unplayableReasons, isSelected } = props
 
   const enterAnimation = FadeIn.duration(animationConfig.duration).easing(Easing.in(animationConfig.easing.factory()))
   const exitAnimation = FadeOut.duration(animationConfig.duration).easing(Easing.out(animationConfig.easing.factory()))
@@ -167,9 +166,15 @@ function PackImageOverlay(
         </Animated.View>
       )}
 
-      {unplayableReasons.has('dateRestriction') && (
+      {pack.availability.start?.soon && (
         <Animated.View entering={enterAnimation} exiting={exitAnimation}>
           <IconTag icon='hourglass' color={Colors.blue.light} backgroundColor={Colors.blue.dark} />
+        </Animated.View>
+      )}
+
+      {pack.availability.end?.soon && (
+        <Animated.View entering={enterAnimation} exiting={exitAnimation}>
+          <IconTag icon='hourglass' color={Colors.orange.light} backgroundColor={Colors.orange.dark} />
         </Animated.View>
       )}
 
@@ -185,8 +190,8 @@ function PackImageOverlay(
 }
 
 function getLocalizations(pack: Pack) {
-  const daysUntilAvailable = pack.start_date ? PackManager.daysUntil(new Date(pack.start_date)) : undefined
   const comingSoonMsg = LocalizationManager.get('coming_soon_msg')?.value ?? 'This pack will be available {0}!'
+
   return {
     addMorePlayersTitle:
       LocalizationManager.get('pack_unplayable_title')?.value ?? 'More players or categories required',
@@ -195,8 +200,8 @@ function getLocalizations(pack: Pack) {
       'To play this pack, you need to add more players or remove some category filters.',
 
     comingSoonTitle: LocalizationManager.get('coming_soon_title')?.value ?? 'Coming soon!',
-    comingSoonMsg: daysUntilAvailable
-      ? comingSoonMsg.replace('{0}', LocalizationManager.dayCountToLocaleString(daysUntilAvailable))
+    comingSoonMsg: pack.availability.start?.daysUntil
+      ? comingSoonMsg.replace('{0}', LocalizationManager.dayCountToLocaleString(pack.availability.start.daysUntil))
       : undefined,
   }
 }
@@ -227,14 +232,13 @@ function getOnPress(
   return () => setContext({ action: 'togglePack', payload: pack.id })
 }
 
-function getAvailability(pack: Pack, c: AppContextType, onAddPlayersConfirm?: () => any) {
+function getPackDetails(pack: Pack, c: AppContextType, onAddPlayersConfirm?: () => any) {
   const { isSubscribed } = useInAppPurchaseContext()
   const playableCardCount = GameManager.getPlayableCards(pack.id, c).size
   const unplayableReasons = PackManager.validatePlayability(isSubscribed, pack, playableCardCount)
   const localizations = getLocalizations(pack)
 
   return {
-    showPack: !unplayableReasons.has('dateRestriction') || (PackManager.isComingSoon(pack) ?? true),
     onPress: getOnPress(pack, unplayableReasons, localizations, onAddPlayersConfirm),
     unplayableReasons,
     localizations,
@@ -248,7 +252,7 @@ type IconTagProps = {
   size?: number
 }
 
-function IconTag(props: Readonly<IconTagProps>) {
+export function IconTag(props: Readonly<IconTagProps>) {
   const { icon, color = Colors.yellow.light, backgroundColor = Colors.yellow.dark, size = 18 } = props
   return (
     <View
@@ -272,6 +276,10 @@ function IconTag(props: Readonly<IconTagProps>) {
         }) ?? {},
       ]}
     >
+      <LinearGradient
+        style={[StyleSheet.absoluteFill, { opacity: 0.05, borderRadius: size / 2 }]}
+        colors={['white', 'black']}
+      />
       <Ionicons name={icon} size={size} style={{ color: color }} />
     </View>
   )
