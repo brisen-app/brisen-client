@@ -246,19 +246,23 @@ function PackSection(props: Readonly<ViewProps & { textInputRef: React.RefObject
           backgroundColor={Colors.orange.dark}
         />
 
-        <IconInfo
-          icon='hourglass'
-          content={LocalizationManager.get('leaving_soon_about')?.value ?? 'leaving_soon_about'}
-          foregroundColor={Colors.orange.light}
-          backgroundColor={Colors.orange.dark}
-        />
+        {packs?.some(p => p.availability.end?.soon) && (
+          <IconInfo
+            icon='hourglass'
+            content={LocalizationManager.get('leaving_soon_about')?.value ?? 'leaving_soon_about'}
+            foregroundColor={Colors.yellow.light}
+            backgroundColor={Colors.yellow.dark}
+          />
+        )}
 
-        <IconInfo
-          icon='hourglass'
-          content={LocalizationManager.get('coming_soon_about')?.value ?? 'coming_soon_about'}
-          foregroundColor={Colors.blue.light}
-          backgroundColor={Colors.blue.dark}
-        />
+        {packs?.some(p => p.availability.start?.soon) && (
+          <IconInfo
+            icon='hourglass'
+            content={LocalizationManager.get('coming_soon_about')?.value ?? 'coming_soon_about'}
+            foregroundColor={Colors.blue.light}
+            backgroundColor={Colors.blue.dark}
+          />
+        )}
 
         {!isSubscribed && (
           <TouchableOpacity onPress={() => presentPaywall()}>

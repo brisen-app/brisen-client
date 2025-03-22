@@ -174,7 +174,7 @@ function PackImageOverlay(
 
       {pack.availability.end?.soon && (
         <Animated.View entering={enterAnimation} exiting={exitAnimation}>
-          <IconTag icon='hourglass' color={Colors.orange.light} backgroundColor={Colors.orange.dark} />
+          <IconTag icon='hourglass' color={Colors.yellow.light} backgroundColor={Colors.yellow.dark} />
         </Animated.View>
       )}
 
