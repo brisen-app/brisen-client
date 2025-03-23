@@ -82,9 +82,8 @@ export function contextReducer(state: AppContextType, action: AppContextAction):
       const lowestPlayCount = Math.min(...state.players.map(p => p.playCount))
 
       if (state.players.some(p => p.name === payload)) {
-        const playerExistsTitle = LocalizationManager.get('player_exists_title')?.value ?? 'Player already exists'
-        const playerExistsMessage =
-          LocalizationManager.get('player_exists_msg')?.value ?? 'Please enter a different name'
+        const playerExistsTitle = LocalizationManager.getValue('player_exists_title')
+        const playerExistsMessage = LocalizationManager.getValue('player_exists_msg')
         Alert.alert(playerExistsTitle, playerExistsMessage)
         console.warn(`Player ${payload} already exists`)
         return state

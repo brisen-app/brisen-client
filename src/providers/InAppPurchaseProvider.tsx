@@ -5,7 +5,7 @@ import Purchases, { CustomerInfo } from 'react-native-purchases'
 import RevenueCatUI, { PAYWALL_RESULT } from 'react-native-purchases-ui'
 import FetchErrorView from '../components/FetchErrorView'
 import env from '../lib/env'
-import { LocalizationManager } from '../managers/LocalizationManager'
+import { LocalizationKey, LocalizationManager } from '../managers/LocalizationManager'
 
 function initInAppPurchases(setContext: Dispatch<InAppPurchaseContextActionType>) {
   Purchases.setLogLevel(Purchases.LOG_LEVEL.DEBUG)
@@ -116,18 +116,12 @@ export async function presentPaywall() {
   } catch (e) {
     console.error(e)
     if (!(e instanceof Error)) throw e
-    const message = LocalizationManager.get('error_alert_title')?.value
-    Alert.alert(
-      LocalizationManager.get('error_alert_title')?.value ?? 'Error',
-      message ? `${message}\n(${e.message})` : e.message
-    )
+    const message = LocalizationManager.getValue('error_alert_title')
+    Alert.alert(LocalizationManager.getValue('error_alert_title'), message ? `${message}\n(${e.message})` : e.message)
   }
   return
-  function presentAlert(titleKey: string, messageKey: string) {
-    Alert.alert(
-      LocalizationManager.get(titleKey)?.value ?? titleKey,
-      LocalizationManager.get(messageKey)?.value ?? messageKey
-    )
+  function presentAlert(titleKey: LocalizationKey, messageKey: LocalizationKey) {
+    Alert.alert(LocalizationManager.getValue(titleKey), LocalizationManager.getValue(messageKey))
   }
 }
 

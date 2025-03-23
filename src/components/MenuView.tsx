@@ -2,7 +2,7 @@
 import Colors from '@/src/constants/Colors'
 import { FontStyles, SHEET_HANDLE_HEIGHT } from '@/src/constants/Styles'
 import { formatName as prettifyString, useSheetBottomInset } from '@/src/lib/utils'
-import { LocalizationManager } from '@/src/managers/LocalizationManager'
+import { LocalizationKey, LocalizationManager } from '@/src/managers/LocalizationManager'
 import { PackManager } from '@/src/managers/PackManager'
 import { presentPaywall, useInAppPurchaseContext } from '@/src/providers/InAppPurchaseProvider'
 import { AntDesign, Feather, Ionicons } from '@expo/vector-icons'
@@ -148,7 +148,7 @@ export default function MenuView() {
             },
             {
               icon: 'chevron-down',
-              text: LocalizationManager.get('start_game')?.value,
+              text: LocalizationManager.getValue('start_game'),
               onPress: () => {
                 Keyboard.dismiss()
                 scrollViewRef.current?.scrollTo({ y: 0, animated: true })
@@ -166,20 +166,20 @@ export default function MenuView() {
 
 //#region Header
 
-export function Header(props: Readonly<{ titleKey?: string; descriptionKey?: string }>) {
+export function Header(props: Readonly<{ titleKey?: LocalizationKey; descriptionKey?: LocalizationKey }>) {
   const { titleKey, descriptionKey } = props
 
   return (
     <View style={{ paddingTop: 16, gap: 4 }}>
       {titleKey && (
         <Text id={titleKey} style={FontStyles.Header}>
-          {LocalizationManager.get(titleKey)?.value ?? titleKey}
+          {LocalizationManager.getValue(titleKey)}
         </Text>
       )}
 
       {descriptionKey && (
         <Text id={descriptionKey} style={FontStyles.Subheading}>
-          {LocalizationManager.get(descriptionKey)?.value ?? descriptionKey}
+          {LocalizationManager.getValue(descriptionKey)}
         </Text>
       )}
     </View>
@@ -241,14 +241,14 @@ function PackSection(
       <View style={{ gap: 16 }}>
         <IconInfo
           icon='checkmark-circle'
-          content={LocalizationManager.get('icon_info_selected')?.value ?? 'icon_info_selected'}
+          content={LocalizationManager.getValue('icon_info_selected')}
           foregroundColor={Colors.yellow.light}
           backgroundColor={Colors.yellow.dark}
         />
 
         <IconInfo
           icon='people'
-          content={LocalizationManager.get('pack_unplayable_msg')?.value ?? 'pack_unplayable_msg'}
+          content={LocalizationManager.getValue('pack_unplayable_msg')}
           foregroundColor={Colors.orange.light}
           backgroundColor={Colors.orange.dark}
         />
@@ -256,7 +256,7 @@ function PackSection(
         {packs?.some(p => p.availability.end?.soon) && (
           <IconInfo
             icon='hourglass'
-            content={LocalizationManager.get('leaving_soon_about')?.value ?? 'leaving_soon_about'}
+            content={LocalizationManager.getValue('leaving_soon_about')}
             foregroundColor={Colors.yellow.light}
             backgroundColor={Colors.yellow.dark}
           />
@@ -265,7 +265,7 @@ function PackSection(
         {packs?.some(p => p.availability.start?.soon) && (
           <IconInfo
             icon='hourglass'
-            content={LocalizationManager.get('coming_soon_about')?.value ?? 'coming_soon_about'}
+            content={LocalizationManager.getValue('coming_soon_about')}
             foregroundColor={Colors.blue.light}
             backgroundColor={Colors.blue.dark}
           />
@@ -275,7 +275,7 @@ function PackSection(
           <TouchableOpacity onPress={() => presentPaywall()}>
             <IconInfo
               icon='cart'
-              content={LocalizationManager.get('icon_info_purchase')?.value ?? 'icon_info_purchase'}
+              content={LocalizationManager.getValue('icon_info_purchase')}
               foregroundColor={Colors.green.light}
               backgroundColor={Colors.green.dark}
             />
@@ -284,7 +284,7 @@ function PackSection(
 
         <IconInfo
           icon='reload'
-          content={LocalizationManager.get('icon_info_restart')?.value ?? 'icon_info_restart'}
+          content={LocalizationManager.getValue('icon_info_restart')}
           foregroundColor={Colors.yellow.light}
           backgroundColor={Colors.yellow.dark}
         />
@@ -352,7 +352,7 @@ function AddPlayerField(props: Readonly<ViewProps & { textInputRef: React.RefObj
         <AntDesign name='plus' size={18} color={Colors.secondaryText} />
         <BottomSheetTextInput
           ref={textInputRef}
-          placeholder={LocalizationManager.get('add_players')?.value ?? 'add_players'}
+          placeholder={LocalizationManager.getValue('add_players')}
           placeholderTextColor={Colors.secondaryText}
           returnKeyType='done'
           enablesReturnKeyAutomatically
@@ -381,7 +381,7 @@ function AddPlayerField(props: Readonly<ViewProps & { textInputRef: React.RefObj
             onPress={handleClearPlayers}
           >
             <Text style={[FontStyles.Button, { color: Colors.yellow.dark }]} numberOfLines={1}>
-              {LocalizationManager.get('clear')?.value ?? 'Clear'}
+              {LocalizationManager.getValue('clear')}
             </Text>
           </TouchableOpacity>
         </Animated.View>
@@ -404,8 +404,8 @@ function LinksView(props: Readonly<ViewProps>) {
     }) ?? undefined
 
   const onShare = async () => {
-    const shareTitle = LocalizationManager.get('app_name')?.value ?? 'app_name'
-    const shareMsg = LocalizationManager.get('share_message')?.value ?? 'share_message'
+    const shareTitle = LocalizationManager.getValue('app_name')
+    const shareMsg = LocalizationManager.getValue('share_message')
     await Share.share(
       {
         title: shareTitle,
@@ -425,7 +425,7 @@ function LinksView(props: Readonly<ViewProps>) {
 
   const settings: {
     show?: boolean
-    titleKey: string
+    titleKey: LocalizationKey
     iconName: keyof typeof Feather.glyphMap
     onPress: () => {}
   }[] = [
@@ -468,7 +468,7 @@ function LinksView(props: Readonly<ViewProps>) {
           >
             <Feather name={setting.iconName} size={18} color={Colors.secondaryText} />
             <Text key={setting.titleKey} style={{ color: Colors.secondaryText, fontWeight: '500' }}>
-              {LocalizationManager.get(setting.titleKey)?.value ?? setting.titleKey}
+              {LocalizationManager.getValue(setting.titleKey)}
             </Text>
           </TouchableOpacity>
         ))}

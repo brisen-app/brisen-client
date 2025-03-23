@@ -1,37 +1,28 @@
-// @ts-nocheck
-
 import { Category, CategoryManager } from '@/src/managers/CategoryManager'
-import { Localization } from '@/src/managers/LocalizationManager'
 
-const mockedLocalizations: Localization[] = [
-  { id: 'categories_1_title', value: 'Alice' },
-  { id: 'categories_2_title', value: 'Bob' },
-  { id: 'categories_3_title', value: 'Charlie' },
-  { id: 'categories_1_description', value: 'Alice description' },
-]
+const mockedLocalizations = new Map([
+  ['categories_1_title', 'Alice'],
+  ['categories_2_title', 'Bob'],
+  ['categories_3_title', 'Charlie'],
+  ['categories_1_description', 'Alice description'],
+])
 
 const mockedItems: Category[] = [
   {
     id: '1',
     icon: '1️⃣',
     gradient: ['red', 'blue'],
-    created_at: '2021-01-01T00:00:00.000Z',
-    modified_at: '2021-01-01T00:00:00.000Z',
-  },
+  } as Category,
   {
     id: '3',
     icon: '3️⃣',
     gradient: ['yellow', 'green'],
-    created_at: '2021-01-01T00:00:00.000Z',
-    modified_at: '2021-01-01T00:00:00.000Z',
-  },
+  } as Category,
   {
     id: '2',
     icon: '2️⃣',
     gradient: ['purple', 'orange'],
-    created_at: '2021-01-01T00:00:00.000Z',
-    modified_at: '2021-01-01T00:00:00.000Z',
-  },
+  } as Category,
 ]
 
 jest.mock('@/src/lib/supabase', () => ({
@@ -46,17 +37,17 @@ jest.mock('@/src/lib/supabase', () => ({
 
 jest.mock('@/src/managers/LocalizationManager', () => ({
   LocalizationManager: {
-    get: (id: string) => mockedLocalizations.find(title => title.id === id),
+    getValue: (id: string) => mockedLocalizations.get(id),
   },
 }))
 
 beforeEach(() => {
-  CategoryManager['_items'] = null
+  CategoryManager['_items'] = undefined
 })
 
 describe('items', () => {
   it('should return categories sorted by localized title', () => {
-    CategoryManager.set(mockedItems)
+    CategoryManager['set'](mockedItems)
     expect(CategoryManager.items).toEqual([mockedItems[0], mockedItems[2], mockedItems[1]])
   })
 

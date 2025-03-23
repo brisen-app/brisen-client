@@ -3,19 +3,30 @@ import { LanguageManager } from './LanguageManager'
 import { NotFoundError } from '@/src/models/Errors'
 import SupabaseManager from './SupabaseManager'
 import { Tables } from '@/src/models/supabase'
+import LocalizationDefaults from '../models/LocalizationDefaults'
 
 const tableName = 'localizations'
 export type Localization = Tables<typeof tableName>
+export type LocalizationKey = keyof typeof LocalizationDefaults
 
 class LocalizationManagerSingleton extends SupabaseManager<Localization> {
   constructor() {
     super(tableName)
   }
 
+  getValue<K extends keyof typeof LocalizationDefaults>(key: K): (typeof LocalizationDefaults)[K] {
+    const item = this.get(key)
+    if (!item) {
+      console.warn(`Localization item '${key}' not found`)
+      return LocalizationDefaults[key]
+    }
+    return item.value
+  }
+
   dayCountToLocaleString(days: number): string {
     switch (days) {
       case 0:
-        return this.get('today')?.value ?? 'today'
+        return this.getValue('today')
       case 1:
         return this.get('tomorrow')?.value ?? 'tomorrow'
       case 7:

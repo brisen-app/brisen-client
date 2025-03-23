@@ -190,16 +190,13 @@ function PackImageOverlay(
 }
 
 function getLocalizations(pack: Pack) {
-  const comingSoonMsg = LocalizationManager.get('coming_soon_msg')?.value ?? 'This pack will be available {0}!'
+  const comingSoonMsg = LocalizationManager.getValue('coming_soon_msg')
 
   return {
-    addMorePlayersTitle:
-      LocalizationManager.get('pack_unplayable_title')?.value ?? 'More players or categories required',
-    addMorePlayersMessage:
-      LocalizationManager.get('pack_unplayable_msg')?.value ??
-      'To play this pack, you need to add more players or remove some category filters.',
+    addMorePlayersTitle: LocalizationManager.getValue('pack_unplayable_title'),
+    addMorePlayersMessage: LocalizationManager.getValue('pack_unplayable_msg'),
 
-    comingSoonTitle: LocalizationManager.get('coming_soon_title')?.value ?? 'Coming soon!',
+    comingSoonTitle: LocalizationManager.getValue('coming_soon_title'),
     comingSoonMsg: pack.availability.start?.daysUntil
       ? comingSoonMsg.replace('{0}', LocalizationManager.dayCountToLocaleString(pack.availability.start.daysUntil))
       : undefined,

@@ -206,7 +206,7 @@ function NoCardsView(props: Readonly<PressableProps & ViewProps>) {
       ]}
     >
       <Text style={{ color: Colors.secondaryText, textAlign: 'center' }}>
-        {LocalizationManager.get('select_pack')?.value ?? 'select_pack'}
+        {LocalizationManager.getValue('select_pack')}
       </Text>
     </Pressable>
   )
@@ -235,7 +235,7 @@ function OutOfCardsView(props: Readonly<TouchableOpacityProps>) {
           color: Colors.secondaryText,
         }}
       >
-        {LocalizationManager.get('out_of_cards')?.value ?? 'out_of_cards'}
+        {LocalizationManager.getValue('out_of_cards')}
       </Text>
       <TouchableOpacity
         disabled={playedCards.length === 0}
@@ -263,7 +263,7 @@ function OutOfCardsView(props: Readonly<TouchableOpacityProps>) {
             color: Colors.yellow.light,
           }}
         >
-          {LocalizationManager.get('restart_game')?.value ?? 'restart_game'}
+          {LocalizationManager.getValue('restart_game')}
         </Text>
       </TouchableOpacity>
     </View>
