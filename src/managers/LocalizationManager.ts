@@ -1,9 +1,9 @@
-import { supabase } from '../lib/supabase'
-import { LanguageManager } from './LanguageManager'
 import { NotFoundError } from '@/src/models/Errors'
-import SupabaseManager from './SupabaseManager'
 import { Tables } from '@/src/models/supabase'
+import { supabase } from '../lib/supabase'
 import LocalizationDefaults from '../models/LocalizationDefaults'
+import { LanguageManager } from './LanguageManager'
+import SupabaseManager from './SupabaseManager'
 
 const tableName = 'localizations'
 export type Localization = Tables<typeof tableName>
@@ -28,18 +28,15 @@ class LocalizationManagerSingleton extends SupabaseManager<Localization> {
       case 0:
         return this.getValue('today')
       case 1:
-        return this.get('tomorrow')?.value ?? 'tomorrow'
+        return this.getValue('tomorrow')
       case 7:
-        return this.get('in_one_week')?.value ?? 'in one week'
+        return this.getValue('in_one_week')
       case 8 - 28:
-        return (
-          this.get('in_x_weeks')?.value?.replace('{0}', Math.round(days / 7).toString()) ??
-          `in ${Math.round(days / 7)} weeks`
-        )
+        return this.getValue('in_x_weeks').replace('{0}', Math.round(days / 7).toString())
       case 29 - 31:
-        return this.get('in_one_month')?.value ?? 'in one month'
+        return this.getValue('in_one_month')
       default:
-        return this.get('in_days')?.value?.replace('{0}', days.toString()) ?? `in ${days} days`
+        return this.getValue('in_days').replace('{0}', days.toString())
     }
   }
 
