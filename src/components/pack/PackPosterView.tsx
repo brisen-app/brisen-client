@@ -5,12 +5,12 @@ import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import { Pack, PackManager, UnplayableReason } from '@/src/managers/PackManager'
 import { Ionicons } from '@expo/vector-icons'
 import { Image } from 'expo-image'
+import { LinearGradient } from 'expo-linear-gradient'
 import { Alert, Platform, Pressable, StyleSheet, Text, View, ViewProps } from 'react-native'
 import Animated, { Easing, FadeIn, FadeOut, useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import { AppContextType, useAppContext, useAppDispatchContext } from '../../providers/AppContextProvider'
 import { presentPaywall, useInAppPurchaseContext } from '../../providers/InAppPurchaseProvider'
 import Skeleton from '../utils/Skeleton'
-import { LinearGradient } from 'expo-linear-gradient'
 
 export type PackViewProps = ViewProps & {
   pack: Pack
