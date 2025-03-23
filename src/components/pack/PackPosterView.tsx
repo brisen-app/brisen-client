@@ -45,8 +45,8 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps>) {
   if (isLoading) return <SkeletonView {...props} />
 
   const descriptionField = pack.availability.start?.soon
-    ? localizations.comingSoonMsg ?? localizations.comingSoonTitle
-    : pack.description ?? pack.cards.length + ' cards'
+    ? (localizations.comingSoonMsg ?? localizations.comingSoonTitle)
+    : (pack.description ?? pack.cards.length + ' cards')
 
   return (
     <Animated.View

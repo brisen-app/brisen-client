@@ -58,7 +58,7 @@ class PackManagerSingleton extends SupabaseManager<Pack> {
           ...pack,
           cards: pack.cards.map(card => card.id),
           availability: this.getAvailability(pack),
-        } satisfies Pack)
+        }) satisfies Pack
     )
 
     this.set(packs)
