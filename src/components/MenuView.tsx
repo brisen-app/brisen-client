@@ -2,7 +2,7 @@
 import Colors from '@/src/constants/Colors'
 import { FontStyles, SHEET_HANDLE_HEIGHT } from '@/src/constants/Styles'
 import { formatName as prettifyString, useSheetBottomInset } from '@/src/lib/utils'
-import { LocalizationManager } from '@/src/managers/LocalizationManager'
+import { LocalizationKey, LocalizationManager } from '@/src/managers/LocalizationManager'
 import { PackManager } from '@/src/managers/PackManager'
 import { presentPaywall, useInAppPurchaseContext } from '@/src/providers/InAppPurchaseProvider'
 import { AntDesign, Feather, Ionicons } from '@expo/vector-icons'
@@ -18,7 +18,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import * as Device from 'expo-device'
 import { Image } from 'expo-image'
 import { openSettings, openURL } from 'expo-linking'
-import { default as React, useEffect, useMemo, useRef, useState } from 'react'
+import { RefObject, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Dimensions,
   Keyboard,
@@ -52,7 +52,7 @@ import Color from '../models/Color'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import DevMenu from './DevMenu'
 import MenuHudView from './MenuHudView'
-import PackPosterView from './pack/PackPosterView'
+import PackPosterView, { IconTag } from './pack/PackPosterView'
 import HoverButtons from './utils/HoverButtons'
 import Tag from './utils/Tag'
 
@@ -66,6 +66,7 @@ export default function MenuView() {
   const insets = useSafeAreaInsets()
   const bottomSheet = useBottomSheet()
   const scrollViewRef = useRef<BottomSheetScrollViewMethods>(null)
+  const textInputRef = useRef<TextInput>(null)
 
   const { playlist, players, playedIds } = useAppContext()
   const setContext = useAppDispatchContext()
@@ -99,7 +100,7 @@ export default function MenuView() {
       >
         <Animated.View style={[{ gap: 8 }, hideOnBottomStyle]}>
           <Header titleKey='players' descriptionKey='players_subtitle' />
-          <AddPlayerField />
+          <AddPlayerField textInputRef={textInputRef} />
 
           {players.length > 0 && (
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
@@ -117,7 +118,7 @@ export default function MenuView() {
           )}
 
           <Header titleKey='packs' descriptionKey='packs_subtitle' />
-          <PackSection />
+          <PackSection scrollViewRef={scrollViewRef} textInputRef={textInputRef} />
 
           <View
             style={{
@@ -147,7 +148,7 @@ export default function MenuView() {
             },
             {
               icon: 'chevron-down',
-              text: LocalizationManager.get('start_game')?.value,
+              text: LocalizationManager.getValue('start_game'),
               onPress: () => {
                 Keyboard.dismiss()
                 scrollViewRef.current?.scrollTo({ y: 0, animated: true })
@@ -165,20 +166,20 @@ export default function MenuView() {
 
 //#region Header
 
-export function Header(props: Readonly<{ titleKey?: string; descriptionKey?: string }>) {
+export function Header(props: Readonly<{ titleKey?: LocalizationKey; descriptionKey?: LocalizationKey }>) {
   const { titleKey, descriptionKey } = props
 
   return (
     <View style={{ paddingTop: 16, gap: 4 }}>
       {titleKey && (
         <Text id={titleKey} style={FontStyles.Header}>
-          {LocalizationManager.get(titleKey)?.value ?? titleKey}
+          {LocalizationManager.getValue(titleKey)}
         </Text>
       )}
 
       {descriptionKey && (
         <Text id={descriptionKey} style={FontStyles.Subheading}>
-          {LocalizationManager.get(descriptionKey)?.value ?? descriptionKey}
+          {LocalizationManager.getValue(descriptionKey)}
         </Text>
       )}
     </View>
@@ -189,7 +190,12 @@ export function Header(props: Readonly<{ titleKey?: string; descriptionKey?: str
 
 //#region PackSection
 
-function PackSection(props: Readonly<ViewProps>) {
+function PackSection(
+  props: Readonly<
+    ViewProps & { scrollViewRef: RefObject<BottomSheetScrollViewMethods>; textInputRef: RefObject<TextInput> }
+  >
+) {
+  const { scrollViewRef, textInputRef, ...viewProps } = props
   const windowWidth = Dimensions.get('window').width
   const packs = useMemo(() => PackManager.items, [PackManager.items])
   const [packsPerRow, setPacksPerRow] = useState(2)
@@ -203,21 +209,29 @@ function PackSection(props: Readonly<ViewProps>) {
 
   const sortedPacks = useMemo(() => {
     if (isSubscribed || !packs) return packs
-    const packList = [...packs]
 
-    return packList.sort((a, b) => {
-      if (a.is_free === b.is_free) return 0
-      return a.is_free ? -1 : 1
-    })
+    return [...packs]
+      .filter(p => p.availability.isAvailable || p.availability.start?.soon)
+      .sort((a, b) => {
+        if (isSubscribed || a.is_free === b.is_free) return 0
+        return a.is_free ? -1 : 1
+      })
   }, [packs])
 
   if (!packs) return undefined
   return (
     <>
-      <View style={{ flexWrap: 'wrap', flexDirection: 'row', gap: 16 }} {...props}>
+      <View style={{ flexWrap: 'wrap', flexDirection: 'row', gap: 16 }} {...viewProps}>
         {sortedPacks?.map(pack => (
           <View key={pack.id}>
-            <PackPosterView width={(windowWidth - 32 - 16 * (packsPerRow - 1)) / packsPerRow} pack={pack} />
+            <PackPosterView
+              width={(windowWidth - 32 - 16 * (packsPerRow - 1)) / packsPerRow}
+              pack={pack}
+              onAddPlayersConfirm={() => {
+                scrollViewRef.current?.scrollTo({ y: 0, animated: true })
+                textInputRef.current?.focus()
+              }}
+            />
           </View>
         ))}
       </View>
@@ -227,23 +241,41 @@ function PackSection(props: Readonly<ViewProps>) {
       <View style={{ gap: 16 }}>
         <IconInfo
           icon='checkmark-circle'
-          content={LocalizationManager.get('icon_info_selected')?.value ?? 'icon_info_selected'}
+          content={LocalizationManager.getValue('icon_info_selected')}
           foregroundColor={Colors.yellow.light}
           backgroundColor={Colors.yellow.dark}
         />
 
         <IconInfo
           icon='people'
-          content={LocalizationManager.get('pack_unplayable_msg')?.value ?? 'pack_unplayable_msg'}
+          content={LocalizationManager.getValue('pack_unplayable_msg')}
           foregroundColor={Colors.orange.light}
           backgroundColor={Colors.orange.dark}
         />
+
+        {packs?.some(p => p.availability.end?.soon) && (
+          <IconInfo
+            icon='hourglass'
+            content={LocalizationManager.getValue('leaving_soon_about')}
+            foregroundColor={Colors.yellow.light}
+            backgroundColor={Colors.yellow.dark}
+          />
+        )}
+
+        {packs?.some(p => p.availability.start?.soon) && (
+          <IconInfo
+            icon='hourglass'
+            content={LocalizationManager.getValue('coming_soon_about')}
+            foregroundColor={Colors.blue.light}
+            backgroundColor={Colors.blue.dark}
+          />
+        )}
 
         {!isSubscribed && (
           <TouchableOpacity onPress={() => presentPaywall()}>
             <IconInfo
               icon='cart'
-              content={LocalizationManager.get('icon_info_purchase')?.value ?? 'icon_info_purchase'}
+              content={LocalizationManager.getValue('icon_info_purchase')}
               foregroundColor={Colors.green.light}
               backgroundColor={Colors.green.dark}
             />
@@ -252,7 +284,7 @@ function PackSection(props: Readonly<ViewProps>) {
 
         <IconInfo
           icon='reload'
-          content={LocalizationManager.get('icon_info_restart')?.value ?? 'icon_info_restart'}
+          content={LocalizationManager.getValue('icon_info_restart')}
           foregroundColor={Colors.yellow.light}
           backgroundColor={Colors.yellow.dark}
         />
@@ -272,32 +304,21 @@ function IconInfo(
   const { icon, content, foregroundColor = Colors.text, backgroundColor = Colors.secondaryBackground } = props
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          padding: 6,
-          backgroundColor: backgroundColor,
-          borderColor: Colors.stroke,
-          borderWidth: StyleSheet.hairlineWidth,
-          borderRadius: 8,
-        }}
-      >
-        {icon && <Ionicons name={icon} size={18} color={foregroundColor} />}
-      </View>
+      {icon && <IconTag icon={icon} color={foregroundColor} backgroundColor={backgroundColor} />}
       <Text style={{ flex: 1, color: Colors.text }}>{content}</Text>
     </View>
   )
 }
 
+//#endregion
+
 //#region AddPlayerField
 
-function AddPlayerField(props: Readonly<ViewProps>) {
-  const { style } = props
+function AddPlayerField(props: Readonly<ViewProps & { textInputRef: React.RefObject<TextInput> }>) {
+  const { textInputRef, style } = props
   const { players } = useAppContext()
   const playerCount = players.length
   const setContext = useAppDispatchContext()
-  const textInputRef = useRef<TextInput>(null)
 
   const handleAddPlayer = (e: NativeSyntheticEvent<TextInputSubmitEditingEventData>) => {
     e.preventDefault()
@@ -331,7 +352,7 @@ function AddPlayerField(props: Readonly<ViewProps>) {
         <AntDesign name='plus' size={18} color={Colors.secondaryText} />
         <BottomSheetTextInput
           ref={textInputRef}
-          placeholder={LocalizationManager.get('add_players')?.value ?? 'add_players'}
+          placeholder={LocalizationManager.getValue('add_players')}
           placeholderTextColor={Colors.secondaryText}
           returnKeyType='done'
           enablesReturnKeyAutomatically
@@ -360,7 +381,7 @@ function AddPlayerField(props: Readonly<ViewProps>) {
             onPress={handleClearPlayers}
           >
             <Text style={[FontStyles.Button, { color: Colors.yellow.dark }]} numberOfLines={1}>
-              {LocalizationManager.get('clear')?.value ?? 'Clear'}
+              {LocalizationManager.getValue('clear')}
             </Text>
           </TouchableOpacity>
         </Animated.View>
@@ -383,8 +404,8 @@ function LinksView(props: Readonly<ViewProps>) {
     }) ?? undefined
 
   const onShare = async () => {
-    const shareTitle = LocalizationManager.get('app_name')?.value ?? 'app_name'
-    const shareMsg = LocalizationManager.get('share_message')?.value ?? 'share_message'
+    const shareTitle = LocalizationManager.getValue('app_name')
+    const shareMsg = LocalizationManager.getValue('share_message')
     await Share.share(
       {
         title: shareTitle,
@@ -404,7 +425,7 @@ function LinksView(props: Readonly<ViewProps>) {
 
   const settings: {
     show?: boolean
-    titleKey: string
+    titleKey: LocalizationKey
     iconName: keyof typeof Feather.glyphMap
     onPress: () => {}
   }[] = [
@@ -447,7 +468,7 @@ function LinksView(props: Readonly<ViewProps>) {
           >
             <Feather name={setting.iconName} size={18} color={Colors.secondaryText} />
             <Text key={setting.titleKey} style={{ color: Colors.secondaryText, fontWeight: '500' }}>
-              {LocalizationManager.get(setting.titleKey)?.value ?? setting.titleKey}
+              {LocalizationManager.getValue(setting.titleKey)}
             </Text>
           </TouchableOpacity>
         ))}

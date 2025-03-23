@@ -1,5 +1,6 @@
 import { PlayedCard } from '@/src/managers/CardManager'
 import { Category } from '@/src/managers/CategoryManager'
+import { LocalizationKey } from '@/src/managers/LocalizationManager'
 import { Pack } from '@/src/managers/PackManager'
 import { Player } from '@/src/models/Player'
 import { AppContextAction, AppContextType, contextReducer, initialContext } from '@/src/providers/AppContextProvider'
@@ -8,7 +9,7 @@ import { AppContextAction, AppContextType, contextReducer, initialContext } from
 console.warn = jest.fn()
 jest.mock('@/src/managers/LocalizationManager', () => ({
   LocalizationManager: {
-    get: (key: string) => key,
+    getValue: (key: LocalizationKey) => key.toString(),
   },
 }))
 
@@ -118,6 +119,7 @@ describe('contextReducer', () => {
         { ...mockPlayer2, playCount: 0 },
       ],
       playlist: [],
+      currentCard: undefined,
     } satisfies AppContextType)
   })
 

@@ -1,6 +1,6 @@
 import { Tables } from '@/src/models/supabase'
 import SupabaseManager from './SupabaseManager'
-import { LocalizationManager } from './LocalizationManager'
+import { LocalizationKey, LocalizationManager } from './LocalizationManager'
 
 const tableName = 'categories'
 export type Category = Tables<typeof tableName>
@@ -16,13 +16,13 @@ class CategoryManagerSingleton extends SupabaseManager<Category> {
   }
 
   getTitle(category: Category) {
-    const key = `${tableName}_${category.id.replaceAll('-', '')}_title`
-    return LocalizationManager.get(key)?.value ?? key
+    const key = `${tableName}_${category.id.replaceAll('-', '')}_title` as LocalizationKey
+    return LocalizationManager.getValue(key)
   }
 
   getDescription(category: Category) {
-    const key = `${tableName}_${category.id.replaceAll('-', '')}_description`
-    return LocalizationManager.get(key)?.value ?? null
+    const key = `${tableName}_${category.id.replaceAll('-', '')}_description` as LocalizationKey
+    return LocalizationManager.getValue(key)
   }
 }
 

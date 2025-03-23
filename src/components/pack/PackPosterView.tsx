@@ -2,9 +2,10 @@ import Colors from '@/src/constants/Colors'
 import { FontStyles, Styles } from '@/src/constants/Styles'
 import GameManager from '@/src/managers/GameManager'
 import { LocalizationManager } from '@/src/managers/LocalizationManager'
-import { Pack, PackManager } from '@/src/managers/PackManager'
+import { Pack, PackManager, UnplayableReason } from '@/src/managers/PackManager'
 import { Ionicons } from '@expo/vector-icons'
 import { Image } from 'expo-image'
+import { LinearGradient } from 'expo-linear-gradient'
 import { Alert, Platform, Pressable, StyleSheet, Text, View, ViewProps } from 'react-native'
 import Animated, { Easing, FadeIn, FadeOut, useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import { AppContextType, useAppContext, useAppDispatchContext } from '../../providers/AppContextProvider'
@@ -20,35 +21,16 @@ export type PackPosterViewProps = PackViewProps & {
   width?: number
 }
 
-type UnplayableReason = 'subscription' | 'cardCount'
-
 const DEFAULT_WIDTH = 256
 const animationConfig = { duration: 150, easing: Easing.bezier(0, 0, 0.5, 1) }
-
-function validatePlayability(isSubscribed: boolean, pack: Pack, c: AppContextType): Set<UnplayableReason> {
-  const reasons: Set<UnplayableReason> = new Set()
-  const playableCardCount = GameManager.getPlayableCards(pack.id, c).size
-  if (!PackManager.isPlayable(pack.cards.length, playableCardCount)) reasons.add('cardCount')
-  if (!pack.is_free && !isSubscribed) reasons.add('subscription')
-  return reasons
-}
 
 export default function PackPosterView(props: Readonly<PackPosterViewProps>) {
   const { pack, style, width = DEFAULT_WIDTH, onAddPlayersConfirm } = props
   const c = useAppContext()
-  const { isSubscribed } = useInAppPurchaseContext()
-  const setContext = useAppDispatchContext()
 
   const isSelected = c.playlist.includes(pack.id)
   const isNoneSelected = c.playlist.length === 0
-
-  const unplayableReasons = validatePlayability(isSubscribed, pack, c)
-
-  const addMorePlayersTitle =
-    LocalizationManager.get('pack_unplayable_title')?.value ?? 'More players or categories required'
-  const addMorePlayersMessage =
-    LocalizationManager.get('pack_unplayable_msg')?.value ??
-    'To play this pack, you need to add more players or remove some category filters.'
+  const { onPress, unplayableReasons, localizations } = getPackDetails(pack, c, onAddPlayersConfirm)
 
   const { data: image, isLoading, error } = PackManager.useImageQuery(pack.image)
   if (error) console.warn(`Couldn't load image for pack ${pack.name}:`, error)
@@ -60,14 +42,11 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps>) {
     }
   }, [isSelected, isNoneSelected])
 
-  function handlePackPress() {
-    if (unplayableReasons.has('subscription')) presentPaywall()
-    else if (unplayableReasons.has('cardCount'))
-      Alert.alert(addMorePlayersTitle, addMorePlayersMessage, [{ onPress: onAddPlayersConfirm }])
-    else setContext({ action: 'togglePack', payload: pack.id })
-  }
-
   if (isLoading) return <SkeletonView {...props} />
+
+  const descriptionField = pack.availability.start?.soon
+    ? (localizations.comingSoonMsg ?? localizations.comingSoonTitle)
+    : (pack.description ?? pack.cards.length + ' cards')
 
   return (
     <Animated.View
@@ -79,7 +58,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps>) {
         isSelectedStyle,
       ]}
     >
-      <Pressable onPress={handlePackPress}>
+      <Pressable onPress={onPress}>
         <View
           style={{
             height: width,
@@ -101,7 +80,7 @@ export default function PackPosterView(props: Readonly<PackPosterViewProps>) {
         </Text>
 
         <Text numberOfLines={2} style={{ ...styles.text, color: Colors.secondaryText }}>
-          {pack.description ? pack.description : pack.cards.length + ' cards'}
+          {descriptionField}
         </Text>
       </Pressable>
     </Animated.View>
@@ -157,7 +136,7 @@ function PackImageOverlay(
     }
   >
 ) {
-  const { unplayableReasons, isSelected } = props
+  const { pack, unplayableReasons, isSelected } = props
 
   const enterAnimation = FadeIn.duration(animationConfig.duration).easing(Easing.in(animationConfig.easing.factory()))
   const exitAnimation = FadeOut.duration(animationConfig.duration).easing(Easing.out(animationConfig.easing.factory()))
@@ -187,6 +166,18 @@ function PackImageOverlay(
         </Animated.View>
       )}
 
+      {pack.availability.start?.soon && (
+        <Animated.View entering={enterAnimation} exiting={exitAnimation}>
+          <IconTag icon='hourglass' color={Colors.blue.light} backgroundColor={Colors.blue.dark} />
+        </Animated.View>
+      )}
+
+      {pack.availability.end?.soon && (
+        <Animated.View entering={enterAnimation} exiting={exitAnimation}>
+          <IconTag icon='hourglass' color={Colors.yellow.light} backgroundColor={Colors.yellow.dark} />
+        </Animated.View>
+      )}
+
       <View style={{ flex: 1 }} />
 
       {isSelected && (
@@ -198,6 +189,59 @@ function PackImageOverlay(
   )
 }
 
+function getLocalizations(pack: Pack) {
+  const comingSoonMsg = LocalizationManager.getValue('coming_soon_msg')
+
+  return {
+    addMorePlayersTitle: LocalizationManager.getValue('pack_unplayable_title'),
+    addMorePlayersMessage: LocalizationManager.getValue('pack_unplayable_msg'),
+
+    comingSoonTitle: LocalizationManager.getValue('coming_soon_title'),
+    comingSoonMsg: pack.availability.start?.daysUntil
+      ? comingSoonMsg.replace('{0}', LocalizationManager.dayCountToLocaleString(pack.availability.start.daysUntil))
+      : undefined,
+  }
+}
+
+function getOnPress(
+  pack: Pack,
+  unplayableReasons: Set<UnplayableReason>,
+  localizations: ReturnType<typeof getLocalizations>,
+  onAddPlayersConfirm?: () => any
+) {
+  const setContext = useAppDispatchContext()
+
+  if (unplayableReasons.has('subscription')) {
+    return () => presentPaywall()
+  }
+
+  if (unplayableReasons.has('dateRestriction')) {
+    return () => Alert.alert(localizations.comingSoonTitle, localizations.comingSoonMsg)
+  }
+
+  if (unplayableReasons.has('cardCount')) {
+    return () =>
+      Alert.alert(localizations.addMorePlayersTitle, localizations.addMorePlayersMessage, [
+        { onPress: onAddPlayersConfirm },
+      ])
+  }
+
+  return () => setContext({ action: 'togglePack', payload: pack.id })
+}
+
+function getPackDetails(pack: Pack, c: AppContextType, onAddPlayersConfirm?: () => any) {
+  const { isSubscribed } = useInAppPurchaseContext()
+  const playableCardCount = GameManager.getPlayableCards(pack.id, c).size
+  const unplayableReasons = PackManager.validatePlayability(isSubscribed, pack, playableCardCount)
+  const localizations = getLocalizations(pack)
+
+  return {
+    onPress: getOnPress(pack, unplayableReasons, localizations, onAddPlayersConfirm),
+    unplayableReasons,
+    localizations,
+  }
+}
+
 type IconTagProps = {
   icon: keyof typeof Ionicons.glyphMap
   color?: string
@@ -205,7 +249,7 @@ type IconTagProps = {
   size?: number
 }
 
-function IconTag(props: Readonly<IconTagProps>) {
+export function IconTag(props: Readonly<IconTagProps>) {
   const { icon, color = Colors.yellow.light, backgroundColor = Colors.yellow.dark, size = 18 } = props
   return (
     <View
@@ -229,6 +273,10 @@ function IconTag(props: Readonly<IconTagProps>) {
         }) ?? {},
       ]}
     >
+      <LinearGradient
+        style={[StyleSheet.absoluteFill, { opacity: 0.05, borderRadius: size / 2 }]}
+        colors={['white', 'black']}
+      />
       <Ionicons name={icon} size={size} style={{ color: color }} />
     </View>
   )

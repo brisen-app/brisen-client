@@ -34,7 +34,7 @@ export default function FetchErrorView(props: Readonly<ErrorViewProps>) {
       ]}
       {...props}
     >
-      <Text style={FontStyles.LargeTitle}>{LocalizationManager.get('error_alert_title')?.value ?? 'Ooops...'}</Text>
+      <Text style={FontStyles.LargeTitle}>{LocalizationManager.getValue('error_alert_title')}</Text>
 
       {errors.map(error => (
         <Text key={error.message} style={FontStyles.Subheading}>

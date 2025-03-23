@@ -113,10 +113,8 @@ export default function GameView(props: Readonly<GameViewProps>) {
       payload: playlist.filter(p => {
         const pack = PackManager.get(p)
         if (!pack) return true
-        const playableCards = GameManager.getPlayableCards(pack.id, c)
-        if (!PackManager.isPlayable(pack.cards.length, playableCards.size)) return true
-        if (!pack.is_free && !isSubscribed) return true
-        return false
+        const playableCardCount = GameManager.getPlayableCards(p, c).size
+        return PackManager.validatePlayability(isSubscribed, pack, playableCardCount).size > 0
       }),
     })
 
@@ -208,7 +206,7 @@ function NoCardsView(props: Readonly<PressableProps & ViewProps>) {
       ]}
     >
       <Text style={{ color: Colors.secondaryText, textAlign: 'center' }}>
-        {LocalizationManager.get('select_pack')?.value ?? 'select_pack'}
+        {LocalizationManager.getValue('select_pack')}
       </Text>
     </Pressable>
   )
@@ -237,7 +235,7 @@ function OutOfCardsView(props: Readonly<TouchableOpacityProps>) {
           color: Colors.secondaryText,
         }}
       >
-        {LocalizationManager.get('out_of_cards')?.value ?? 'out_of_cards'}
+        {LocalizationManager.getValue('out_of_cards')}
       </Text>
       <TouchableOpacity
         disabled={playedCards.length === 0}
@@ -265,7 +263,7 @@ function OutOfCardsView(props: Readonly<TouchableOpacityProps>) {
             color: Colors.yellow.light,
           }}
         >
-          {LocalizationManager.get('restart_game')?.value ?? 'restart_game'}
+          {LocalizationManager.getValue('restart_game')}
         </Text>
       </TouchableOpacity>
     </View>

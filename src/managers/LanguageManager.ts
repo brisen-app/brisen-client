@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { getLocales, Locale } from 'expo-localization'
 import { ConfigurationManager } from './ConfigurationManager'
 import SupabaseManager from './SupabaseManager'
+import { tryCatchAsync } from '../lib/utils'
 
 export const LANGUAGE_STORAGE_KEY = 'selected_language'
 
@@ -25,25 +26,16 @@ class LanguageManagerSingleton extends SupabaseManager<SupabaseLanguage> {
   }
 
   async loadStoredLanguage() {
-    try {
-      const languageId = await AsyncStorage.getItem(LANGUAGE_STORAGE_KEY)
-      if (languageId) {
-        console.log(`Loaded language '${languageId}' from AsyncStorage`)
-        return this.setUserSelectedLanguage(languageId)
-      }
-      console.log('No language found in AsyncStorage')
-    } catch (error) {
-      console.error('Failed to load language from AsyncStorage', error)
-    }
+    const { data, error } = await tryCatchAsync(AsyncStorage.getItem(LANGUAGE_STORAGE_KEY))
+    if (error) console.error('Failed to load language from AsyncStorage', error)
+    else if (data) return this.setUserSelectedLanguage(data)
+    console.log('No language found in AsyncStorage')
   }
 
   private async storeSelectedLanguage(languageId: string) {
-    try {
-      await AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, languageId)
-      console.log(`Stored language '${languageId}' in AsyncStorage`)
-    } catch (error) {
-      console.error('Failed to store language in AsyncStorage', error)
-    }
+    const result = await tryCatchAsync(AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, languageId))
+    if (result.error) console.error('Failed to store language in AsyncStorage', result.error)
+    else console.log(`Stored language '${languageId}' in AsyncStorage`)
   }
 
   setUserSelectedLanguage(languageId: string) {
