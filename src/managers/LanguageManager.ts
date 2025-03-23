@@ -33,8 +33,8 @@ class LanguageManagerSingleton extends SupabaseManager<SupabaseLanguage> {
   }
 
   private async storeSelectedLanguage(languageId: string) {
-    const { error } = await tryCatchAsync(AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, languageId))
-    if (error) console.error('Failed to store language in AsyncStorage', error)
+    const result = await tryCatchAsync(AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, languageId))
+    if (result.error) console.error('Failed to store language in AsyncStorage', result.error)
     else console.log(`Stored language '${languageId}' in AsyncStorage`)
   }
 

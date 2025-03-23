@@ -4,7 +4,7 @@ import { Player } from '@/src/models/Player'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import React, { createContext, Dispatch, ReactNode, useContext, useEffect, useReducer } from 'react'
 import { Alert, AppState } from 'react-native'
-import { Serializable, tryCatchAsync } from '../lib/utils'
+import { Serializable } from '../lib/utils'
 import { LocalizationManager } from '../managers/LocalizationManager'
 
 export const APP_CONTEXT_KEY = 'context'
@@ -155,29 +155,38 @@ export function useAppDispatchContext() {
   return context
 }
 
-export async function loadContext(): Promise<AppContextType | void> {
-  const { data: context, error } = await tryCatchAsync(AsyncStorage.getItem(APP_CONTEXT_KEY))
-  if (error) return console.error('Failed to load context from AsyncStorage', error)
-  if (!context) return console.log('No context found in AsyncStorage')
-
-  const parsedContext: Serializable<AppContextType> = JSON.parse(context)
-  console.log('Loaded context from AsyncStorage')
-  return {
-    ...parsedContext,
-    playedIds: new Set(parsedContext.playedIds),
+export async function loadContext(): Promise<AppContextType | undefined> {
+  try {
+    const context = await AsyncStorage.getItem(APP_CONTEXT_KEY)
+    if (!context) {
+      console.log('No context found in AsyncStorage')
+      return
+    }
+    const parsedContext: Serializable<AppContextType> = JSON.parse(context)
+    console.log('Loaded context from AsyncStorage')
+    return {
+      ...parsedContext,
+      playedIds: new Set(parsedContext.playedIds),
+    }
+  } catch (error) {
+    console.error('Failed to load context from AsyncStorage', error)
+    return
   }
 }
 
 async function saveContext(context: AppContextType) {
-  const parsedContext = JSON.stringify({
-    ...context,
-    playedIds: Array.from(context.playedIds),
-    players: Array.from(context.players),
-  } satisfies Serializable<AppContextType>)
+  try {
+    const parsedContext = JSON.stringify({
+      ...context,
+      playedIds: Array.from(context.playedIds),
+      players: Array.from(context.players),
+    } satisfies Serializable<AppContextType>)
 
-  const { error } = await tryCatchAsync(AsyncStorage.setItem(APP_CONTEXT_KEY, parsedContext))
-  if (error) return console.error('Failed to store context in AsyncStorage', error)
-  console.log('Stored context in AsyncStorage')
+    await AsyncStorage.setItem(APP_CONTEXT_KEY, parsedContext)
+    console.log('Stored context in AsyncStorage')
+  } catch (error) {
+    console.error('Failed to store context in AsyncStorage', error)
+  }
 }
 
 export function AppContextProvider(props: Readonly<{ children: ReactNode }>) {

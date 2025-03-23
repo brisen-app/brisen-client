@@ -5,7 +5,6 @@ import Purchases, { CustomerInfo } from 'react-native-purchases'
 import RevenueCatUI, { PAYWALL_RESULT } from 'react-native-purchases-ui'
 import FetchErrorView from '../components/FetchErrorView'
 import env from '../lib/env'
-import { tryCatchAsync } from '../lib/utils'
 import { LocalizationKey, LocalizationManager } from '../managers/LocalizationManager'
 
 function initInAppPurchases(setContext: Dispatch<InAppPurchaseContextActionType>) {
@@ -97,27 +96,33 @@ function isSubscribed(customerInfo: CustomerInfo | undefined) {
 }
 
 export async function presentPaywall() {
-  const { data: result, error } = await tryCatchAsync(RevenueCatUI.presentPaywall())
-  if (error) {
-    console.error(error)
-    Alert.alert(LocalizationManager.getValue('error_alert_title'), error.message)
-    return
-  }
+  try {
+    const result = await RevenueCatUI.presentPaywall()
 
-  switch (result) {
-    case PAYWALL_RESULT.PURCHASED:
-      return presentAlert('purchase_complete_title', 'purchase_complete_msg')
-    case PAYWALL_RESULT.RESTORED:
-      return console.log('Purchases restored')
-    case PAYWALL_RESULT.ERROR:
-      return presentAlert('error_alert_title', 'purchase_error_msg')
-    default:
-      return console.log('Purchase canceled')
+    switch (result) {
+      case PAYWALL_RESULT.PURCHASED:
+        presentAlert('purchase_complete_title', 'purchase_complete_msg')
+        break
+      case PAYWALL_RESULT.RESTORED:
+        console.log('Purchases restored')
+        break
+      case PAYWALL_RESULT.ERROR:
+        presentAlert('error_alert_title', 'purchase_error_msg')
+        break
+      default:
+        console.log('Purchase canceled')
+        break
+    }
+  } catch (e) {
+    console.error(e)
+    if (!(e instanceof Error)) throw e
+    const message = LocalizationManager.getValue('error_alert_title')
+    Alert.alert(LocalizationManager.getValue('error_alert_title'), message ? `${message}\n(${e.message})` : e.message)
   }
-}
-
-function presentAlert(titleKey: LocalizationKey, messageKey: LocalizationKey) {
-  Alert.alert(LocalizationManager.getValue(titleKey), LocalizationManager.getValue(messageKey))
+  return
+  function presentAlert(titleKey: LocalizationKey, messageKey: LocalizationKey) {
+    Alert.alert(LocalizationManager.getValue(titleKey), LocalizationManager.getValue(messageKey))
+  }
 }
 
 export default function InAppPurchaseProvider(props: Readonly<{ children: ReactNode }>) {
