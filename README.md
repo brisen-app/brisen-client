@@ -22,10 +22,10 @@
 </div>
 
 <div align="center">
-  <a href="[https://apps.apple.com/us/app/sql-play/id1546888933?itsct=apps_box&amp;itscg=30200](https://apps.apple.com/us/app/brisen/id6480421611)">
+  <a href="https://apps.apple.com/us/app/brisen/id6480421611">
     <img height=50px src="http://sqlplay.net/images/app-store-badge.svg" alt="Download on the App Store">
   </a>
-  <a href="https://play.google.com/store/apps/details?id=com.sql_playground&amp;hl=en_US&amp;gl=US&amp;pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1">
+  <a href="https://play.google.com/store/apps/details?id=no.kallerud.brisen">
     <img height=50px alt="Get it on Google Play" src="https://sqlplay.net/images/google_play_badge.svg">
   </a>
 </div>
