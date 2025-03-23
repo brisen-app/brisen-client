@@ -1,14 +1,15 @@
+import { NotFoundError } from '@/src/models/Errors'
+import { Database } from '@/src/models/supabase'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { supabase } from '../lib/supabase'
+import { tryCatchAsync } from '../lib/utils'
 import { Card } from './CardManager'
 import { CardRelation } from './CardRelationManager'
 import { Category } from './CategoryManager'
+import { Configuration } from './ConfigurationManager'
 import { Language } from './LanguageManager'
 import { Localization } from './LocalizationManager'
-import { NotFoundError } from '@/src/models/Errors'
 import { Pack } from './PackManager'
-import { supabase } from '../lib/supabase'
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import { Database } from '@/src/models/supabase'
-import { Configuration } from './ConfigurationManager'
 
 export type SupabaseItem = Category | Pack | Card | Localization | Language | Configuration | CardRelation
 type SupabaseTableName = keyof Database['public']['Tables']
@@ -31,24 +32,18 @@ export default abstract class SupabaseManager<T extends SupabaseItem> {
   }
 
   protected async store(items: Set<T> | Array<T>) {
-    try {
-      await AsyncStorage.setItem(this.tableName, JSON.stringify(items))
-    } catch (error) {
-      console.error(`Failed to store ${this.tableName} in AsyncStorage:`, error)
-    }
+    const { error } = await tryCatchAsync(AsyncStorage.setItem(this.tableName, JSON.stringify(items)))
+    if (error) console.error(`Failed to store ${this.tableName} in AsyncStorage:`, error)
   }
 
   protected async retrieve() {
-    try {
-      const storedString = await AsyncStorage.getItem(this.tableName)
-      if (!storedString) return null
-      const items = JSON.parse(storedString) as Array<T>
-      this.set(items)
-      return items
-    } catch (error) {
-      console.error(`Failed to retrieve ${this.tableName} from AsyncStorage:`, error)
-      return null
-    }
+    const { data, error } = await tryCatchAsync(AsyncStorage.getItem(this.tableName))
+    if (error) return console.error(`Failed to retrieve ${this.tableName} from AsyncStorage:`, error)
+    if (!data) return console.warn(`No data found in ${this.tableName} in AsyncStorage`)
+
+    const items = JSON.parse(data) as Array<T>
+    this.set(items)
+    return items
   }
 
   protected set(items: Iterable<T>) {
@@ -95,15 +90,10 @@ export default abstract class SupabaseManager<T extends SupabaseItem> {
   }
 
   async fetchAllOrRetrieve() {
-    try {
-      // TODO: [IMPROVEMENT] Implement cache invalidation
-      return await this.fetchAll()
-    } catch (error) {
-      console.warn(`Fetching ${this.tableName} from cache.`, error)
-      const items = await this.retrieve()
-      if (!items) throw error
-      return items
-    }
+    const { data, error } = await tryCatchAsync(this.retrieve())
+    if (error) return console.error(`Failed to retrieve ${this.tableName} from AsyncStorage:`, error)
+    if (data) return this.set(data)
+    console.warn(`No data found in ${this.tableName} in AsyncStorage`)
   }
 
   isItem(item: object): item is T {
