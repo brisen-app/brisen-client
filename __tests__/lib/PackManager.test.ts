@@ -452,3 +452,102 @@ describe('daysUntil', () => {
     expect(PackManager['daysUntil'](date, today)).toBe(-1)
   })
 })
+
+describe('validatePlayability', () => {
+  beforeEach(() => {
+    // Mock isPlayable to control its behavior in tests
+    jest.spyOn(PackManager as any, 'isPlayable').mockImplementation(() => true)
+  })
+
+  afterEach(() => {
+    jest.restoreAllMocks()
+  })
+
+  const createPack = (overrides = {}): Pack => ({
+    id: 'test-pack',
+    name: 'Test Pack',
+    description: 'Test pack description',
+    image: 'test.png',
+    cards: ['1', '2', '3'],
+    is_free: true,
+    availability: { isAvailable: true },
+    created_at: '2024-01-01',
+    modified_at: '2024-01-01',
+    start_date: null,
+    end_date: null,
+    language: 'en',
+    ...overrides,
+  })
+
+  it('should return empty set when pack is fully playable', () => {
+    const pack = createPack()
+    ;(PackManager as any)['isPlayable'].mockImplementation(() => true)
+
+    const reasons = PackManager.validatePlayability(true, pack, 3)
+
+    expect(reasons.size).toBe(0)
+  })
+
+  it('should return cardCount when not enough playable cards', () => {
+    const pack = createPack()
+    ;(PackManager as any)['isPlayable'].mockImplementation(() => false)
+
+    const reasons = PackManager.validatePlayability(true, pack, 1)
+
+    expect(reasons.size).toBe(1)
+    expect(reasons.has('cardCount')).toBe(true)
+  })
+
+  it('should return dateRestriction when pack is not available', () => {
+    const pack = createPack({ availability: { isAvailable: false } })
+    ;(PackManager as any)['isPlayable'].mockImplementation(() => true)
+
+    const reasons = PackManager.validatePlayability(true, pack, 3)
+
+    expect(reasons.size).toBe(1)
+    expect(reasons.has('dateRestriction')).toBe(true)
+  })
+
+  it('should return subscription when pack is not free and user is not subscribed', () => {
+    const pack = createPack({ is_free: false })
+    ;(PackManager as any)['isPlayable'].mockImplementation(() => true)
+
+    const reasons = PackManager.validatePlayability(false, pack, 3)
+
+    expect(reasons.size).toBe(1)
+    expect(reasons.has('subscription')).toBe(true)
+  })
+
+  it('should return multiple reasons when multiple conditions are not met', () => {
+    const pack = createPack({
+      is_free: false,
+      availability: { isAvailable: false },
+    })
+    ;(PackManager as any)['isPlayable'].mockImplementation(() => false)
+
+    const reasons = PackManager.validatePlayability(false, pack, 1)
+
+    expect(reasons.size).toBe(3)
+    expect(reasons.has('cardCount')).toBe(true)
+    expect(reasons.has('dateRestriction')).toBe(true)
+    expect(reasons.has('subscription')).toBe(true)
+  })
+
+  it('should not return subscription reason for free pack when user is not subscribed', () => {
+    const pack = createPack({ is_free: true })
+    ;(PackManager as any)['isPlayable'].mockImplementation(() => true)
+
+    const reasons = PackManager.validatePlayability(false, pack, 3)
+
+    expect(reasons.size).toBe(0)
+  })
+
+  it('should not return subscription reason for paid pack when user is subscribed', () => {
+    const pack = createPack({ is_free: false })
+    ;(PackManager as any)['isPlayable'].mockImplementation(() => true)
+
+    const reasons = PackManager.validatePlayability(true, pack, 3)
+
+    expect(reasons.size).toBe(0)
+  })
+})
