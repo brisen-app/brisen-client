@@ -1,6 +1,6 @@
 import { supabase } from '@/src/lib/supabase'
 import { Language, LanguageManager } from '@/src/managers/LanguageManager'
-import { Localization, LocalizationManager } from '@/src/managers/LocalizationManager'
+import { Localization, LocalizationKey, LocalizationManager } from '@/src/managers/LocalizationManager'
 import { NotFoundError } from '@/src/models/Errors'
 
 const mockedItems = [
@@ -105,5 +105,43 @@ describe('fetchAll', () => {
       }),
     })
     await expect(LocalizationManager.fetchAll()).rejects.toThrow(NotFoundError)
+  })
+})
+
+describe('getValue', () => {
+  beforeEach(() => {
+    LocalizationManager['_items'] = undefined
+  })
+
+  it('should return the localized value when item exists', async () => {
+    const testKey = 'app_name'
+    const testValue = 'Test App Name'
+
+    // Mock the items with our test data
+    LocalizationManager['set']([{ id: testKey, language: 'nb', value: testValue } as Localization])
+
+    const result = LocalizationManager.getValue(testKey)
+    expect(result).toBe(testValue)
+  })
+
+  it('should return default value when item does not exist', () => {
+    const testKey = 'app_name'
+    const result = LocalizationManager.getValue(testKey)
+    expect(result).toBe('Brisen') // This is the default value from LocalizationDefaults
+  })
+
+  it('should handle all keys from LocalizationDefaults', () => {
+    // Test a few different keys to ensure type safety
+    const testCases = [
+      { key: 'app_name', expected: 'Brisen' },
+      { key: 'today', expected: 'Today' },
+      { key: 'tomorrow', expected: 'Tomorrow' },
+      { key: 'in_one_week', expected: 'in one week' },
+    ] satisfies { key: LocalizationKey; expected: string }[]
+
+    testCases.forEach(({ key, expected }) => {
+      const result = LocalizationManager.getValue(key)
+      expect(result).toBe(expected)
+    })
   })
 })
