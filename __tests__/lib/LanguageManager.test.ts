@@ -315,3 +315,28 @@ describe('loadStoredLanguage', () => {
     expect(result).toBeUndefined()
   })
 })
+
+describe('storeSelectedLanguage', () => {
+  const AsyncStorage = require('@react-native-async-storage/async-storage')
+
+  it('should store the language ID in AsyncStorage successfully', async () => {
+    AsyncStorage.setItem = jest.fn().mockResolvedValueOnce(undefined)
+    console.log = jest.fn()
+
+    await LanguageManager['storeSelectedLanguage']('en')
+
+    expect(AsyncStorage.setItem).toHaveBeenCalledWith('selected_language', 'en')
+    expect(console.log).toHaveBeenCalledWith("Stored language 'en' in AsyncStorage")
+  })
+
+  it('should handle AsyncStorage errors', async () => {
+    const error = new Error('AsyncStorage error')
+    AsyncStorage.setItem = jest.fn().mockRejectedValueOnce(error)
+    console.error = jest.fn()
+
+    await LanguageManager['storeSelectedLanguage']('en')
+
+    expect(AsyncStorage.setItem).toHaveBeenCalledWith('selected_language', 'en')
+    expect(console.error).toHaveBeenCalledWith('Failed to store language in AsyncStorage', error)
+  })
+})
