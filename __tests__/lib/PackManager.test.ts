@@ -453,6 +453,28 @@ describe('daysUntil', () => {
   })
 })
 
+describe('daysUntilYearless', () => {
+  const invalidDates = [
+    '123', // too short
+    '12345', // no hyphen
+    '1-2', // missing leading zeros
+  ]
+
+  invalidDates.forEach(date => {
+    it(`should throw error for invalid date format: '${date}'`, () => {
+      expect(() => PackManager['daysUntilYearless'](date)).toThrow()
+    })
+  })
+
+  it('should accept valid date format', () => {
+    const validDates = ['01-01', '12-31', '06-15', '02-29', '09-30']
+
+    validDates.forEach(date => {
+      expect(() => PackManager['daysUntilYearless'](date)).not.toThrow()
+    })
+  })
+})
+
 describe('validatePlayability', () => {
   beforeEach(() => {
     // Mock isPlayable to control its behavior in tests

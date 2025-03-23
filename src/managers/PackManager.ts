@@ -131,7 +131,7 @@ class PackManagerSingleton extends SupabaseManager<Pack> {
    * @returns The number of days until the given date, always positive
    */
   private daysUntilYearless(yearlessDate: string, today: Date = new Date()): number {
-    if (yearlessDate.length !== 5 && yearlessDate[2] !== '-') {
+    if (yearlessDate.length !== 5 || yearlessDate[2] !== '-') {
       throw new Error(`Invalid yearless date: '${yearlessDate}'`)
     }
 
