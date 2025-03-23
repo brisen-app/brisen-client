@@ -242,32 +242,38 @@ export type Database = {
         Row: {
           created_at: string
           description: string | null
+          end_date: string | null
           id: string
           image: string | null
           is_free: boolean
           language: string | null
           modified_at: string
           name: string
+          start_date: string | null
         }
         Insert: {
           created_at?: string
           description?: string | null
+          end_date?: string | null
           id?: string
           image?: string | null
           is_free?: boolean
           language?: string | null
           modified_at?: string
           name?: string
+          start_date?: string | null
         }
         Update: {
           created_at?: string
           description?: string | null
+          end_date?: string | null
           id?: string
           image?: string | null
           is_free?: boolean
           language?: string | null
           modified_at?: string
           name?: string
+          start_date?: string | null
         }
         Relationships: [
           {
@@ -287,7 +293,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      card_order: "starting" | "ending"
+      card_order: "starting" | "next" | "ending"
     }
     CompositeTypes: {
       [_ in never]: never

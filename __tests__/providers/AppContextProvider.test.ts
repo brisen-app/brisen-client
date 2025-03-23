@@ -1,8 +1,17 @@
 import { PlayedCard } from '@/src/managers/CardManager'
 import { Category } from '@/src/managers/CategoryManager'
+import { LocalizationKey } from '@/src/managers/LocalizationManager'
 import { Pack } from '@/src/managers/PackManager'
 import { Player } from '@/src/models/Player'
 import { AppContextAction, AppContextType, contextReducer, initialContext } from '@/src/providers/AppContextProvider'
+
+// Suppress console.warn messages
+console.warn = jest.fn()
+jest.mock('@/src/managers/LocalizationManager', () => ({
+  LocalizationManager: {
+    getValue: (key: LocalizationKey) => key.toString(),
+  },
+}))
 
 // Mock Data
 const mockPack = { id: 'pack1' } as Pack
@@ -24,19 +33,32 @@ describe('contextReducer', () => {
     expect(state.playlist.includes(mockPack.id)).toBe(false)
   })
 
-  it('should toggle player', () => {
+  it('should add player', () => {
     let state = initialContext()
-    const action = { action: 'togglePlayer', payload: mockPlayer1 } satisfies AppContextAction
+    const action = { action: 'addPlayer', payload: mockPlayer1.name } satisfies AppContextAction
 
     state = contextReducer(state, action)
-    expect(state.players.has(mockPlayer1)).toBe(true)
+    expect(state.players.some(p => p.name == mockPlayer1.name)).toBeTruthy()
+  })
+
+  it('should not add existing player', () => {
+    let state = { ...initialContext(), players: [mockPlayer1] }
+    const action = { action: 'addPlayer', payload: mockPlayer1.name } satisfies AppContextAction
 
     state = contextReducer(state, action)
-    expect(state.players.has(mockPlayer1)).toBe(false)
+    expect(state.players.filter(p => p.name == mockPlayer1.name).length).toBe(1)
+  })
+
+  it('should clear players', () => {
+    let state = { ...initialContext(), players: [mockPlayer1, mockPlayer2] }
+    const action = { action: 'clearPlayers' } satisfies AppContextAction
+
+    state = contextReducer(state, action)
+    expect(state.players.length).toBe(0)
   })
 
   it('should increment play counts', () => {
-    let state = { ...initialContext(), players: new Set<Player>([mockPlayer1, mockPlayer2]) }
+    let state = { ...initialContext(), players: [mockPlayer1, mockPlayer2] }
     const action = { action: 'incrementPlayCounts', payload: [mockPlayer1] } satisfies AppContextAction
 
     state = contextReducer(state, action)
@@ -76,10 +98,10 @@ describe('contextReducer', () => {
       categoryFilter: [mockCategory.id],
       playedCards: [mockPlayedCard1, mockPlayedCard2],
       playedIds: new Set<string>([mockPlayedCard1.id, mockPlayedCard2.id]),
-      players: new Set<Player>([
+      players: [
         { ...mockPlayer1, playCount: 1 },
         { ...mockPlayer2, playCount: 2 },
-      ]),
+      ],
       playlist: [mockPack.id],
     }
     state.playedCards = [mockPlayedCard1, mockPlayedCard2]
@@ -92,11 +114,12 @@ describe('contextReducer', () => {
       categoryFilter: [mockCategory.id],
       playedCards: [],
       playedIds: new Set(),
-      players: new Set<Player>([
+      players: [
         { ...mockPlayer1, playCount: 0 },
         { ...mockPlayer2, playCount: 0 },
-      ]),
+      ],
       playlist: [],
+      currentCard: undefined,
     } satisfies AppContextType)
   })
 

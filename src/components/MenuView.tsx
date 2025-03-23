@@ -1,11 +1,11 @@
+//#region Imports
 import Colors from '@/src/constants/Colors'
 import { FontStyles, SHEET_HANDLE_HEIGHT } from '@/src/constants/Styles'
-import { formatName as prettifyString, useSheetHeight } from '@/src/lib/utils'
-import { Category, CategoryManager } from '@/src/managers/CategoryManager'
-import { LocalizationManager } from '@/src/managers/LocalizationManager'
+import { formatName as prettifyString, useSheetBottomInset } from '@/src/lib/utils'
+import { LocalizationKey, LocalizationManager } from '@/src/managers/LocalizationManager'
 import { PackManager } from '@/src/managers/PackManager'
-import { useInAppPurchaseContext } from '@/src/providers/InAppPurchaseProvider'
-import { AntDesign, Feather } from '@expo/vector-icons'
+import { presentPaywall, useInAppPurchaseContext } from '@/src/providers/InAppPurchaseProvider'
+import { AntDesign, Feather, Ionicons } from '@expo/vector-icons'
 import {
   BottomSheetScrollView,
   BottomSheetScrollViewMethods,
@@ -15,11 +15,10 @@ import {
 } from '@gorhom/bottom-sheet'
 import { Picker } from '@react-native-picker/picker'
 import { useQueryClient } from '@tanstack/react-query'
-import * as Application from 'expo-application'
 import * as Device from 'expo-device'
 import { Image } from 'expo-image'
 import { openSettings, openURL } from 'expo-linking'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { RefObject, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Dimensions,
   Keyboard,
@@ -39,40 +38,42 @@ import Animated, {
   Extrapolation,
   FadeInUp,
   LinearTransition,
+  SlideInRight,
+  SlideOutRight,
   ZoomOut,
   interpolate,
   useAnimatedStyle,
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { appVersion } from '../constants/Constants'
 import { ConfigurationManager } from '../managers/ConfigurationManager'
 import { LanguageManager } from '../managers/LanguageManager'
 import Color from '../models/Color'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
 import DevMenu from './DevMenu'
 import MenuHudView from './MenuHudView'
-import PackPosterView from './pack/PackPosterView'
-import ScrollToBottomButton from './utils/ScrollToBottomButton'
+import PackPosterView, { IconTag } from './pack/PackPosterView'
+import HoverButtons from './utils/HoverButtons'
 import Tag from './utils/Tag'
 
+//#endregion
+
 const SHEET_TRASITION_POINT = 0.25
+
+//#region MenuView
 
 export default function MenuView() {
   const insets = useSafeAreaInsets()
   const bottomSheet = useBottomSheet()
   const scrollViewRef = useRef<BottomSheetScrollViewMethods>(null)
+  const textInputRef = useRef<TextInput>(null)
 
-  const { playlist, players, categoryFilter } = useAppContext()
+  const { playlist, players, playedIds } = useAppContext()
   const setContext = useAppDispatchContext()
-  const showCollapseButton = playlist.length > 0
 
-  const closedSheetHeight = useSheetHeight() - SHEET_HANDLE_HEIGHT
+  const closedSheetHeight = useSheetBottomInset() - SHEET_HANDLE_HEIGHT
 
   const sortedPlayers = useMemo(() => [...players].sort((a, b) => a.name.localeCompare(b.name)), [players])
-  const sortedCategories = useMemo(() => CategoryManager.items, [CategoryManager.items])
-
-  const onPressCategory = (category: Category) => {
-    setContext({ action: 'toggleCategory', payload: category })
-  }
 
   const hideOnBottomStyle = useAnimatedStyle(() => ({
     opacity: interpolate(bottomSheet.animatedIndex.value, [0, SHEET_TRASITION_POINT], [0, 1], Extrapolation.CLAMP),
@@ -99,9 +100,9 @@ export default function MenuView() {
       >
         <Animated.View style={[{ gap: 8 }, hideOnBottomStyle]}>
           <Header titleKey='players' descriptionKey='players_subtitle' />
-          <AddPlayerField />
+          <AddPlayerField textInputRef={textInputRef} />
 
-          {players.size > 0 && (
+          {players.length > 0 && (
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
               {sortedPlayers.map(tag => (
                 <Animated.View
@@ -110,32 +111,14 @@ export default function MenuView() {
                   entering={FadeInUp.easing(Easing.out(Easing.quad))}
                   exiting={ZoomOut.easing(Easing.out(Easing.quad))}
                 >
-                  <Tag text={tag.name} onPress={() => setContext({ action: 'togglePlayer', payload: tag })} />
+                  <Tag text={tag.name} onPress={() => setContext({ action: 'removePlayer', payload: tag.name })} />
                 </Animated.View>
               ))}
             </View>
           )}
 
           <Header titleKey='packs' descriptionKey='packs_subtitle' />
-          <PackSection />
-
-          <Header titleKey='categories' descriptionKey='categories_subtitle' />
-          <View
-            style={{
-              flexDirection: 'row',
-              flexWrap: 'wrap',
-              gap: 8,
-            }}
-          >
-            {sortedCategories?.map(category => (
-              <CategoryTag
-                key={category.id}
-                category={category}
-                isSelected={!categoryFilter.includes(category.id)}
-                onPress={onPressCategory}
-              />
-            ))}
-          </View>
+          <PackSection scrollViewRef={scrollViewRef} textInputRef={textInputRef} />
 
           <View
             style={{
@@ -154,63 +137,65 @@ export default function MenuView() {
           <View style={{ height: insets.bottom ? insets.bottom : 16 + 8 }} />
         </Animated.View>
       </BottomSheetScrollView>
-      {showCollapseButton && (
-        <ScrollToBottomButton
-          text={LocalizationManager.get('start_game')?.value ?? 'Start'}
-          onPress={() => {
-            Keyboard.dismiss()
-            scrollViewRef.current?.scrollTo({ y: 0, animated: true })
-            bottomSheet.collapse()
-          }}
+      {(playlist.length > 0 || playedIds.size > 0) && (
+        <HoverButtons
+          buttons={[
+            {
+              icon: 'reload',
+              onPress: () => setContext({ action: 'restartGame' }),
+              foregroundColor: Colors.yellow.light,
+              backgroundColor: Colors.yellow.dark,
+            },
+            {
+              icon: 'chevron-down',
+              text: LocalizationManager.getValue('start_game'),
+              onPress: () => {
+                Keyboard.dismiss()
+                scrollViewRef.current?.scrollTo({ y: 0, animated: true })
+                bottomSheet.collapse()
+              },
+            },
+          ]}
         />
       )}
     </>
   )
 }
 
-function CategoryTag(
-  props: Readonly<{ category: Category; isSelected: boolean; onPress: (category: Category) => void } & ViewProps>
-) {
-  const { category, isSelected, onPress, style } = props
-  const title = CategoryManager.getTitle(category)
+//#endregion
 
-  return (
-    <Tag
-      {...props}
-      text={category.icon + (title ? ` ${title}` : '')}
-      style={[
-        {
-          opacity: isSelected ? 1 : 0.25,
-        },
-        style,
-      ]}
-      hideIcon
-      onPress={() => onPress(category)}
-    />
-  )
-}
+//#region Header
 
-export function Header(props: Readonly<{ titleKey?: string; descriptionKey?: string }>) {
+export function Header(props: Readonly<{ titleKey?: LocalizationKey; descriptionKey?: LocalizationKey }>) {
   const { titleKey, descriptionKey } = props
 
   return (
     <View style={{ paddingTop: 16, gap: 4 }}>
       {titleKey && (
         <Text id={titleKey} style={FontStyles.Header}>
-          {LocalizationManager.get(titleKey)?.value ?? titleKey}
+          {LocalizationManager.getValue(titleKey)}
         </Text>
       )}
 
       {descriptionKey && (
         <Text id={descriptionKey} style={FontStyles.Subheading}>
-          {LocalizationManager.get(descriptionKey)?.value ?? descriptionKey}
+          {LocalizationManager.getValue(descriptionKey)}
         </Text>
       )}
     </View>
   )
 }
 
-function PackSection(props: Readonly<ViewProps>) {
+//#endregion
+
+//#region PackSection
+
+function PackSection(
+  props: Readonly<
+    ViewProps & { scrollViewRef: RefObject<BottomSheetScrollViewMethods>; textInputRef: RefObject<TextInput> }
+  >
+) {
+  const { scrollViewRef, textInputRef, ...viewProps } = props
   const windowWidth = Dimensions.get('window').width
   const packs = useMemo(() => PackManager.items, [PackManager.items])
   const [packsPerRow, setPacksPerRow] = useState(2)
@@ -224,78 +209,190 @@ function PackSection(props: Readonly<ViewProps>) {
 
   const sortedPacks = useMemo(() => {
     if (isSubscribed || !packs) return packs
-    const packList = [...packs]
 
-    return packList.sort((a, b) => {
-      if (a.is_free === b.is_free) return 0
-      return a.is_free ? -1 : 1
-    })
+    return [...packs]
+      .filter(p => p.availability.isAvailable || p.availability.start?.soon)
+      .sort((a, b) => {
+        if (isSubscribed || a.is_free === b.is_free) return 0
+        return a.is_free ? -1 : 1
+      })
   }, [packs])
 
   if (!packs) return undefined
   return (
-    <View style={{ flexWrap: 'wrap', flexDirection: 'row', gap: 16 }} {...props}>
-      {sortedPacks?.map(pack => (
-        <View key={pack.id}>
-          <PackPosterView width={(windowWidth - 32 - 16 * (packsPerRow - 1)) / packsPerRow} pack={pack} />
-        </View>
-      ))}
+    <>
+      <View style={{ flexWrap: 'wrap', flexDirection: 'row', gap: 16 }} {...viewProps}>
+        {sortedPacks?.map(pack => (
+          <View key={pack.id}>
+            <PackPosterView
+              width={(windowWidth - 32 - 16 * (packsPerRow - 1)) / packsPerRow}
+              pack={pack}
+              onAddPlayersConfirm={() => {
+                scrollViewRef.current?.scrollTo({ y: 0, animated: true })
+                textInputRef.current?.focus()
+              }}
+            />
+          </View>
+        ))}
+      </View>
+
+      <Header titleKey='info' descriptionKey='info_subtitle' />
+
+      <View style={{ gap: 16 }}>
+        <IconInfo
+          icon='checkmark-circle'
+          content={LocalizationManager.getValue('icon_info_selected')}
+          foregroundColor={Colors.yellow.light}
+          backgroundColor={Colors.yellow.dark}
+        />
+
+        <IconInfo
+          icon='people'
+          content={LocalizationManager.getValue('pack_unplayable_msg')}
+          foregroundColor={Colors.orange.light}
+          backgroundColor={Colors.orange.dark}
+        />
+
+        {packs?.some(p => p.availability.end?.soon) && (
+          <IconInfo
+            icon='hourglass'
+            content={LocalizationManager.getValue('leaving_soon_about')}
+            foregroundColor={Colors.yellow.light}
+            backgroundColor={Colors.yellow.dark}
+          />
+        )}
+
+        {packs?.some(p => p.availability.start?.soon) && (
+          <IconInfo
+            icon='hourglass'
+            content={LocalizationManager.getValue('coming_soon_about')}
+            foregroundColor={Colors.blue.light}
+            backgroundColor={Colors.blue.dark}
+          />
+        )}
+
+        {!isSubscribed && (
+          <TouchableOpacity onPress={() => presentPaywall()}>
+            <IconInfo
+              icon='cart'
+              content={LocalizationManager.getValue('icon_info_purchase')}
+              foregroundColor={Colors.green.light}
+              backgroundColor={Colors.green.dark}
+            />
+          </TouchableOpacity>
+        )}
+
+        <IconInfo
+          icon='reload'
+          content={LocalizationManager.getValue('icon_info_restart')}
+          foregroundColor={Colors.yellow.light}
+          backgroundColor={Colors.yellow.dark}
+        />
+      </View>
+    </>
+  )
+}
+
+function IconInfo(
+  props: Readonly<{
+    icon?: keyof typeof Ionicons.glyphMap
+    content: string
+    foregroundColor?: string
+    backgroundColor?: string
+  }>
+) {
+  const { icon, content, foregroundColor = Colors.text, backgroundColor = Colors.secondaryBackground } = props
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+      {icon && <IconTag icon={icon} color={foregroundColor} backgroundColor={backgroundColor} />}
+      <Text style={{ flex: 1, color: Colors.text }}>{content}</Text>
     </View>
   )
 }
 
-function AddPlayerField(props: Readonly<ViewProps>) {
-  const { style } = props
+//#endregion
+
+//#region AddPlayerField
+
+function AddPlayerField(props: Readonly<ViewProps & { textInputRef: React.RefObject<TextInput> }>) {
+  const { textInputRef, style } = props
   const { players } = useAppContext()
+  const playerCount = players.length
   const setContext = useAppDispatchContext()
-  const textInputRef = useRef<TextInput>(null)
 
   const handleAddPlayer = (e: NativeSyntheticEvent<TextInputSubmitEditingEventData>) => {
     e.preventDefault()
-    if (e.nativeEvent.text.trim().length === 0) return
-
     const formattedText = prettifyString(e.nativeEvent.text)
-    if (new Set([...players].map(p => p.name)).has(formattedText)) console.warn('Player already exists')
-    else setContext({ action: 'togglePlayer', payload: { name: formattedText, playCount: 0 } })
+    if (formattedText.length === 0) return
+    setContext({ action: 'addPlayer', payload: formattedText })
     textInputRef.current?.clear()
   }
 
+  const handleClearPlayers = () => setContext({ action: 'clearPlayers' })
+
   return (
-    <Animated.View
-      {...props}
-      style={[
-        {
-          flexDirection: 'row',
-          backgroundColor: Color.hex(Colors.background).alpha(0.5).string,
-          borderWidth: StyleSheet.hairlineWidth,
-          borderColor: Colors.stroke,
-          alignItems: 'center',
-          borderRadius: 12,
-          padding: 8,
-          gap: 4,
-        },
-        style,
-      ]}
-    >
-      <AntDesign name='plus' size={18} color={Colors.secondaryText} />
-      <BottomSheetTextInput
-        ref={textInputRef}
-        placeholder={LocalizationManager.get('add_players')?.value ?? 'add_players'}
-        placeholderTextColor={Colors.secondaryText}
-        returnKeyType='done'
-        enablesReturnKeyAutomatically
-        autoCapitalize='words'
-        autoComplete='off'
-        maxLength={32}
-        inputMode='text'
-        submitBehavior='submit'
-        onSubmitEditing={handleAddPlayer}
-        selectionColor={Colors.accentColor}
-        style={{ flex: 1, fontSize: 18, color: Colors.text }}
-      />
+    <Animated.View layout={LinearTransition} style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+      <View
+        {...props}
+        style={[
+          {
+            flex: 1,
+            flexDirection: 'row',
+            backgroundColor: Color.hex(Colors.background).alpha(0.5).string,
+            borderWidth: StyleSheet.hairlineWidth,
+            borderColor: Colors.stroke,
+            alignItems: 'center',
+            borderRadius: 12,
+            padding: 8,
+            gap: 4,
+          },
+          style,
+        ]}
+      >
+        <AntDesign name='plus' size={18} color={Colors.secondaryText} />
+        <BottomSheetTextInput
+          ref={textInputRef}
+          placeholder={LocalizationManager.getValue('add_players')}
+          placeholderTextColor={Colors.secondaryText}
+          returnKeyType='done'
+          enablesReturnKeyAutomatically
+          autoCapitalize='words'
+          autoComplete='off'
+          maxLength={32}
+          inputMode='text'
+          submitBehavior='submit'
+          onSubmitEditing={handleAddPlayer}
+          selectionColor={Colors.accentColor}
+          style={{ flex: 1, fontSize: 18, color: Colors.text }}
+        />
+      </View>
+
+      {playerCount > 0 && (
+        <Animated.View entering={SlideInRight} exiting={SlideOutRight}>
+          <TouchableOpacity
+            style={{
+              backgroundColor: Colors.yellow.light,
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingVertical: 4,
+              paddingHorizontal: 8,
+              borderRadius: 8,
+            }}
+            onPress={handleClearPlayers}
+          >
+            <Text style={[FontStyles.Button, { color: Colors.yellow.dark }]} numberOfLines={1}>
+              {LocalizationManager.getValue('clear')}
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
+      )}
     </Animated.View>
   )
 }
+
+//#endregion
+
+//#region LinksView
 
 function LinksView(props: Readonly<ViewProps>) {
   const { managementURL, isSubscribed } = useInAppPurchaseContext()
@@ -307,8 +404,8 @@ function LinksView(props: Readonly<ViewProps>) {
     }) ?? undefined
 
   const onShare = async () => {
-    const shareTitle = LocalizationManager.get('app_name')?.value ?? 'app_name'
-    const shareMsg = LocalizationManager.get('share_message')?.value ?? 'share_message'
+    const shareTitle = LocalizationManager.getValue('app_name')
+    const shareMsg = LocalizationManager.getValue('share_message')
     await Share.share(
       {
         title: shareTitle,
@@ -328,7 +425,7 @@ function LinksView(props: Readonly<ViewProps>) {
 
   const settings: {
     show?: boolean
-    titleKey: string
+    titleKey: LocalizationKey
     iconName: keyof typeof Feather.glyphMap
     onPress: () => {}
   }[] = [
@@ -371,7 +468,7 @@ function LinksView(props: Readonly<ViewProps>) {
           >
             <Feather name={setting.iconName} size={18} color={Colors.secondaryText} />
             <Text key={setting.titleKey} style={{ color: Colors.secondaryText, fontWeight: '500' }}>
-              {LocalizationManager.get(setting.titleKey)?.value ?? setting.titleKey}
+              {LocalizationManager.getValue(setting.titleKey)}
             </Text>
           </TouchableOpacity>
         ))}
@@ -379,14 +476,15 @@ function LinksView(props: Readonly<ViewProps>) {
   )
 }
 
+//#endregion
+
+//#region AppDetailsView
+
 function AppDetailsView() {
   const { userId } = useInAppPurchaseContext()
-  const appVersion = Application.nativeApplicationVersion
 
   const iconSize = 48
   const fontSize = 12
-
-  const appName = LocalizationManager.get('app_name')?.value ?? 'app_name'
 
   const handleLongPress = () => {
     if (!userId) return
@@ -399,12 +497,14 @@ function AppDetailsView() {
         source={require('../assets/images/app-icon/icon-ios.png')}
         style={{ width: iconSize, aspectRatio: 1, borderRadius: iconSize / 4.4, marginVertical: 8 }}
       />
-      <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>
-        {appName} v{appVersion}
-      </Text>
+      <Text style={{ color: Colors.secondaryText, fontSize: fontSize }}>v{appVersion}</Text>
     </Pressable>
   )
 }
+
+//#endregion
+
+//#region LanguageSelector
 
 function LanguageSelector() {
   const queryClient = useQueryClient()
@@ -438,3 +538,5 @@ function LanguageSelector() {
     </Picker>
   )
 }
+
+//#endregion

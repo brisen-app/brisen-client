@@ -2,7 +2,13 @@ import { ExpoConfig } from 'expo/config'
 
 let bundleId = 'no.kallerud.brisen'
 let appName = 'Brisen'
-const appVersion = '1.0.1'
+
+export const majorVersion = 1 // Marketing version, requires a new build
+export const minorVersion = 1 // Requires a new build
+export const patchVersion = 0 // Doesn't require a new build
+
+export const appVersion = `${majorVersion}.${minorVersion}.${patchVersion}`
+export const runtimeVersion = `${majorVersion}.${minorVersion}`
 
 const environment = process.env.EXPO_PUBLIC_ENV ?? 'ci'
 if (environment === 'ci') {
@@ -10,8 +16,7 @@ if (environment === 'ci') {
 }
 
 if (environment !== 'production') {
-  if (environment === 'release') appName += `-${appVersion}`
-  else appName += `-${environment}`
+  appName += `-${runtimeVersion}`
   bundleId += `.${environment}`
 }
 
@@ -20,10 +25,10 @@ export default (): ExpoConfig => ({
   slug: 'brisen-client',
   description: "Let's get Brisen together!",
   version: appVersion,
-  runtimeVersion: '4',
+  runtimeVersion: runtimeVersion,
   githubUrl: 'https://github.com/brisen-app/brisen-client',
   orientation: 'portrait',
-  scheme: 'no.kallerud',
+  scheme: appName.toLowerCase(),
   userInterfaceStyle: 'dark',
   assetBundlePatterns: ['**/*'],
   primaryColor: '#f3a000',

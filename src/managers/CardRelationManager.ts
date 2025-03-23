@@ -1,7 +1,7 @@
+import { shuffled } from '@/src/lib/utils'
+import { CycleError } from '@/src/models/Errors'
 import { Tables } from '@/src/models/supabase'
 import SupabaseManager from './SupabaseManager'
-import { CycleError } from '@/src/models/Errors'
-import { shuffled } from '@/src/lib/utils'
 
 const tableName = 'card_dependencies'
 export type CardRelation = { id: string } & Tables<typeof tableName>
@@ -132,6 +132,20 @@ class CardRelationManagerSingleton extends SupabaseManager<CardRelation> {
    */
   getChildren(cardId: string) {
     return this.children.get(cardId) ?? null
+  }
+
+  /**
+   * Retrieves the parents of a card.
+   *
+   * @param cardId - The ID of the card.
+   * @returns A set of IDs representing the parents of the card.
+   */
+  getParents(cardId: string) {
+    return this.parents.get(cardId) ?? new Set()
+  }
+
+  hasDirectPlayedParent(cardId: string, playedIds: Set<string>) {
+    return [...this.getParents(cardId)].some(parent => playedIds.has(parent))
   }
 
   async fetchAll() {

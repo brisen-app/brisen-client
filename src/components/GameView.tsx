@@ -1,6 +1,7 @@
 import Colors from '@/src/constants/Colors'
-import { CardManager, PlayedCard } from '@/src/managers/CardManager'
+import { PlayedCard } from '@/src/managers/CardManager'
 import { LocalizationManager } from '@/src/managers/LocalizationManager'
+import { Ionicons } from '@expo/vector-icons'
 import BottomSheet from '@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import {
@@ -8,6 +9,7 @@ import {
   FlatList,
   Pressable,
   PressableProps,
+  StyleSheet,
   Text,
   TouchableOpacity,
   View,
@@ -16,38 +18,31 @@ import {
 } from 'react-native'
 import { TouchableOpacityProps } from 'react-native-gesture-handler'
 import Animated from 'react-native-reanimated'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { FontStyles } from '../constants/Styles'
-import { useSheetHeight } from '../lib/utils'
+import { useSheetBottomInset } from '../lib/utils'
+import GameManager from '../managers/GameManager'
+import { PackManager } from '../managers/PackManager'
 import { useAppContext, useAppDispatchContext } from '../providers/AppContextProvider'
+import { useInAppPurchaseContext } from '../providers/InAppPurchaseProvider'
 import { CardView } from './card/CardView'
-import ScrollToBottomButton from './utils/ScrollToBottomButton'
+import HoverButtons from './utils/HoverButtons'
 
 export type GameViewProps = {
   bottomSheetRef?: React.RefObject<BottomSheet>
 }
 
-const CARD_PEEK_HEIGHT = 16
-const PADDING = 16
-
 export default function GameView(props: Readonly<GameViewProps>) {
   const { bottomSheetRef } = props
-  const sheetHeight = useSheetHeight()
+  const sheetHeight = useSheetBottomInset()
   const flatListRef = useRef<FlatList>(null)
-  const { playlist, players, playedCards, playedIds, categoryFilter, currentCard } = useAppContext()
+  const c = useAppContext()
+  const { playlist, players, playedCards, currentCard } = c
   const setContext = useAppDispatchContext()
   const [isOutOfCards, setIsOutOfCards] = useState<boolean>(true)
   const [viewableItems, setViewableItems] = useState<ViewToken<PlayedCard>[] | undefined>(undefined)
-  const scrollButtonBottomPosition = sheetHeight - 8
+  const { isSubscribed } = useInAppPurchaseContext()
 
-  const insets = useSafeAreaInsets()
-  const safeArea = {
-    paddingTop: Math.max(PADDING, insets.top),
-    marginLeft: insets.left,
-    marginRight: insets.right,
-  }
-
-  const cardHeight = Dimensions.get('screen').height - sheetHeight - insets.top - PADDING - CARD_PEEK_HEIGHT
+  const screenHeight = Dimensions.get('window').height
 
   const showScrollButton = useCallback(() => {
     if (viewableItems === undefined) return false
@@ -69,7 +64,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
   const addCard = async () => {
     if (playedCards.length === 0 && playlist.length === 0) return
 
-    const newCard = CardManager.drawCard(playedCards, playedIds, playlist, players, new Set(categoryFilter))
+    const newCard = GameManager.drawCard(c)
     if (!newCard) {
       setIsOutOfCards(true)
       return
@@ -101,7 +96,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
     console.debug('Found at index:', currentCardIndex)
     if (currentCardIndex <= 0) return
     flatListRef.current?.scrollToOffset({
-      offset: currentCardIndex * (cardHeight + PADDING),
+      offset: currentCardIndex * screenHeight,
       animated: false,
     })
   }, [])
@@ -113,7 +108,17 @@ export default function GameView(props: Readonly<GameViewProps>) {
 
   // When the playlist or players change
   useEffect(() => {
-    if (isOutOfCards) {
+    setContext({
+      action: 'removePacks',
+      payload: playlist.filter(p => {
+        const pack = PackManager.get(p)
+        if (!pack) return true
+        const playableCardCount = GameManager.getPlayableCards(p, c).size
+        return PackManager.validatePlayability(isSubscribed, pack, playableCardCount).size > 0
+      }),
+    })
+
+    if (isOutOfCards || playedCards.length === 0) {
       addCard()
       return
     }
@@ -121,18 +126,18 @@ export default function GameView(props: Readonly<GameViewProps>) {
     const card = playedCards[playedCards.length - 1]
     setContext({ action: 'removeCachedPlayedCard', payload: card })
     console.log(`Removed card ${playedCards.length}:`, card.formattedContent ?? card.content)
-  }, [playlist.length, players.size])
+  }, [playlist.length, players.length])
 
   const keyExtractor = (item: PlayedCard) => item.id
   const renderItem: ({ item }: { item: PlayedCard }) => React.JSX.Element = useCallback(
-    ({ item }) => <CardView card={item} style={{ height: cardHeight, marginBottom: PADDING }} />,
+    ({ item }) => <CardView card={item} style={{ height: screenHeight }} />,
     []
   )
 
   const getItemLayout = useCallback(
     (_: ArrayLike<PlayedCard> | null | undefined, index: number) => ({
-      length: cardHeight + PADDING,
-      offset: (cardHeight + PADDING) * index,
+      length: screenHeight,
+      offset: screenHeight * index,
       index,
     }),
     []
@@ -142,8 +147,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
     <OutOfCardsView
       onPress={onPressNoCard}
       style={{
-        height: cardHeight,
-        marginBottom: sheetHeight + insets.top + PADDING + CARD_PEEK_HEIGHT,
+        height: screenHeight,
       }}
     />
   )
@@ -158,13 +162,11 @@ export default function GameView(props: Readonly<GameViewProps>) {
         windowSize={3}
         scrollsToTop={false}
         showsVerticalScrollIndicator={false}
-        style={safeArea}
         data={playedCards}
-        decelerationRate={'fast'}
-        snapToInterval={cardHeight + PADDING}
+        pagingEnabled
         disableIntervalMomentum
         keyboardDismissMode='on-drag'
-        onEndReachedThreshold={1.01}
+        onEndReachedThreshold={1}
         onEndReached={addCard}
         onViewableItemsChanged={info => setViewableItems(info.viewableItems)}
         ListFooterComponent={listFooter}
@@ -173,7 +175,15 @@ export default function GameView(props: Readonly<GameViewProps>) {
         renderItem={renderItem}
       />
       {showScrollButton() && (
-        <ScrollToBottomButton onPress={onPressScrollButton} style={{ bottom: scrollButtonBottomPosition }} />
+        <HoverButtons
+          buttons={[
+            {
+              icon: 'chevron-down',
+              onPress: onPressScrollButton,
+              style: { paddingHorizontal: 16, bottom: sheetHeight + 64 },
+            },
+          ]}
+        />
       )}
     </>
   )
@@ -196,7 +206,7 @@ function NoCardsView(props: Readonly<PressableProps & ViewProps>) {
       ]}
     >
       <Text style={{ color: Colors.secondaryText, textAlign: 'center' }}>
-        {LocalizationManager.get('select_pack')?.value ?? 'select_pack'}
+        {LocalizationManager.getValue('select_pack')}
       </Text>
     </Pressable>
   )
@@ -225,7 +235,7 @@ function OutOfCardsView(props: Readonly<TouchableOpacityProps>) {
           color: Colors.secondaryText,
         }}
       >
-        {LocalizationManager.get('out_of_cards')?.value ?? 'out_of_cards'}
+        {LocalizationManager.getValue('out_of_cards')}
       </Text>
       <TouchableOpacity
         disabled={playedCards.length === 0}
@@ -234,19 +244,26 @@ function OutOfCardsView(props: Readonly<TouchableOpacityProps>) {
           setContext({ action: 'restartGame' })
         }}
         style={{
-          backgroundColor: Colors.accentColor,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: Colors.yellow.dark,
+          paddingVertical: 12,
+          paddingHorizontal: 36,
           borderRadius: Number.MAX_SAFE_INTEGER,
+          borderWidth: StyleSheet.hairlineWidth,
+          borderColor: Colors.stroke,
+          gap: 4,
         }}
       >
+        <Ionicons name='reload' size={18} color={Colors.yellow.light} />
         <Text
           style={{
             ...FontStyles.Button,
-            color: Colors.background,
-            paddingVertical: 12,
-            paddingHorizontal: 48,
+            color: Colors.yellow.light,
           }}
         >
-          {LocalizationManager.get('restart_game')?.value ?? 'restart_game'}
+          {LocalizationManager.getValue('restart_game')}
         </Text>
       </TouchableOpacity>
     </View>
