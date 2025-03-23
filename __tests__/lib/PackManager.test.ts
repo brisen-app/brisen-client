@@ -421,7 +421,7 @@ describe('getAvailability', () => {
     })
 
     it('when today is on start_date', () => {
-      const today = new Date('2020-01-01T00:00:00.000+01:00')
+      const today = new Date('2020-01-01')
 
       const result = PackManager.getAvailability({ start_date: toDateString(today), end_date: '2020-02-01' }, today)
 
