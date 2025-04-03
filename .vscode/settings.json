@@ -1,7 +1,7 @@
 {
   "typescript.tsdk": "node_modules/typescript/lib",
   "sonarlint.connectedMode.project": {
-    "connectionId": "sonarqube-kallerud-no",
+    "connectionId": "kallerud.no",
     "projectKey": "brisen-app_brisen-client_26c99873-d531-464d-a9a9-0ea569442bdd"
   },
   "editor.tabSize": 2,
