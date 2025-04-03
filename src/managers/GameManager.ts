@@ -138,7 +138,9 @@ class GameManagerSingleton {
       // Don't draw children from packs that are not in the playlist anymore
       if (!c.playlist.includes(card.pack.id)) continue
 
-      const unplayedChildrenIds = [...CardRelationManager.getChildren(card.id) ?? []].filter(id => !c.playedIds.has(id))
+      const unplayedChildrenIds = [...(CardRelationManager.getChildren(card.id) ?? [])].filter(
+        id => !c.playedIds.has(id)
+      )
       if (!unplayedChildrenIds || unplayedChildrenIds.length === 0) continue
 
       const unplayedChildId = getRandom(unplayedChildrenIds)
