@@ -1,4 +1,4 @@
 {
-    "sonarQubeUri": "https://sonarqube.kallerud.no",
-    "projectKey": "brisen-app_brisen-client_26c99873-d531-464d-a9a9-0ea569442bdd"
+  "sonarQubeUri": "https://sonarqube.kallerud.no",
+  "projectKey": "brisen-app_brisen-client_26c99873-d531-464d-a9a9-0ea569442bdd"
 }
