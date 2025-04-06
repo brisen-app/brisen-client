@@ -196,7 +196,7 @@ function PackSection(
   >
 ) {
   const { scrollViewRef, textInputRef, ...viewProps } = props
-  const windowWidth = Dimensions.get('window').width
+  const windowWidth = Dimensions.get('screen').width
   const packs = useMemo(() => PackManager.items, [PackManager.items])
   const [packsPerRow, setPacksPerRow] = useState(2)
   const { isSubscribed } = useInAppPurchaseContext()

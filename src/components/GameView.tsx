@@ -42,7 +42,7 @@ export default function GameView(props: Readonly<GameViewProps>) {
   const [viewableItems, setViewableItems] = useState<ViewToken<PlayedCard>[] | undefined>(undefined)
   const { isSubscribed } = useInAppPurchaseContext()
 
-  const screenHeight = Dimensions.get('window').height
+  const screenHeight = Dimensions.get('screen').height
 
   const showScrollButton = useCallback(() => {
     if (viewableItems === undefined) return false
