@@ -4,6 +4,7 @@ import GameManager from '@/src/managers/GameManager'
 import { LocalizationManager } from '@/src/managers/LocalizationManager'
 import { Pack, PackManager, UnplayableReason } from '@/src/managers/PackManager'
 import { Ionicons } from '@expo/vector-icons'
+import * as Haptics from 'expo-haptics'
 import { Image } from 'expo-image'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Alert, Platform, Pressable, StyleSheet, Text, View, ViewProps } from 'react-native'
@@ -212,18 +213,22 @@ function getOnPress(
   const setContext = useAppDispatchContext()
 
   if (unplayableReasons.has('subscription')) {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
     return () => presentPaywall()
   }
 
   if (unplayableReasons.has('dateRestriction')) {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
     return () => Alert.alert(localizations.comingSoonTitle, localizations.comingSoonMsg)
   }
 
   if (unplayableReasons.has('cardCount')) {
-    return () =>
+    return () => {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
       Alert.alert(localizations.addMorePlayersTitle, localizations.addMorePlayersMessage, [
         { onPress: onAddPlayersConfirm },
       ])
+    }
   }
 
   return () => setContext({ action: 'togglePack', payload: pack.id })
