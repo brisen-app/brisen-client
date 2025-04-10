@@ -26,7 +26,7 @@ export default function HoverButtons(props: Readonly<HoverButtonsProps>) {
         position: 'absolute',
         marginHorizontal: 16,
         gap: 8,
-        bottom: insets.bottom ?? 16,
+        bottom: insets.bottom + 32,
         right: insets.right,
       }}
       entering={FadeInRight.duration(150).easing(Easing.out(Easing.quad))}

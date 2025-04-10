@@ -1,5 +1,6 @@
 import { Card, CardManager, PlayedCard } from '@/src/managers/CardManager'
 import { CardRelation, CardRelationManager } from '@/src/managers/CardRelationManager'
+import { Configuration, ConfigurationManager } from '@/src/managers/ConfigurationManager'
 import GameManager from '@/src/managers/GameManager'
 import { Pack, PackManager } from '@/src/managers/PackManager'
 import { Player } from '@/src/models/Player'
@@ -161,7 +162,6 @@ beforeEach(() => {
   PackManager['set'](Object.values(MockedPacks))
   CardRelationManager['_items'] = undefined
   CardRelationManager['set'](Object.values(MockedCardRelations))
-  jest.clearAllMocks()
 })
 
 //#region getPlayableCards
@@ -364,6 +364,40 @@ describe('drawCard', () => {
     const result = GameManager.drawCard(context)
 
     expect(result?.id).toBe(MockedCards.Card_4_no_category.id)
+  })
+
+  it('should never return a played child card', () => {
+    const playedCards = [
+      { ...MockedCards.Card_1, order: 'next', pack: MockedPacks.Pack_with_1_and_3 } as PlayedCard,
+      { ...MockedCards.Card_2, order: 'next', pack: MockedPacks.Pack_with_2 } as PlayedCard,
+      { ...MockedCards.Card_3, order: 'next', pack: MockedPacks.Pack_with_1_and_3 } as PlayedCard,
+    ]
+
+    const playlist = [MockedPacks.Pack_with_1_and_3.id, MockedPacks.Pack_with_2.id]
+
+    const context = {
+      ...MockedContext,
+      playlist,
+      playedCards,
+      playedIds: new Set(playedCards.map(c => c.id)),
+    } satisfies AppContextType
+
+    ConfigurationManager['set']([
+      {
+        id: 'max_unclosed_card_age',
+        data_type: 'number',
+        number: 0,
+      } as Configuration,
+      {
+        id: 'max_simultaneous_open_cards',
+        data_type: 'number',
+        number: Number.MAX_SAFE_INTEGER,
+      } as Configuration,
+    ])
+
+    const result = GameManager.drawCard(context)
+
+    expect(result).toBeUndefined()
   })
 })
 

@@ -16,6 +16,7 @@ import {
 import { Picker } from '@react-native-picker/picker'
 import { useQueryClient } from '@tanstack/react-query'
 import * as Device from 'expo-device'
+import * as Haptics from 'expo-haptics'
 import { Image } from 'expo-image'
 import { openSettings, openURL } from 'expo-linking'
 import { RefObject, useEffect, useMemo, useRef, useState } from 'react'
@@ -196,7 +197,7 @@ function PackSection(
   >
 ) {
   const { scrollViewRef, textInputRef, ...viewProps } = props
-  const windowWidth = Dimensions.get('window').width
+  const windowWidth = Dimensions.get('screen').width
   const packs = useMemo(() => PackManager.items, [PackManager.items])
   const [packsPerRow, setPacksPerRow] = useState(2)
   const { isSubscribed } = useInAppPurchaseContext()
@@ -323,12 +324,19 @@ function AddPlayerField(props: Readonly<ViewProps & { textInputRef: React.RefObj
   const handleAddPlayer = (e: NativeSyntheticEvent<TextInputSubmitEditingEventData>) => {
     e.preventDefault()
     const formattedText = prettifyString(e.nativeEvent.text)
-    if (formattedText.length === 0) return
+    if (formattedText.length === 0) {
+      textInputRef.current?.clear()
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning)
+      return
+    }
     setContext({ action: 'addPlayer', payload: formattedText })
     textInputRef.current?.clear()
   }
 
-  const handleClearPlayers = () => setContext({ action: 'clearPlayers' })
+  const handleClearPlayers = () => {
+    Haptics.selectionAsync()
+    setContext({ action: 'clearPlayers' })
+  }
 
   return (
     <Animated.View layout={LinearTransition} style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
