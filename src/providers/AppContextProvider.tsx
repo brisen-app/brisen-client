@@ -127,7 +127,7 @@ export function contextReducer(state: AppContextType, action: AppContextAction):
       }
 
     case 'restartGame': {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
       const players = state.players.map(player => ({ ...player, playCount: 0 }))
       return { ...state, players: players, playlist: [], playedCards: [], playedIds: new Set(), currentCard: undefined }
     }
