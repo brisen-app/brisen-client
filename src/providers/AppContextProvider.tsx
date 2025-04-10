@@ -2,6 +2,7 @@ import { PlayedCard } from '@/src/managers/CardManager'
 import { Category } from '@/src/managers/CategoryManager'
 import { Player } from '@/src/models/Player'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import * as Haptics from 'expo-haptics'
 import React, { createContext, Dispatch, ReactNode, useContext, useEffect, useReducer } from 'react'
 import { Alert, AppState } from 'react-native'
 import { Serializable } from '../lib/utils'
@@ -72,8 +73,10 @@ export function contextReducer(state: AppContextType, action: AppContextAction):
   const { action: type, payload } = action
 
   switch (type) {
-    case 'togglePack':
+    case 'togglePack': {
+      Haptics.selectionAsync()
       return { ...state, playlist: toggleList(state.playlist, payload) }
+    }
 
     case 'removePacks':
       return { ...state, playlist: state.playlist.filter(id => !payload.includes(id)) }
@@ -85,10 +88,12 @@ export function contextReducer(state: AppContextType, action: AppContextAction):
         const playerExistsTitle = LocalizationManager.getValue('player_exists_title')
         const playerExistsMessage = LocalizationManager.getValue('player_exists_msg')
         Alert.alert(playerExistsTitle, playerExistsMessage)
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
         console.warn(`Player ${payload} already exists`)
         return state
       }
 
+      Haptics.selectionAsync()
       return { ...state, players: [...state.players, { name: payload, playCount: lowestPlayCount }] }
     }
 
@@ -101,8 +106,10 @@ export function contextReducer(state: AppContextType, action: AppContextAction):
     case 'incrementPlayCounts':
       return { ...state, players: incrementPlayCounts(payload, state) }
 
-    case 'toggleCategory':
+    case 'toggleCategory': {
+      Haptics.selectionAsync()
       return { ...state, categoryFilter: toggleList(state.categoryFilter, payload.id) }
+    }
 
     case 'addPlayedCard':
       return {
@@ -120,6 +127,7 @@ export function contextReducer(state: AppContextType, action: AppContextAction):
       }
 
     case 'restartGame': {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
       const players = state.players.map(player => ({ ...player, playCount: 0 }))
       return { ...state, players: players, playlist: [], playedCards: [], playedIds: new Set(), currentCard: undefined }
     }
