@@ -18,4 +18,4 @@ eas-build-all:develop:
   - all:
       - base-branch: 'main'
       - changed-files:
-          - any-glob-to-any-file: ['app.config.ts', 'eas.json', 'src/assets/**/*']
+          - any-glob-to-any-file: ['eas.json', 'src/assets/**/*']
