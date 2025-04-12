@@ -135,18 +135,12 @@ class GameManagerSingleton {
     for (let i = 0; i < c.playedCards.length; i++) {
       const card = c.playedCards[i]
 
-      // Don't draw children from packs that are not in the playlist anymore
-      if (!c.playlist.includes(card.pack.id)) continue
-
-      const unplayedChildrenIds = Array.from(CardRelationManager.getChildren(card.id) ?? []).filter(
-        id => !c.playedIds.has(id)
-      )
+      const unplayedChildrenIds = Array.from(CardRelationManager.getChildren(card.id) ?? [])
+        .map(CardManager.get)
+        .filter(child => child && !c.playedIds.has(child.id) && this.isCandidate(child, c)) as Card[]
       if (unplayedChildrenIds.length === 0) continue
 
-      const unplayedChildId = getRandom(unplayedChildrenIds)
-      if (!unplayedChildId) continue
-
-      const unplayedChild = CardManager.get(unplayedChildId)
+      const unplayedChild = getRandom(unplayedChildrenIds)
       if (!unplayedChild) continue
 
       unplayedChildren.set(c.playedCards.length - i, unplayedChild)
@@ -154,10 +148,9 @@ class GameManagerSingleton {
 
     const chance = getRandomPercent() * maxAge
     for (const [age, child] of unplayedChildren) {
-      if (age > 3 && age > chance) {
-        console.log(`Drawing closing card ${child.id} with age ${age}`)
-        return child
-      }
+      if (age < chance) continue
+      console.log(`Drawing closing card ${child.id} with age ${age}`)
+      return child
     }
 
     if (unplayedChildren.size >= maxSimultanousOpenCards) {
