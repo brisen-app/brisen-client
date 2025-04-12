@@ -16,7 +16,7 @@ if (environment === 'ci') {
 }
 
 if (environment !== 'production') {
-  appName += `-${runtimeVersion}`
+  appName += `-${runtimeVersion} (${environment})`
   bundleId += `.${environment}`
 }
 
