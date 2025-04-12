@@ -74,12 +74,6 @@ export default function GameView(props: Readonly<GameViewProps>) {
       action: 'incrementPlayCounts',
       payload: newCard.featuredPlayers,
     })
-
-    console.log(
-      `Added card ${playedCards.length + 1}:`,
-      (newCard.featuredPlayers.length && !newCard.is_group ? newCard.players[0].name + ', ' : '') +
-        (newCard.formattedContent ?? newCard.content)
-    )
   }
 
   useEffect(() => {
