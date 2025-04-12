@@ -54,11 +54,8 @@ export default function GameView(props: Readonly<GameViewProps>) {
   const onPressNoCard = () => bottomSheetRef?.current?.snapToIndex(1)
 
   const onPressScrollButton = () => {
-    if (isOutOfCards) {
-      flatListRef.current?.scrollToEnd({ animated: true })
-    } else {
-      flatListRef.current?.scrollToIndex({ index: Math.max(0, playedCards.length - 2), animated: true })
-    }
+    if (isOutOfCards) flatListRef.current?.scrollToEnd({ animated: true })
+    else flatListRef.current?.scrollToIndex({ index: Math.max(0, playedCards.length - 2), animated: true })
   }
 
   const addCard = async () => {
@@ -86,7 +83,10 @@ export default function GameView(props: Readonly<GameViewProps>) {
   }
 
   useEffect(() => {
-    if (!currentCard) return
+    if (!currentCard) {
+      flatListRef.current?.scrollToEnd({ animated: false })
+      return
+    }
     const currentCardIndex = playedCards.findIndex(c => c.id === currentCard)
     console.debug('Scrolling to card:', currentCard)
     console.debug(
