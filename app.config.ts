@@ -23,7 +23,7 @@ if (environment !== 'production') {
 
 export default (): ExpoConfig => ({
   name: appDisplayName,
-  slug: appName.toLowerCase(),
+  slug: 'brisen-client',
   description: "Let's get Brisen together!",
   version: appVersion,
   runtimeVersion: runtimeVersion,
