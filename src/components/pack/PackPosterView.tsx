@@ -213,13 +213,17 @@ function getOnPress(
   const setContext = useAppDispatchContext()
 
   if (unplayableReasons.has('subscription')) {
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-    return () => presentPaywall()
+    return () => {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+      presentPaywall()
+    }
   }
 
   if (unplayableReasons.has('dateRestriction')) {
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
-    return () => Alert.alert(localizations.comingSoonTitle, localizations.comingSoonMsg)
+    return () => {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+      Alert.alert(localizations.comingSoonTitle, localizations.comingSoonMsg)
+    }
   }
 
   if (unplayableReasons.has('cardCount')) {
