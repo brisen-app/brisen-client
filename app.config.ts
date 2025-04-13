@@ -2,6 +2,7 @@ import { ExpoConfig } from 'expo/config'
 
 let bundleId = 'no.kallerud.brisen'
 let appName = 'Brisen'
+let appDisplayName = appName
 
 export const majorVersion = 1 // Marketing version, requires a new build
 export const minorVersion = 1 // Requires a new build
@@ -16,12 +17,12 @@ if (environment === 'ci') {
 }
 
 if (environment !== 'production') {
-  appName += `-${runtimeVersion}`
+  appDisplayName += `-${runtimeVersion} (${environment})`
   bundleId += `.${environment}`
 }
 
 export default (): ExpoConfig => ({
-  name: appName,
+  name: appDisplayName,
   slug: 'brisen-client',
   description: "Let's get Brisen together!",
   version: appVersion,
