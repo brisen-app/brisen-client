@@ -16,7 +16,6 @@ import {
   ViewProps,
   ViewToken,
 } from 'react-native'
-import { TouchableOpacityProps } from 'react-native-gesture-handler'
 import Animated from 'react-native-reanimated'
 import { FontStyles } from '../constants/Styles'
 import { useSheetBottomInset } from '../lib/utils'
@@ -206,7 +205,7 @@ function NoCardsView(props: Readonly<PressableProps & ViewProps>) {
   )
 }
 
-function OutOfCardsView(props: Readonly<TouchableOpacityProps>) {
+function OutOfCardsView(props: Readonly<PressableProps & ViewProps>) {
   const { onPress, style } = props
   const { playedCards } = useAppContext()
   const setContext = useAppDispatchContext()
@@ -233,8 +232,8 @@ function OutOfCardsView(props: Readonly<TouchableOpacityProps>) {
       </Text>
       <TouchableOpacity
         disabled={playedCards.length === 0}
-        onPress={() => {
-          onPress?.()
+        onPress={event => {
+          onPress?.(event)
           setContext({ action: 'restartGame' })
         }}
         style={{
