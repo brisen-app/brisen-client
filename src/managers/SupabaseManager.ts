@@ -60,7 +60,7 @@ export default abstract class SupabaseManager<T extends SupabaseItem> {
   }
 
   protected push(item: T) {
-    if (!this._items) this._items = new Map()
+    this._items ??= new Map()
     this._items.set(item.id, item)
   }
 
