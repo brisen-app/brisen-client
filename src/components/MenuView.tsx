@@ -193,7 +193,10 @@ export function Header(props: Readonly<{ titleKey?: LocalizationKey; description
 
 function PackSection(
   props: Readonly<
-    ViewProps & { scrollViewRef: RefObject<BottomSheetScrollViewMethods>; textInputRef: RefObject<TextInput> }
+    ViewProps & {
+      scrollViewRef: RefObject<BottomSheetScrollViewMethods | null>
+      textInputRef: RefObject<TextInput | null>
+    }
   >
 ) {
   const { scrollViewRef, textInputRef, ...viewProps } = props
@@ -212,7 +215,7 @@ function PackSection(
     if (isSubscribed || !packs) return packs
 
     return [...packs]
-      .filter(p => p.availability.isAvailable || p.availability.start?.soon)
+      .filter(p => p.availability.isAvailable || p.availability.start?.soon === true)
       .sort((a, b) => {
         if (isSubscribed || a.is_free === b.is_free) return 0
         return a.is_free ? -1 : 1
@@ -315,7 +318,7 @@ function IconInfo(
 
 //#region AddPlayerField
 
-function AddPlayerField(props: Readonly<ViewProps & { textInputRef: React.RefObject<TextInput> }>) {
+function AddPlayerField(props: Readonly<ViewProps & { textInputRef: RefObject<TextInput | null> }>) {
   const { textInputRef, style } = props
   const { players } = useAppContext()
   const playerCount = players.length
@@ -351,7 +354,8 @@ function AddPlayerField(props: Readonly<ViewProps & { textInputRef: React.RefObj
             borderColor: Colors.stroke,
             alignItems: 'center',
             borderRadius: 12,
-            padding: 8,
+            paddingVertical: Platform.OS === 'android' ? 0 : 8,
+            paddingHorizontal: 8,
             gap: 4,
           },
           style,
@@ -441,7 +445,7 @@ function LinksView(props: Readonly<ViewProps>) {
       show: !!managementURL && isSubscribed,
       titleKey: 'manage_subscriptions',
       iconName: 'arrow-up-right',
-      onPress: () => openURL(managementURL!),
+      onPress: () => !!managementURL && openURL(managementURL),
     },
     {
       show: Platform.OS === 'ios',

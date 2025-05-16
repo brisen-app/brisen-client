@@ -66,6 +66,7 @@ export default (): ExpoConfig => ({
   },
   android: {
     package: bundleId,
+    edgeToEdgeEnabled: true,
     adaptiveIcon: {
       foregroundImage: './src/assets/images/app-icon/icon-android-foreground.png',
       monochromeImage: './src/assets/images/app-icon/icon-android-adaptive.png',

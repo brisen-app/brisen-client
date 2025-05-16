@@ -29,14 +29,14 @@ export default function Layout() {
   useEffect(() => {
     if (loadingNavBar) {
       setNavigationBarConfig()
-        .catch(e => console.warn(e))
+        .catch(console.warn)
         .finally(() => setLoadingNavBar(false))
     }
   }, [])
 
   if (loadingNavBar) return null
 
-  SplashScreen.hideAsync().catch(e => console.warn(e))
+  SplashScreen.hideAsync().catch(console.warn)
 
   return (
     <GestureHandlerRootView>
@@ -44,7 +44,7 @@ export default function Layout() {
         <AppContextProvider>
           <AppDataProvider>
             <InAppPurchaseProvider>
-              <StatusBar style='auto' translucent backgroundColor={Color.transparent.string} />
+              <StatusBar style='auto' translucent />
               <Stack
                 screenOptions={{
                   headerShown: false,
