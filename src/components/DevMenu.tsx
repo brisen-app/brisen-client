@@ -57,7 +57,9 @@ export default function DevMenu() {
         <Text style={[{ paddingBottom: 8 }, FontStyles.Title]}>AsyncStorage</Text>
         {storage === undefined && <ActivityIndicator />}
         {storage === null && <Text style={{ color: Colors.secondaryText }}>Not read</Text>}
-        {storage?.map(([key, value]) => <InfoRow key={key} title={key} value={value ?? 'None'} />)}
+        {storage?.map(([key, value]) => (
+          <InfoRow key={key} title={key} value={value ?? 'None'} />
+        ))}
       </>
       <Text style={[{ paddingBottom: 8 }, FontStyles.Title]}>Tools</Text>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
