@@ -62,11 +62,9 @@
    - `feature/<feature-name>`
    - `bugfix/<bug-name>`
 1. Start the development server
-
    - Run `npm start`
 
    If you install a build from the [Expo cloud](https://expo.dev/accounts/brisen/projects/brisen-client/development-builds), you can connect your phone to the development server. If not, start the app on a simulator:
-
    - Android: `npm run android`
    - iOS: `npm run ios` (MacOS only)
 
