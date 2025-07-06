@@ -27,7 +27,7 @@ import { CardView } from './card/CardView'
 import HoverButtons from './utils/HoverButtons'
 
 export type GameViewProps = {
-  bottomSheetRef?: React.RefObject<BottomSheet>
+  bottomSheetRef?: React.RefObject<BottomSheet | null>
 }
 
 export default function GameView(props: Readonly<GameViewProps>) {

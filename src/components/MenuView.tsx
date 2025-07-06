@@ -530,6 +530,8 @@ function LanguageSelector() {
     queryClient.invalidateQueries()
   }
 
+  if (languages.length < 2) return null
+
   return (
     <Picker
       dropdownIconColor={Colors.accentColor}
